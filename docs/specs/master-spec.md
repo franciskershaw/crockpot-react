@@ -86,12 +86,13 @@ rules here that would drift from it.
 - **Images**: Cloudinary upload widget, client-side direct upload
   (matches the old app and `crockpot-go`'s "API never proxies image
   bytes" decision).
-- **Auth client implementation mirrors `packing-list-react`** (its
-  `src/lib/http/client.ts` plus the `src/features/auth/` modules —
-  `AuthContext`, `RequireAuth`, `useLogout`) — decided at CFE-002's
-  grill (2026-08-26). That project
-  already solved this exact `crockpot-go`-shaped token model: in-memory
-  access token, `POST /auth/refresh` on load and on any 401 (retry once),
+- **Auth client implementation mirrors `packing-list-react`** — its
+  `src/lib/api/{client,tokenStore}.ts` and `src/features/auth/`
+  (`AuthContext`, `RequireAuth`, `useLogout`); lands in crockpot as
+  `src/lib/http/{client,tokenStore}.ts` plus the same auth modules.
+  Decided at CFE-002's grill (2026-08-26). That project already solved
+  this exact `crockpot-go`-shaped token model: in-memory access token,
+  `POST /auth/refresh` on load and on any 401 (retry once),
   a singleton `refreshPromise` so concurrent 401s collapse to one
   refresh, session state as a single `useQuery(["auth","session"])`.
   Rejected: a dev-only Vite proxy to dodge CORS — the frontend hits
@@ -146,7 +147,9 @@ Agreed direction:
 - **CFE-002 / CFE-002a** mirror `packing-list-react` closely
   (`src/lib/api/{client,tokenStore}.ts`,
   `src/features/auth/{api,AuthContext,RequireAuth,useLogout}`,
-  `src/app/{App,AppRoutes}.tsx`). Known deltas: `User` carries `image`
+  `src/app/{App,AppRoutes}.tsx`). Known deltas: the transport lands at
+  `src/lib/http/` in crockpot, not `src/lib/api/`, and was already
+  ported in CFE-001 (see its handoff); `User` carries `image`
   (not `avatarUrl`) + `role`; `DEFAULT_AUTHENTICATED_ROUTE = "/menu"`
   (bare stub — the tabbed "Your Crockpot" shell is CFE-006);
   `/auth/callback` maps `?error=` to a `sonner` toast on `/`; the

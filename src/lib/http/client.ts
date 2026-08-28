@@ -43,13 +43,14 @@ export async function apiFetch<T>(
   hasRetried = false,
 ): Promise<T> {
   const token = getAccessToken();
+  const headers = new Headers(options.headers);
+  if (token) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     credentials: "include",
-    headers: {
-      ...options.headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
   });
 
   if (res.status === 401 && !hasRetried) {

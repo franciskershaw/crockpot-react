@@ -1,14 +1,20 @@
 import { BrowserRouter } from "react-router-dom";
 
 import { Toaster } from "../components/ui/sonner";
+import { AuthProvider } from "../features/auth/AuthContext";
+import TanstackQueryProvider from "../lib/Tanstack/TanstackQueryProvider";
 import { AppRoutes } from "./AppRoutes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-      <Toaster />
-    </BrowserRouter>
+    <TanstackQueryProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster />
+        </BrowserRouter>
+      </AuthProvider>
+    </TanstackQueryProvider>
   );
 }
 

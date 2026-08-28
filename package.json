@@ -55,7 +55,7 @@
       "prettier --write",
       "oxlint --fix"
     ],
-    "*.{json,css,md}": [
+    "*.{json,css}": [
       "prettier --write"
     ]
   }

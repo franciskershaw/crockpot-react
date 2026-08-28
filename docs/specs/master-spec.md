@@ -87,8 +87,9 @@ rules here that would drift from it.
   (matches the old app and `crockpot-go`'s "API never proxies image
   bytes" decision).
 - **Auth client implementation mirrors `packing-list-react`** (its
-  `src/lib/api/client.ts` + `src/features/auth/{AuthContext,RequireAuth,
-  useLogout}`) — decided at CFE-002's grill (2026-08-26). That project
+  `src/lib/http/client.ts` plus the `src/features/auth/` modules —
+  `AuthContext`, `RequireAuth`, `useLogout`) — decided at CFE-002's
+  grill (2026-08-26). That project
   already solved this exact `crockpot-go`-shaped token model: in-memory
   access token, `POST /auth/refresh` on load and on any 401 (retry once),
   a singleton `refreshPromise` so concurrent 401s collapse to one
@@ -161,17 +162,16 @@ Agreed direction:
   auth CTAs fire the Google redirect.
 
 ### Epic 1: Foundations
-- **CFE-001** — Project scaffold: Vite + React + TS, Tailwind v4,
-  shadcn/ui init (`stone` base, no dark mode), `src/{app,components/ui,
-  features,lib,assets}` layout mirroring `packing-list-react`, router
-  shell, API client base (`VITE_API_URL` fetch wrapper with
-  `credentials: "include"`), TanStack Query provider, tooling wired up
-  (Prettier/oxlint-a11y/husky/Vitest), React Compiler on. **Vercel
-  deferred** — no deployed API to point at yet; revisit when
-  `crockpot-go` deploys.
+- **CFE-001** — Project scaffold. **Done** (2026-08-28). See
+  `docs/handoffs/CFE-001.md` for what shipped and its deltas from the
+  plan. Vercel deferred until `crockpot-go` deploys.
 - **CFE-002** — API client + token store (fetch wrapper with in-memory
   access token + 401→refresh→retry). Direction in "Round 1" above; own
-  grill pending.
+  grill pending. Note: the `src/lib/http/` transport (`client.ts`,
+  `tokenStore.ts`, `client.test.ts`) and the `useApiQuery` /
+  `useApiMutation` TanStack wrappers were already ported during CFE-001,
+  so this ticket is auth wiring + verifying that client against a real
+  `crockpot-go`, not building it from scratch.
 - **CFE-002a** — Auth session/guard: `AuthContext`, `RequireAuth`,
   `/auth/callback`, Google login, empty protected `/menu`, `useLogout`.
   Direction in "Round 1" above; own grill pending.

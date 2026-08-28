@@ -3,3 +3,8 @@ dist
 dist-ssr
 coverage
 package-lock.json
+
+# Markdown docs are hand-wrapped prose — Prettier's rewrapping breaks
+# list-item continuation lines (column-0 dedent inside code spans), which
+# in turn breaks Markdown preview rendering. Author these by hand.
+*.md

@@ -2,8 +2,8 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-sans: "Newsreader", Georgia, "Times New Roman", serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-sans: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
 }
 
 :root {

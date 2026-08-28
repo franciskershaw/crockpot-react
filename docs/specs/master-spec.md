@@ -93,11 +93,11 @@ rules here that would drift from it.
   text/footer, tan surfaces, plus decorative `--accent-rust` /
   `--accent-gold`. **Light mode only** — no dark screenshots exist and
   `sonner` was stripped of theme wiring in CFE-001; revisit only if a
-  dark design appears. Fonts: **Fraunces** (display) + **Newsreader**
-  (body) via a Google Fonts `<link>`, as `--font-display` / `--font-sans`
-  — a display-serif + body-serif pair, no UI-sans font. Rejected
-  self-hosting via `@fontsource` (deps + wiring for no gain pre-launch);
-  revisit at the Astro migration or when perf becomes real.
+  dark design appears. Fonts: **Newsreader** (serif, display) +
+  **Karla** (sans, body) via a Google Fonts `<link>`, as
+  `--font-display` / `--font-sans`. Rejected self-hosting via
+  `@fontsource` (deps + wiring for no gain pre-launch); revisit at the
+  Astro migration or when perf becomes real.
 - **Auth client implementation mirrors `packing-list-react`** — its
   `src/lib/api/{client,tokenStore}.ts` and `src/features/auth/`
   (`AuthContext`, `RequireAuth`, `useLogout`); lands in crockpot as
@@ -164,7 +164,7 @@ page) is what remains — grilled 2026-08-28, `docs/handoffs/CFE-003.md`.
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page (per `screenshots/landing page/`), plus the
-  colour palette and Fraunces + Newsreader fonts as tokens. **Pulled
+  colour palette and Newsreader + Karla fonts as tokens. **Pulled
   into Round 1** so the log-in milestone lands on a finished entry point.
   **Grilled 2026-08-28**, `docs/handoffs/CFE-003.md`; Claude-implemented,
   founder-supervised. Also adds a public `/recipes` "coming soon" stub

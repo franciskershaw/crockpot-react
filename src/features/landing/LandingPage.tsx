@@ -1,6 +1,7 @@
 import { MobileTabBar } from "@/components/nav/MobileTabBar";
 import { SiteHeader } from "@/components/nav/SiteHeader";
 
+import { Hero } from "./Hero";
 import { LandingFooter } from "./LandingFooter";
 
 export function LandingPage() {
@@ -9,7 +10,7 @@ export function LandingPage() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Hero — step 4 */}
+        <Hero />
         {/* How it works — step 5 */}
         {/* Planner tease — step 5 */}
         {/* Pricing — step 6 */}

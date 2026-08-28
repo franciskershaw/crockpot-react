@@ -1,6 +1,6 @@
 # CFE-002a — Auth session, guard, and Google login
 
-Grilled 2026-08-28. Not implemented yet. Absorbs CFE-002 (the HTTP
+Grilled 2026-08-28. Completed 2026-08-28. Absorbs CFE-002 (the HTTP
 transport it needed — `client.ts` + `tokenStore.ts` — shipped in
 CFE-001, so CFE-002 as a standalone ticket is folded in here).
 

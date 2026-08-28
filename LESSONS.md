@@ -33,3 +33,25 @@ decision as fully closed. No code written yet.
 - Prettier was rewrapping the hand-wrapped Markdown docs and breaking
   list rendering in preview; added `*.md` to `.prettierignore`.
 - **Pattern**: none.
+
+## 2026-08-28 — CFE-002a — Auth session/guard/Google login. Clean code; friction was test-wrapper + dev data.
+
+- Code went in smoothly, one commit per roadmap unit, test-first. Two
+  small self-inflicted snags:
+  - `useLogout` hook test failed first run — `gcTime: 0` copied from
+    `renderWithProviders` into the `renderHook` wrapper GC'd the
+    directly-seeded session cache before the assertion (`undefined` vs
+    `null`). `renderWithProviders` gets away with it because its tests
+    mount real query observers; a hook test that seeds cache with no
+    observer must not.
+  - `types.ts` shipped `name: string` when the handoff's own `User`
+    decision said `string | null`; caught at test-writing, one-line fix.
+- The interactive round-trip "failure" (~1h across both repos) was not a
+  code bug: a stale password-user row for the founder's own email in the
+  Neon dev DB (from testing `crockpot-go`'s `/auth/register`) tripped
+  `GetOrCreateUser`'s deliberate `ErrEmailRegisteredWithPassword` guard.
+  `DELETE FROM users` fixed it.
+- **Pattern**: when a live OAuth/identity flow fails *after* consent,
+  check the dev DB's user table for a conflicting row before suspecting
+  code or provider config — especially when the same email is used to
+  exercise the paired backend's other auth paths.

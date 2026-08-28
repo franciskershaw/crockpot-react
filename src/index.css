@@ -2,35 +2,36 @@
 @import "tw-animate-css";
 
 @theme {
-  --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: var(--font-sans);
+  --font-sans: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 }
 
 :root {
   --radius: 0.625rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.147 0.004 49.25);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.147 0.004 49.25);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.147 0.004 49.25);
-  --primary: oklch(0.216 0.006 56.043);
-  --primary-foreground: oklch(0.985 0.001 106.423);
-  --secondary: oklch(0.97 0.001 106.424);
-  --secondary-foreground: oklch(0.216 0.006 56.043);
-  --muted: oklch(0.97 0.001 106.424);
-  --muted-foreground: oklch(0.553 0.013 58.071);
-  --accent: oklch(0.97 0.001 106.424);
-  --accent-foreground: oklch(0.216 0.006 56.043);
+  --background: oklch(0.977 0.0114 84.58);
+  --foreground: oklch(0.2451 0.0103 80.61);
+  --card: oklch(0.9917 0.0085 84.57);
+  --card-foreground: oklch(0.2451 0.0103 80.61);
+  --popover: oklch(0.9917 0.0085 84.57);
+  --popover-foreground: oklch(0.2451 0.0103 80.61);
+  --primary: oklch(0.4344 0.0699 137.28);
+  --primary-foreground: oklch(0.977 0.0114 84.58);
+  --secondary: oklch(0.9198 0.0198 87.52);
+  --secondary-foreground: oklch(0.2451 0.0103 80.61);
+  --muted: oklch(0.9198 0.0198 87.52);
+  --muted-foreground: oklch(0.5025 0.0265 84.55);
+  --accent: oklch(0.9198 0.0198 87.52);
+  --accent-foreground: oklch(0.2451 0.0103 80.61);
+  --accent-rust: oklch(0.5786 0.1485 40.62);
+  --accent-gold: oklch(0.8353 0.1164 88.54);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
   --success-foreground: oklch(0.985 0.001 106.423);
-  --border: oklch(0.923 0.003 48.717);
-  --input: oklch(0.923 0.003 48.717);
-  --ring: oklch(0.709 0.01 56.259);
+  --border: oklch(0.873 0.036 85.41);
+  --input: oklch(0.873 0.036 85.41);
+  --ring: oklch(0.4344 0.0699 137.28);
 }
 
 @theme inline {
@@ -48,6 +49,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-rust: var(--accent-rust);
+  --color-accent-gold: var(--accent-gold);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

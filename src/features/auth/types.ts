@@ -3,7 +3,7 @@ export type UserRole = "FREE" | "PREMIUM" | "PRO" | "ADMIN";
 export interface User {
   id: string;
   email: string;
-  name: string;
+  name: string | null;
   image: string | null;
   role: UserRole;
 }

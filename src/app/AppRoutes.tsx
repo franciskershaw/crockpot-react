@@ -1,7 +1,7 @@
 import { AuthCallback } from "@/features/auth/AuthCallback";
 import { useAuth } from "@/features/auth/AuthContext";
 import { RequireAuth } from "@/features/auth/RequireAuth";
-import { SignInPlaceholder } from "@/features/auth/SignInPlaceholder";
+import { LandingPage } from "@/features/landing/LandingPage";
 import { MenuScreen } from "@/features/menu/MenuScreen";
 import { RecipesComingSoon } from "@/features/recipes/RecipesComingSoon";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -18,7 +18,7 @@ export function AppRoutes() {
           isLoading ? null : isAuthenticated ? (
             <Navigate to={DEFAULT_AUTHENTICATED_ROUTE} replace />
           ) : (
-            <SignInPlaceholder />
+            <LandingPage />
           )
         }
       />

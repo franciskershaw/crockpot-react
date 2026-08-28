@@ -129,60 +129,34 @@ Goal: land on `/`, click "Continue with Google", complete consent, get
 redirected to a protected `/menu` page showing the `/me` identity, and
 log back out. Google-only (email/password → CFE-002b).
 
-Sequence: `crockpot-go` CROC-009a → CFE-001 → CFE-002 → CFE-002a →
-CFE-003. CROC-009a must merge before CFE-002a's live verification.
+Sequence: `crockpot-go` CROC-009a → CFE-001 → CFE-002a → CFE-003.
+CROC-009a, CFE-001, and CFE-002a are **Done**; **CFE-003** (landing
+page) is what remains and gets its own `grill-me` before implementation.
 
-**Only CFE-001 is fully worked out** (`docs/handoffs/CFE-001.md`) — it's
-being hand-implemented first. CFE-002 / CFE-002a / CFE-003 each get their
-own `grill-me` before implementation (hand-written or Claude-implemented,
-decided per ticket). The bullets below are the agreed *direction* from
-2026-08-26, not a finished trade-off pass — treat open questions as still
-open.
-
-Agreed direction:
-- **CROC-009a** (`crockpot-go`, `docs/handoffs/CROC-009a.md`): straight
-  single-origin port of `packing-list-go/internal/middleware/cors.go`.
-  A claim-check this session found `crockpot-go` never built CORS, and
-  the frontend's cross-origin `/auth/refresh` + `/me` calls need it.
-- **CFE-002 / CFE-002a** mirror `packing-list-react` closely
-  (`src/lib/api/{client,tokenStore}.ts`,
-  `src/features/auth/{api,AuthContext,RequireAuth,useLogout}`,
-  `src/app/{App,AppRoutes}.tsx`). Known deltas: the transport lands at
-  `src/lib/http/` in crockpot, not `src/lib/api/`, and was already
-  ported in CFE-001 (see its handoff); `User` carries `image`
-  (not `avatarUrl`) + `role`; `DEFAULT_AUTHENTICATED_ROUTE = "/menu"`
-  (bare stub — the tabbed "Your Crockpot" shell is CFE-006);
-  `/auth/callback` maps `?error=` to a `sonner` toast on `/`; the
-  401-retry login/register exclusion (`crockpot-go` `CROC-006.md:104`)
-  is deferred to CFE-002b. Direct cross-origin calls, no Vite proxy.
-- **CFE-002a `/menu` stub**: name/email/role + logout button, no
-  `AppShell` — the verification surface, not a real screen.
-- **CFE-003 landing** (`screenshots/landing page/`, all 5 PNGs), pulled
-  into this round: Fraunces + Newsreader as the font starting point;
-  palette lands here; `189` hardcoded; hero recipe cards are gray
-  placeholders; a `/recipes` "coming soon" stub absorbs the
-  browse/planner nav targets; "continue with email instead" omitted;
-  auth CTAs fire the Google redirect.
+CFE-003 direction (agreed 2026-08-26, not a finished trade-off pass —
+treat open questions as still open): landing page per
+`screenshots/landing page/` (all 5 PNGs); Fraunces + Newsreader as the
+font starting point; palette lands here; `189` hardcoded; hero recipe
+cards are gray placeholders; a `/recipes` "coming soon" stub absorbs the
+browse/planner nav targets; "continue with email instead" omitted; auth
+CTAs fire the Google redirect.
 
 ### Epic 1: Foundations
 - **CFE-001** — Project scaffold. **Done** (2026-08-28). See
   `docs/handoffs/CFE-001.md` for what shipped and its deltas from the
   plan. Vercel deferred until `crockpot-go` deploys.
-- **CFE-002** — API client + token store (fetch wrapper with in-memory
-  access token + 401→refresh→retry). Direction in "Round 1" above; own
-  grill pending. Note: the `src/lib/http/` transport (`client.ts`,
-  `tokenStore.ts`, `client.test.ts`) and the `useApiQuery` /
-  `useApiMutation` TanStack wrappers were already ported during CFE-001,
-  so this ticket is auth wiring + verifying that client against a real
-  `crockpot-go`, not building it from scratch.
-- **CFE-002a** — Auth session/guard: `AuthContext`, `RequireAuth`,
-  `/auth/callback`, Google login, empty protected `/menu`, `useLogout`.
-  Direction in "Round 1" above; own grill pending.
+- **CFE-002** — Folded into CFE-002a; the transport (`client.ts` +
+  `tokenStore.ts`) shipped in CFE-001.
+- **CFE-002a** — Auth session, guard, Google login. **Done**
+  (2026-08-28). See `docs/handoffs/CFE-002a.md`.
 - **CFE-002b** — Email/password suite (register + 6-digit OTP confirm +
   resend, login, forgot, reset-from-`?token=`). Deferred out of Round 1,
-  needs its own grill and its own screenshots. Must also add the
+  needs its own grill and its own screenshots. Must also: add the
   login/register/forgot exclusion to `apiFetch`'s 401-retry (flagged at
-  `crockpot-go` `CROC-006.md:104`).
+  `crockpot-go` `CROC-006.md:104`); fill `getAuthErrorMessage`'s
+  per-code map, including a real `email_registered_with_password`
+  message — its "unreachable in Round 1" assumption ends once password
+  registration ships, so weigh account-enumeration disclosure then.
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page (per `screenshots/landing page/`). **Pulled

@@ -86,6 +86,27 @@ rules here that would drift from it.
 - **Images**: Cloudinary upload widget, client-side direct upload
   (matches the old app and `crockpot-go`'s "API never proxies image
   bytes" decision).
+- **Auth client implementation mirrors `packing-list-react`** — its
+  `src/lib/api/{client,tokenStore}.ts` and `src/features/auth/`
+  (`AuthContext`, `RequireAuth`, `useLogout`); lands in crockpot as
+  `src/lib/http/{client,tokenStore}.ts` plus the same auth modules.
+  Decided at CFE-002's grill (2026-08-26). That project already solved
+  this exact `crockpot-go`-shaped token model: in-memory access token,
+  `POST /auth/refresh` on load and on any 401 (retry once),
+  a singleton `refreshPromise` so concurrent 401s collapse to one
+  refresh, session state as a single `useQuery(["auth","session"])`.
+  Rejected: a dev-only Vite proxy to dodge CORS — the frontend hits
+  `VITE_API_URL` cross-origin directly so dev and prod behave
+  identically (prod has no serverless proxy by the framework decision
+  above), and `crockpot-go` gets a real CORS middleware (CROC-009a)
+  either way. Revisit the whole pattern only if the Astro migration
+  happens (SSR changes where the session is resolved).
+- **Google sign-in ships before email/password** — decided at CFE-002's
+  grill. Google alone satisfies the end-to-end log-in milestone; the
+  password suite is 5 screens with ~12 API error codes and no design
+  screenshots, so it earns its own ticket (CFE-002b) and grill. Not a
+  statement that password auth is lower priority — just that it is a
+  separable unit.
 
 ## Tooling (reused from `packing-list-react` as-is)
 
@@ -102,18 +123,72 @@ Sequenced to unblock on `crockpot-go` roughly in the order its own epics
 land, but the exact interleaving is a planning call for each ticket's own
 `grill-me`, not fixed here.
 
+### Round 1: log-in milestone
+
+Goal: land on `/`, click "Continue with Google", complete consent, get
+redirected to a protected `/menu` page showing the `/me` identity, and
+log back out. Google-only (email/password → CFE-002b).
+
+Sequence: `crockpot-go` CROC-009a → CFE-001 → CFE-002 → CFE-002a →
+CFE-003. CROC-009a must merge before CFE-002a's live verification.
+
+**Only CFE-001 is fully worked out** (`docs/handoffs/CFE-001.md`) — it's
+being hand-implemented first. CFE-002 / CFE-002a / CFE-003 each get their
+own `grill-me` before implementation (hand-written or Claude-implemented,
+decided per ticket). The bullets below are the agreed *direction* from
+2026-08-26, not a finished trade-off pass — treat open questions as still
+open.
+
+Agreed direction:
+- **CROC-009a** (`crockpot-go`, `docs/handoffs/CROC-009a.md`): straight
+  single-origin port of `packing-list-go/internal/middleware/cors.go`.
+  A claim-check this session found `crockpot-go` never built CORS, and
+  the frontend's cross-origin `/auth/refresh` + `/me` calls need it.
+- **CFE-002 / CFE-002a** mirror `packing-list-react` closely
+  (`src/lib/api/{client,tokenStore}.ts`,
+  `src/features/auth/{api,AuthContext,RequireAuth,useLogout}`,
+  `src/app/{App,AppRoutes}.tsx`). Known deltas: the transport lands at
+  `src/lib/http/` in crockpot, not `src/lib/api/`, and was already
+  ported in CFE-001 (see its handoff); `User` carries `image`
+  (not `avatarUrl`) + `role`; `DEFAULT_AUTHENTICATED_ROUTE = "/menu"`
+  (bare stub — the tabbed "Your Crockpot" shell is CFE-006);
+  `/auth/callback` maps `?error=` to a `sonner` toast on `/`; the
+  401-retry login/register exclusion (`crockpot-go` `CROC-006.md:104`)
+  is deferred to CFE-002b. Direct cross-origin calls, no Vite proxy.
+- **CFE-002a `/menu` stub**: name/email/role + logout button, no
+  `AppShell` — the verification surface, not a real screen.
+- **CFE-003 landing** (`screenshots/landing page/`, all 5 PNGs), pulled
+  into this round: Fraunces + Newsreader as the font starting point;
+  palette lands here; `189` hardcoded; hero recipe cards are gray
+  placeholders; a `/recipes` "coming soon" stub absorbs the
+  browse/planner nav targets; "continue with email instead" omitted;
+  auth CTAs fire the Google redirect.
+
 ### Epic 1: Foundations
-- **CFE-001** — Project scaffold: Vite + React + TS, Tailwind, shadcn/ui
-  init, router shell, API client base (fetch wrapper with base URL +
-  credentials), TanStack Query provider, tooling from above wired up
-  (Prettier/oxlint/husky/Vitest), Vercel project connected.
-- **CFE-002** — Auth: Google OAuth redirect flow, email/password
-  register/confirm/login/forgot/reset forms, access-token-in-memory +
-  refresh-on-load, route guarding for authenticated pages, `/me` fetch on
-  boot to restore session.
+- **CFE-001** — Project scaffold. **Done** (2026-08-28). See
+  `docs/handoffs/CFE-001.md` for what shipped and its deltas from the
+  plan. Vercel deferred until `crockpot-go` deploys.
+- **CFE-002** — API client + token store (fetch wrapper with in-memory
+  access token + 401→refresh→retry). Direction in "Round 1" above; own
+  grill pending. Note: the `src/lib/http/` transport (`client.ts`,
+  `tokenStore.ts`, `client.test.ts`) and the `useApiQuery` /
+  `useApiMutation` TanStack wrappers were already ported during CFE-001,
+  so this ticket is auth wiring + verifying that client against a real
+  `crockpot-go`, not building it from scratch.
+- **CFE-002a** — Auth session/guard: `AuthContext`, `RequireAuth`,
+  `/auth/callback`, Google login, empty protected `/menu`, `useLogout`.
+  Direction in "Round 1" above; own grill pending.
+- **CFE-002b** — Email/password suite (register + 6-digit OTP confirm +
+  resend, login, forgot, reset-from-`?token=`). Deferred out of Round 1,
+  needs its own grill and its own screenshots. Must also add the
+  login/register/forgot exclusion to `apiFetch`'s 401-retry (flagged at
+  `crockpot-go` `CROC-006.md:104`).
 
 ### Epic 2: Recipe Browsing
-- **CFE-003** — Landing page (per `screenshots/landing page/`).
+- **CFE-003** — Landing page (per `screenshots/landing page/`). **Pulled
+  into Round 1** so the log-in milestone lands on a finished entry point.
+  Also adds a minimal `/recipes` "coming soon" stub (browse/planner nav
+  targets route here until CFE-004).
 - **CFE-004** — Browse/search page: filters (cooking time range,
   categories include/exclude, ingredient search), recipe card grid,
   favourite toggle.

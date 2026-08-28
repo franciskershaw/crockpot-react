@@ -22,3 +22,14 @@ quietly foreclose the option later. Lesson: for a framework choice with a
 real, boundable migration cost either direction, it's worth designing the
 "cheap to change later" constraint into the spec rather than treating the
 decision as fully closed. No code written yet.
+
+## 2026-08-28 — CFE-001 — Project scaffold. Clean ticket.
+
+- No rework. Founder hand-implemented and went a little past the ticket
+  (http client + TanStack wrappers ported early from CFE-002) plus a few
+  deliberate naming/dependency calls — all captured in
+  `docs/handoffs/CFE-001.md`'s "Deltas from the plan" section, since none
+  was a mistake or a reusable pattern.
+- Prettier was rewrapping the hand-wrapped Markdown docs and breaking
+  list rendering in preview; added `*.md` to `.prettierignore`.
+- **Pattern**: none.

@@ -5,6 +5,7 @@ import { Hero } from "./Hero";
 import { HowItWorks } from "./HowItWorks";
 import { LandingFooter } from "./LandingFooter";
 import { PlannerTease } from "./PlannerTease";
+import { Pricing } from "./Pricing";
 
 export function LandingPage() {
   return (
@@ -15,7 +16,7 @@ export function LandingPage() {
         <Hero />
         <HowItWorks />
         <PlannerTease />
-        {/* Pricing — step 6 */}
+        <Pricing />
       </main>
 
       <LandingFooter />

@@ -9,7 +9,7 @@ import { HARD_SHADOW } from "./styles";
 
 export function Hero() {
   return (
-    <section className="mx-auto grid max-w-6xl gap-12 px-6 py-12 md:py-20 lg:grid-cols-2 lg:items-center lg:gap-16">
+    <section className="mx-auto grid max-w-7xl gap-12 px-6 py-12 md:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16">
       <div className="space-y-6">
         <p className="inline-block rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
           <span className="hidden sm:inline">
@@ -18,7 +18,7 @@ export function Hero() {
           <span className="sm:hidden">189 recipes · free forever</span>
         </p>
 
-        <h1 className="font-display text-[33px] font-medium leading-[1.1] sm:text-[74px] sm:leading-[1.05]">
+        <h1 className="font-display text-[33px] font-medium leading-[1.1] text-balance sm:text-[74px] sm:leading-[1.05]">
           Never write a shopping list again.
         </h1>
 
@@ -27,7 +27,7 @@ export function Hero() {
           across them and hands you one tidy list, sorted by aisle.
         </p>
 
-        <div className="space-y-4">
+        <div className="max-w-md space-y-4">
           <Button
             asChild
             className={`h-12 w-full text-base font-semibold [&_svg]:size-5 ${HARD_SHADOW}`}
@@ -55,7 +55,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="lg:relative lg:h-[420px]">
+      <div className="lg:relative lg:h-[500px]">
         <div className="hidden lg:block">
           <RecipeCardPlaceholder
             meta="30 mins · serves 4"
@@ -63,11 +63,11 @@ export function Hero() {
           />
           <RecipeCardPlaceholder
             meta="40 mins · serves 2"
-            className="absolute right-0 top-10 rotate-3"
+            className="absolute right-0 top-12 rotate-3"
           />
           <RecipeCardPlaceholder
             meta="320 mins · serves 12"
-            className="absolute bottom-0 left-1/4 -rotate-2"
+            className="absolute bottom-0 left-16 -rotate-2"
           />
         </div>
         <RecipeCardPlaceholder

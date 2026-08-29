@@ -9,7 +9,7 @@ import { HARD_SHADOW } from "./styles";
 
 export function Hero() {
   return (
-    <section className="mx-auto grid max-w-7xl gap-12 px-6 py-12 md:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16">
+    <section className="mx-auto grid max-w-7xl gap-12 px-6 pt-8 md:pt-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16">
       <div className="space-y-6">
         <p className="inline-block rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
           <span className="hidden sm:inline">

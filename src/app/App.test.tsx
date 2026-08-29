@@ -17,10 +17,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test("renders the sign-in placeholder once the session resolves unauthenticated", async () => {
+test("renders the landing page once the session resolves unauthenticated", async () => {
   render(<App />);
 
-  expect(
-    await screen.findByRole("button", { name: /continue with google/i }),
-  ).toBeInTheDocument();
+  // The landing page's <header> is the banner landmark; neither the old
+  // placeholder nor the /menu screen renders one.
+  expect(await screen.findByRole("banner")).toBeInTheDocument();
 });

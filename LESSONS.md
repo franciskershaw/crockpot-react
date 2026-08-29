@@ -55,3 +55,24 @@ decision as fully closed. No code written yet.
   check the dev DB's user table for a conflicting row before suspecting
   code or provider config — especially when the same email is used to
   exercise the paired backend's other auth paths.
+
+## 2026-08-29 — CFE-003 — Landing page + palette + fonts. Good outcome; two grill misses cost rework.
+
+- Palette went in clean because the grill got exact hex from Claude
+  Design (the tool that made the mockups). Fonts didn't — the grill
+  eyeballed Fraunces + Newsreader off the screenshots; the real pairing
+  was Newsreader (serif) + Karla (sans), corrected mid-build with docs
+  churn. Also: my Google Fonts `css2` URL was malformed (invalid
+  multi-tuple), 400'd silently, and a stale cache masked it.
+- The grill asserted "the old app's nav is a different component" without
+  opening it. It wasn't — one auth-branched `Navbar` / `BottomMobileNav`
+  — so the nav components were rebuilt as shared (`components/nav/`)
+  after the founder caught it.
+- Deliberate divergences from the mockup, all recorded in the handoff:
+  mobile "Three steps" carousel (shadcn/Embla, manual), no Pro card
+  (`crockpot-go` spec: PRO unmarketed), recipe cluster beside pricing.
+- **Pattern**: for a design-tool-generated mockup, pull the
+  machine-readable specs (fonts, palette, spacing) from the tool up
+  front — don't reverse-engineer from screenshots. And in a grill,
+  don't assert "the old app does X" without opening the file — that's
+  the claim-check the process already asks for.

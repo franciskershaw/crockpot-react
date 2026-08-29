@@ -86,6 +86,18 @@ rules here that would drift from it.
 - **Images**: Cloudinary upload widget, client-side direct upload
   (matches the old app and `crockpot-go`'s "API never proxies image
   bytes" decision).
+- **Palette + fonts land in CFE-003** (`docs/handoffs/CFE-003.md`),
+  consumed by every screen after. Palette: Claude Design's own output
+  for the reskin, mapped onto the existing shadcn `--color-*` tokens in
+  `src/index.css` — warm cream background, sage-green primary, charcoal
+  text/footer, tan surfaces, plus decorative `--accent-rust` /
+  `--accent-gold`. **Light mode only** — no dark screenshots exist and
+  `sonner` was stripped of theme wiring in CFE-001; revisit only if a
+  dark design appears. Fonts: **Newsreader** (serif, display) +
+  **Karla** (sans, body) via a Google Fonts `<link>`, as
+  `--font-display` / `--font-sans`. Rejected self-hosting via
+  `@fontsource` (deps + wiring for no gain pre-launch); revisit at the
+  Astro migration or when perf becomes real.
 - **Auth client implementation mirrors `packing-list-react`** — its
   `src/lib/api/{client,tokenStore}.ts` and `src/features/auth/`
   (`AuthContext`, `RequireAuth`, `useLogout`); lands in crockpot as
@@ -123,23 +135,12 @@ Sequenced to unblock on `crockpot-go` roughly in the order its own epics
 land, but the exact interleaving is a planning call for each ticket's own
 `grill-me`, not fixed here.
 
-### Round 1: log-in milestone
+### Round 1: log-in milestone — **Done** (2026-08-29)
 
-Goal: land on `/`, click "Continue with Google", complete consent, get
-redirected to a protected `/menu` page showing the `/me` identity, and
-log back out. Google-only (email/password → CFE-002b).
-
-Sequence: `crockpot-go` CROC-009a → CFE-001 → CFE-002a → CFE-003.
-CROC-009a, CFE-001, and CFE-002a are **Done**; **CFE-003** (landing
-page) is what remains and gets its own `grill-me` before implementation.
-
-CFE-003 direction (agreed 2026-08-26, not a finished trade-off pass —
-treat open questions as still open): landing page per
-`screenshots/landing page/` (all 5 PNGs); Fraunces + Newsreader as the
-font starting point; palette lands here; `189` hardcoded; hero recipe
-cards are gray placeholders; a `/recipes` "coming soon" stub absorbs the
-browse/planner nav targets; "continue with email instead" omitted; auth
-CTAs fire the Google redirect.
+Land on `/`, "Continue with Google", consent, redirect to a protected
+`/menu` showing the `/me` identity, log back out. Google-only
+(email/password → CFE-002b). Shipped as CROC-009a → CFE-001 → CFE-002a →
+CFE-003.
 
 ### Epic 1: Foundations
 - **CFE-001** — Project scaffold. **Done** (2026-08-28). See
@@ -159,10 +160,13 @@ CTAs fire the Google redirect.
   registration ships, so weigh account-enumeration disclosure then.
 
 ### Epic 2: Recipe Browsing
-- **CFE-003** — Landing page (per `screenshots/landing page/`). **Pulled
-  into Round 1** so the log-in milestone lands on a finished entry point.
-  Also adds a minimal `/recipes` "coming soon" stub (browse/planner nav
-  targets route here until CFE-004).
+- **CFE-003** — Landing page, plus the colour palette and Newsreader +
+  Karla fonts as tokens, and a public `/recipes` "coming soon" stub.
+  **Done** (2026-08-29). See `docs/handoffs/CFE-003.md` for the palette
+  token map, the font decision, and the deltas from the mockup (mobile
+  "Three steps" carousel, no Pro pricing card, recipe cluster beside
+  pricing). Palette + fonts are summarised under "Key architecture
+  decisions" above.
 - **CFE-004** — Browse/search page: filters (cooking time range,
   categories include/exclude, ingredient search), recipe card grid,
   favourite toggle.

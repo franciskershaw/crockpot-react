@@ -55,24 +55,18 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="lg:relative lg:h-[500px]">
-        <div className="hidden lg:block">
-          <RecipeCardPlaceholder
-            meta="30 mins · serves 4"
-            className="absolute left-0 top-0 -rotate-3"
-          />
-          <RecipeCardPlaceholder
-            meta="40 mins · serves 2"
-            className="absolute right-0 top-12 rotate-3"
-          />
-          <RecipeCardPlaceholder
-            meta="320 mins · serves 12"
-            className="absolute bottom-0 left-16 -rotate-2"
-          />
-        </div>
+      <div className="hidden lg:relative lg:block lg:h-[500px]">
+        <RecipeCardPlaceholder
+          meta="30 mins · serves 4"
+          className="absolute left-0 top-0 -rotate-3"
+        />
+        <RecipeCardPlaceholder
+          meta="40 mins · serves 2"
+          className="absolute right-0 top-12 rotate-3"
+        />
         <RecipeCardPlaceholder
           meta="320 mins · serves 12"
-          className="mx-auto w-full max-w-sm lg:hidden"
+          className="absolute bottom-0 left-16 -rotate-2"
         />
       </div>
     </section>

@@ -205,3 +205,20 @@ CFE-003.
 - **CFE-014** — Recipe approval action, admin-only (no full admin panel —
   matches backend non-goal; likely just an affordance on the recipe
   detail/my-recipes views, not a separate dashboard).
+
+### Deferred: Default Items
+
+*Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a
+priority epic yet. Numbered out of physical order deliberately: this
+sits conceptually in Epic 3 (Your Crockpot — Core, alongside `CFE-009`'s
+shopping list), but the founder wants it addressed only once the core
+epics have shipped, not inserted into the current build order. Grill
+properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
+- **CFE-015** — UI for "default items": some way to save/manage a
+  personal set of items (e.g. toilet paper, eggs, milk) not tied to any
+  recipe, and a "restock" gesture that adds some or all of them to the
+  current shopping list in bulk — distinct from `CFE-009`'s existing
+  one-off `add-extra`. Exact surface (a settings page, an inline
+  section on the shopping list screen, something else) is undecided —
+  open for the grill, alongside `crockpot-go` `CROC-038`'s data-shape
+  questions.

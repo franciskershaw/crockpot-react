@@ -1,9 +1,0 @@
-# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
-version: 2
-reviews:
-  pre_merge_checks:
-    # This repo follows a deliberate "no doc comments unless the constraint
-    # isn't visible in the code" convention. Docstring coverage is not a
-    # signal we want to gate on.
-    docstrings:
-      mode: "off"

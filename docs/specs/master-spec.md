@@ -119,16 +119,21 @@ rules here that would drift from it.
   screenshots, so it earns its own ticket (CFE-002b) and grill. Not a
   statement that password auth is lower priority — just that it is a
   separable unit.
-- **Shared authenticated `AppShell`** (header nav + mobile tab bar) lands
-  at CFE-004 (`docs/handoffs/CFE-004.md`), not CFE-006 as CFE-003
-  originally flagged — CFE-004 turned out to be the first ticket needing
-  it to match its design. Deliberately minimal: nav links + avatar/
-  logout only, no cart/shopping-list badge (needs CFE-009's data). Wraps
-  every `RequireAuth` route going forward; anonymous visitors keep the
-  logged-out `SiteHeader`/`MobileTabBar`. Filter state for list pages
-  (first used by CFE-004's browse filters) lives in the URL via
-  `useSearchParams`, not localStorage — shareable/bookmarkable, and the
-  query string doubles as the TanStack Query cache key.
+- **One shared `AppShell`, mounted on every route** — lands at CFE-004
+  (`docs/handoffs/CFE-004.md`), not CFE-006 as CFE-003 originally
+  flagged. `SiteHeader`/`MobileTabBar` branch internally on
+  `useAuth().isAuthenticated` (a fixed nav per auth state, identical on
+  every route — logged out: Recipes/How it works/Pricing/Sign in;
+  logged in: Browse recipes/Your Crockpot/Add a recipe/avatar+logout).
+  Matches the old `crockpot` app's actual pattern (one `Navbar` + one
+  `BottomMobileNav`, mounted once in its root layout, each branching on
+  session state) — an early draft of this ticket built a *second*,
+  separate authenticated-only shell instead and was corrected once
+  checked against that precedent. No cart/shopping-list badge yet
+  (needs CFE-009's data). Filter state for list pages (first used by
+  CFE-004's browse filters) lives in the URL via `useSearchParams`, not
+  localStorage — shareable/bookmarkable, and the query string doubles as
+  the TanStack Query cache key.
 
 ## Tooling (reused from `packing-list-react` as-is)
 

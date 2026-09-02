@@ -119,6 +119,16 @@ rules here that would drift from it.
   screenshots, so it earns its own ticket (CFE-002b) and grill. Not a
   statement that password auth is lower priority — just that it is a
   separable unit.
+- **Shared authenticated `AppShell`** (header nav + mobile tab bar) lands
+  at CFE-004 (`docs/handoffs/CFE-004.md`), not CFE-006 as CFE-003
+  originally flagged — CFE-004 turned out to be the first ticket needing
+  it to match its design. Deliberately minimal: nav links + avatar/
+  logout only, no cart/shopping-list badge (needs CFE-009's data). Wraps
+  every `RequireAuth` route going forward; anonymous visitors keep the
+  logged-out `SiteHeader`/`MobileTabBar`. Filter state for list pages
+  (first used by CFE-004's browse filters) lives in the URL via
+  `useSearchParams`, not localStorage — shareable/bookmarkable, and the
+  query string doubles as the TanStack Query cache key.
 
 ## Tooling (reused from `packing-list-react` as-is)
 
@@ -169,7 +179,9 @@ CFE-003.
   decisions" above.
 - **CFE-004** — Browse/search page: filters (cooking time range,
   categories include/exclude, ingredient search), recipe card grid,
-  favourite toggle.
+  favourite toggle. Also lands the shared `AppShell` (see above). Grilled
+  2026-09-02, see `docs/handoffs/CFE-004.md`. Blocked in part on
+  `crockpot-go` `CROC-043` (time-range bounds endpoint, new).
 - **CFE-005** — Recipe detail page: ingredients with serves adjuster,
   instructions, notes, favourite/edit/delete/add-to-menu actions
   (edit/delete only for the owner or admin).

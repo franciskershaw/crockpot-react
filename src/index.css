@@ -25,6 +25,9 @@
   --accent-foreground: oklch(0.2451 0.0103 80.61);
   --accent-rust: oklch(0.5786 0.1485 40.62);
   --accent-gold: oklch(0.8353 0.1164 88.54);
+  --ink-secondary: #4a443a;
+  --chip: #efe7d6;
+  --card-shadow: #ede4d2;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -51,6 +54,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-rust: var(--accent-rust);
   --color-accent-gold: var(--accent-gold);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-chip: var(--chip);
+  --color-card-shadow: var(--card-shadow);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

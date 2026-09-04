@@ -57,4 +57,9 @@ self-verify visual work.
 
 - `docs/specs/master-spec.md` — living spec + ticket backlog
 - `docs/handoffs/CFE-NNN.md` — one per ticket
+- `docs/findings/YYYY-MM-DD-tech-debt.md` — dated tech-debt/production-
+  readiness findings docs, one per audit pass (mirrors `crockpot-go`'s
+  `docs/findings/` convention). Started 2026-09-04, ahead of the first
+  full whole-codebase pass — see `~/.claude/CLAUDE.md`'s periodic-passes
+  rule and the `tech-debt` skill.
 - `LESSONS.md` — retro log, reviewed each kickoff/grill-me

@@ -8,7 +8,8 @@ import { recipeKeys } from "./queryKeys";
 import type { RecipeCard, RecipeListResponse } from "./types";
 import { useToggleFavourite } from "./useToggleFavourite";
 
-vi.mock("./api", () => ({
+vi.mock("./api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./api")>()),
   addFavourite: vi.fn(),
   removeFavourite: vi.fn(),
 }));

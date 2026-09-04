@@ -7,7 +7,8 @@ import { listRecipes } from "./api";
 import type { RecipeListResponse } from "./types";
 import { useRecipeList } from "./useRecipeList";
 
-vi.mock("./api", () => ({
+vi.mock("./api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("./api")>()),
   listRecipes: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
@@ -70,5 +71,33 @@ describe("useRecipeList", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.hasNextPage).toBe(false);
+  });
+
+  it("keeps the previous page's data visible while a new filter is loading", async () => {
+    mockListRecipes.mockResolvedValueOnce(
+      response({ page: 1, totalPages: 1, total: 42 }),
+    );
+
+    const { result, rerender } = renderHook(
+      ({ params }) => useRecipeList(params),
+      { wrapper: wrapper(), initialProps: { params: {} } },
+    );
+
+    await waitFor(() => expect(result.current.data?.pages[0].total).toBe(42));
+
+    let resolveNext: (v: RecipeListResponse) => void;
+    mockListRecipes.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveNext = resolve;
+      }),
+    );
+
+    rerender({ params: { q: "chicken" } });
+
+    expect(result.current.data?.pages[0].total).toBe(42);
+    expect(result.current.isPlaceholderData).toBe(true);
+
+    resolveNext!(response({ page: 1, totalPages: 1, total: 7 }));
+    await waitFor(() => expect(result.current.data?.pages[0].total).toBe(7));
   });
 });

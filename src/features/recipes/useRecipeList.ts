@@ -1,4 +1,5 @@
 import { useApiInfiniteQuery } from "@/lib/Tanstack/useApiInfiniteQuery";
+import { keepPreviousData } from "@tanstack/react-query";
 
 import { listRecipes } from "./api";
 import { recipeKeys } from "./queryKeys";
@@ -11,5 +12,6 @@ export function useRecipeList(params: RecipeListParams) {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    placeholderData: keepPreviousData,
   });
 }

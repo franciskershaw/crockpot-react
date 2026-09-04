@@ -53,6 +53,19 @@ developer runs `npm run dev` (and `crockpot-go` locally) and checks
 rendered UI themselves — don't start, poll, or drive a dev server to
 self-verify visual work.
 
+**Before writing markup for any visually-significant component not
+already covered by an exact token spec** (new screen, new filter/form
+UI, anything beyond a copy or logic tweak to existing styled markup):
+stop and ask the developer for a Claude-Design spec dump (fonts,
+weights, sizes, exact hex colors, spacing, shadow/border construction)
+rather than proceeding from a screenshot's layout plus judgment calls.
+Screenshots ground layout and content; they are not precise enough for
+pixel-level styling, and guessing at it from them has repeatedly
+produced visible mismatches later corrected by hand (recipe card
+typography and shadow construction, then the entire filter/search
+system — both CFE-004, 2026-09-04). Getting the spec dump first is
+cheaper than a rebuild after the fact.
+
 ## Docs
 
 - `docs/specs/master-spec.md` — living spec + ticket backlog

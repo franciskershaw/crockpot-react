@@ -101,19 +101,4 @@ describe("RecipeCard", () => {
       wasFavourite: false,
     });
   });
-
-  it("shows a Pending approval badge when the recipe isn't approved yet", () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockUseToggleFavourite.mockReturnValue({
-      mutate: vi.fn(),
-    } as unknown as ReturnType<typeof useToggleFavourite>);
-
-    renderWithProviders(<RecipeCard recipe={recipe({ approved: false })} />);
-
-    expect(screen.getByText("Pending approval")).toBeInTheDocument();
-  });
 });

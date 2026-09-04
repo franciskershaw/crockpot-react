@@ -33,7 +33,7 @@ describe("SiteHeader", () => {
 
     renderWithProviders(<SiteHeader />);
 
-    expect(screen.getByText("Recipes")).toBeInTheDocument();
+    expect(screen.getByText("Browse recipes")).toBeInTheDocument();
     expect(screen.getByText("How it works")).toBeInTheDocument();
     expect(screen.getByText("Pricing")).toBeInTheDocument();
     expect(screen.queryByText("Your Crockpot")).not.toBeInTheDocument();

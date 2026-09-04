@@ -64,7 +64,7 @@ export function BrowseRecipesPage() {
 
   return (
     <>
-      <div className="sticky top-16 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
           <div className="hidden items-center gap-4 py-3 md:flex">
             <div className="flex shrink-0 items-center gap-3">
@@ -95,7 +95,7 @@ export function BrowseRecipesPage() {
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
-                className="flex shrink-0 items-center gap-2 rounded-[8px] border border-border bg-card px-[9px] py-1.5 text-[13px] leading-none font-bold text-ink-secondary"
+                className="flex shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-2.25 py-1.5 text-[13px] leading-none font-bold text-ink-secondary"
               >
                 <SlidersHorizontal strokeWidth={2} className="size-3.5" />
                 Filters ({activeFilterCount})
@@ -106,18 +106,18 @@ export function BrowseRecipesPage() {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-7xl px-6 py-8">
+      <div className="mx-auto w-full max-w-7xl px-6 py-2">
         <div className="grid grid-cols-1 gap-7 md:grid-cols-[316px_1fr]">
-          {/* top-[168px]/192px = site header (64px) + this sticky bar (71px) + this container's own py-8 top padding (32px); keep in sync if those change */}
-          <aside className="sticky top-[168px] hidden max-h-[calc(100vh-192px)] flex-col overflow-hidden rounded-[10px] border border-border bg-card md:flex">
-            <div className="shrink-0 p-[22px] pb-0">
+          {/* top-[143px]/159px = site header (65px) + sticky title bar (70px) + this container's own py-2 top padding (8px), matching the recipe grid's own top edge; keep in sync if those change */}
+          <aside className="sticky top-35.75 hidden max-h-[calc(100vh-159px)] flex-col overflow-hidden rounded-[10px] border border-border bg-card md:flex">
+            <div className="shrink-0 p-5.5 pb-0">
               <FilterPanelHeader
                 activeFilterCount={activeFilterCount}
                 onClearAll={clearAll}
               />
               <div className="my-3 h-px bg-card-shadow" />
             </div>
-            <div className="flex-1 overflow-y-auto p-[22px] pt-0">
+            <div className="flex-1 overflow-y-auto p-5.5 pt-0">
               <FilterPanel {...filterPanelProps} />
             </div>
           </aside>

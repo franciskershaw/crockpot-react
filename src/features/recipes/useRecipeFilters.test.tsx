@@ -52,7 +52,7 @@ describe("useRecipeFilters", () => {
     expect(result.current.params.q).toBeUndefined();
   });
 
-  it("toggleCategory adds then removes an id, dropping categoryMode once empty", () => {
+  it("toggleCategory adds then removes an id, keeping categoryMode once empty", () => {
     const { result } = renderHook(() => useRecipeFilters(), {
       wrapper: wrapper(),
     });
@@ -65,7 +65,8 @@ describe("useRecipeFilters", () => {
 
     act(() => result.current.toggleCategory("c1"));
     expect(result.current.params.categoryIds).toBeUndefined();
-    expect(result.current.params.categoryMode).toBeUndefined();
+    // Preserved: an explicitly-chosen mode shouldn't silently reset.
+    expect(result.current.params.categoryMode).toBe("exclude");
   });
 
   it("setCategoryMode persists even before any category is selected", () => {

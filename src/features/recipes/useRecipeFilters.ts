@@ -70,10 +70,7 @@ export function useRecipeFilters() {
   }
 
   function toggleCategory(id: string) {
-    update((next) => {
-      toggleArrayParam(next, "categoryId", id);
-      if (next.getAll("categoryId").length === 0) next.delete("categoryMode");
-    });
+    update((next) => toggleArrayParam(next, "categoryId", id));
   }
 
   function setCategoryMode(mode: CategoryMode) {

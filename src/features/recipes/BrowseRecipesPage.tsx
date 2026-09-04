@@ -68,7 +68,9 @@ export function BrowseRecipesPage() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="hidden items-center gap-4 py-3 md:flex">
             <div className="flex shrink-0 items-center gap-3">
-              <h1 className="font-display text-4xl">Browse Recipes</h1>
+              <h1 className="font-display font-medium text-4xl">
+                Browse Recipes
+              </h1>
               {total !== undefined && (
                 <Badge variant="chip">{total} recipes</Badge>
               )}
@@ -109,7 +111,7 @@ export function BrowseRecipesPage() {
       <div className="mx-auto w-full max-w-7xl px-6 py-2">
         <div className="grid grid-cols-1 gap-7 md:grid-cols-[316px_1fr]">
           {/* top-[143px]/159px = site header (65px) + sticky title bar (70px) + this container's own py-2 top padding (8px), matching the recipe grid's own top edge; keep in sync if those change */}
-          <aside className="sticky top-35.75 hidden max-h-[calc(100vh-159px)] flex-col overflow-hidden rounded-[10px] border border-border bg-card md:flex">
+          <aside className="sticky top-35.75 hidden max-h-[calc(100vh-159px)] flex-col self-start overflow-hidden rounded-[10px] border border-border bg-card md:flex">
             <div className="shrink-0 p-5.5 pb-0">
               <FilterPanelHeader
                 activeFilterCount={activeFilterCount}

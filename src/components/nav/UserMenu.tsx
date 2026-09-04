@@ -38,11 +38,7 @@ export function UserMenu() {
           aria-label="Account menu"
           className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-medium text-primary-foreground"
         >
-          {user.image ? (
-            <img src={user.image} alt="" className="size-full object-cover" />
-          ) : (
-            initials
-          )}
+          {initials}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

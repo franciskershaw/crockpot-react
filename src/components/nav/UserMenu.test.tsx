@@ -86,4 +86,21 @@ describe("UserMenu", () => {
 
     expect(mutate).toHaveBeenCalled();
   });
+
+  it("always shows initials, even when the user has an avatar image", () => {
+    mockUseAuth.mockReturnValue({
+      user: { ...USER, image: "https://lh3.googleusercontent.com/a/abc=s96-c" },
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    mockUseLogout.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useLogout>);
+
+    renderWithProviders(<UserMenu />);
+
+    expect(screen.getByText("JM")).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
 });

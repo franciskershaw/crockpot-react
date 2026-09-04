@@ -21,11 +21,11 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-8">
           <nav className="hidden items-center gap-8 text-muted-foreground md:flex">
+            <NavLink to="/recipes" className={navLinkClassName}>
+              Browse recipes
+            </NavLink>
             {isAuthenticated ? (
               <>
-                <NavLink to="/recipes" className={navLinkClassName}>
-                  Browse recipes
-                </NavLink>
                 <NavLink to="/menu" className={navLinkClassName}>
                   Your Crockpot
                 </NavLink>
@@ -33,9 +33,6 @@ export function SiteHeader() {
               </>
             ) : (
               <>
-                <NavLink to="/recipes" className={navLinkClassName}>
-                  Recipes
-                </NavLink>
                 <Link to="/#how-it-works" className="hover:text-foreground">
                   How it works
                 </Link>

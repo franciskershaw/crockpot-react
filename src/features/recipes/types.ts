@@ -48,3 +48,8 @@ export interface Item {
   categoryId: string;
   allowedUnitIds: string[];
 }
+
+export interface RecipeTimeRange {
+  minTime: number;
+  maxTime: number;
+}

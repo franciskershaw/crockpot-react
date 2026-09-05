@@ -30,6 +30,7 @@
   --card-shadow: #ede4d2;
   --rust-text: #a0503a;
   --green: #3e5a33;
+  --slider-track: #e6dcc8;
   --well: #faf6ec;
   --search-secondary: #fdfaf3;
   --placeholder: #9c9484;
@@ -75,6 +76,7 @@
   --color-card-shadow: var(--card-shadow);
   --color-rust-text: var(--rust-text);
   --color-green: var(--green);
+  --color-slider-track: var(--slider-track);
   --color-well: var(--well);
   --color-search-secondary: var(--search-secondary);
   --color-placeholder: var(--placeholder);

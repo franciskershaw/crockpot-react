@@ -57,9 +57,12 @@ export function BrowseRecipesPage() {
     categoryIds: params.categoryIds ?? [],
     categoryMode,
     ingredientIds: params.ingredientIds ?? [],
+    minTime: params.minTime,
+    maxTime: params.maxTime,
     onToggleCategory: toggleCategory,
     onCategoryModeChange: setCategoryMode,
     onToggleIngredient: toggleIngredient,
+    onSetTimeRange: setTimeRange,
   };
 
   return (

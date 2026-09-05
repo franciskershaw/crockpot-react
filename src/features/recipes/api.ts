@@ -5,6 +5,7 @@ import type {
   RecipeCategory,
   RecipeListParams,
   RecipeListResponse,
+  RecipeTimeRange,
 } from "./types";
 
 // categoryId/ingredientId are repeated params; categoryMode only makes sense alongside categoryIds.
@@ -50,6 +51,10 @@ export function listRecipeCategories(): Promise<RecipeCategory[]> {
 
 export function listItems(): Promise<Item[]> {
   return apiFetch<Item[]>("/items");
+}
+
+export function getRecipeTimeRange(): Promise<RecipeTimeRange> {
+  return apiFetch<RecipeTimeRange>("/recipes/time-range");
 }
 
 export function addFavourite(recipeId: string): Promise<{ message: string }> {

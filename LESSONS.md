@@ -92,3 +92,31 @@ decision as fully closed. No code written yet.
   `npm run build` here — plain `tsc --noEmit -p .` is a silent no-op on
   a solution-style tsconfig) and grep separately for `vi.mock(` targets,
   since a regex over `from "..."` imports won't catch them.
+
+## 2026-09-05 — Tech-debt pass #1. 9 findings, 4 tickets. Fork identity confusion on the first audit attempt.
+
+- First whole-codebase pass, covering everything shipped through
+  `CFE-004` (scaffold, auth, landing, browse/search + `AppShell`).
+  9 new findings (error boundary, silent-blank query failures, untested
+  auth-refresh logic, `useLogout` toast-wrapper drift, import-style
+  drift, duplicated toast boilerplate, a redundant Radix dep, a
+  double-fetch of filter reference data, missing image lazy-loading) plus
+  one carried-forward item (no route-based code splitting, seeded
+  2026-09-04). Grouped into `CFE-016`–`CFE-019`. Full detail:
+  `docs/findings/2026-09-05-tech-debt.md`.
+- The first audit attempt used a forked subagent (`Agent` with
+  `subagent_type: "fork"`) to keep the file-by-file read-through out of
+  the coordinator's context. It never did the read: because a fork
+  inherits full conversation history *including the coordinator's own
+  act of spawning it*, the fork's later turns lost track of which side
+  of that spawn it was on and replied as if it were the coordinator,
+  still waiting on a sub-fork of its own that didn't exist — twice, even
+  after being told directly "you are the fork." Switched to a plain
+  fresh `general-purpose` agent (no inherited context, just the audit
+  brief) and it completed correctly in one pass (83 tool uses).
+- **Pattern**: don't use `subagent_type: "fork"` for a task whose prompt
+  itself describes the act of delegating/spawning — a fork's inherited
+  history can make it misidentify itself as the delegator rather than
+  the delegate. Reserve forks for research/work that doesn't need to
+  reason about its own dispatch; use a fresh agent when the task
+  description would otherwise read as being about agent-spawning itself.

@@ -226,6 +226,36 @@ CFE-003.
   matches backend non-goal; likely just an affordance on the recipe
   detail/my-recipes views, not a separate dashboard).
 
+### Tech Debt & Production Readiness
+*From the first whole-codebase tech-debt pass, 2026-09-05. Full detail:
+`docs/findings/2026-09-05-tech-debt.md`.*
+- **CFE-016** — Error resilience: add a top-level error boundary
+  (`App.tsx`/`AppRoutes.tsx`, currently none — any render exception
+  white-screens the app), and surface `isError`/retry in `RecipeGrid` and
+  `FilterPanel` instead of relying on a transient toast that leaves the
+  browse grid silently blank after it fades. Findings 1–2.
+- **CFE-017** — Auth client hardening: add tests for `client.ts`'s
+  concurrent-401 refresh collapse, retry-once, and refresh-failure paths
+  (currently untested — highest-consequence code in the HTTP client);
+  route `useLogout` through `useApiMutation` so a failed server-side
+  logout call actually surfaces a toast like every other mutation.
+  Findings 3–4.
+- **CFE-018** — Data-layer cleanup: collapse the three near-identical
+  `error instanceof ApiError` toast ternaries in
+  `useApiQuery`/`useApiInfiniteQuery`/`useApiMutation` into one shared
+  helper; thread `FilterPanel`'s reference-data queries through as props
+  from `BrowseRecipesPage` instead of re-fetching independently (same
+  cache key today, but two call sites that could silently diverge).
+  Findings 6, 8.
+- **CFE-019** — Housekeeping: fix 3 files' pre-`@/`-alias deep relative
+  imports (`useLogout.tsx`, `AuthCallback.tsx`, `MenuScreen.tsx`); drop
+  the redundant standalone `@radix-ui/react-slot` dependency in favour of
+  the unified `radix-ui` package `button.tsx` should already be using;
+  add `loading="lazy"` to `RecipeCard`'s image; add route-based code
+  splitting (`React.lazy` + `Suspense` per route in `AppRoutes.tsx`) —
+  carried forward from the 2026-09-04 seed finding, still open. Findings
+  5, 7, 9, 10.
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a

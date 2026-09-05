@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useRecipeList } from "../hooks/useRecipeList";
@@ -25,33 +25,32 @@ export function RecipeGrid({
     useRecipeList(params);
 
   const lastTriggerRef = useRef(0);
+  const latestRef = useRef({ hasNextPage, isFetchingNextPage, fetchNextPage });
+  useEffect(() => {
+    latestRef.current = { hasNextPage, isFetchingNextPage, fetchNextPage };
+  });
 
-  const sentinelRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node) return;
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    if (!node) return;
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (
-            !entries[0].isIntersecting ||
-            !hasNextPage ||
-            isFetchingNextPage
-          ) {
-            return;
-          }
-          const now = Date.now();
-          if (now - lastTriggerRef.current < INTERSECTION_DEBOUNCE_MS) return;
-          lastTriggerRef.current = now;
-          fetchNextPage();
-        },
-        { rootMargin: "200px 0px" },
-      );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const { hasNextPage, isFetchingNextPage, fetchNextPage } =
+          latestRef.current;
+        if (!entries[0].isIntersecting || !hasNextPage || isFetchingNextPage) {
+          return;
+        }
+        const now = Date.now();
+        if (now - lastTriggerRef.current < INTERSECTION_DEBOUNCE_MS) return;
+        lastTriggerRef.current = now;
+        fetchNextPage();
+      },
+      { rootMargin: "200px 0px" },
+    );
 
-      observer.observe(node);
-      return () => observer.disconnect();
-    },
-    [hasNextPage, isFetchingNextPage, fetchNextPage],
-  );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   if (isLoading) {
     return (
@@ -78,15 +77,13 @@ export function RecipeGrid({
     );
   }
 
-  const pageSize = data.pages[0].limit;
+  const previousPagesCount = data.pages
+    .slice(0, -1)
+    .reduce((sum, page) => sum + page.recipes.length, 0);
 
   return (
     <ResponsiveRecipeGrid>
       {recipes.map((recipe, index) => {
-        const previousPagesCount = Math.max(
-          0,
-          (data.pages.length - 1) * pageSize,
-        );
         const isNewItem = index >= previousPagesCount;
         const newItemIndex = isNewItem ? index - previousPagesCount : 0;
 

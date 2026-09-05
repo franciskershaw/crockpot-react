@@ -184,9 +184,8 @@ CFE-003.
   decisions" above.
 - **CFE-004** — Browse/search page: filters (cooking time range,
   categories include/exclude, ingredient search), recipe card grid,
-  favourite toggle. Also lands the shared `AppShell` (see above). Grilled
-  2026-09-02, see `docs/handoffs/CFE-004.md`. Blocked in part on
-  `crockpot-go` `CROC-043` (time-range bounds endpoint, new).
+  favourite toggle. Also lands the shared `AppShell` (see above). **Done**
+  (2026-09-05), see `docs/handoffs/CFE-004.md`.
 - **CFE-005** — Recipe detail page: ingredients with serves adjuster,
   instructions, notes, favourite/edit/delete/add-to-menu actions
   (edit/delete only for the owner or admin). **Also owns the

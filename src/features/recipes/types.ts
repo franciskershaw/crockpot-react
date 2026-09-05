@@ -1,8 +1,3 @@
-export interface CategoryRef {
-  id: string;
-  name: string;
-}
-
 export interface RecipeCard {
   id: string;
   name: string;
@@ -11,7 +6,7 @@ export interface RecipeCard {
   timeInMinutes: number;
   serves: number;
   approved: boolean;
-  categories: CategoryRef[];
+  categories: RecipeCategory[];
   createdAt: string;
   isFavourite: boolean;
 }

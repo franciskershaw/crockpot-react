@@ -1,5 +1,5 @@
 import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
-import type { InfiniteData, QueryKey } from "@tanstack/react-query";
+import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { addFavourite, removeFavourite } from "../api";
@@ -12,7 +12,8 @@ interface ToggleFavouriteVariables {
 }
 
 type ListQueryData = InfiniteData<RecipeListResponse, number>;
-type ListQuerySnapshot = Array<[QueryKey, ListQueryData | undefined]>;
+
+const LIST_FILTER = { queryKey: recipeKeys.lists() };
 
 function flipFavourite(
   data: ListQueryData,
@@ -33,31 +34,21 @@ function flipFavourite(
 export function useToggleFavourite() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<
-    { message: string },
-    ToggleFavouriteVariables,
-    ListQuerySnapshot
-  >({
+  return useApiMutation<{ message: string }, ToggleFavouriteVariables, void>({
     mutationFn: ({ recipeId, wasFavourite }) =>
       wasFavourite ? removeFavourite(recipeId) : addFavourite(recipeId),
     onMutate: async ({ recipeId, wasFavourite }) => {
-      await queryClient.cancelQueries({ queryKey: recipeKeys.lists() });
+      await queryClient.cancelQueries(LIST_FILTER);
 
-      const previous = queryClient.getQueriesData<ListQueryData>({
-        queryKey: recipeKeys.lists(),
-      });
-
-      queryClient.setQueriesData<ListQueryData>(
-        { queryKey: recipeKeys.lists() },
-        (data) => (data ? flipFavourite(data, recipeId, !wasFavourite) : data),
+      queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
+        data ? flipFavourite(data, recipeId, !wasFavourite) : data,
       );
-
-      return previous;
     },
-    onError: (_error, _variables, previous) => {
-      previous?.forEach(([queryKey, data]) => {
-        queryClient.setQueryData(queryKey, data);
-      });
+    onError: (_error, { recipeId, wasFavourite }) => {
+      // Revert only this recipe's flip, not a whole snapshot.
+      queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
+        data ? flipFavourite(data, recipeId, wasFavourite) : data,
+      );
     },
   });
 }

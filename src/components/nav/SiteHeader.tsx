@@ -10,7 +10,9 @@ const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
   `hover:text-foreground ${isActive ? "text-foreground underline underline-offset-4" : ""}`;
 
 export function SiteHeader() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  const showAuthedNav = !isLoading && isAuthenticated;
+  const showAnonNav = !isLoading && !isAuthenticated;
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
@@ -24,14 +26,15 @@ export function SiteHeader() {
             <NavLink to="/recipes" className={navLinkClassName}>
               Browse recipes
             </NavLink>
-            {isAuthenticated ? (
+            {showAuthedNav && (
               <>
                 <NavLink to="/menu" className={navLinkClassName}>
                   Your Crockpot
                 </NavLink>
                 <AddRecipeLink />
               </>
-            ) : (
+            )}
+            {showAnonNav && (
               <>
                 <Link to="/#how-it-works" className="hover:text-foreground">
                   How it works
@@ -43,9 +46,8 @@ export function SiteHeader() {
             )}
           </nav>
 
-          {isAuthenticated ? (
-            <UserMenu />
-          ) : (
+          {showAuthedNav && <UserMenu />}
+          {showAnonNav && (
             <Button
               variant="outline"
               className="rounded-full border-foreground"

@@ -10,7 +10,7 @@ const tabLinkClassName = ({ isActive }: { isActive: boolean }) =>
   }`;
 
 export function MobileTabBar() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background md:hidden">
@@ -20,7 +20,7 @@ export function MobileTabBar() {
           Browse Recipes
         </NavLink>
 
-        {isAuthenticated ? (
+        {!isLoading && isAuthenticated && (
           <>
             <NavLink to="/menu" className={tabLinkClassName}>
               <UtensilsCrossed className="size-5" />
@@ -31,7 +31,8 @@ export function MobileTabBar() {
               Add Recipe
             </AddRecipeLink>
           </>
-        ) : (
+        )}
+        {!isLoading && !isAuthenticated && (
           <button
             type="button"
             onClick={goToGoogleLogin}

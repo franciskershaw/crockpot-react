@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import type { CategoryMode, RecipeListParams } from "../types";
+
+function parseTime(raw: string | null): number | undefined {
+  if (raw === null) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
+}
 
 function parseParams(searchParams: URLSearchParams): RecipeListParams {
   const params: RecipeListParams = {};
@@ -17,11 +24,11 @@ function parseParams(searchParams: URLSearchParams): RecipeListParams {
   const ingredientIds = searchParams.getAll("ingredientId");
   if (ingredientIds.length) params.ingredientIds = ingredientIds;
 
-  const minTime = searchParams.get("minTime");
-  if (minTime !== null) params.minTime = Number(minTime);
+  const minTime = parseTime(searchParams.get("minTime"));
+  if (minTime !== undefined) params.minTime = minTime;
 
-  const maxTime = searchParams.get("maxTime");
-  if (maxTime !== null) params.maxTime = Number(maxTime);
+  const maxTime = parseTime(searchParams.get("maxTime"));
+  if (maxTime !== undefined) params.maxTime = maxTime;
 
   return params;
 }
@@ -49,6 +56,7 @@ function toggleArrayParam(
 
 export function useRecipeFilters() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [resetKey, setResetKey] = useState(0);
   const params = parseParams(searchParams);
 
   function update(mutate: (next: URLSearchParams) => void) {
@@ -95,11 +103,15 @@ export function useRecipeFilters() {
 
   function clearAll() {
     setSearchParams(new URLSearchParams(), { replace: true });
+    // Forces SearchBar/TimeRangeSlider to remount so a debounced commit
+    // in flight can't resurrect a filter this just cleared.
+    setResetKey((key) => key + 1);
   }
 
   return {
     params,
     activeFilterCount: countActiveFilters(params),
+    resetKey,
     setQuery,
     toggleCategory,
     setCategoryMode,

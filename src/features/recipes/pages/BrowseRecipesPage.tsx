@@ -16,6 +16,7 @@ export function BrowseRecipesPage() {
   const {
     params,
     activeFilterCount,
+    resetKey,
     setQuery,
     toggleCategory,
     setCategoryMode,
@@ -82,6 +83,7 @@ export function BrowseRecipesPage() {
               <FilterPills {...pillsProps} />
             </div>
             <SearchBar
+              key={resetKey}
               value={params.q ?? ""}
               onChange={setQuery}
               className="w-[320px] shrink-0"
@@ -95,7 +97,11 @@ export function BrowseRecipesPage() {
                 <Badge variant="chip">{total} recipes</Badge>
               )}
             </div>
-            <SearchBar value={params.q ?? ""} onChange={setQuery} />
+            <SearchBar
+              key={resetKey}
+              value={params.q ?? ""}
+              onChange={setQuery}
+            />
             <div className="flex items-center gap-2 overflow-x-auto">
               <button
                 type="button"
@@ -123,7 +129,7 @@ export function BrowseRecipesPage() {
               <div className="my-3 h-px bg-card-shadow" />
             </div>
             <div className="flex-1 overflow-y-auto p-5.5 pt-0">
-              <FilterPanel {...filterPanelProps} />
+              <FilterPanel key={resetKey} {...filterPanelProps} />
             </div>
           </aside>
 

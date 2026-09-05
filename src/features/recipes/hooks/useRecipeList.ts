@@ -1,9 +1,9 @@
 import { useApiInfiniteQuery } from "@/lib/Tanstack/useApiInfiniteQuery";
 import { keepPreviousData } from "@tanstack/react-query";
 
-import { listRecipes } from "./api";
-import { recipeKeys } from "./queryKeys";
-import type { RecipeListParams } from "./types";
+import { listRecipes } from "../api";
+import { recipeKeys } from "../queryKeys";
+import type { RecipeListParams } from "../types";
 
 export function useRecipeList(params: RecipeListParams) {
   return useApiInfiniteQuery({

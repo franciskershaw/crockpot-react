@@ -1,12 +1,12 @@
 import { useCallback, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
+import { useRecipeList } from "../hooks/useRecipeList";
+import type { RecipeListParams } from "../types";
 import { EmptyRecipes } from "./EmptyRecipes";
 import { RecipeCard } from "./RecipeCard";
 import { RecipeCardSkeleton } from "./RecipeCardSkeleton";
 import { ResponsiveRecipeGrid } from "./ResponsiveRecipeGrid";
-import type { RecipeListParams } from "./types";
-import { useRecipeList } from "./useRecipeList";
 
 const INITIAL_SKELETON_COUNT = 6;
 const NEXT_PAGE_SKELETON_COUNT = 3;

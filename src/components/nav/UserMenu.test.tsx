@@ -1,5 +1,5 @@
-import { useAuth } from "@/features/auth/AuthContext";
-import { useLogout } from "@/features/auth/useLogout";
+import { useAuth } from "@/features/auth/components/AuthContext";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -7,10 +7,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getInitials, UserMenu } from "./UserMenu";
 
-vi.mock("@/features/auth/AuthContext", () => ({
+vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
-vi.mock("@/features/auth/useLogout", () => ({
+vi.mock("@/features/auth/hooks/useLogout", () => ({
   useLogout: vi.fn(),
 }));
 

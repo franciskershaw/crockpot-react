@@ -1,5 +1,5 @@
+import type { Item } from "../types";
 import { FilterOptionList } from "./FilterOptionList";
-import type { Item } from "./types";
 
 export function IngredientFilter({
   items,

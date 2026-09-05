@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 
-import type { CategoryMode, RecipeListParams } from "./types";
+import type { CategoryMode, RecipeListParams } from "../types";
 
 function parseParams(searchParams: URLSearchParams): RecipeListParams {
   const params: RecipeListParams = {};

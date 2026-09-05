@@ -42,6 +42,38 @@ every other decision above: `docs/specs/master-spec.md`.
   presentational markup)
 - Hosting: Vercel
 
+## Feature folder layout (hard rule, not a suggestion)
+
+Every `features/<name>/` folder splits into three buckets, classified purely
+by *what a file is* — never by domain/concern, which requires a judgment
+call on every new file and drifts the moment two people (or two sessions)
+guess differently:
+
+- `pages/` — a component `AppRoutes.tsx` routes to directly. Mechanical
+  test: does a `<Route>` element point at it?
+- `components/` — every other `.tsx` component.
+- `hooks/` — every `use*.ts`/`use*.tsx` hook.
+- Feature root — `api.ts`, `types.ts`, `queryKeys.ts` (the data layer,
+  each a singleton per feature) plus any other single-purpose top-level
+  file with no natural bucket (e.g. `auth/googleLogin.ts`).
+
+Tests colocate next to the file they cover, in whichever bucket that file
+lands in (`components/RecipeCard.tsx` + `components/RecipeCard.test.tsx`).
+
+**One named exception**: a React Context module that pairs a `Provider`
+component with its own `use*` hook in one file (e.g. `AuthContext.tsx`)
+stays a single file in `components/` — a `Provider` is fundamentally a
+component, and splitting the pair across buckets to satisfy this rule
+would be a real code change, not a pure reorg.
+
+Applied to `recipes` (33 → 5 root files) and `auth` (11 → 3) at `CFE-004`
+close-out, once `recipes` had grown genuinely unmaintainable (grill-me
+2026-09-05, rejected an earlier by-concern proposal — `filters/`+`browse/`
+— for the same judgment-call problem this rule exists to avoid). Applies
+to every feature from its first ticket forward, not just at the point it
+gets messy — the whole point is organizing as you go rather than sorting
+out after the fact.
+
 ## Design-artifact grounding (hard rule, not a suggestion)
 
 Never assess or comment on design match from the screenshot's absence, a

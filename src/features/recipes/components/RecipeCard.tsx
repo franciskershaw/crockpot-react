@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { Clock, Heart, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { RecipeCard as RecipeCardData } from "./types";
-import { useToggleFavourite } from "./useToggleFavourite";
+import { useToggleFavourite } from "../hooks/useToggleFavourite";
+import type { RecipeCard as RecipeCardData } from "../types";
 
 export function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
   const { isAuthenticated } = useAuth();

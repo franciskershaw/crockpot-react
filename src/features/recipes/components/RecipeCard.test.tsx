@@ -1,17 +1,17 @@
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { useToggleFavourite } from "../hooks/useToggleFavourite";
+import type { RecipeCard as RecipeCardData } from "../types";
 import { RecipeCard } from "./RecipeCard";
-import type { RecipeCard as RecipeCardData } from "./types";
-import { useToggleFavourite } from "./useToggleFavourite";
 
-vi.mock("@/features/auth/AuthContext", () => ({
+vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
-vi.mock("./useToggleFavourite", () => ({
+vi.mock("../hooks/useToggleFavourite", () => ({
   useToggleFavourite: vi.fn(),
 }));
 

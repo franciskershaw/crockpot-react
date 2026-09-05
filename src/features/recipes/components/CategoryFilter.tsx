@@ -1,5 +1,5 @@
+import type { CategoryMode, RecipeCategory } from "../types";
 import { FilterOptionList } from "./FilterOptionList";
-import type { CategoryMode, RecipeCategory } from "./types";
 
 export function CategoryFilter({
   categories,

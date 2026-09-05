@@ -2,7 +2,7 @@ import { Logo } from "@/components/Logo";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { goToGoogleLogin } from "@/features/auth/googleLogin";
 import { Link, NavLink } from "react-router-dom";
 

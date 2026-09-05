@@ -1,12 +1,12 @@
-import { CategoryFilter } from "./CategoryFilter";
-import { IngredientFilter } from "./IngredientFilter";
-import { TimeRangeSlider } from "./TimeRangeSlider";
-import type { CategoryMode } from "./types";
 import {
   useItems,
   useRecipeCategories,
   useRecipeTimeRange,
-} from "./useReferenceData";
+} from "../hooks/useReferenceData";
+import type { CategoryMode } from "../types";
+import { CategoryFilter } from "./CategoryFilter";
+import { IngredientFilter } from "./IngredientFilter";
+import { TimeRangeSlider } from "./TimeRangeSlider";
 
 export function FilterPanel({
   categoryIds,

@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal } from "lucide-react";
 
-import { FilterPanel } from "./FilterPanel";
-import { FilterPanelHeader } from "./FilterPanelHeader";
-import { FilterPills } from "./FilterPills";
-import { MobileFilterDrawer } from "./MobileFilterDrawer";
-import { RecipeGrid } from "./RecipeGrid";
-import { SearchBar } from "./SearchBar";
-import { useRecipeFilters } from "./useRecipeFilters";
-import { useRecipeList } from "./useRecipeList";
-import { useItems, useRecipeCategories } from "./useReferenceData";
+import { FilterPanel } from "../components/FilterPanel";
+import { FilterPanelHeader } from "../components/FilterPanelHeader";
+import { FilterPills } from "../components/FilterPills";
+import { MobileFilterDrawer } from "../components/MobileFilterDrawer";
+import { RecipeGrid } from "../components/RecipeGrid";
+import { SearchBar } from "../components/SearchBar";
+import { useRecipeFilters } from "../hooks/useRecipeFilters";
+import { useRecipeList } from "../hooks/useRecipeList";
+import { useItems, useRecipeCategories } from "../hooks/useReferenceData";
 
 export function BrowseRecipesPage() {
   const {

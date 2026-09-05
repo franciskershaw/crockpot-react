@@ -3,13 +3,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { addFavourite, removeFavourite } from "./api";
-import { recipeKeys } from "./queryKeys";
-import type { RecipeCard, RecipeListResponse } from "./types";
+import { addFavourite, removeFavourite } from "../api";
+import { recipeKeys } from "../queryKeys";
+import type { RecipeCard, RecipeListResponse } from "../types";
 import { useToggleFavourite } from "./useToggleFavourite";
 
-vi.mock("./api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("./api")>()),
+vi.mock("../api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../api")>()),
   addFavourite: vi.fn(),
   removeFavourite: vi.fn(),
 }));

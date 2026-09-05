@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-import type { CategoryMode, Item, RecipeCategory } from "./types";
+import type { CategoryMode, Item, RecipeCategory } from "../types";
 
 type PillKind = "time" | "category" | "ingredient";
 

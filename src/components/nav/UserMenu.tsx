@@ -6,8 +6,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/features/auth/AuthContext";
-import { useLogout } from "@/features/auth/useLogout";
+import { useAuth } from "@/features/auth/components/AuthContext";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function getInitials(name: string | null, email: string): string {
   if (name) {

@@ -1,5 +1,5 @@
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
-import { useAuth } from "@/features/auth/AuthContext";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { goToGoogleLogin } from "@/features/auth/googleLogin";
 import { LogIn, Plus, Search, UtensilsCrossed } from "lucide-react";
 import { NavLink } from "react-router-dom";

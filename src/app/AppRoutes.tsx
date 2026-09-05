@@ -1,10 +1,10 @@
 import { AppShell } from "@/components/nav/AppShell";
-import { AuthCallback } from "@/features/auth/AuthCallback";
-import { useAuth } from "@/features/auth/AuthContext";
-import { RequireAuth } from "@/features/auth/RequireAuth";
+import { useAuth } from "@/features/auth/components/AuthContext";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { AuthCallback } from "@/features/auth/pages/AuthCallback";
 import { LandingPage } from "@/features/landing/LandingPage";
 import { MenuScreen } from "@/features/menu/MenuScreen";
-import { BrowseRecipesPage } from "@/features/recipes/BrowseRecipesPage";
+import { BrowseRecipesPage } from "@/features/recipes/pages/BrowseRecipesPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";

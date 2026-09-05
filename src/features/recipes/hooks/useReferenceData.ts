@@ -1,6 +1,6 @@
 import { useApiQuery } from "@/lib/Tanstack/useApiQuery";
 
-import { getRecipeTimeRange, listItems, listRecipeCategories } from "./api";
+import { getRecipeTimeRange, listItems, listRecipeCategories } from "../api";
 
 // Admin-write-only reference data that changes rarely — cache long.
 const REFERENCE_DATA_STALE_TIME = 1000 * 60 * 60;

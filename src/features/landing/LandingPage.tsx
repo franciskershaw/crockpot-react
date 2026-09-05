@@ -1,5 +1,4 @@
-import { MobileTabBar } from "@/components/nav/MobileTabBar";
-import { SiteHeader } from "@/components/nav/SiteHeader";
+import { useScrollToHash } from "@/lib/useScrollToHash";
 
 import { Hero } from "./Hero";
 import { HowItWorks } from "./HowItWorks";
@@ -8,19 +7,18 @@ import { PlannerTease } from "./PlannerTease";
 import { Pricing } from "./Pricing";
 
 export function LandingPage() {
-  return (
-    <div className="flex min-h-screen flex-col pb-16 md:pb-0">
-      <SiteHeader />
+  useScrollToHash();
 
-      <main className="flex-1 pb-16 md:pb-24">
+  return (
+    <>
+      <div className="pb-16 md:pb-24">
         <Hero />
         <HowItWorks />
         <PlannerTease />
         <Pricing />
-      </main>
+      </div>
 
       <LandingFooter />
-      <MobileTabBar />
-    </div>
+    </>
   );
 }

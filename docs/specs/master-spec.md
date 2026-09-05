@@ -119,6 +119,21 @@ rules here that would drift from it.
   screenshots, so it earns its own ticket (CFE-002b) and grill. Not a
   statement that password auth is lower priority — just that it is a
   separable unit.
+- **One shared `AppShell`, mounted on every route** — lands at CFE-004
+  (`docs/handoffs/CFE-004.md`), not CFE-006 as CFE-003 originally
+  flagged. `SiteHeader`/`MobileTabBar` branch internally on
+  `useAuth().isAuthenticated` (a fixed nav per auth state, identical on
+  every route — logged out: Recipes/How it works/Pricing/Sign in;
+  logged in: Browse recipes/Your Crockpot/Add a recipe/avatar+logout).
+  Matches the old `crockpot` app's actual pattern (one `Navbar` + one
+  `BottomMobileNav`, mounted once in its root layout, each branching on
+  session state) — an early draft of this ticket built a *second*,
+  separate authenticated-only shell instead and was corrected once
+  checked against that precedent. No cart/shopping-list badge yet
+  (needs CFE-009's data). Filter state for list pages (first used by
+  CFE-004's browse filters) lives in the URL via `useSearchParams`, not
+  localStorage — shareable/bookmarkable, and the query string doubles as
+  the TanStack Query cache key.
 
 ## Tooling (reused from `packing-list-react` as-is)
 
@@ -169,10 +184,15 @@ CFE-003.
   decisions" above.
 - **CFE-004** — Browse/search page: filters (cooking time range,
   categories include/exclude, ingredient search), recipe card grid,
-  favourite toggle.
+  favourite toggle. Also lands the shared `AppShell` (see above). **Done**
+  (2026-09-05), see `docs/handoffs/CFE-004.md`.
 - **CFE-005** — Recipe detail page: ingredients with serves adjuster,
   instructions, notes, favourite/edit/delete/add-to-menu actions
-  (edit/delete only for the owner or admin).
+  (edit/delete only for the owner or admin). **Also owns the
+  pending-approval indicator** for the viewer's own unapproved recipe —
+  moved here from the browse card at `CFE-004`'s grill (2026-09-04, see
+  `docs/handoffs/CFE-004.md` decision 5); `RecipeCard` shows no
+  pending-state UI at all.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab: current menu list, remove-from-menu,

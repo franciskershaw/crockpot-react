@@ -24,6 +24,14 @@ if (!globalThis.IntersectionObserver) {
     }
   } as unknown as typeof IntersectionObserver;
 }
+// jsdom doesn't implement these; Radix (dropdown-menu, select, etc.) calls
+// them when positioning/opening a popover.
+if (!Element.prototype.hasPointerCapture) {
+  Element.prototype.hasPointerCapture = () => false;
+}
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}
 if (!globalThis.matchMedia) {
   globalThis.matchMedia = vi.fn().mockImplementation((query: string) => ({
     matches: false,

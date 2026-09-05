@@ -76,3 +76,19 @@ decision as fully closed. No code written yet.
   front — don't reverse-engineer from screenshots. And in a grill,
   don't assert "the old app does X" without opening the file — that's
   the claim-check the process already asks for.
+
+## 2026-09-05 — CFE-004 — Time-range slider + feature-folder reorg + code-review fixes. Slider clean; reorg script had a real bug.
+
+- Pausing for an exact Claude Design spec dump before writing the
+  slider's markup (per this project's design-grounding rule) paid off —
+  zero rework, unlike this ticket's earlier card/filter-system rebuilds.
+- The reorg's import-fixing script had a relative/absolute path bug that
+  silently produced wrong-but-plausible import paths, and its `from`
+  regex never touched `vi.mock()` target strings at all — both only
+  surfaced by running the real build/tests, not by the script's own
+  success output.
+- **Pattern**: after any bulk find-and-replace across source files,
+  verify with the project's actual build/typecheck command (`tsc -b` /
+  `npm run build` here — plain `tsc --noEmit -p .` is a silent no-op on
+  a solution-style tsconfig) and grep separately for `vi.mock(` targets,
+  since a regex over `from "..."` imports won't catch them.

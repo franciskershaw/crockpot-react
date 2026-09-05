@@ -4,12 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { logout } from "./api";
-import { AUTH_SESSION_QUERY_KEY } from "./AuthContext";
-import type { User } from "./types";
+import { logout } from "../api";
+import { AUTH_SESSION_QUERY_KEY } from "../components/AuthContext";
+import type { User } from "../types";
 import { useLogout } from "./useLogout";
 
-vi.mock("./api", () => ({
+vi.mock("../api", () => ({
   fetchMe: vi.fn(),
   logout: vi.fn(),
 }));

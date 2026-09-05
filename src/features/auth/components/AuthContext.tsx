@@ -3,8 +3,8 @@ import { ApiError, refreshAccessToken } from "@/lib/http/client";
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchMe } from "./api";
-import type { User } from "./types";
+import { fetchMe } from "../api";
+import type { User } from "../types";
 
 export async function fetchSession(): Promise<User | null> {
   try {

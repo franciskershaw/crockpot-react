@@ -4,11 +4,11 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { useAuth } from "../components/AuthContext";
+import { getAuthErrorMessage } from "../types";
 import { AuthCallback } from "./AuthCallback";
-import { useAuth } from "./AuthContext";
-import { getAuthErrorMessage } from "./types";
 
-vi.mock("./AuthContext", () => ({
+vi.mock("../components/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
 

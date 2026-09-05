@@ -2,18 +2,18 @@ import { ApiError, refreshAccessToken } from "@/lib/http/client";
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { fetchMe } from "./api";
+import { fetchMe } from "../api";
+import type { User } from "../types";
 // `fetchSession` is module-private in the packing-list reference; the
 // crockpot port must `export` it as the seam these tests drive.
 import { fetchSession } from "./AuthContext";
-import type { User } from "./types";
 
 vi.mock("@/lib/http/client", async (importActual) => {
   const actual = await importActual<typeof import("@/lib/http/client")>();
   return { ...actual, refreshAccessToken: vi.fn() };
 });
 
-vi.mock("./api", () => ({
+vi.mock("../api", () => ({
   fetchMe: vi.fn(),
   logout: vi.fn(),
 }));

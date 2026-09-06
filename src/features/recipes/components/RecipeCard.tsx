@@ -6,7 +6,13 @@ import { Link } from "react-router-dom";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
 import type { RecipeCard as RecipeCardData } from "../types";
 
-export function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
+export function RecipeCard({
+  recipe,
+  priority = false,
+}: {
+  recipe: RecipeCardData;
+  priority?: boolean;
+}) {
   const { isAuthenticated } = useAuth();
   const toggleFavourite = useToggleFavourite();
 
@@ -29,7 +35,7 @@ export function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
           <img
             src={recipe.imageUrl}
             alt=""
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
             className="block size-full object-cover"
           />
         )}

@@ -8,7 +8,7 @@ export function RouteFallback() {
     >
       <ChefHat
         aria-hidden="true"
-        className="animate-spin-slow size-10 text-muted-foreground"
+        className="animate-spin-slow size-10 text-muted-foreground motion-reduce:animate-none"
       />
       <span className="sr-only">Loading…</span>
     </output>

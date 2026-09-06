@@ -16,15 +16,21 @@ vi.mock("@/features/auth/hooks/useLogout", () => ({
 
 const mockUseAuth = vi.mocked(useAuth);
 
-let resolveLazyChild: (mod: { default: () => ReactElement }) => void;
-const LazyChild = lazy(
-  () =>
-    new Promise<{ default: () => ReactElement }>((resolve) => {
-      resolveLazyChild = resolve;
-    }),
-);
+function makeLazyChild() {
+  let resolve: (mod: { default: () => ReactElement }) => void;
+  const LazyChild = lazy(
+    () =>
+      new Promise<{ default: () => ReactElement }>((r) => {
+        resolve = r;
+      }),
+  );
+  return {
+    LazyChild,
+    resolve: (mod: { default: () => ReactElement }) => resolve(mod),
+  };
+}
 
-function renderShell() {
+function renderShell(LazyChild: ReactElement["type"]) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -42,22 +48,49 @@ function renderShell() {
 }
 
 describe("AppShell", () => {
-  it("shows the route fallback while the outlet's lazy chunk loads, without hiding the nav", async () => {
+  it("shows the route fallback while the outlet's lazy chunk loads, without hiding the nav, when logged out", async () => {
     mockUseAuth.mockReturnValue({
       user: null,
       isAuthenticated: false,
       isLoading: false,
     });
+    const { LazyChild, resolve } = makeLazyChild();
 
-    renderShell();
+    renderShell(LazyChild);
 
     expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.getByRole("banner")).toBeInTheDocument();
 
-    resolveLazyChild({ default: () => <div>loaded content</div> });
+    resolve({ default: () => <div>loaded content</div> });
 
     expect(await screen.findByText("loaded content")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
     expect(screen.getByRole("banner")).toBeInTheDocument();
+  });
+
+  it("keeps the account menu up while the outlet's lazy chunk loads, when logged in", async () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: "u_1",
+        email: "jamie@example.com",
+        name: "Jamie",
+        image: null,
+        role: "FREE",
+      },
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    const { LazyChild, resolve } = makeLazyChild();
+
+    renderShell(LazyChild);
+
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByLabelText("Account menu")).toBeInTheDocument();
+
+    resolve({ default: () => <div>loaded content</div> });
+
+    expect(await screen.findByText("loaded content")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Account menu")).toBeInTheDocument();
   });
 });

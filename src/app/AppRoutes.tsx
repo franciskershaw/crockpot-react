@@ -1,30 +1,28 @@
-import { lazy } from "react";
+import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import { AppShell } from "@/components/nav/AppShell";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { LandingPage } from "@/features/landing/LandingPage";
+import { MenuScreen } from "@/features/menu/MenuScreen";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
 
-const AuthCallback = lazy(() =>
-  import("@/features/auth/pages/AuthCallback").then((m) => ({
-    default: m.AuthCallback,
-  })),
+// Only BrowseRecipesPage/AuthCallback are lazy; LandingPage/MenuScreen are most visitors' first view and gain nothing from a chunk round trip.
+function lazyNamed<
+  M extends Record<K, ComponentType>,
+  K extends keyof M & string,
+>(factory: () => Promise<M>, name: K): LazyExoticComponent<M[K]> {
+  return lazy(() => factory().then((m) => ({ default: m[name] })));
+}
+
+const AuthCallback = lazyNamed(
+  () => import("@/features/auth/pages/AuthCallback"),
+  "AuthCallback",
 );
-const LandingPage = lazy(() =>
-  import("@/features/landing/LandingPage").then((m) => ({
-    default: m.LandingPage,
-  })),
-);
-const MenuScreen = lazy(() =>
-  import("@/features/menu/MenuScreen").then((m) => ({
-    default: m.MenuScreen,
-  })),
-);
-const BrowseRecipesPage = lazy(() =>
-  import("@/features/recipes/pages/BrowseRecipesPage").then((m) => ({
-    default: m.BrowseRecipesPage,
-  })),
+const BrowseRecipesPage = lazyNamed(
+  () => import("@/features/recipes/pages/BrowseRecipesPage"),
+  "BrowseRecipesPage",
 );
 
 export function AppRoutes() {

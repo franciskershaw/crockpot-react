@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
+import { StatePanel } from "@/components/StatePanel";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useRecipeList } from "../hooks/useRecipeList";
@@ -21,8 +24,15 @@ export function RecipeGrid({
   activeFilterCount: number;
   onClearFilters: () => void;
 }) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useRecipeList(params);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useRecipeList(params);
 
   const lastTriggerRef = useRef(0);
   const latestRef = useRef({ hasNextPage, isFetchingNextPage, fetchNextPage });
@@ -62,8 +72,17 @@ export function RecipeGrid({
     );
   }
 
-  // No data means the request failed — useApiInfiniteQuery already
-  // surfaced the error toast.
+  if (isError) {
+    return (
+      <StatePanel
+        icon={AlertTriangle}
+        heading="Something went wrong"
+        description="We couldn't load recipes. Check your connection and try again."
+        actions={<Button onClick={() => refetch()}>Retry</Button>}
+      />
+    );
+  }
+
   if (!data) return null;
 
   const recipes = data.pages.flatMap((page) => page.recipes);

@@ -1,9 +1,12 @@
-import {
-  useItems,
-  useRecipeCategories,
-  useRecipeTimeRange,
-} from "../hooks/useReferenceData";
-import type { CategoryMode } from "../types";
+import type { ApiError } from "@/lib/http/client";
+import type { UseQueryResult } from "@tanstack/react-query";
+
+import type {
+  CategoryMode,
+  Item,
+  RecipeCategory,
+  RecipeTimeRange,
+} from "../types";
 import { CategoryFilter } from "./CategoryFilter";
 import { IngredientFilter } from "./IngredientFilter";
 import { TimeRangeSlider } from "./TimeRangeSlider";
@@ -18,6 +21,9 @@ export function FilterPanel({
   onCategoryModeChange,
   onToggleIngredient,
   onSetTimeRange,
+  categoriesQuery,
+  itemsQuery,
+  timeRangeQuery,
 }: {
   categoryIds: string[];
   categoryMode: CategoryMode;
@@ -28,11 +34,10 @@ export function FilterPanel({
   onCategoryModeChange: (mode: CategoryMode) => void;
   onToggleIngredient: (id: string) => void;
   onSetTimeRange: (minTime: number, maxTime: number) => void;
+  categoriesQuery: UseQueryResult<RecipeCategory[], ApiError>;
+  itemsQuery: UseQueryResult<Item[], ApiError>;
+  timeRangeQuery: UseQueryResult<RecipeTimeRange, ApiError>;
 }) {
-  const categoriesQuery = useRecipeCategories();
-  const itemsQuery = useItems();
-  const timeRangeQuery = useRecipeTimeRange();
-
   return (
     <div className="flex flex-col gap-[22px]">
       {timeRangeQuery.data && (

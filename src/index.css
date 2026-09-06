@@ -4,6 +4,7 @@
 @theme {
   --font-sans: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Newsreader", georgia, "Times New Roman", serif;
+  --animate-spin-slow: spin 3s linear infinite;
 }
 
 :root {
@@ -117,6 +118,10 @@
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+
+    .animate-spin-slow {
+      animation: none;
     }
   }
 

@@ -1,13 +1,31 @@
+import { lazy } from "react";
 import { AppShell } from "@/components/nav/AppShell";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
-import { AuthCallback } from "@/features/auth/pages/AuthCallback";
-import { LandingPage } from "@/features/landing/LandingPage";
-import { MenuScreen } from "@/features/menu/MenuScreen";
-import { BrowseRecipesPage } from "@/features/recipes/pages/BrowseRecipesPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
+
+const AuthCallback = lazy(() =>
+  import("@/features/auth/pages/AuthCallback").then((m) => ({
+    default: m.AuthCallback,
+  })),
+);
+const LandingPage = lazy(() =>
+  import("@/features/landing/LandingPage").then((m) => ({
+    default: m.LandingPage,
+  })),
+);
+const MenuScreen = lazy(() =>
+  import("@/features/menu/MenuScreen").then((m) => ({
+    default: m.MenuScreen,
+  })),
+);
+const BrowseRecipesPage = lazy(() =>
+  import("@/features/recipes/pages/BrowseRecipesPage").then((m) => ({
+    default: m.BrowseRecipesPage,
+  })),
+);
 
 export function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();

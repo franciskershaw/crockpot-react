@@ -120,3 +120,17 @@ decision as fully closed. No code written yet.
   the delegate. Reserve forks for research/work that doesn't need to
   reason about its own dispatch; use a fresh agent when the task
   description would otherwise read as being about agent-spawning itself.
+
+## 2026-09-06 — CFE-016–019 — Tech-debt pass #1 shipped clean; code review before close-out caught two silent defects.
+
+- No rework between commits — the only rework came from a pre-close-out
+  code review run after all four tickets were "done": a dead
+  `prefers-reduced-motion` CSS override (Tailwind v4's `utilities` layer
+  always outranks `base`, so the override never applied) and
+  lazy-splitting all 4 routes when only the one carrying the actual
+  bundle-bloat dependency (`motion`) needed it.
+- **Pattern**: verify a hand-written CSS override against a
+  Tailwind-generated utility by inspecting the compiled output's
+  cascade-layer order — placement in `@layer base` loses to `utilities`
+  regardless of media-query specificity, so a built-in variant
+  (`motion-reduce:`, etc.) is safer than a hand-rolled override.

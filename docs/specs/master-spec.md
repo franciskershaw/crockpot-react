@@ -234,19 +234,78 @@ CFE-003.
   white-screens the app), and surface `isError`/retry in `RecipeGrid` and
   `FilterPanel` instead of relying on a transient toast that leaves the
   browse grid silently blank after it fades. Findings 1–2.
+  *(grilled 2026-09-06)*
+  - Acceptance criteria:
+    - [ ] Shared `StatePanel` component (`src/components/StatePanel.tsx`:
+      `icon`/`heading`/`description`/`actions` props) — one visual
+      definition reused by every empty/error state, not copy-pasted per
+      call site.
+    - [ ] `EmptyRecipes.tsx`'s two existing branches refactored to render
+      `StatePanel`.
+    - [ ] Top-level `ErrorBoundary` (class component, `App.tsx`) renders
+      `StatePanel` on catch; its retry action is `window.location
+      .reload()`, not a boundary-state reset (a reset re-renders children
+      into the same deterministic exception).
+    - [ ] `RecipeGrid` renders `StatePanel` (`AlertTriangle`, "Something
+      went wrong", Retry → `refetch()` from `useRecipeList`) when
+      `isError`.
+    - [ ] `FilterPanel`'s time-range/categories/ingredients sections each
+      independently render a small inline "Couldn't load ⟨X⟩ · Retry"
+      line (not the full `StatePanel`) when that section's own query
+      errors — built against the props CFE-018 threads in, not local
+      hooks.
+  - Non-goals: no Claude-Design spec dump for these states (compositional
+    reuse of the existing empty-state pattern, not new UI); no per-route
+    loading fallback (that's CFE-019).
+  - Sequencing: CFE-018's `FilterPanel` prop-threading lands before this
+    ticket's `FilterPanel` piece, so its retry wiring is built once
+    against props, not once against local hooks and then relocated.
+  - Verification: Vitest + Testing Library for the new `isError`
+    branching in `StatePanel`/`RecipeGrid`/`FilterPanel` (skip trivial
+    presentational passthrough). Interactive: hands-on — force a query
+    error (offline/throttle in dev tools) and click Retry on the grid and
+    each `FilterPanel` section; trigger a render exception to check the
+    boundary fallback and its reload button, in the running app.
 - **CFE-017** — Auth client hardening: add tests for `client.ts`'s
   concurrent-401 refresh collapse, retry-once, and refresh-failure paths
   (currently untested — highest-consequence code in the HTTP client);
   route `useLogout` through `useApiMutation` so a failed server-side
   logout call actually surfaces a toast like every other mutation.
-  Findings 3–4.
+  Findings 3–4. *(grilled 2026-09-06)*
+  - Acceptance criteria:
+    - [ ] `client.test.ts`: concurrent 401s collapse to one
+      `performRefresh` call; retry-once-then-fail (second 401 after retry
+      doesn't loop); `performRefresh` rejection propagates correctly.
+    - [ ] `useLogout` routes through `useApiMutation`; a failed
+      `/auth/logout` call toasts like every other mutation; `onSettled`
+      still unconditionally clears the token/session client-side either
+      way.
+  - Non-goals: no change to the refresh/retry mechanism itself (already
+    correct on inspection — this is coverage, not a fix).
+  - Verification: Logic with assertable behaviour — failing test first,
+    Vitest, for each of the 3 new `client.ts` cases and the `useLogout`
+    toast-on-failure case.
 - **CFE-018** — Data-layer cleanup: collapse the three near-identical
   `error instanceof ApiError` toast ternaries in
   `useApiQuery`/`useApiInfiniteQuery`/`useApiMutation` into one shared
   helper; thread `FilterPanel`'s reference-data queries through as props
   from `BrowseRecipesPage` instead of re-fetching independently (same
   cache key today, but two call sites that could silently diverge).
-  Findings 6, 8.
+  Findings 6, 8. *(grilled 2026-09-06)*
+  - Acceptance criteria:
+    - [ ] `apiErrorMessage(error)` helper, reused by
+      `useApiQuery`/`useApiInfiniteQuery`/`useApiMutation`.
+    - [ ] `BrowseRecipesPage` fetches `categoriesQuery`/`itemsQuery`/
+      `timeRangeQuery` and threads them into `FilterPanel` as props (same
+      pattern already used for `FilterPills`); `FilterPanel` no longer
+      calls the hooks itself. Lands before CFE-016's `FilterPanel` retry
+      piece — see that ticket's sequencing note.
+  - Non-goals: no behavior change (same cache key, same `staleTime`) —
+    pure relocation + dedup.
+  - Verification: `apiErrorMessage` — Vitest unit test (pure function,
+    real `ApiError`-vs-not branching). Prop-threading — no new logic;
+    verified via the real build/typecheck plus a manual click-through in
+    dev confirming filters still populate.
 - **CFE-019** — Housekeeping: fix 3 files' pre-`@/`-alias deep relative
   imports (`useLogout.tsx`, `AuthCallback.tsx`, `MenuScreen.tsx`); drop
   the redundant standalone `@radix-ui/react-slot` dependency in favour of
@@ -254,7 +313,29 @@ CFE-003.
   add `loading="lazy"` to `RecipeCard`'s image; add route-based code
   splitting (`React.lazy` + `Suspense` per route in `AppRoutes.tsx`) —
   carried forward from the 2026-09-04 seed finding, still open. Findings
-  5, 7, 9, 10.
+  5, 7, 9, 10. *(grilled 2026-09-06)*
+  - Acceptance criteria:
+    - [ ] 3 files' imports converted to the `@/` alias.
+    - [ ] `@radix-ui/react-slot` dependency dropped; `button.tsx` imports
+      `Slot` from the unified `radix-ui` package.
+    - [ ] `loading="lazy"` on `RecipeCard`'s `<img>`.
+    - [ ] `AppRoutes.tsx` routes converted to `React.lazy()`, wrapped in
+      one top-level `<Suspense fallback={<RouteFallback />}>` (a single
+      router-level fallback, not per-route).
+    - [ ] New `RouteFallback` component: lucide-react's `ChefHat` icon
+      with a custom slow-spin animation (~3s; Tailwind's built-in
+      `animate-spin` is 1s and reads too fast) defined in `index.css`,
+      centered on screen.
+  - Non-goals: no per-route fallback, no skeleton-style loading states
+    (4 routes don't justify 4 bespoke skeletons for a sub-second chunk
+    fetch).
+  - Verification: real `npm run build` — confirm route chunks actually
+    split and the prior 500KB chunk-size warning is gone (the number,
+    not just "it compiled"); `tsc -b`/`npm run build` after the alias
+    find-and-replace, plus a separate `grep` for `vi.mock(` targets per
+    the CFE-004 lesson (a `from "..."` regex won't touch those).
+    Interactive: click through all 4 routes in the running app, confirm
+    the chef's-hat spinner shows briefly then the real page renders.
 
 ### Deferred: Default Items
 

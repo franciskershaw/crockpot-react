@@ -1,5 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { Toaster } from "../components/ui/sonner";
 import { AuthProvider } from "../features/auth/components/AuthContext";
 import TanstackQueryProvider from "../lib/Tanstack/TanstackQueryProvider";
@@ -10,7 +11,9 @@ function App() {
     <TanstackQueryProvider>
       <AuthProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <ErrorBoundary>
+            <AppRoutes />
+          </ErrorBoundary>
           <Toaster />
         </BrowserRouter>
       </AuthProvider>

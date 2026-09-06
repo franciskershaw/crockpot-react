@@ -13,6 +13,10 @@ export class ApiError extends Error {
   }
 }
 
+export function apiErrorMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : "request failed";
+}
+
 let refreshPromise: Promise<string> | null = null;
 
 async function performRefresh(): Promise<string> {

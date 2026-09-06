@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError, apiFetch } from "./client";
+import { ApiError, apiErrorMessage, apiFetch } from "./client";
 
 function mockFetchOnce(status: number, jsonImpl: () => Promise<unknown>) {
   vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
@@ -65,5 +65,20 @@ describe("apiFetch error parsing", () => {
       message: "request failed",
       status: 400,
     } satisfies Partial<ApiError>);
+  });
+});
+
+describe("apiErrorMessage", () => {
+  it("uses the ApiError's own message", () => {
+    expect(apiErrorMessage(new ApiError(404, "recipe not found"))).toBe(
+      "recipe not found",
+    );
+  });
+
+  it("falls back to a generic message for a non-ApiError", () => {
+    expect(apiErrorMessage(new TypeError("failed to fetch"))).toBe(
+      "request failed",
+    );
+    expect(apiErrorMessage("not even an Error")).toBe("request failed");
   });
 });

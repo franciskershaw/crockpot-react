@@ -1,8 +1,8 @@
 import { useEffect } from "react";
+import { DEFAULT_AUTHENTICATED_ROUTE } from "@/app/routes";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
-import { DEFAULT_AUTHENTICATED_ROUTE } from "../../../app/routes";
 import { useAuth } from "../components/AuthContext";
 import { getAuthErrorMessage } from "../types";
 

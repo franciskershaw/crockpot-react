@@ -29,6 +29,7 @@ export function RecipeCard({ recipe }: { recipe: RecipeCardData }) {
           <img
             src={recipe.imageUrl}
             alt=""
+            loading="lazy"
             className="block size-full object-cover"
           />
         )}

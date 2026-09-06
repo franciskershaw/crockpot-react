@@ -1,7 +1,7 @@
+import { setAccessToken } from "@/lib/http/tokenStore";
+import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { setAccessToken } from "../../../lib/http/tokenStore";
-import { useApiMutation } from "../../../lib/Tanstack/useApiMutation";
 import { logout } from "../api";
 import { AUTH_SESSION_QUERY_KEY } from "../components/AuthContext";
 

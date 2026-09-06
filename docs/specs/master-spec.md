@@ -150,6 +150,12 @@ Sequenced to unblock on `crockpot-go` roughly in the order its own epics
 land, but the exact interleaving is a planning call for each ticket's own
 `grill-me`, not fixed here.
 
+*Next-phase priority set 2026-09-06 (see `crockpot-go`'s matching note):
+`CFE-020` and `CFE-021` jump the queue ahead of Epic 3 once their
+respective `crockpot-go` blockers (`CROC-019`, then `CROC-042`) land —
+the goal is a feature-complete browse page (random order, real ranking,
+on-card match info, add-to-menu) before anything else.*
+
 ### Round 1: log-in milestone — **Done** (2026-08-29)
 
 Land on `/`, "Continue with Google", consent, redirect to a protected
@@ -193,6 +199,34 @@ CFE-003.
   moved here from the browse card at `CFE-004`'s grill (2026-09-04, see
   `docs/handoffs/CFE-004.md` decision 5); `RecipeCard` shows no
   pending-state UI at all.
+- **CFE-020** — Add-to-menu quick action: a per-card button (+ the
+  "cascading into the menu" animation) on `RecipeCard`, plus whatever
+  `AppShell` badge it animates toward. Was a forward-pointer only
+  ("likely CFE-006") at `CFE-004`'s grill (2026-09-04, decision 2) —
+  promoted to its own ticket 2026-09-06 since it's cross-cutting
+  (browse card, favourites list, and `CFE-005`'s detail-page action all
+  plausibly share the same button/mutation). **Blocked on `crockpot-go`
+  `CROC-019`** (`POST /menu/entries`). Open for its grill: `browse1.png`
+  (desktop, per-card cart icon) and `browse2.png` (mobile, no per-card
+  icon, only an unrelated floating global badge) disagree — resolve
+  before building, don't assume one wins; whether the button hides for
+  anonymous visitors the same way the favourite heart does (`CFE-004`
+  decision 3); whether the `AppShell` badge it targets counts menu
+  entries (`CROC-019` data) or shopping-list items (`CFE-009`, not
+  built) — these are different counts and only one ticket should own
+  rendering it.
+- **CFE-021** — Match/ranking display on `RecipeCard`: reuse the old
+  app's `RelevanceBadge` presentation (`src/app/recipes/components/RecipeCard.tsx:22-79`
+  in `../../crockpot`) — "Best Match"/"Good Match" star badge, inline "N
+  ingredients matched"/"N categories matched" chips, shown only when
+  content filters are active — as real working precedent for layout/
+  copy, not a fresh design pass (founder's call, 2026-09-06: not
+  complex enough UI to warrant one). **Do not reuse its scoring
+  thresholds** (`0.8`/`0.5` of max possible score) — those are a
+  function of the old app's rejected algorithm; `CFE-021`'s thresholds
+  follow whatever `CROC-042` actually returns (score/tier/matched-ids),
+  not the old app's shape. **Blocked on `crockpot-go` `CROC-042`**
+  shipping its response fields.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab: current menu list, remove-from-menu,

@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
+import { StatePanel } from "@/components/StatePanel";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useRecipeList } from "../hooks/useRecipeList";
@@ -11,6 +14,9 @@ import { ResponsiveRecipeGrid } from "./ResponsiveRecipeGrid";
 const INITIAL_SKELETON_COUNT = 6;
 const NEXT_PAGE_SKELETON_COUNT = 3;
 const INTERSECTION_DEBOUNCE_MS = 500;
+// Matches ResponsiveRecipeGrid's widest breakpoint (xl:grid-cols-3) — these
+// are above the fold on first paint, so they shouldn't wait on loading="lazy".
+const PRIORITY_CARD_COUNT = 3;
 
 export function RecipeGrid({
   params,
@@ -21,8 +27,15 @@ export function RecipeGrid({
   activeFilterCount: number;
   onClearFilters: () => void;
 }) {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useRecipeList(params);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+    refetch,
+  } = useRecipeList(params);
 
   const lastTriggerRef = useRef(0);
   const latestRef = useRef({ hasNextPage, isFetchingNextPage, fetchNextPage });
@@ -62,8 +75,17 @@ export function RecipeGrid({
     );
   }
 
-  // No data means the request failed — useApiInfiniteQuery already
-  // surfaced the error toast.
+  if (isError) {
+    return (
+      <StatePanel
+        icon={AlertTriangle}
+        heading="Something went wrong"
+        description="We couldn't load recipes. Check your connection and try again."
+        actions={<Button onClick={() => refetch()}>Retry</Button>}
+      />
+    );
+  }
+
   if (!data) return null;
 
   const recipes = data.pages.flatMap((page) => page.recipes);
@@ -100,7 +122,10 @@ export function RecipeGrid({
               ease: "easeOut",
             }}
           >
-            <RecipeCard recipe={recipe} />
+            <RecipeCard
+              recipe={recipe}
+              priority={index < PRIORITY_CARD_COUNT}
+            />
           </motion.div>
         );
       })}

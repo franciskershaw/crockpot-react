@@ -1,6 +1,6 @@
-import { Button } from "../../components/ui/button";
-import { useAuth } from "../auth/components/AuthContext";
-import { useLogout } from "../auth/hooks/useLogout";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/components/AuthContext";
+import { useLogout } from "@/features/auth/hooks/useLogout";
 
 export function MenuScreen() {
   const { user } = useAuth();

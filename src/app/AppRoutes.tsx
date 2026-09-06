@@ -1,13 +1,29 @@
+import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import { AppShell } from "@/components/nav/AppShell";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
-import { AuthCallback } from "@/features/auth/pages/AuthCallback";
 import { LandingPage } from "@/features/landing/LandingPage";
 import { MenuScreen } from "@/features/menu/MenuScreen";
-import { BrowseRecipesPage } from "@/features/recipes/pages/BrowseRecipesPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
+
+// Only BrowseRecipesPage/AuthCallback are lazy; LandingPage/MenuScreen are most visitors' first view and gain nothing from a chunk round trip.
+function lazyNamed<
+  M extends Record<K, ComponentType>,
+  K extends keyof M & string,
+>(factory: () => Promise<M>, name: K): LazyExoticComponent<M[K]> {
+  return lazy(() => factory().then((m) => ({ default: m[name] })));
+}
+
+const AuthCallback = lazyNamed(
+  () => import("@/features/auth/pages/AuthCallback"),
+  "AuthCallback",
+);
+const BrowseRecipesPage = lazyNamed(
+  () => import("@/features/recipes/pages/BrowseRecipesPage"),
+  "BrowseRecipesPage",
+);
 
 export function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();

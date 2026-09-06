@@ -10,7 +10,11 @@ import { RecipeGrid } from "../components/RecipeGrid";
 import { SearchBar } from "../components/SearchBar";
 import { useRecipeFilters } from "../hooks/useRecipeFilters";
 import { useRecipeList } from "../hooks/useRecipeList";
-import { useItems, useRecipeCategories } from "../hooks/useReferenceData";
+import {
+  useItems,
+  useRecipeCategories,
+  useRecipeTimeRange,
+} from "../hooks/useReferenceData";
 
 export function BrowseRecipesPage() {
   const {
@@ -29,6 +33,7 @@ export function BrowseRecipesPage() {
 
   const categoriesQuery = useRecipeCategories();
   const itemsQuery = useItems();
+  const timeRangeQuery = useRecipeTimeRange();
   const { data } = useRecipeList(params);
   const total = data?.pages[0]?.total;
   const categoryMode = params.categoryMode ?? "include";
@@ -64,6 +69,9 @@ export function BrowseRecipesPage() {
     onCategoryModeChange: setCategoryMode,
     onToggleIngredient: toggleIngredient,
     onSetTimeRange: setTimeRange,
+    categoriesQuery,
+    itemsQuery,
+    timeRangeQuery,
   };
 
   return (

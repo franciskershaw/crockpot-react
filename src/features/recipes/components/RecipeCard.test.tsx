@@ -101,4 +101,41 @@ describe("RecipeCard", () => {
       wasFavourite: false,
     });
   });
+
+  it("lazy-loads its image by default", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    const { container } = renderWithProviders(
+      <RecipeCard recipe={recipe({ imageUrl: "https://example.com/a.jpg" })} />,
+    );
+
+    expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
+  });
+
+  it("loads its image eagerly when marked priority", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    const { container } = renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ imageUrl: "https://example.com/a.jpg" })}
+        priority
+      />,
+    );
+
+    expect(container.querySelector("img")).toHaveAttribute("loading", "eager");
+  });
 });

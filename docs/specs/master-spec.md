@@ -199,22 +199,23 @@ CFE-003.
   moved here from the browse card at `CFE-004`'s grill (2026-09-04, see
   `docs/handoffs/CFE-004.md` decision 5); `RecipeCard` shows no
   pending-state UI at all.
-- **CFE-020** — Add-to-menu quick action: a per-card button (+ the
-  "cascading into the menu" animation) on `RecipeCard`, plus whatever
-  `AppShell` badge it animates toward. Was a forward-pointer only
+- **CFE-020** — Add-to-menu quick action: a per-card cart icon on
+  `RecipeCard`, ported behaviourally unchanged from the old app's
+  `AddToMenuButton.tsx` (not from `browse1.png`/`browse2.png`, which
+  disagree with each other and were discounted at this ticket's grill —
+  see `docs/handoffs/CFE-020.md` decision 1). Was a forward-pointer only
   ("likely CFE-006") at `CFE-004`'s grill (2026-09-04, decision 2) —
-  promoted to its own ticket 2026-09-06 since it's cross-cutting
-  (browse card, favourites list, and `CFE-005`'s detail-page action all
-  plausibly share the same button/mutation). **Blocked on `crockpot-go`
-  `CROC-019`** (`POST /menu/entries`). Open for its grill: `browse1.png`
-  (desktop, per-card cart icon) and `browse2.png` (mobile, no per-card
-  icon, only an unrelated floating global badge) disagree — resolve
-  before building, don't assume one wins; whether the button hides for
-  anonymous visitors the same way the favourite heart does (`CFE-004`
-  decision 3); whether the `AppShell` badge it targets counts menu
-  entries (`CROC-019` data) or shopping-list items (`CFE-009`, not
-  built) — these are different counts and only one ticket should own
-  rendering it.
+  promoted to its own ticket 2026-09-06 since it's cross-cutting (browse
+  card, favourites list, and `CFE-005`'s detail-page action all
+  plausibly share the same button/mutation, though only the browse card
+  ships here — see the handoff's non-goals). Unblocked: `crockpot-go`
+  `CROC-019` (`POST /menu/entries`) shipped 2026-09-06. Grilled
+  2026-09-07, see `docs/handoffs/CFE-020.md` for the full decision set —
+  notably: `isInMenu` derived client-side from a prefetched `GET /menu`
+  rather than a new card DTO field (decision 2), no `AppShell`/nav badge
+  in scope (decision 7, drops the "cascading"/badge language this line
+  used to carry), serves stepper bounds 1–50 not the old app's 1–20
+  (decision 8).
 - **CFE-021** — Match/ranking display on `RecipeCard`: reuse the old
   app's `RelevanceBadge` presentation (`src/app/recipes/components/RecipeCard.tsx:22-79`
   in `../../crockpot`) — "Best Match"/"Good Match" star badge, inline "N

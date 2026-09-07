@@ -291,6 +291,19 @@ CFE-003.
   — carried forward from the 2026-09-04 seed finding. Findings 5, 7, 9,
   10. **Done** (2026-09-06).
 
+*Seeded 2026-09-07 (`CFE-020`'s build/close-out), for the next
+whole-codebase pass — not yet actioned:*
+- **Hardcoded Tailwind colors instead of this project's own config
+  tokens.** `AddToMenuButton.tsx` (ported from the old app, which has no
+  equivalent token system of its own) still uses raw Tailwind palette
+  classes — `gray-100`–`gray-800`, `white/95` — instead of `src/index.css`'s
+  actual design tokens (`border`, `muted`, `accent`, etc., the same family
+  `success`/`green`/`destructive` were pulled from at this ticket's
+  close-out). Founder preference stated for the first time here: colors
+  should mostly come from the config file, not be hardcoded — likely
+  affects other components too, not just this one file. Sweep on the next
+  pass rather than fixing piecemeal per-ticket.
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a

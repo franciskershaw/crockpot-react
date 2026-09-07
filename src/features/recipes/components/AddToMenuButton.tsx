@@ -67,7 +67,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                   menuPending
                     ? "text-gray-300"
                     : isInMenu
-                      ? "cursor-pointer text-green-600 hover:bg-accent"
+                      ? "cursor-pointer text-success hover:bg-accent"
                       : "cursor-pointer text-gray-600 hover:bg-accent"
                 }`}
               >
@@ -85,7 +85,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center overflow-visible rounded-full border-2 border-white bg-green-600 text-xs font-medium text-white shadow-lg"
+                className="absolute -top-2 -right-2 z-10 flex h-5 w-5 items-center justify-center overflow-visible rounded-full border-2 border-background bg-success text-xs font-medium text-success-foreground shadow-lg"
               >
                 {menuServes ?? servingAmount}
               </motion.div>
@@ -203,7 +203,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 onClick={handleConfirm}
                 disabled={isMutating}
                 aria-label="Confirm amount"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-green-600 transition-colors hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-success transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Check className="h-4 w-4" />
               </motion.button>

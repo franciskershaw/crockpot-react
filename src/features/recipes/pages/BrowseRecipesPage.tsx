@@ -15,6 +15,7 @@ import {
   useRecipeCategories,
   useRecipeTimeRange,
 } from "../hooks/useReferenceData";
+import { useSessionSeed } from "../hooks/useSessionSeed";
 
 export function BrowseRecipesPage() {
   const {
@@ -31,10 +32,13 @@ export function BrowseRecipesPage() {
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
+  const seed = useSessionSeed();
+  const requestParams = { ...params, seed };
+
   const categoriesQuery = useRecipeCategories();
   const itemsQuery = useItems();
   const timeRangeQuery = useRecipeTimeRange();
-  const { data } = useRecipeList(params);
+  const { data } = useRecipeList(requestParams);
   const total = data?.pages[0]?.total;
   const categoryMode = params.categoryMode ?? "include";
 
@@ -142,7 +146,7 @@ export function BrowseRecipesPage() {
           </aside>
 
           <RecipeGrid
-            params={params}
+            params={requestParams}
             activeFilterCount={activeFilterCount}
             onClearFilters={clearAll}
           />

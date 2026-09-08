@@ -401,6 +401,23 @@ whole-codebase pass — not yet actioned:*
   affects other components too, not just this one file. Sweep on the next
   pass rather than fixing piecemeal per-ticket.
 
+*Seeded 2026-09-08 (`CFE-021`'s piece 1, data-layer), for the next
+whole-codebase pass — not yet actioned:*
+- **Duplicated `RecipeCard` test fixture across 7 files.** A `recipe()`/
+  `recipeCard()`/`entry()` factory building a full `RecipeCard` object is
+  hand-copied in `RecipeCard.test.tsx`, `AddToMenuButton.test.tsx`,
+  `useAddToMenuButtonState.test.tsx`, `useToggleFavourite.test.tsx`, and
+  `menu`'s `useAddToMenu`/`useRemoveFromMenu`/`useUpdateMenuEntryServes`/
+  `useMenuEntry` tests — 8 copies total. Adding `CFE-021`'s 5 new
+  required fields (`matchedIngredientCount`, `totalIngredientCount`,
+  `matchedCategoryCount`, `score`, `tier`) meant editing all 8 by hand;
+  `tsc -b` (not `vitest run` alone) is what caught the ones this missed
+  on the first pass. Extract a shared builder into `src/test/` (already
+  the shared-test-infra location — `renderWithProviders.tsx` lives
+  there), so the next required field touches one file. Deferred rather
+  than done inline: real duplication, but a refactor across 8 files
+  scoped to test infra, not this ticket's actual behaviour.
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a

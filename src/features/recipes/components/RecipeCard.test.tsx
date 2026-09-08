@@ -37,6 +37,11 @@ function recipe(overrides: Partial<RecipeCardData> = {}): RecipeCardData {
     categories: [{ id: "c_1", name: "Batch" }],
     createdAt: "2026-01-01T00:00:00.000Z",
     isFavourite: false,
+    matchedIngredientCount: 0,
+    totalIngredientCount: 0,
+    matchedCategoryCount: 0,
+    score: 0,
+    tier: null,
     ...overrides,
   };
 }

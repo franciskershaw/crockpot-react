@@ -34,6 +34,7 @@ export function buildRecipeListSearchParams(
   }
   if (params.page !== undefined) search.set("page", String(params.page));
   if (params.limit !== undefined) search.set("limit", String(params.limit));
+  if (params.seed !== undefined) search.set("seed", params.seed);
 
   return search;
 }

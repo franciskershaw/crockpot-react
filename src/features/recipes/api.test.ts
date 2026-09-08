@@ -73,4 +73,14 @@ describe("buildRecipeListSearchParams", () => {
       "q=chicken&categoryId=cat-1&categoryMode=include&ingredientId=item-1&minTime=10&maxTime=60&page=1&limit=20",
     );
   });
+
+  it("sets seed", () => {
+    const search = buildRecipeListSearchParams({ seed: "0.42" });
+    expect(search.get("seed")).toBe("0.42");
+  });
+
+  it("omits seed when not given", () => {
+    const search = buildRecipeListSearchParams({});
+    expect(search.has("seed")).toBe(false);
+  });
 });

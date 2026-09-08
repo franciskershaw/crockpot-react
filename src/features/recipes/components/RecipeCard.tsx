@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
 import type { RecipeCard as RecipeCardData } from "../types";
+import { AddToMenuButton } from "./AddToMenuButton";
 
 export function RecipeCard({
   recipe,
@@ -41,26 +42,32 @@ export function RecipeCard({
         )}
 
         {isAuthenticated && (
-          <button
-            type="button"
-            aria-label={
-              recipe.isFavourite
-                ? "Remove from favourites"
-                : "Add to favourites"
-            }
-            onClick={handleFavouriteClick}
-            className="absolute right-2.5 top-2.5 flex size-8 items-center justify-center rounded-full border border-border bg-card"
-          >
-            <Heart
-              size={15}
-              strokeWidth={2}
-              className={
+          <>
+            <div className="absolute left-2.5 top-2.5">
+              <AddToMenuButton recipe={recipe} />
+            </div>
+
+            <button
+              type="button"
+              aria-label={
                 recipe.isFavourite
-                  ? "fill-accent-rust text-accent-rust"
-                  : "text-ink-secondary"
+                  ? "Remove from favourites"
+                  : "Add to favourites"
               }
-            />
-          </button>
+              onClick={handleFavouriteClick}
+              className="absolute right-2.5 top-2.5 flex size-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-accent"
+            >
+              <Heart
+                size={15}
+                strokeWidth={2}
+                className={
+                  recipe.isFavourite
+                    ? "fill-accent-rust text-accent-rust"
+                    : "text-ink-secondary"
+                }
+              />
+            </button>
+          </>
         )}
       </div>
 

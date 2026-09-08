@@ -134,3 +134,50 @@ decision as fully closed. No code written yet.
   cascade-layer order — placement in `@layer base` loses to `utilities`
   regardless of media-query specificity, so a built-in variant
   (`motion-reduce:`, etc.) is safer than a hand-rolled override.
+
+## 2026-09-08 — CFE-020 — Add-to-menu quick action. Shipped clean overall; three separate small process misses, each corrected mid-ticket.
+
+- **TDD "red" misapplied for two pieces.** Pieces 2–3 treated "module
+  doesn't exist yet" (an import crash) as a valid failing test; founder
+  corrected it ("that's not 'fail for the right reason', it's a
+  meaningful failure you solve in the next pass") and pieces 4+ used
+  real stubs with genuine assertion-diff failures instead. Pieces 2–3
+  weren't redone retroactively (founder's call: not worth the churn).
+- **A simplify pass added complexity while locally looking cleaner.**
+  Splitting `AddToMenuButton.tsx` into three single-use sub-components
+  (`CartIconToggle`/`ServingStepper`/`ConfirmButton`) grew the file
+  280→290 lines once prop-interface and call-site overhead were counted
+  — caught by the founder eyeballing the line count, not by the
+  simplify pass itself. Reverted the split, kept the genuinely-good part
+  of that pass (the `useAddToMenuButtonState` hook extraction, which
+  *did* shrink the component, to 216 lines). **Pattern**: a component
+  split only pays for itself with real reuse; a sub-component rendered
+  from exactly one call site is organizational, not simplifying — check
+  the line count before and after, don't assume extraction ⇒ smaller.
+- **Porting UI from a token-less codebase quietly imports its hardcoded
+  colors.** The old app's `AddToMenuButton.tsx` has no design-token
+  system, so its `green-600`/`gray-100`...`gray-800` came along
+  unexamined; took three founder-driven rounds (missing hover
+  consistency + cursor, wrong green, then a second green that read as
+  "mud" at badge scale) before landing on this project's actual
+  `--success` token. The founder named the standing preference for the
+  first time here — colors should come from `src/index.css`'s tokens,
+  not be hardcoded — despite the token system existing since
+  `CFE-003`/`CFE-004`. Now a saved memory
+  (`feedback_use_config_colors_not_hardcoded`); remaining instances in
+  this file (`gray-*` on the stepper/cancel controls) seeded as tech
+  debt rather than fixed piecemeal, see master-spec.
+- **This project's own `/code-review` skill, run at close-out, consumed
+  ~63% of a session's usage in ~15 minutes** before the founder flagged
+  it as abnormal. Its architecture (8 parallel review angles → dedup
+  candidates → one parallel verification fork per surviving candidate)
+  is expensive by design, not confirmably a bug — but for a diff this
+  size (a handful of new files, one modified component) that cost
+  wasn't worth it. Stopped the run, reviewed the same diff externally
+  via Cursor's Bugbot + security pass instead, which found 2 real
+  issues (a menu-fetch-error UI state bug, a cross-user query-cache
+  bleed on logout) for a fraction of the cost. **Pattern**: for a
+  small, mechanical diff, an external lightweight review tool is worth
+  trying before this project's own multi-agent `/code-review` — reserve
+  the heavier tool for larger or riskier diffs where the extra
+  verification depth is actually buying something.

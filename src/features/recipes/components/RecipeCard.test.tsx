@@ -14,6 +14,9 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 vi.mock("../hooks/useToggleFavourite", () => ({
   useToggleFavourite: vi.fn(),
 }));
+vi.mock("./AddToMenuButton", () => ({
+  AddToMenuButton: () => <button>Mock Add To Menu</button>,
+}));
 
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseToggleFavourite = vi.mocked(useToggleFavourite);
@@ -55,6 +58,42 @@ describe("RecipeCard", () => {
     expect(screen.getByText("320 mins")).toBeInTheDocument();
     expect(screen.getByText("Serves 12")).toBeInTheDocument();
     expect(screen.getByText("Batch")).toBeInTheDocument();
+  });
+
+  it("shows the add-to-menu button when logged in", () => {
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: "u_1",
+        email: "jamie@example.com",
+        name: "Jamie",
+        image: null,
+        role: "FREE",
+      },
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(<RecipeCard recipe={recipe()} />);
+
+    expect(screen.getByText("Mock Add To Menu")).toBeInTheDocument();
+  });
+
+  it("hides the add-to-menu button for an anonymous visitor", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(<RecipeCard recipe={recipe()} />);
+
+    expect(screen.queryByText("Mock Add To Menu")).not.toBeInTheDocument();
   });
 
   it("hides the favourite heart for an anonymous visitor", () => {

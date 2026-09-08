@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
 import type { RecipeCard as RecipeCardData } from "../types";
-import { RecipeCard } from "./RecipeCard";
+import { RecipeCard, visibleMatchTier } from "./RecipeCard";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
@@ -37,6 +37,11 @@ function recipe(overrides: Partial<RecipeCardData> = {}): RecipeCardData {
     categories: [{ id: "c_1", name: "Batch" }],
     createdAt: "2026-01-01T00:00:00.000Z",
     isFavourite: false,
+    matchedIngredientCount: 0,
+    totalIngredientCount: 0,
+    matchedCategoryCount: 0,
+    score: 0,
+    tier: null,
     ...overrides,
   };
 }
@@ -176,5 +181,198 @@ describe("RecipeCard", () => {
     );
 
     expect(container.querySelector("img")).toHaveAttribute("loading", "eager");
+  });
+
+  it("shows no star or chips when tier is null", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(<RecipeCard recipe={recipe()} />);
+
+    expect(screen.queryByText(/Best Match|Good Match/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/matched/)).not.toBeInTheDocument();
+  });
+
+  it("shows the Best Match star when tier is best and selection isn't the single-category case", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ tier: "best" })}
+        selectedCategoryCount={2}
+      />,
+    );
+
+    expect(screen.getByText("Best Match")).toBeInTheDocument();
+  });
+
+  it("shows the Good Match star when tier is good and selection isn't the single-category case", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ tier: "good" })}
+        selectedIngredientCount={1}
+      />,
+    );
+
+    expect(screen.getByText("Good Match")).toBeInTheDocument();
+  });
+
+  it("suppresses the star when exactly one category is selected and no ingredients", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ tier: "best", matchedCategoryCount: 1 })}
+        selectedCategoryCount={1}
+        selectedIngredientCount={0}
+      />,
+    );
+
+    expect(screen.queryByText(/Best Match|Good Match/)).not.toBeInTheDocument();
+    expect(screen.getByText("1 category matched")).toBeInTheDocument();
+  });
+
+  it("shows the star when one category and one ingredient are both selected", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ tier: "best" })}
+        selectedCategoryCount={1}
+        selectedIngredientCount={1}
+      />,
+    );
+
+    expect(screen.getByText("Best Match")).toBeInTheDocument();
+  });
+
+  it("shows the star when exactly one ingredient is selected and no categories", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ tier: "good" })}
+        selectedIngredientCount={1}
+        selectedCategoryCount={0}
+      />,
+    );
+
+    expect(screen.getByText("Good Match")).toBeInTheDocument();
+  });
+
+  it.each([
+    [1, 1, "1 of 1 ingredient matched"],
+    [1, 3, "1 of 3 ingredients matched"],
+    [2, 5, "2 of 5 ingredients matched"],
+  ])(
+    "shows the ingredient-matched chip for %i of %i",
+    (matchedIngredientCount, totalIngredientCount, expected) => {
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      mockUseToggleFavourite.mockReturnValue({
+        mutate: vi.fn(),
+      } as unknown as ReturnType<typeof useToggleFavourite>);
+
+      renderWithProviders(
+        <RecipeCard
+          recipe={recipe({ matchedIngredientCount, totalIngredientCount })}
+        />,
+      );
+
+      expect(screen.getByText(expected)).toBeInTheDocument();
+    },
+  );
+
+  it.each([
+    [1, "1 category matched"],
+    [2, "2 categories matched"],
+  ])(
+    "shows the category-matched chip for a count of %i",
+    (matchedCategoryCount, expected) => {
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      mockUseToggleFavourite.mockReturnValue({
+        mutate: vi.fn(),
+      } as unknown as ReturnType<typeof useToggleFavourite>);
+
+      renderWithProviders(
+        <RecipeCard recipe={recipe({ matchedCategoryCount })} />,
+      );
+
+      expect(screen.getByText(expected)).toBeInTheDocument();
+    },
+  );
+});
+
+describe("visibleMatchTier", () => {
+  it("returns null when the recipe has no tier", () => {
+    expect(visibleMatchTier(null, 0, 0)).toBeNull();
+    expect(visibleMatchTier(null, 3, 3)).toBeNull();
+  });
+
+  it("suppresses a tier when exactly one category is selected and no ingredients", () => {
+    expect(visibleMatchTier("best", 0, 1)).toBeNull();
+    expect(visibleMatchTier("good", 0, 1)).toBeNull();
+  });
+
+  it("does not suppress when 2+ categories are selected, even with no ingredients", () => {
+    expect(visibleMatchTier("best", 0, 2)).toBe("best");
+  });
+
+  it("does not suppress a single selected ingredient with no categories", () => {
+    expect(visibleMatchTier("good", 1, 0)).toBe("good");
+  });
+
+  it("does not suppress a single category when an ingredient is also selected", () => {
+    expect(visibleMatchTier("best", 1, 1)).toBe("best");
   });
 });

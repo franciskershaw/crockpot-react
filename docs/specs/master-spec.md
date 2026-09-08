@@ -216,18 +216,20 @@ CFE-003.
   in scope (decision 7, drops the "cascading"/badge language this line
   used to carry), serves stepper bounds 1–50 not the old app's 1–20
   (decision 8). **Done** (2026-09-08), see `docs/handoffs/CFE-020.md`.
-- **CFE-021** — Match/ranking display on `RecipeCard`: reuse the old
-  app's `RelevanceBadge` presentation (`src/app/recipes/components/RecipeCard.tsx:22-79`
-  in `../../crockpot`) — "Best Match"/"Good Match" star badge, inline "N
-  ingredients matched"/"N categories matched" chips, shown only when
-  content filters are active — as real working precedent for layout/
-  copy, not a fresh design pass (founder's call, 2026-09-06: not
-  complex enough UI to warrant one). **Do not reuse its scoring
-  thresholds** (`0.8`/`0.5` of max possible score) — those are a
-  function of the old app's rejected algorithm; `CFE-021`'s thresholds
-  follow whatever `CROC-042` actually returns (score/tier/matched-ids),
-  not the old app's shape. **Blocked on `crockpot-go` `CROC-042`**
-  shipping its response fields.
+- **CFE-021** — Match/ranking display + random-order seed on
+  `RecipeCard`/browse: "Best Match"/"Good Match" star badge and
+  ingredient/category match chips, reusing the old app's `RelevanceBadge`
+  layout/copy (not its scoring — `CROC-042` computes `score`/`tier`
+  server-side) and this project's own design tokens
+  (`--accent-gold`/`--success`/chip tokens) rather than the old app's
+  hardcoded palette. Scope absorbed seed generation/persistence
+  (`useSessionSeed`, ported from the old app's `useSessionSeed.tsx`
+  contract) since `CROC-042` had assumed `CFE-020`/`CFE-021` would own it
+  but `CFE-020` shipped without it. Star badge is suppressed when exactly
+  one category (no ingredients) is selected — verified against real
+  category-distribution data that this case otherwise makes dozens of
+  recipes "Best Match" simultaneously. See `LESSONS.md` (2026-09-08) for
+  the retro. **Done** (2026-09-08).
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab: current menu list, remove-from-menu,
@@ -303,6 +305,27 @@ whole-codebase pass — not yet actioned:*
   should mostly come from the config file, not be hardcoded — likely
   affects other components too, not just this one file. Sweep on the next
   pass rather than fixing piecemeal per-ticket.
+
+*Seeded 2026-09-08 (`CFE-021`'s piece 1, data-layer), for the next
+whole-codebase pass — not yet actioned:*
+- **Duplicated `RecipeCard` test fixture across 9 files.** A `recipe()`/
+  `recipeCard()`/`entry()` factory building a full `RecipeCard` object is
+  hand-copied in `RecipeCard.test.tsx`, `AddToMenuButton.test.tsx`,
+  `useAddToMenuButtonState.test.tsx`, `useToggleFavourite.test.tsx`,
+  `RecipeGrid.test.tsx`, and `menu`'s `useAddToMenu`/`useRemoveFromMenu`/
+  `useUpdateMenuEntryServes`/`useMenuEntry` tests — 9 copies total (8 at
+  piece 1 when this note was first written; `RecipeGrid.test.tsx` added a
+  9th at piece 4, for its own suppression-wiring tests, in the same
+  branch — proof the pattern kept growing even after being flagged).
+  Adding `CFE-021`'s 5 new required fields (`matchedIngredientCount`,
+  `totalIngredientCount`, `matchedCategoryCount`, `score`, `tier`) meant
+  editing all of them by hand; `tsc -b` (not `vitest run` alone) is what
+  caught the ones this missed on the first pass. Extract a shared builder
+  into `src/test/` (already the shared-test-infra location —
+  `renderWithProviders.tsx` lives there), so the next required field
+  touches one file. Deferred rather than done inline: real duplication,
+  but a refactor across 9 files scoped to test infra, not this ticket's
+  actual behaviour.
 
 ### Deferred: Default Items
 

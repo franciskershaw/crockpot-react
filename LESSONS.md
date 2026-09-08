@@ -181,3 +181,19 @@ decision as fully closed. No code written yet.
   trying before this project's own multi-agent `/code-review` — reserve
   the heavier tool for larger or riskier diffs where the extra
   verification depth is actually buying something.
+
+## 2026-09-08 — CFE-021 — Match/ranking badges + seed wiring. Clean ticket.
+
+- No rework — every TDD stub failed for the right reason, no locked-test
+  violations. Grilled scope grew twice from checking real sources
+  (`CROC-042`'s seed-ownership assumption against what `CFE-020` actually
+  shipped; real category-distribution data surfacing the star-suppression
+  rule) rather than from the ticket's own original text.
+- **Pattern**: a recorded grill plan can go stale by build time — check
+  current source per piece, not just the plan. Cut a planned
+  `BrowseRecipesPage`→`RecipeGrid` prop hop once `RecipeGrid` turned out
+  to already receive the full `params` object.
+- **Pattern**: a ticket's own seeded tech-debt note can drift stale
+  within the same branch (7→8→9 files, as later pieces added their own
+  copies) before the ticket even closes — recount at close-out, not just
+  at write time.

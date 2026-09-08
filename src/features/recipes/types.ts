@@ -1,3 +1,5 @@
+export type MatchTier = "best" | "good" | null;
+
 export interface RecipeCard {
   id: string;
   name: string;
@@ -9,6 +11,11 @@ export interface RecipeCard {
   categories: RecipeCategory[];
   createdAt: string;
   isFavourite: boolean;
+  matchedIngredientCount: number;
+  totalIngredientCount: number;
+  matchedCategoryCount: number;
+  score: number;
+  tier: MatchTier;
 }
 
 export interface RecipeListResponse {
@@ -30,6 +37,7 @@ export interface RecipeListParams {
   maxTime?: number;
   page?: number;
   limit?: number;
+  seed?: string;
 }
 
 export interface RecipeCategory {

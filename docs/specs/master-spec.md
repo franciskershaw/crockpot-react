@@ -217,114 +217,19 @@ CFE-003.
   used to carry), serves stepper bounds 1–50 not the old app's 1–20
   (decision 8). **Done** (2026-09-08), see `docs/handoffs/CFE-020.md`.
 - **CFE-021** — Match/ranking display + random-order seed on
-  `RecipeCard`/browse. Reuses the old app's `RelevanceBadge` presentation
-  (`src/app/recipes/components/RecipeCard.tsx:22-79` in `../../crockpot`)
-  — "Best Match"/"Good Match" star badge, inline "N ingredients
-  matched"/"N categories matched" chips — as real working precedent for
-  layout/copy, not a fresh design pass (founder's call, 2026-09-06: not
-  complex enough UI to warrant one). **Unblocked**: `crockpot-go`
-  `CROC-042` shipped 2026-09-06 (`docs/handoffs/CROC-042.md`) —
-  `RecipeCard` now returns `matchedIngredientCount`,
-  `totalIngredientCount`, `matchedCategoryCount`, `score`, `tier`
-  (`"best"`/`"good"`/`null`, fixed server-side thresholds 0.8/0.5 — not
-  this ticket's concern to change). Grilled 2026-09-08 (cheap to undo —
-  self-contained card component + one small hook, no shared contract
-  other tickets build on):
-  - **Scope grew to include seed generation/persistence.** `CROC-042`'s
-    own Non-goals section names `CFE-020`/`CFE-021` as owning the client
-    `seed` param, but `CFE-020` (Done, 2026-09-08) shipped only the
-    add-to-menu button — no seed code exists anywhere in
-    `crockpot-react` today (`api.ts` has no `seed` param). `CFE-021`
-    absorbs it: port the old app's `useSessionSeed.tsx` contract
-    unchanged (daily `sessionStorage`-persisted random seed, regenerated
-    when the stored date rolls over) into a new
-    `features/recipes/hooks/useSessionSeed.ts`, wired into
-    `RecipeListParams`/`buildRecipeListSearchParams` as `seed`.
-  - **Visibility is derived from the recipe's own fields, not
-    `activeFilterCount`.** `RecipeGrid`'s existing `activeFilterCount`
-    prop (`RecipeGrid.tsx:24`) includes `q`/time-range, which `CROC-042`
-    keeps as non-scoring hard filters (decision 5) — using it as the
-    gate would treat a time-only search as if it had match data. Show
-    the star badge when `recipe.tier` is non-null; show each chip when
-    its matched count > 0.
-  - **Star-badge suppression rule**, added after checking real data
-    (`crockpotV3.Recipe.json`, 213 approved recipes): "Air Fryer" alone
-    tags 76 of them, "Veggie" 54, "Healthy" 45. Selecting a single
-    category with no ingredients makes `categoryCoverage` =
-    `matchedCategoryCount / categoriesSelected` = 1/1 = 1.0 for every
-    recipe carrying that one tag, so all of them would show `tier:
-    "best"` simultaneously — not meaningfully differentiating. Suppress
-    the star badge specifically when `selectedIngredientCount === 0 &&
-    selectedCategoryCount === 1`; the ingredient axis doesn't need the
-    same treatment (self-limiting — coverage is against the recipe's own
-    total ingredient count, only hits 1.0 on a one-ingredient recipe).
-    Chips still render in the suppressed case (descriptive, not
-    evaluative, so "1 category matched" stays honest either way).
-    `RecipeCard` gains two new props, `selectedCategoryCount`/
-    `selectedIngredientCount`, threaded down `BrowseRecipesPage` →
-    `RecipeGrid` → `RecipeCard` alongside the existing
-    `activeFilterCount` — needed because `matchedCategoryCount` alone
-    can't distinguish "matched 1 of 1 selected" from "matched 1 of 5".
-  - **Colors reuse existing tokens, not the old app's hardcoded
-    palette** (LESSONS.md, CFE-020: porting UI from a token-less
-    codebase quietly imports its hardcoded colors — now a standing
-    preference). Best-Match star: `--accent-gold`. Good-Match star:
-    `--success`/`--success-foreground`. Ingredient-matched chip:
-    `--ingredient-chip-bg/border/text` (already used for selected-
-    ingredient filter pills, `FilterPills.tsx:19`). Category-matched
-    chip: `--category-chip-bg/border/text` (same, `FilterPills.tsx:17`)
-    — match chips now visually echo the filter pill that caused the
-    match.
-  - **Placement**: star badge absolute bottom-right of the image (top
-    corners already hold `AddToMenuButton`/favourite heart); chip row
-    between the time/serves line and the existing category-tags row —
-    matches old app's DOM order (`RecipeCard.tsx:198`, `:249-275` in
-    `../../crockpot`). `RecipeCardSkeleton` unchanged — already a
-    generic placeholder, not trying to mirror every conditional
-    per-recipe element.
-
-  **Acceptance criteria:**
-  - [ ] Selecting 2+ categories, or any ingredient (alone or combined
-        with categories), and matching enough to hit `tier: "best"`/
-        `"good"` shows the correct star + label.
-  - [ ] Selecting exactly one category (no ingredients) and matching it
-        never shows a star, but does show the "1 category matched" chip.
-  - [ ] Ingredient-matched and category-matched chips render
-        independently based on their own matched count > 0, regardless
-        of star visibility.
-  - [ ] No categories/ingredients selected (or `q`/time only) → no star,
-        no chips (`tier`/counts are null/zero from the API in this mode).
-  - [ ] No filters at all → results order is stable across pagination
-        and across repeated visits within the same calendar day (same
-        `seed` sent), and reshuffles on a new day.
-  - [ ] All badge/chip colors come from `src/index.css` tokens, no
-        hardcoded hex/Tailwind-palette classes.
-  - [ ] Vitest coverage: the suppression rule as a pure function (all
-        four `I`/`C` cardinality cases plus the boundary), and
-        `useSessionSeed`'s date-rollover/regenerate logic.
-
-  **Non-goals:**
-  - No change to `CROC-042`'s scoring formula or thresholds — this
-    ticket only decides whether the frontend *displays* the star it's
-    given, not what the server computes.
-  - No fresh design pass / new screenshot — old app markup is the
-    layout/copy precedent (founder's call, 2026-09-06); `browse1.png`/
-    `browse2.png` don't depict this state at all (confirmed by reading
-    both — filters are active in both with zero badges/chips shown), so
-    there's nothing to check this component against.
-  - No pending-approval indicator changes (owned by `CFE-005`).
-
-  **Verification:**
-  - **Visual + limits/thresholds** (`~/.claude/CLAUDE.md`): hands-on,
-    founder-driven, against the running `npm run dev` app — select one
-    category (expect chip, no star), select two/an ingredient (expect
-    star), clear all filters and reload within the same session (expect
-    stable order), clear `sessionStorage` or wait a day (expect
-    reshuffle). No screenshot exists for this state, so this is the real
-    check, not a stand-in for one.
-  - **Logic with assertable behaviour**: Vitest + Testing Library for
-    the suppression rule and `useSessionSeed`, per the acceptance
-    criteria above.
+  `RecipeCard`/browse: "Best Match"/"Good Match" star badge and
+  ingredient/category match chips, reusing the old app's `RelevanceBadge`
+  layout/copy (not its scoring — `CROC-042` computes `score`/`tier`
+  server-side) and this project's own design tokens
+  (`--accent-gold`/`--success`/chip tokens) rather than the old app's
+  hardcoded palette. Scope absorbed seed generation/persistence
+  (`useSessionSeed`, ported from the old app's `useSessionSeed.tsx`
+  contract) since `CROC-042` had assumed `CFE-020`/`CFE-021` would own it
+  but `CFE-020` shipped without it. Star badge is suppressed when exactly
+  one category (no ingredients) is selected — verified against real
+  category-distribution data that this case otherwise makes dozens of
+  recipes "Best Match" simultaneously. See `LESSONS.md` (2026-09-08) for
+  the retro. **Done** (2026-09-08).
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab: current menu list, remove-from-menu,
@@ -403,20 +308,24 @@ whole-codebase pass — not yet actioned:*
 
 *Seeded 2026-09-08 (`CFE-021`'s piece 1, data-layer), for the next
 whole-codebase pass — not yet actioned:*
-- **Duplicated `RecipeCard` test fixture across 7 files.** A `recipe()`/
+- **Duplicated `RecipeCard` test fixture across 9 files.** A `recipe()`/
   `recipeCard()`/`entry()` factory building a full `RecipeCard` object is
   hand-copied in `RecipeCard.test.tsx`, `AddToMenuButton.test.tsx`,
-  `useAddToMenuButtonState.test.tsx`, `useToggleFavourite.test.tsx`, and
-  `menu`'s `useAddToMenu`/`useRemoveFromMenu`/`useUpdateMenuEntryServes`/
-  `useMenuEntry` tests — 8 copies total. Adding `CFE-021`'s 5 new
-  required fields (`matchedIngredientCount`, `totalIngredientCount`,
-  `matchedCategoryCount`, `score`, `tier`) meant editing all 8 by hand;
-  `tsc -b` (not `vitest run` alone) is what caught the ones this missed
-  on the first pass. Extract a shared builder into `src/test/` (already
-  the shared-test-infra location — `renderWithProviders.tsx` lives
-  there), so the next required field touches one file. Deferred rather
-  than done inline: real duplication, but a refactor across 8 files
-  scoped to test infra, not this ticket's actual behaviour.
+  `useAddToMenuButtonState.test.tsx`, `useToggleFavourite.test.tsx`,
+  `RecipeGrid.test.tsx`, and `menu`'s `useAddToMenu`/`useRemoveFromMenu`/
+  `useUpdateMenuEntryServes`/`useMenuEntry` tests — 9 copies total (8 at
+  piece 1 when this note was first written; `RecipeGrid.test.tsx` added a
+  9th at piece 4, for its own suppression-wiring tests, in the same
+  branch — proof the pattern kept growing even after being flagged).
+  Adding `CFE-021`'s 5 new required fields (`matchedIngredientCount`,
+  `totalIngredientCount`, `matchedCategoryCount`, `score`, `tier`) meant
+  editing all of them by hand; `tsc -b` (not `vitest run` alone) is what
+  caught the ones this missed on the first pass. Extract a shared builder
+  into `src/test/` (already the shared-test-infra location —
+  `renderWithProviders.tsx` lives there), so the next required field
+  touches one file. Deferred rather than done inline: real duplication,
+  but a refactor across 9 files scoped to test infra, not this ticket's
+  actual behaviour.
 
 ### Deferred: Default Items
 

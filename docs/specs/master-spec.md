@@ -215,7 +215,7 @@ CFE-003.
   rather than a new card DTO field (decision 2), no `AppShell`/nav badge
   in scope (decision 7, drops the "cascading"/badge language this line
   used to carry), serves stepper bounds 1–50 not the old app's 1–20
-  (decision 8).
+  (decision 8). **Done** (2026-09-08), see `docs/handoffs/CFE-020.md`.
 - **CFE-021** — Match/ranking display on `RecipeCard`: reuse the old
   app's `RelevanceBadge` presentation (`src/app/recipes/components/RecipeCard.tsx:22-79`
   in `../../crockpot`) — "Best Match"/"Good Match" star badge, inline "N

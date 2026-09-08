@@ -6,14 +6,14 @@ export interface MenuEntryState {
   isPending: boolean;
 }
 
-// isPending lets callers show a neutral state instead of a false "not in menu" default while the menu is still loading.
+// isPending lets callers show a neutral state instead of a false "not in menu" default while the menu is still loading or failed to load.
 export function useMenuEntry(recipeId: string): MenuEntryState {
-  const { data, isPending } = useMenu();
+  const { data, isPending, isError } = useMenu();
   const entry = data?.entries.find((e) => e.recipeId === recipeId);
 
   return {
     isInMenu: !!entry,
     serves: entry?.serves,
-    isPending,
+    isPending: isPending || isError,
   };
 }

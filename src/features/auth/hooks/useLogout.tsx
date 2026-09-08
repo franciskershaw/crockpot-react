@@ -12,6 +12,7 @@ export function useLogout() {
     mutationFn: logout,
     onSettled: () => {
       setAccessToken(null);
+      queryClient.clear();
       queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, null);
     },
   });

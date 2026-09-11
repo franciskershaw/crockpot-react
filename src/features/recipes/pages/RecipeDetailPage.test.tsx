@@ -1,3 +1,8 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
+import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
+import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
+import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
+import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -12,8 +17,28 @@ vi.mock("../api", async (importOriginal) => ({
   getRecipe: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
+vi.mock("@/features/auth/components/AuthContext", () => ({
+  useAuth: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useMenuEntry", () => ({
+  useMenuEntry: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useAddToMenu", () => ({
+  useAddToMenu: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useUpdateMenuEntryServes", () => ({
+  useUpdateMenuEntryServes: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useRemoveFromMenu", () => ({
+  useRemoveFromMenu: vi.fn(),
+}));
 
 const mockGetRecipe = vi.mocked(getRecipe);
+const mockUseAuth = vi.mocked(useAuth);
+const mockUseMenuEntry = vi.mocked(useMenuEntry);
+const mockUseAddToMenu = vi.mocked(useAddToMenu);
+const mockUseUpdateMenuEntryServes = vi.mocked(useUpdateMenuEntryServes);
+const mockUseRemoveFromMenu = vi.mocked(useRemoveFromMenu);
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -47,8 +72,34 @@ function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
   };
 }
 
+function setupMenuAndAuth() {
+  mockUseAuth.mockReturnValue({
+    isAuthenticated: false,
+    isLoading: false,
+    user: null,
+  } as unknown as ReturnType<typeof useAuth>);
+  mockUseMenuEntry.mockReturnValue({
+    isInMenu: false,
+    serves: undefined,
+    isPending: false,
+  });
+  mockUseAddToMenu.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useAddToMenu>);
+  mockUseUpdateMenuEntryServes.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useUpdateMenuEntryServes>);
+  mockUseRemoveFromMenu.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useRemoveFromMenu>);
+}
+
 describe("RecipeDetailPage", () => {
   it("renders the recipe once it loads", async () => {
+    setupMenuAndAuth();
     mockGetRecipe.mockResolvedValue(recipeDetail({ name: "BBQ Pulled Pork" }));
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -58,6 +109,7 @@ describe("RecipeDetailPage", () => {
   });
 
   it("renders a back-to-recipes control once loaded", async () => {
+    setupMenuAndAuth();
     mockGetRecipe.mockResolvedValue(recipeDetail());
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -65,6 +117,29 @@ describe("RecipeDetailPage", () => {
     expect(
       (await screen.findAllByRole("link", { name: /back to recipes/i })).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("renders the description only when the recipe has one", async () => {
+    setupMenuAndAuth();
+    mockGetRecipe.mockResolvedValue(
+      recipeDetail({ description: "A freezer-stash regular." }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    expect(
+      await screen.findByText("A freezer-stash regular."),
+    ).toBeInTheDocument();
+  });
+
+  it("omits the description section when the recipe has none", async () => {
+    setupMenuAndAuth();
+    mockGetRecipe.mockResolvedValue(recipeDetail({ description: null }));
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    await screen.findByText("BBQ Pulled Pork");
+    expect(screen.queryByRole("paragraph")).not.toBeInTheDocument();
   });
 
   it("shows a not-found panel for a 404, with a link back to recipes", async () => {

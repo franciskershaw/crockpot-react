@@ -33,11 +33,13 @@ const TIER_BADGE_CLASSES = {
 
 export function RecipeCard({
   recipe,
+  from,
   priority = false,
   selectedCategoryCount = 0,
   selectedIngredientCount = 0,
 }: {
   recipe: RecipeCardData;
+  from: string;
   priority?: boolean;
   selectedCategoryCount?: number;
   selectedIngredientCount?: number;
@@ -61,7 +63,7 @@ export function RecipeCard({
 
   return (
     <Link
-      to={`/recipes/${recipe.id}`}
+      to={`/recipes/${recipe.id}?${new URLSearchParams({ from }).toString()}`}
       className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[0_2px_0_var(--color-card-shadow)] focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
       <div className="relative h-45 w-full bg-muted">

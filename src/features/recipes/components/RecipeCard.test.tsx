@@ -57,12 +57,32 @@ describe("RecipeCard", () => {
       mutate: vi.fn(),
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe()} />);
+    renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
     expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument();
     expect(screen.getByText("320 mins")).toBeInTheDocument();
     expect(screen.getByText("Serves 12")).toBeInTheDocument();
     expect(screen.getByText("Batch")).toBeInTheDocument();
+  });
+
+  it("carries the caller's from through to the detail link, not a hardcoded value", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard recipe={recipe()} from="/recipes?categoryId=c1&q=chicken" />,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      `/recipes/r_1?${new URLSearchParams({ from: "/recipes?categoryId=c1&q=chicken" }).toString()}`,
+    );
   });
 
   it("shows the add-to-menu button when logged in", () => {
@@ -81,7 +101,7 @@ describe("RecipeCard", () => {
       mutate: vi.fn(),
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe()} />);
+    renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
     expect(screen.getByText("Mock Add To Menu")).toBeInTheDocument();
   });
@@ -96,7 +116,7 @@ describe("RecipeCard", () => {
       mutate: vi.fn(),
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe()} />);
+    renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
     expect(screen.queryByText("Mock Add To Menu")).not.toBeInTheDocument();
   });
@@ -111,7 +131,7 @@ describe("RecipeCard", () => {
       mutate: vi.fn(),
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe()} />);
+    renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
     expect(
       screen.queryByRole("button", { name: /favourites/i }),
@@ -135,7 +155,9 @@ describe("RecipeCard", () => {
       mutate,
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe({ isFavourite: false })} />);
+    renderWithProviders(
+      <RecipeCard recipe={recipe({ isFavourite: false })} from="/recipes" />,
+    );
 
     const heart = screen.getByRole("button", { name: "Add to favourites" });
     await userEvent.setup().click(heart);
@@ -157,7 +179,10 @@ describe("RecipeCard", () => {
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
     const { container } = renderWithProviders(
-      <RecipeCard recipe={recipe({ imageUrl: "https://example.com/a.jpg" })} />,
+      <RecipeCard
+        recipe={recipe({ imageUrl: "https://example.com/a.jpg" })}
+        from="/recipes"
+      />,
     );
 
     expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
@@ -176,6 +201,7 @@ describe("RecipeCard", () => {
     const { container } = renderWithProviders(
       <RecipeCard
         recipe={recipe({ imageUrl: "https://example.com/a.jpg" })}
+        from="/recipes"
         priority
       />,
     );
@@ -193,7 +219,7 @@ describe("RecipeCard", () => {
       mutate: vi.fn(),
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
-    renderWithProviders(<RecipeCard recipe={recipe()} />);
+    renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
     expect(screen.queryByText(/Best Match|Good Match/)).not.toBeInTheDocument();
     expect(screen.queryByText(/matched/)).not.toBeInTheDocument();
@@ -212,6 +238,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ tier: "best" })}
+        from="/recipes"
         selectedCategoryCount={2}
       />,
     );
@@ -232,6 +259,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ tier: "good" })}
+        from="/recipes"
         selectedIngredientCount={1}
       />,
     );
@@ -252,6 +280,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ tier: "best", matchedCategoryCount: 1 })}
+        from="/recipes"
         selectedCategoryCount={1}
         selectedIngredientCount={0}
       />,
@@ -274,6 +303,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ tier: "best" })}
+        from="/recipes"
         selectedCategoryCount={1}
         selectedIngredientCount={1}
       />,
@@ -295,6 +325,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ tier: "good" })}
+        from="/recipes"
         selectedIngredientCount={1}
         selectedCategoryCount={0}
       />,
@@ -322,6 +353,7 @@ describe("RecipeCard", () => {
       renderWithProviders(
         <RecipeCard
           recipe={recipe({ matchedIngredientCount, totalIngredientCount })}
+          from="/recipes"
         />,
       );
 
@@ -345,7 +377,10 @@ describe("RecipeCard", () => {
       } as unknown as ReturnType<typeof useToggleFavourite>);
 
       renderWithProviders(
-        <RecipeCard recipe={recipe({ matchedCategoryCount })} />,
+        <RecipeCard
+          recipe={recipe({ matchedCategoryCount })}
+          from="/recipes"
+        />,
       );
 
       expect(screen.getByText(expected)).toBeInTheDocument();

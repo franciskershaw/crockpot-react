@@ -14,7 +14,7 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 vi.mock("../hooks/useToggleFavourite", () => ({
   useToggleFavourite: vi.fn(),
 }));
-vi.mock("./AddToMenuButton", () => ({
+vi.mock("./add-to-menu/AddToMenuButton", () => ({
   AddToMenuButton: () => <button>Mock Add To Menu</button>,
 }));
 

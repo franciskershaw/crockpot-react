@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
 import type { RecipeCard as RecipeCardData } from "../types";
-import { AddToMenuButton } from "./AddToMenuButton";
+import { AddToMenuButton } from "./add-to-menu/AddToMenuButton";
 
 // One selected category trivially scores 1.0 for every recipe with that
 // tag; a single ingredient doesn't, since it's scored against the recipe's own count.

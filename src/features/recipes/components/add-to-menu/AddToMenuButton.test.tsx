@@ -6,7 +6,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { RecipeCard as RecipeCardData } from "../types";
+import type { RecipeCard as RecipeCardData } from "../../types";
 import { AddToMenuButton } from "./AddToMenuButton";
 
 vi.mock("@/features/menu/hooks/useMenuEntry", () => ({

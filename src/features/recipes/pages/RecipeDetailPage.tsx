@@ -6,7 +6,7 @@ import { AlertTriangle, ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { getRecipe } from "../api";
-import { AddToMenuCTA } from "../components/AddToMenuCTA";
+import { AddToMenuCTA } from "../components/add-to-menu/AddToMenuCTA";
 import { RecipeBackButton } from "../components/RecipeBackButton";
 import { recipeKeys } from "../queryKeys";
 

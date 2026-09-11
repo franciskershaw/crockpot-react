@@ -343,3 +343,15 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   section on the shopping list screen, something else) is undecided —
   open for the grill, alongside `crockpot-go` `CROC-038`'s data-shape
   questions.
+
+### Bugs
+*Spotted 2026-09-09, not yet grilled or scheduled.*
+- **CFE-022** — Logging out doesn't update the UI until a manual refresh.
+  Backend responds 200 to the logout call, but the app keeps rendering
+  the logged-in state until the page is reloaded — expected an immediate
+  redirect/re-render to the logged-out view. Starting point:
+  `useLogout.tsx`'s `onSettled` (clears the token, calls
+  `queryClient.clear()`, then `setQueryData(AUTH_SESSION_QUERY_KEY,
+  null)`) — worth checking why that doesn't propagate to whatever reads
+  `AUTH_SESSION_QUERY_KEY` (`AuthContext`/`RequireAuth`) without a
+  refresh. Not yet root-caused.

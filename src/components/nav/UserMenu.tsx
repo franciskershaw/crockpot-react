@@ -36,7 +36,7 @@ export function UserMenu() {
         <button
           type="button"
           aria-label="Account menu"
-          className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-medium text-primary-foreground"
+          className="flex size-9 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-medium text-primary-foreground"
         >
           {initials}
         </button>

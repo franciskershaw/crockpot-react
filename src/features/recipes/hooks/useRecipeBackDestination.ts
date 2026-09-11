@@ -1,8 +1,17 @@
 import { useSearchParams } from "react-router-dom";
 
-export interface BackDestination {
+interface ResolvedBackLabel {
   to: string;
   label: string;
+}
+
+export interface BackDestination extends ResolvedBackLabel {
+  canGoBack: boolean;
+}
+
+// react-router increments window.history.state.idx on every push; idx > 0 means navigate(-1) has a real entry to land on.
+export function canGoBackInApp(): boolean {
+  return (window.history.state?.idx ?? 0) > 0;
 }
 
 const DEFAULT_TO = "/recipes";
@@ -14,12 +23,15 @@ const BACK_LABELS: Record<string, string> = {
 
 export function resolveBackDestination(
   from: string | null | undefined,
-): BackDestination {
+): ResolvedBackLabel {
   const to = from?.trim() || DEFAULT_TO;
   return { to, label: BACK_LABELS[to] ?? BACK_LABELS[DEFAULT_TO] };
 }
 
 export function useRecipeBackDestination(): BackDestination {
   const [searchParams] = useSearchParams();
-  return resolveBackDestination(searchParams.get("from"));
+  return {
+    ...resolveBackDestination(searchParams.get("from")),
+    canGoBack: canGoBackInApp(),
+  };
 }

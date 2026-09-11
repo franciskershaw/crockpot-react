@@ -57,6 +57,16 @@ describe("RecipeDetailPage", () => {
     expect(mockGetRecipe).toHaveBeenCalledWith("r_1");
   });
 
+  it("renders a back-to-recipes control once loaded", async () => {
+    mockGetRecipe.mockResolvedValue(recipeDetail());
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    expect(
+      (await screen.findAllByRole("link", { name: /back to recipes/i })).length,
+    ).toBeGreaterThan(0);
+  });
+
   it("shows a not-found panel for a 404, with a link back to recipes", async () => {
     const { ApiError } = await import("@/lib/http/client");
     mockGetRecipe.mockRejectedValue(new ApiError(404, "not_found"));

@@ -6,6 +6,7 @@ import { AlertTriangle, ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { getRecipe } from "../api";
+import { RecipeBackButton } from "../components/RecipeBackButton";
 import { recipeKeys } from "../queryKeys";
 
 export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
@@ -47,7 +48,14 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     );
   }
 
-  return <div>{recipe.name}</div>;
+  // Temporary minimal composition so the back button is reachable for a
+  // real sanity check — the actual hero/action-row lands in a later piece.
+  return (
+    <div className="relative min-h-40">
+      <RecipeBackButton />
+      <div className="pt-16">{recipe.name}</div>
+    </div>
+  );
 }
 
 export function RecipeDetailRoute() {

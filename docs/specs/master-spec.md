@@ -198,7 +198,19 @@ CFE-003.
   pending-approval indicator** for the viewer's own unapproved recipe —
   moved here from the browse card at `CFE-004`'s grill (2026-09-04, see
   `docs/handoffs/CFE-004.md` decision 5); `RecipeCard` shows no
-  pending-state UI at all.
+  pending-state UI at all. Grilled 2026-09-11, see
+  `docs/handoffs/CFE-005.md` for the full decision set — notably: the
+  new screenshots are a style reference only, not a literal spec
+  (decision 1); mobile keeps the old app's Ingredients/Instructions tabs
+  rather than the new single-scroll design (decision 2); a new,
+  larger Add-to-Menu hero CTA reuses `CFE-020`'s
+  `useAddToMenuButtonState` with new presentation (decision 3); serves
+  display is fully decoupled from the menu, a real behavior change from
+  the old app (decision 4); a mobile-only collapsing/sticky hero built
+  with plain CSS `position: sticky` (decision 5); `from=`-aware back
+  navigation that `CFE-006`/`007`/`008` will register their own values
+  into later (decision 7); and a new ingredient-category icon mapper,
+  restoring icons the new screenshots dropped (decision 9).
 - **CFE-020** — Add-to-menu quick action: a per-card cart icon on
   `RecipeCard`, ported behaviourally unchanged from the old app's
   `AddToMenuButton.tsx` (not from `browse1.png`/`browse2.png`, which

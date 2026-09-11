@@ -345,13 +345,15 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   questions.
 
 ### Bugs
-*Spotted 2026-09-09, not yet grilled or scheduled.*
-- **CFE-022** — Logging out doesn't update the UI until a manual refresh.
-  Backend responds 200 to the logout call, but the app keeps rendering
-  the logged-in state until the page is reloaded — expected an immediate
-  redirect/re-render to the logged-out view. Starting point:
-  `useLogout.tsx`'s `onSettled` (clears the token, calls
-  `queryClient.clear()`, then `setQueryData(AUTH_SESSION_QUERY_KEY,
-  null)`) — worth checking why that doesn't propagate to whatever reads
-  `AUTH_SESSION_QUERY_KEY` (`AuthContext`/`RequireAuth`) without a
-  refresh. Not yet root-caused.
+- **CFE-022** — Logging out didn't update the UI until a manual refresh.
+  Root cause: `useLogout.tsx`'s `onSettled` called `queryClient.clear()`
+  before `setQueryData(AUTH_SESSION_QUERY_KEY, null)` — `clear()`
+  destroys and rebuilds the session query with no observer attached to
+  the new instance, so the null write landed unseen until something
+  unrelated forced a re-render of `AuthContext` (explaining the
+  page-dependent flakiness). Fixed by writing `setQueryData` first, then
+  `removeQueries` (excluding the auth key) instead of a blanket
+  `clear()`, so other logged-in-scoped caches still get wiped without
+  orphaning the auth observer. Also added a "Logged out" success toast
+  and cursor-pointer fixes on `UserMenu`'s avatar trigger and
+  `DropdownMenuItem`. **Done** (2026-09-11).

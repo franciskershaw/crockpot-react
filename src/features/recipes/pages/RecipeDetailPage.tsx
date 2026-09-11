@@ -6,6 +6,7 @@ import { AlertTriangle, ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { getRecipe } from "../api";
+import { AddToMenuCTA } from "../components/AddToMenuCTA";
 import { RecipeBackButton } from "../components/RecipeBackButton";
 import { recipeKeys } from "../queryKeys";
 
@@ -48,12 +49,15 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     );
   }
 
-  // Temporary minimal composition so the back button is reachable for a
-  // real sanity check — the actual hero/action-row lands in a later piece.
+  // Temporary minimal composition for sanity-checking pieces in isolation —
+  // the actual hero/action-row lands in a later piece.
   return (
     <div className="relative min-h-40">
       <RecipeBackButton />
-      <div className="pt-16">{recipe.name}</div>
+      <div className="flex flex-col items-start gap-4 pt-16 pl-4">
+        <div>{recipe.name}</div>
+        <AddToMenuCTA recipe={recipe} variant="desktop" />
+      </div>
     </div>
   );
 }

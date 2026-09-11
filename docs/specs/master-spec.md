@@ -369,3 +369,5 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   orphaning the auth observer. Also added a "Logged out" success toast
   and cursor-pointer fixes on `UserMenu`'s avatar trigger and
   `DropdownMenuItem`. **Done** (2026-09-11).
+
+- **CFE-023** - 'Remove from menu' on the shopping cart sometimes appears before the loading spinner disappears and the exit animation kicks off

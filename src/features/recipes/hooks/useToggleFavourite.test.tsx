@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { addFavourite, removeFavourite } from "../api";
 import { recipeKeys } from "../queryKeys";
-import type { RecipeCard, RecipeListResponse } from "../types";
+import type { RecipeCard, RecipeDetail, RecipeListResponse } from "../types";
 import { useToggleFavourite } from "./useToggleFavourite";
 
 vi.mock("../api", async (importOriginal) => ({
@@ -45,6 +45,20 @@ function recipe(overrides: Partial<RecipeCard> = {}): RecipeCard {
 
 function page(recipes: RecipeCard[]): RecipeListResponse {
   return { recipes, page: 1, limit: 20, total: recipes.length, totalPages: 1 };
+}
+
+function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
+  return {
+    ...recipe(),
+    description: null,
+    instructions: [],
+    notes: [],
+    ingredients: [],
+    createdById: "u_1",
+    createdByName: "Jamie",
+    updatedAt: "2026-01-01T00:00:00.000Z",
+    ...overrides,
+  };
 }
 
 function setup(recipes: RecipeCard[]) {
@@ -123,5 +137,76 @@ describe("useToggleFavourite", () => {
       queryKey,
     );
     expect(data?.pages[0].recipes[0].isFavourite).toBe(false);
+  });
+
+  it("optimistically flips isFavourite in the detail cache before the request resolves", async () => {
+    const { queryClient, wrapper } = setup([]);
+    const detailKey = recipeKeys.detail("r_1");
+    queryClient.setQueryData(detailKey, recipeDetail({ isFavourite: false }));
+    let resolveAdd: (v: { message: string }) => void;
+    mockAddFavourite.mockReturnValue(
+      new Promise((resolve) => {
+        resolveAdd = resolve;
+      }),
+    );
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+
+    result.current.mutate({ recipeId: "r_1", wasFavourite: false });
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryData<RecipeDetail>(detailKey)?.isFavourite,
+      ).toBe(true);
+    });
+
+    resolveAdd!({ message: "ok" });
+  });
+
+  it("rolls back the optimistic flip in the detail cache when the request fails", async () => {
+    const { queryClient, wrapper } = setup([]);
+    const detailKey = recipeKeys.detail("r_1");
+    queryClient.setQueryData(detailKey, recipeDetail({ isFavourite: false }));
+    let rejectAdd: (error: Error) => void;
+    mockAddFavourite.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        rejectAdd = reject;
+      }),
+    );
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+
+    result.current.mutate({ recipeId: "r_1", wasFavourite: false });
+
+    // Prove the optimistic flip actually happened, not just that it's absent throughout.
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryData<RecipeDetail>(detailKey)?.isFavourite,
+      ).toBe(true);
+    });
+
+    rejectAdd!(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData<RecipeDetail>(detailKey)?.isFavourite).toBe(
+      false,
+    );
+  });
+
+  it("leaves an unrelated recipe's detail cache untouched", async () => {
+    const { queryClient, wrapper } = setup([]);
+    const otherKey = recipeKeys.detail("r_2");
+    queryClient.setQueryData(otherKey, recipeDetail({ id: "r_2" }));
+    mockAddFavourite.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+
+    result.current.mutate({ recipeId: "r_1", wasFavourite: false });
+
+    await waitFor(() => expect(mockAddFavourite).toHaveBeenCalled());
+
+    expect(queryClient.getQueryData<RecipeDetail>(otherKey)?.isFavourite).toBe(
+      false,
+    );
   });
 });

@@ -56,3 +56,24 @@ export interface RecipeTimeRange {
   minTime: number;
   maxTime: number;
 }
+
+export interface HydratedIngredient {
+  itemId: string;
+  itemName: string;
+  itemCategoryId: string;
+  itemCategoryName: string;
+  unitId: string | null;
+  unitAbbreviation: string | null;
+  quantity: number;
+}
+
+// RecipeCard fields are flattened into this response by Go's embedded-struct JSON marshaling (internal/models/recipe.go's RecipeDetail).
+export interface RecipeDetail extends RecipeCard {
+  description: string | null;
+  instructions: string[];
+  notes: string[];
+  ingredients: HydratedIngredient[];
+  createdById: string;
+  createdByName: string | null;
+  updatedAt: string;
+}

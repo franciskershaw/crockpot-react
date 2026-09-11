@@ -11,4 +11,6 @@ export const recipeKeys = {
       ...recipeKeys.lists(),
       buildRecipeListSearchParams(params).toString(),
     ] as const,
+  details: () => [...recipeKeys.all, "detail"] as const,
+  detail: (id: string) => [...recipeKeys.details(), id] as const,
 };

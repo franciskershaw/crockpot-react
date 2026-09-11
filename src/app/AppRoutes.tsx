@@ -24,6 +24,10 @@ const BrowseRecipesPage = lazyNamed(
   () => import("@/features/recipes/pages/BrowseRecipesPage"),
   "BrowseRecipesPage",
 );
+const RecipeDetailRoute = lazyNamed(
+  () => import("@/features/recipes/pages/RecipeDetailPage"),
+  "RecipeDetailRoute",
+);
 
 export function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -42,6 +46,7 @@ export function AppRoutes() {
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/recipes" element={<BrowseRecipesPage />} />
+        <Route path="/recipes/:id" element={<RecipeDetailRoute />} />
         <Route
           path="/menu"
           element={

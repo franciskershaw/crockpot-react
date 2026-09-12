@@ -22,7 +22,7 @@ export function RecipeHero({ recipe }: { recipe: RecipeDetail }) {
   const { to } = useRecipeBackDestination();
 
   return (
-    <div className="relative h-[420px] w-full bg-muted md:h-[480px]">
+    <div className="relative h-105 w-full bg-muted md:h-120">
       {recipe.imageUrl && (
         <img
           src={recipe.imageUrl}
@@ -32,7 +32,7 @@ export function RecipeHero({ recipe }: { recipe: RecipeDetail }) {
       )}
       {/* Flat wash keeps any uploaded image readable; gradient adds contrast behind the text. */}
       <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
 
       <RecipeBackButton />
 
@@ -55,7 +55,7 @@ export function RecipeHero({ recipe }: { recipe: RecipeDetail }) {
           {recipe.name}
         </h1>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 md:justify-start md:gap-8">
+        <div className="flex flex-wrap items-center gap-4 md:gap-8">
           <div className="flex flex-wrap items-center gap-4 text-sm text-white/90">
             <div className="flex items-center gap-1.5">
               <Clock size={16} strokeWidth={2} />

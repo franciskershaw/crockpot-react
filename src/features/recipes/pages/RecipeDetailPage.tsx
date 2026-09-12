@@ -6,7 +6,7 @@ import { AlertTriangle, ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { getRecipe } from "../api";
-import { IngredientsSection } from "../components/IngredientsSection";
+import { RecipeContent } from "../components/RecipeContent";
 import { RecipeHero } from "../components/RecipeHero";
 import { recipeKeys } from "../queryKeys";
 
@@ -49,7 +49,6 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     );
   }
 
-  // Temporary single-column placement; real two-column/tabbed layout lands with Instructions/Notes.
   return (
     <div>
       <RecipeHero recipe={recipe} />
@@ -58,9 +57,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
           {recipe.description}
         </p>
       )}
-      <div className="mx-auto max-w-2xl px-6 pb-10">
-        <IngredientsSection recipe={recipe} />
-      </div>
+      <RecipeContent recipe={recipe} />
     </div>
   );
 }

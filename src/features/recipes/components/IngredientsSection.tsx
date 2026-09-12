@@ -27,7 +27,7 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
         Ingredients ({scaledIngredients.length})
       </h2>
 
-      <fieldset className="m-0 mb-6 flex min-w-0 items-center justify-between rounded-lg border border-ingredient-chip-border px-4 py-3">
+      <fieldset className="m-0 mb-6 flex min-w-0 items-center justify-between rounded-lg border px-4 py-3">
         <legend className="sr-only">Servings</legend>
         <div className="flex items-center gap-2 text-sm font-medium text-ingredient-chip-text">
           <Users size={16} strokeWidth={2} />

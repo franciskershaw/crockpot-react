@@ -94,7 +94,9 @@ export function RecipeHero({ recipe }: { recipe: RecipeDetail }) {
                 />
               </>
             )}
-            <AddToMenuCTA recipe={recipe} variant="desktop" />
+            {isAuthenticated && (
+              <AddToMenuCTA recipe={recipe} variant="desktop" />
+            )}
           </div>
         </div>
       </div>

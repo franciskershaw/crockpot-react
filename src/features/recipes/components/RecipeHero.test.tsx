@@ -139,7 +139,7 @@ describe("RecipeHero", () => {
     expect(screen.queryByText(/^By /)).not.toBeInTheDocument();
   });
 
-  it("hides favourite, edit and delete for an anonymous visitor", () => {
+  it("hides favourite, edit, delete and the Add to Menu CTA for an anonymous visitor", () => {
     setup({ isAuthenticated: false });
     renderWithProviders(<RecipeHero recipe={recipe()} />);
 
@@ -151,6 +151,9 @@ describe("RecipeHero", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Delete recipe" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Add to menu" }),
     ).not.toBeInTheDocument();
   });
 
@@ -193,8 +196,8 @@ describe("RecipeHero", () => {
     ).toBeInTheDocument();
   });
 
-  it("always renders the Add to Menu CTA", () => {
-    setup();
+  it("renders the Add to Menu CTA for an authenticated viewer", () => {
+    setup({ isAuthenticated: true });
     renderWithProviders(<RecipeHero recipe={recipe()} />);
 
     expect(

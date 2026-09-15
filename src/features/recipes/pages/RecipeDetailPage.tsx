@@ -8,6 +8,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { getRecipe } from "../api";
 import { RecipeContent } from "../components/RecipeContent";
 import { RecipeHero } from "../components/RecipeHero";
+import { useStickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
 import { recipeKeys } from "../queryKeys";
 
 export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
@@ -20,6 +21,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     queryKey: recipeKeys.detail(recipeId),
     queryFn: () => getRecipe(recipeId),
   });
+  const { isStuck } = useStickyHeroTrigger();
 
   if (isPending) return null;
 
@@ -57,7 +59,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
           {recipe.description}
         </p>
       )}
-      <RecipeContent recipe={recipe} />
+      <RecipeContent recipe={recipe} isStuck={isStuck} />
     </div>
   );
 }

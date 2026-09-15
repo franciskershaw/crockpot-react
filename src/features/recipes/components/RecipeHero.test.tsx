@@ -108,10 +108,19 @@ function setup({
   } as unknown as ReturnType<typeof useRemoveFromMenu>);
 }
 
+function renderHero(
+  recipeData: RecipeDetail,
+  { isStuck = false }: { isStuck?: boolean } = {},
+) {
+  return renderWithProviders(
+    <RecipeHero recipe={recipeData} isStuck={isStuck} sentinelRef={() => {}} />,
+  );
+}
+
 describe("RecipeHero", () => {
   it("renders the name, categories, and time/serves/by-line meta", () => {
     setup();
-    renderWithProviders(<RecipeHero recipe={recipe()} />);
+    renderHero(recipe());
 
     expect(
       screen.getByRole("heading", { name: "Slow Cooker Beef Casserole" }),
@@ -125,23 +134,21 @@ describe("RecipeHero", () => {
 
   it("omits the categories row when the recipe has none", () => {
     setup();
-    renderWithProviders(<RecipeHero recipe={recipe({ categories: [] })} />);
+    renderHero(recipe({ categories: [] }));
 
     expect(screen.queryByText("Batch")).not.toBeInTheDocument();
   });
 
   it("omits the by-line when createdByName is null", () => {
     setup();
-    renderWithProviders(
-      <RecipeHero recipe={recipe({ createdByName: null })} />,
-    );
+    renderHero(recipe({ createdByName: null }));
 
     expect(screen.queryByText(/^By /)).not.toBeInTheDocument();
   });
 
   it("hides favourite, edit, delete and the Add to Menu CTA for an anonymous visitor", () => {
     setup({ isAuthenticated: false });
-    renderWithProviders(<RecipeHero recipe={recipe()} />);
+    renderHero(recipe());
 
     expect(
       screen.queryByRole("button", { name: /favourites/i }),
@@ -159,11 +166,12 @@ describe("RecipeHero", () => {
 
   it("shows favourite but not edit/delete for a logged-in non-owner", () => {
     setup({ isAuthenticated: true, userId: "someone_else", role: "FREE" });
-    renderWithProviders(<RecipeHero recipe={recipe({ createdById: "u_1" })} />);
+    renderHero(recipe({ createdById: "u_1" }));
 
-    expect(
-      screen.getByRole("button", { name: /favourites/i }),
-    ).toBeInTheDocument();
+    // 2 copies: the natural row, and the always-mounted fixed bar (decision 5).
+    expect(screen.getAllByRole("button", { name: /favourites/i })).toHaveLength(
+      2,
+    );
     expect(
       screen.queryByRole("link", { name: "Edit recipe" }),
     ).not.toBeInTheDocument();
@@ -174,34 +182,34 @@ describe("RecipeHero", () => {
 
   it("shows edit and delete for the recipe's owner", () => {
     setup({ isAuthenticated: true, userId: "u_1", role: "FREE" });
-    renderWithProviders(<RecipeHero recipe={recipe({ createdById: "u_1" })} />);
+    renderHero(recipe({ createdById: "u_1" }));
 
+    expect(screen.getAllByRole("link", { name: "Edit recipe" })).toHaveLength(
+      2,
+    );
     expect(
-      screen.getByRole("link", { name: "Edit recipe" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Delete recipe" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("button", { name: "Delete recipe" }),
+    ).toHaveLength(2);
   });
 
   it("shows edit and delete for an admin viewing someone else's recipe", () => {
     setup({ isAuthenticated: true, userId: "admin_1", role: "ADMIN" });
-    renderWithProviders(<RecipeHero recipe={recipe({ createdById: "u_1" })} />);
+    renderHero(recipe({ createdById: "u_1" }));
 
+    expect(screen.getAllByRole("link", { name: "Edit recipe" })).toHaveLength(
+      2,
+    );
     expect(
-      screen.getByRole("link", { name: "Edit recipe" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Delete recipe" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("button", { name: "Delete recipe" }),
+    ).toHaveLength(2);
   });
 
   it("renders the Add to Menu CTA for an authenticated viewer", () => {
     setup({ isAuthenticated: true });
-    renderWithProviders(<RecipeHero recipe={recipe()} />);
+    renderHero(recipe());
 
-    expect(
-      screen.getByRole("button", { name: "Add to menu" }),
-    ).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Add to menu" })).toHaveLength(
+      2,
+    );
   });
 });

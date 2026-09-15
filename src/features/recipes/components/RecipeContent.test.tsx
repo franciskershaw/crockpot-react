@@ -52,12 +52,16 @@ describe("RecipeContent", () => {
       isPending: false,
     });
     const user = userEvent.setup();
-    render(<RecipeContent recipe={recipe()} />);
+    render(<RecipeContent recipe={recipe()} isStuck={false} />);
 
     // 1 copy = the always-mounted desktop version; Radix only mounts the active mobile tab.
     expect(screen.getAllByText("Toss the beef in flour.")).toHaveLength(1);
 
-    await user.click(screen.getByRole("tab", { name: "Instructions (2)" }));
+    // 2 tabs named "Instructions (2)": the real one and the always-mounted fixed duplicate (decision 5); click the real, currently-visible one.
+    const [realInstructionsTab] = screen.getAllByRole("tab", {
+      name: "Instructions (2)",
+    });
+    await user.click(realInstructionsTab);
 
     expect(screen.getAllByText("Toss the beef in flour.")).toHaveLength(2);
     expect(screen.getAllByText("Freezes brilliantly.")).toHaveLength(2);

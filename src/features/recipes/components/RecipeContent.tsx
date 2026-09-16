@@ -42,7 +42,13 @@ export function RecipeContent({
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as TabValue)}
         >
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList
+            className={cn(
+              "grid w-full grid-cols-2 transition-opacity duration-150",
+              isStuck && "pointer-events-none opacity-0",
+            )}
+            {...(isStuck && { inert: true })}
+          >
             <TabsTrigger value="ingredients">
               Ingredients ({recipe.ingredients.length})
             </TabsTrigger>

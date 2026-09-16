@@ -21,7 +21,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     queryKey: recipeKeys.detail(recipeId),
     queryFn: () => getRecipe(recipeId),
   });
-  const { isStuck } = useStickyHeroTrigger();
+  const { sentinelRef, isStuck } = useStickyHeroTrigger();
 
   if (isPending) return null;
 
@@ -53,7 +53,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 
   return (
     <div>
-      <RecipeHero recipe={recipe} />
+      <RecipeHero recipe={recipe} sentinelRef={sentinelRef} isStuck={isStuck} />
       {recipe.description && (
         <p className="mx-auto max-w-2xl px-6 py-10 text-center text-lg italic text-muted-foreground">
           {recipe.description}

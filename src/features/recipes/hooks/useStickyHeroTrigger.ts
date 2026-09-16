@@ -14,6 +14,8 @@ export const NATURAL_ROW_TO_TABS_GAP_PX = 24 + 20;
 // Must match RecipeHero's `top-21`; only drives the background-swap cosmetic, not the row's actual (pure CSS sticky) position.
 const STICKY_TOP_PX = 76;
 
+export type StickyHeroTrigger = ReturnType<typeof useStickyHeroTrigger>;
+
 export function useStickyHeroTrigger() {
   const [isStuck, setIsStuck] = useState(false);
 

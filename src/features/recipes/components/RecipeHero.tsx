@@ -5,7 +5,7 @@ import { ChefHat, Clock, Users } from "lucide-react";
 
 import { useRecipeBackDestination } from "../hooks/useRecipeBackDestination";
 import { useRecipePermissions } from "../hooks/useRecipePermissions";
-import { useStickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
+import type { StickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
 import type { RecipeDetail } from "../types";
 import { AddToMenuCTA } from "./add-to-menu/AddToMenuCTA";
 import { RecipeBackButton } from "./RecipeBackButton";
@@ -18,11 +18,16 @@ import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 const ACTION_BUTTON_CLASSES =
   "border-0 bg-background/90 backdrop-blur-xs shadow-sm hover:bg-background";
 
-export function RecipeHero({ recipe }: { recipe: RecipeDetail }) {
+export function RecipeHero({
+  recipe,
+  sentinelRef,
+  isStuck,
+}: {
+  recipe: RecipeDetail;
+} & StickyHeroTrigger) {
   const { isAuthenticated } = useAuth();
   const permissions = useRecipePermissions(recipe);
   const { to } = useRecipeBackDestination();
-  const { sentinelRef, isStuck } = useStickyHeroTrigger();
 
   const actions = (
     <>

@@ -72,11 +72,14 @@ function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
   };
 }
 
-function setupMenuAndAuth() {
+function setupMenuAndAuth(
+  authOverrides: Partial<ReturnType<typeof useAuth>> = {},
+) {
   mockUseAuth.mockReturnValue({
     isAuthenticated: false,
     isLoading: false,
     user: null,
+    ...authOverrides,
   } as unknown as ReturnType<typeof useAuth>);
   mockUseMenuEntry.mockReturnValue({
     isInMenu: false,
@@ -137,6 +140,68 @@ describe("RecipeDetailPage", () => {
     expect(
       (await screen.findAllByRole("link", { name: /back to recipes/i })).length,
     ).toBeGreaterThan(0);
+  });
+
+  it("shows the pending-approval banner to the recipe's own creator when unapproved", async () => {
+    setupMenuAndAuth({
+      isAuthenticated: true,
+      user: {
+        id: "u_1",
+        email: "jamie@example.com",
+        name: "Jamie",
+        image: null,
+        role: "FREE",
+      },
+    });
+    mockGetRecipe.mockResolvedValue(
+      recipeDetail({ createdById: "u_1", approved: false }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    expect(await screen.findByText(/pending approval/i)).toBeInTheDocument();
+  });
+
+  it("hides the pending-approval banner once the recipe is approved", async () => {
+    setupMenuAndAuth({
+      isAuthenticated: true,
+      user: {
+        id: "u_1",
+        email: "jamie@example.com",
+        name: "Jamie",
+        image: null,
+        role: "FREE",
+      },
+    });
+    mockGetRecipe.mockResolvedValue(
+      recipeDetail({ createdById: "u_1", approved: true }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    await screen.findByText("BBQ Pulled Pork");
+    expect(screen.queryByText(/pending approval/i)).not.toBeInTheDocument();
+  });
+
+  it("hides the pending-approval banner from a viewer who isn't the creator, even if unapproved", async () => {
+    setupMenuAndAuth({
+      isAuthenticated: true,
+      user: {
+        id: "someone_else",
+        email: "sam@example.com",
+        name: "Sam",
+        image: null,
+        role: "FREE",
+      },
+    });
+    mockGetRecipe.mockResolvedValue(
+      recipeDetail({ createdById: "u_1", approved: false }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    await screen.findByText("BBQ Pulled Pork");
+    expect(screen.queryByText(/pending approval/i)).not.toBeInTheDocument();
   });
 
   it("renders the description only when the recipe has one", async () => {

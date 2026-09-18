@@ -1,5 +1,6 @@
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { ApiError } from "@/lib/http/client";
 import { useApiQuery } from "@/lib/Tanstack/useApiQuery";
 import { AlertTriangle, ChefHat } from "lucide-react";
@@ -9,6 +10,8 @@ import { getRecipe } from "../api";
 import { RecipeContent } from "../components/RecipeContent";
 import { RecipeDetailSkeleton } from "../components/RecipeDetailSkeleton";
 import { RecipeHero } from "../components/RecipeHero";
+import { RecipePendingApprovalBanner } from "../components/RecipePendingApprovalBanner";
+import { isOwnPendingRecipe } from "../hooks/useRecipePermissions";
 import { useStickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
 import { recipeKeys } from "../queryKeys";
 
@@ -23,6 +26,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     queryFn: () => getRecipe(recipeId),
   });
   const { sentinelRef, isStuck } = useStickyHeroTrigger();
+  const { user } = useAuth();
 
   if (isPending) return <RecipeDetailSkeleton />;
 
@@ -54,6 +58,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 
   return (
     <div>
+      {isOwnPendingRecipe(recipe, user) && <RecipePendingApprovalBanner />}
       <RecipeHero recipe={recipe} sentinelRef={sentinelRef} isStuck={isStuck} />
       {recipe.description && (
         <p className="mx-auto max-w-2xl px-6 py-10 text-center text-lg italic text-muted-foreground">

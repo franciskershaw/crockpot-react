@@ -388,3 +388,7 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   own loading state may have the same flash risk, worth checking at the
   same time) are a grill question, not decided here. Founder-flagged
   UX regression on already-shipped `CFE-005` work, not a functional bug.
+
+  **CFE-033** - (manually added by Francis) Browse page recipe card entry animations need some refining. Looks nice when landing on the page but:
+  - I think we're loading in 10 recipes instead of 9 which means the rows of 3 looks odd.
+  - If we return to the browse page from the recipe detail page, the animations can go all over the place. It would be better to only do it when landing at the top for the first time, or when we load more recipes by scrolling down

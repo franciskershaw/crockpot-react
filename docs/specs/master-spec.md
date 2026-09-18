@@ -297,39 +297,64 @@ CFE-003.
   — carried forward from the 2026-09-04 seed finding. Findings 5, 7, 9,
   10. **Done** (2026-09-06).
 
-*Seeded 2026-09-07 (`CFE-020`'s build/close-out), for the next
-whole-codebase pass — not yet actioned:*
-- **Hardcoded Tailwind colors instead of this project's own config
-  tokens.** `AddToMenuButton.tsx` (ported from the old app, which has no
-  equivalent token system of its own) still uses raw Tailwind palette
-  classes — `gray-100`–`gray-800`, `white/95` — instead of `src/index.css`'s
-  actual design tokens (`border`, `muted`, `accent`, etc., the same family
-  `success`/`green`/`destructive` were pulled from at this ticket's
-  close-out). Founder preference stated for the first time here: colors
-  should mostly come from the config file, not be hardcoded — likely
-  affects other components too, not just this one file. Sweep on the next
-  pass rather than fixing piecemeal per-ticket.
+*From the second whole-codebase tech-debt pass, 2026-09-18. Full detail:
+`docs/findings/2026-09-18-tech-debt.md`.*
+- **CFE-027** — Test-suite hygiene: extract a shared `RecipeCard`/
+  `RecipeDetail` fixture builder into `src/test/` and migrate all 15
+  files hand-copying the full shape (grown from 9 at `CFE-021` close-out,
+  all growth from `CFE-005`'s recipe-detail tests — was seeded
+  2026-09-08, now actioned); add the missing `useMenuEntry` regression
+  test for the `isError`-folds-into-`isPending` fix (`CFE-020`'s Bugbot
+  finding, implemented but never covered). Findings 2, 7.
+- **CFE-028** — Add-to-menu consistency: swap `AddToMenuButton.tsx`'s
+  remaining raw Tailwind `gray-*`/`white/95` classes for `src/index.css`
+  tokens, confirmed isolated to this one file (was seeded 2026-09-07 with
+  a wider "likely affects other components" worry that didn't hold, now
+  actioned); fix `AddToMenuStepperControls.tsx`'s non-interactive
+  `onClick` div tripping the oxlint a11y ruleset. Findings 1, 4.
+- **CFE-029** — Recipe hook/component duplication: extract a shared
+  `useBoundedServes` helper for the `MIN_SERVES`/`MAX_SERVES` clamp logic
+  independently duplicated in `useAddToMenuButtonState` (`CFE-020`) and
+  `useIngredientServes` (`CFE-005`); extract a shared icon-button-classes
+  constant/wrapper duplicated across `RecipeFavouriteButton`/
+  `RecipeEditButton`/`RecipeDeleteButton`. Findings 3, 5.
+- **CFE-030** — `FilterOptionList`'s expand-and-scroll `setTimeout` isn't
+  cancelled on rapid re-toggle; track the timer and clear it before
+  scheduling a new one. Finding 6.
 
-*Seeded 2026-09-08 (`CFE-021`'s piece 1, data-layer), for the next
-whole-codebase pass — not yet actioned:*
-- **Duplicated `RecipeCard` test fixture across 9 files.** A `recipe()`/
-  `recipeCard()`/`entry()` factory building a full `RecipeCard` object is
-  hand-copied in `RecipeCard.test.tsx`, `AddToMenuButton.test.tsx`,
-  `useAddToMenuButtonState.test.tsx`, `useToggleFavourite.test.tsx`,
-  `RecipeGrid.test.tsx`, and `menu`'s `useAddToMenu`/`useRemoveFromMenu`/
-  `useUpdateMenuEntryServes`/`useMenuEntry` tests — 9 copies total (8 at
-  piece 1 when this note was first written; `RecipeGrid.test.tsx` added a
-  9th at piece 4, for its own suppression-wiring tests, in the same
-  branch — proof the pattern kept growing even after being flagged).
-  Adding `CFE-021`'s 5 new required fields (`matchedIngredientCount`,
-  `totalIngredientCount`, `matchedCategoryCount`, `score`, `tier`) meant
-  editing all of them by hand; `tsc -b` (not `vitest run` alone) is what
-  caught the ones this missed on the first pass. Extract a shared builder
-  into `src/test/` (already the shared-test-infra location —
-  `renderWithProviders.tsx` lives there), so the next required field
-  touches one file. Deferred rather than done inline: real duplication,
-  but a refactor across 9 files scoped to test infra, not this ticket's
-  actual behaviour.
+*Ticket numbers CFE-027–030 (not CFE-023–026) — CFE-023 was taken by a
+bug entry added directly to this file while this pass's audit was
+running; skipped ahead to leave room rather than collide.*
+
+*Proposed 2026-09-18, from a file-structure review requested alongside
+tech-debt pass #2 — not one of that pass's own findings, and not yet
+grilled:*
+- **CFE-031** — Feature-folder reorg: `features/recipes/` has outgrown
+  being one feature. It now flatly holds 28 `components/` files and 15
+  `hooks/` files serving two different routed pages
+  (`/recipes` browse, `/recipes/:id` detail) plus a few genuinely shared
+  pieces, all mixed together — the exact "too many files, folders not
+  specific enough" complaint this ticket exists to fix. Import-graph
+  tracing (not guesswork) showed the split is real and mechanical, not a
+  judgment call: 12 browse-only components + 4 hooks, 10 detail-only
+  components + 5 hooks, and only `RecipeCard`/`RecipeCardSkeleton`/
+  `RecipeFavouriteButton`/`useToggleFavourite`/the `add-to-menu/` cluster
+  are consumed by 2+ page-features (including `landing`). Proposed
+  target: split into `features/recipes/` (shared core only — api/types/
+  queryKeys + the truly-shared components/hooks above, no `pages/`
+  bucket), `features/recipes-browse/`, and `features/recipe-detail/`,
+  each with their own `pages/`/`components/`/`hooks/` buckets per the
+  existing feature-folder rule. Two smaller violations of that same rule
+  found the same way: `LandingPage.tsx` and `MenuScreen.tsx` are both
+  routed directly but sit at their feature's root instead of a `pages/`
+  bucket — move both into one. Also propose a new standing rule for
+  `CLAUDE.md`: when a feature's `components/`/`hooks/` bucket exceeds
+  ~15 files *and* splits cleanly by "which routed page exclusively
+  imports this" (grep-able, not the fuzzy `filters/`/`browse/` split
+  already rejected at `CFE-004`), split the feature by page. Founder is
+  handling the actual reorg by hand, not delegating it to Claude — grill
+  the exact target names/boundaries first per this project's normal
+  process.
 
 ### Deferred: Default Items
 

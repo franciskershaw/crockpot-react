@@ -209,3 +209,29 @@ decision as fully closed. No code written yet.
   guessing a padding/margin pixel value — a guess can look close in
   isolation but won't hold across content variations (single-line vs.
   multi-line instructions here).
+
+## 2026-09-18 — Tech-debt pass #2. 7 findings, 4 tickets. One live numbering collision, worked around.
+
+- Second whole-codebase pass, covering everything shipped since pass #1
+  (`CFE-005`, `CFE-020`, `CFE-021`, `CFE-022`). 7 findings — 2 reopened
+  from pass #1's seeded notes (hardcoded colors on `AddToMenuButton`,
+  narrower than feared; the duplicated `RecipeCard` test fixture, grown
+  9→15 files) plus 5 new (duplicated serves-clamp logic across two
+  tickets' hooks, a new a11y lint violation, duplicated icon-button
+  classes across three hero actions, an uncancelled `setTimeout` in
+  `FilterOptionList`, a missing regression test for an already-shipped
+  bug fix). Grouped into `CFE-027`–`030`. Full detail:
+  `docs/findings/2026-09-18-tech-debt.md`.
+- While the audit agent was running, the founder appended a new bug
+  entry directly to `docs/specs/master-spec.md`, claiming `CFE-023` —
+  the same number this pass had already assigned its first ticket.
+  Caught by the Edit tool's own stale-file warning (it flags when a file
+  changed on disk since last read), not by any check of mine before
+  writing. Renumbered this pass's tickets to `CFE-027`–`030` to leave
+  headroom rather than collide, and left the founder's in-progress entry
+  untouched.
+- **Pattern**: ticket numbers are a shared, mutable resource the founder
+  can be actively writing to while an agent works — re-read the
+  backlog's current tail immediately before assigning new ticket
+  numbers, don't reuse numbers computed at the start of a long-running
+  pass.

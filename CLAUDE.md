@@ -74,6 +74,23 @@ to every feature from its first ticket forward, not just at the point it
 gets messy — the whole point is organizing as you go rather than sorting
 out after the fact.
 
+**Second named exception**: a tight cluster of components that only
+exist because of each other — sub-components with no other caller,
+extracted purely to share code between two or more parent components —
+may live in their own subfolder under `components/` (e.g.
+`components/add-to-menu/`), rather than flat alongside unrelated files.
+Narrower than the rejected `filters/`/`browse/` proposal above: that was
+a broad thematic split across many files with a fuzzy boundary ("is this
+a filter thing or a browse thing?"); this applies only when "does this
+file exist solely to support this one other component" has an
+unambiguous yes/no answer for every file in the folder. First applied at
+`CFE-005` (2026-09-11): `add-to-menu/` holds `AddToMenuButton` (browse
+card), `AddToMenuCTA` (recipe detail hero), and the
+`AddToMenuStepperControls`/`AddToMenuConfirmButton`/`AddToMenuBadge`
+pieces extracted to share code between those two — none of the three
+shared pieces has any caller outside this folder. Test files still
+colocate inside it.
+
 ## Design-artifact grounding (hard rule, not a suggestion)
 
 Never assess or comment on design match from the screenshot's absence, a

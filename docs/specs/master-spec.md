@@ -198,7 +198,11 @@ CFE-003.
   pending-approval indicator** for the viewer's own unapproved recipe —
   moved here from the browse card at `CFE-004`'s grill (2026-09-04, see
   `docs/handoffs/CFE-004.md` decision 5); `RecipeCard` shows no
-  pending-state UI at all.
+  pending-state UI at all. **Done** (2026-09-18), see
+  `docs/handoffs/CFE-005.md` for the full decision set. Introduces the
+  `from=`-aware back-navigation convention that `CFE-006`/`007`/`008`
+  will register their own values into, and a new ingredient-category
+  icon mapper (`getCategoryIcon`).
 - **CFE-020** — Add-to-menu quick action: a per-card cart icon on
   `RecipeCard`, ported behaviourally unchanged from the old app's
   `AddToMenuButton.tsx` (not from `browse1.png`/`browse2.png`, which
@@ -357,3 +361,5 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   orphaning the auth observer. Also added a "Logged out" success toast
   and cursor-pointer fixes on `UserMenu`'s avatar trigger and
   `DropdownMenuItem`. **Done** (2026-09-11).
+
+- **CFE-023** - 'Remove from menu' on the shopping cart sometimes appears before the loading spinner disappears and the exit animation kicks off

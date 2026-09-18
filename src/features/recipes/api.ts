@@ -3,6 +3,7 @@ import { apiFetch } from "@/lib/http/client";
 import type {
   Item,
   RecipeCategory,
+  RecipeDetail,
   RecipeListParams,
   RecipeListResponse,
   RecipeTimeRange,
@@ -56,6 +57,14 @@ export function listItems(): Promise<Item[]> {
 
 export function getRecipeTimeRange(): Promise<RecipeTimeRange> {
   return apiFetch<RecipeTimeRange>("/recipes/time-range");
+}
+
+export function getRecipe(id: string): Promise<RecipeDetail> {
+  return apiFetch<RecipeDetail>(`/recipes/${id}`);
+}
+
+export function deleteRecipe(id: string): Promise<void> {
+  return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
 }
 
 export function addFavourite(recipeId: string): Promise<{ message: string }> {

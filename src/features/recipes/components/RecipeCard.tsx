@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { Clock, Heart, Star, Users } from "lucide-react";
+import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { useToggleFavourite } from "../hooks/useToggleFavourite";
 import type { RecipeCard as RecipeCardData } from "../types";
-import { AddToMenuButton } from "./AddToMenuButton";
+import { AddToMenuButton } from "./add-to-menu/AddToMenuButton";
+import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 
 // One selected category trivially scores 1.0 for every recipe with that
 // tag; a single ingredient doesn't, since it's scored against the recipe's own count.
@@ -33,35 +33,27 @@ const TIER_BADGE_CLASSES = {
 
 export function RecipeCard({
   recipe,
+  from,
   priority = false,
   selectedCategoryCount = 0,
   selectedIngredientCount = 0,
 }: {
   recipe: RecipeCardData;
+  from: string;
   priority?: boolean;
   selectedCategoryCount?: number;
   selectedIngredientCount?: number;
 }) {
   const { isAuthenticated } = useAuth();
-  const toggleFavourite = useToggleFavourite();
   const matchTier = visibleMatchTier(
     recipe.tier,
     selectedIngredientCount,
     selectedCategoryCount,
   );
 
-  const handleFavouriteClick = (event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    toggleFavourite.mutate({
-      recipeId: recipe.id,
-      wasFavourite: recipe.isFavourite,
-    });
-  };
-
   return (
     <Link
-      to={`/recipes/${recipe.id}`}
+      to={`/recipes/${recipe.id}?${new URLSearchParams({ from }).toString()}`}
       className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[0_2px_0_var(--color-card-shadow)] focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
       <div className="relative h-45 w-full bg-muted">
@@ -80,26 +72,16 @@ export function RecipeCard({
               <AddToMenuButton recipe={recipe} />
             </div>
 
-            <button
-              type="button"
-              aria-label={
-                recipe.isFavourite
-                  ? "Remove from favourites"
-                  : "Add to favourites"
-              }
-              onClick={handleFavouriteClick}
-              className="absolute right-2.5 top-2.5 flex size-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card transition-colors hover:bg-accent"
-            >
-              <Heart
-                size={15}
-                strokeWidth={2}
-                className={
-                  recipe.isFavourite
-                    ? "fill-accent-rust text-accent-rust"
-                    : "text-ink-secondary"
-                }
+            <div className="absolute right-2.5 top-2.5">
+              <RecipeFavouriteButton
+                recipe={recipe}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                }}
+                className="border border-border bg-card"
               />
-            </button>
+            </div>
           </>
         )}
 

@@ -50,7 +50,12 @@ describe("RecipeGrid", () => {
     mockListRecipes.mockRejectedValue(new Error("network down"));
 
     renderWithProviders(
-      <RecipeGrid params={{}} activeFilterCount={0} onClearFilters={vi.fn()} />,
+      <RecipeGrid
+        params={{}}
+        from="/recipes"
+        activeFilterCount={0}
+        onClearFilters={vi.fn()}
+      />,
     );
 
     await waitFor(() =>
@@ -90,6 +95,7 @@ describe("RecipeGrid", () => {
     renderWithProviders(
       <RecipeGrid
         params={{ categoryIds: ["c1"] }}
+        from="/recipes"
         activeFilterCount={1}
         onClearFilters={vi.fn()}
       />,
@@ -120,6 +126,7 @@ describe("RecipeGrid", () => {
     renderWithProviders(
       <RecipeGrid
         params={{ categoryIds: ["c1", "c2"] }}
+        from="/recipes"
         activeFilterCount={2}
         onClearFilters={vi.fn()}
       />,

@@ -11,9 +11,9 @@ export function LandingFooter() {
           <Link to="/recipes" className="hover:text-background">
             Recipes
           </Link>
-          <a href="#pricing" className="hover:text-background">
+          <Link to="/#pricing" className="hover:text-background">
             Pricing
-          </a>
+          </Link>
           <span>Privacy</span>
           <span className="hidden md:inline">Contact</span>
         </nav>

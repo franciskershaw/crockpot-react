@@ -46,6 +46,10 @@
   --ingredient-chip-bg: #e9efe2;
   --ingredient-chip-border: #cfe0c4;
   --ingredient-chip-text: #3e5a33;
+  --notes-heading: #6b4e12;
+  --notes-bullet: #c89a2e;
+  --notes-bg: #fdf8e7;
+  --notes-border: #f0e4bd;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -92,6 +96,10 @@
   --color-ingredient-chip-bg: var(--ingredient-chip-bg);
   --color-ingredient-chip-border: var(--ingredient-chip-border);
   --color-ingredient-chip-text: var(--ingredient-chip-text);
+  --color-notes-heading: var(--notes-heading);
+  --color-notes-bullet: var(--notes-bullet);
+  --color-notes-bg: var(--notes-bg);
+  --color-notes-border: var(--notes-border);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
@@ -109,16 +117,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
   }
 
   body {

@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { addFavourite, removeFavourite } from "../api";
 import { recipeKeys } from "../queryKeys";
-import type { RecipeListResponse } from "../types";
+import type { RecipeDetail, RecipeListResponse } from "../types";
 
 interface ToggleFavouriteVariables {
   recipeId: string;
@@ -31,6 +31,13 @@ function flipFavourite(
   };
 }
 
+function flipFavouriteDetail(
+  data: RecipeDetail,
+  isFavourite: boolean,
+): RecipeDetail {
+  return { ...data, isFavourite };
+}
+
 export function useToggleFavourite() {
   const queryClient = useQueryClient();
 
@@ -38,16 +45,25 @@ export function useToggleFavourite() {
     mutationFn: ({ recipeId, wasFavourite }) =>
       wasFavourite ? removeFavourite(recipeId) : addFavourite(recipeId),
     onMutate: async ({ recipeId, wasFavourite }) => {
+      const detailKey = recipeKeys.detail(recipeId);
       await queryClient.cancelQueries(LIST_FILTER);
+      await queryClient.cancelQueries({ queryKey: detailKey });
 
       queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
         data ? flipFavourite(data, recipeId, !wasFavourite) : data,
+      );
+      queryClient.setQueryData<RecipeDetail>(detailKey, (data) =>
+        data ? flipFavouriteDetail(data, !wasFavourite) : data,
       );
     },
     onError: (_error, { recipeId, wasFavourite }) => {
       // Revert only this recipe's flip, not a whole snapshot.
       queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
         data ? flipFavourite(data, recipeId, wasFavourite) : data,
+      );
+      queryClient.setQueryData<RecipeDetail>(
+        recipeKeys.detail(recipeId),
+        (data) => (data ? flipFavouriteDetail(data, wasFavourite) : data),
       );
     },
   });

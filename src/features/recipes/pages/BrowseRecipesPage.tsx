@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { SlidersHorizontal } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 import { FilterPanel } from "../components/FilterPanel";
 import { FilterPanelHeader } from "../components/FilterPanelHeader";
@@ -31,6 +32,9 @@ export function BrowseRecipesPage() {
   } = useRecipeFilters();
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const location = useLocation();
+  const from = `${location.pathname}${location.search}`;
 
   const seed = useSessionSeed();
   const requestParams = { ...params, seed };
@@ -147,6 +151,7 @@ export function BrowseRecipesPage() {
 
           <RecipeGrid
             params={requestParams}
+            from={from}
             activeFilterCount={activeFilterCount}
             onClearFilters={clearAll}
           />

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 import { SUBSECTION_GAP } from "./styles";
 
@@ -36,7 +37,7 @@ export function PlannerTease() {
           variant="outline"
           className="mt-4 w-full border-2 border-foreground md:mt-0 md:w-auto"
         >
-          <a href="#pricing">See the planner</a>
+          <Link to="/#pricing">See the planner</Link>
         </Button>
       </div>
     </section>

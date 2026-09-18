@@ -20,10 +20,12 @@ const PRIORITY_CARD_COUNT = 3;
 
 export function RecipeGrid({
   params,
+  from,
   activeFilterCount,
   onClearFilters,
 }: {
   params: RecipeListParams;
+  from: string;
   activeFilterCount: number;
   onClearFilters: () => void;
 }) {
@@ -127,6 +129,7 @@ export function RecipeGrid({
           >
             <RecipeCard
               recipe={recipe}
+              from={from}
               priority={index < PRIORITY_CARD_COUNT}
               selectedCategoryCount={selectedCategoryCount}
               selectedIngredientCount={selectedIngredientCount}

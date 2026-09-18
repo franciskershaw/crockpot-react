@@ -1,7 +1,7 @@
-import type { User } from "@/features/auth/types";
+import type { User } from "@/features/auth/data/types";
 import { describe, expect, it } from "vitest";
 
-import type { RecipeDetail } from "../types";
+import type { RecipeDetail } from "../data/types";
 import { canManageRecipe, isOwnPendingRecipe } from "./useRecipePermissions";
 
 function user(overrides: Partial<User> = {}): User {

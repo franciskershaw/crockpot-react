@@ -326,35 +326,19 @@ CFE-003.
 bug entry added directly to this file while this pass's audit was
 running; skipped ahead to leave room rather than collide.*
 
-*Proposed 2026-09-18, from a file-structure review requested alongside
-tech-debt pass #2 — not one of that pass's own findings, and not yet
-grilled:*
-- **CFE-031** — Feature-folder reorg: `features/recipes/` has outgrown
-  being one feature. It now flatly holds 28 `components/` files and 15
-  `hooks/` files serving two different routed pages
-  (`/recipes` browse, `/recipes/:id` detail) plus a few genuinely shared
-  pieces, all mixed together — the exact "too many files, folders not
-  specific enough" complaint this ticket exists to fix. Import-graph
-  tracing (not guesswork) showed the split is real and mechanical, not a
-  judgment call: 12 browse-only components + 4 hooks, 10 detail-only
-  components + 5 hooks, and only `RecipeCard`/`RecipeCardSkeleton`/
-  `RecipeFavouriteButton`/`useToggleFavourite`/the `add-to-menu/` cluster
-  are consumed by 2+ page-features (including `landing`). Proposed
-  target: split into `features/recipes/` (shared core only — api/types/
-  queryKeys + the truly-shared components/hooks above, no `pages/`
-  bucket), `features/recipes-browse/`, and `features/recipe-detail/`,
-  each with their own `pages/`/`components/`/`hooks/` buckets per the
-  existing feature-folder rule. Two smaller violations of that same rule
-  found the same way: `LandingPage.tsx` and `MenuScreen.tsx` are both
-  routed directly but sit at their feature's root instead of a `pages/`
-  bucket — move both into one. Also propose a new standing rule for
-  `CLAUDE.md`: when a feature's `components/`/`hooks/` bucket exceeds
-  ~15 files *and* splits cleanly by "which routed page exclusively
-  imports this" (grep-able, not the fuzzy `filters/`/`browse/` split
-  already rejected at `CFE-004`), split the feature by page. Founder is
-  handling the actual reorg by hand, not delegating it to Claude — grill
-  the exact target names/boundaries first per this project's normal
-  process.
+*From a file-structure review requested alongside tech-debt pass #2,
+2026-09-18:*
+- **CFE-031** — Feature-folder reorg: split `features/recipes/` into a
+  shared core plus `recipes-browse/`/`recipes-detail/`; added a `data/`
+  bucket (`api.ts`/`types.ts`/`queryKeys.ts`) retrofitted to `auth`/
+  `menu`/`recipes`; dissolved the `add-to-menu/` cluster once
+  `AddToMenuCTA` moved to `recipes-detail/`; brought `landing/` into
+  line with the `pages/`+`components/` split; moved a handful of
+  single-consumer `src/components/` files to live with their actual
+  consumer (`GoogleIcon` → `auth/`, `RouteFallback` → `components/nav/`)
+  and grouped root-only app wiring into `components/app/`; fixed the
+  `lib/Tanstack/` → `lib/tanstack/` casing. New standing rules recorded
+  in `CLAUDE.md`. **Done** (2026-09-18), see `docs/handoffs/CFE-031.md`.
 
 ### Deferred: Default Items
 

@@ -3,13 +3,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { deleteRecipe } from "../api";
-import { recipeKeys } from "../queryKeys";
-import type { RecipeCard, RecipeDetail, RecipeListResponse } from "../types";
+import { deleteRecipe } from "../data/api";
+import { recipeKeys } from "../data/queryKeys";
+import type {
+  RecipeCard,
+  RecipeDetail,
+  RecipeListResponse,
+} from "../data/types";
 import { useDeleteRecipe } from "./useDeleteRecipe";
 
-vi.mock("../api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../api")>()),
+vi.mock("../data/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../data/api")>()),
   deleteRecipe: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));

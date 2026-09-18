@@ -1,9 +1,9 @@
-import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
+import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { updateMenuEntryServes } from "../api";
-import { menuKeys } from "../queryKeys";
-import type { Menu } from "../types";
+import { updateMenuEntryServes } from "../data/api";
+import { menuKeys } from "../data/queryKeys";
+import type { Menu } from "../data/types";
 
 interface UpdateMenuEntryServesVariables {
   recipeId: string;

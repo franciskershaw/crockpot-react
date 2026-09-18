@@ -1,10 +1,10 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
-import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
+import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { logout } from "../api";
 import { AUTH_SESSION_QUERY_KEY } from "../components/AuthContext";
+import { logout } from "../data/api";
 
 export function useLogout() {
   const queryClient = useQueryClient();

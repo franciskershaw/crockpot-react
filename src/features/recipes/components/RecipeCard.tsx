@@ -3,8 +3,8 @@ import { useAuth } from "@/features/auth/components/AuthContext";
 import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { RecipeCard as RecipeCardData } from "../types";
-import { AddToMenuButton } from "./add-to-menu/AddToMenuButton";
+import type { RecipeCard as RecipeCardData } from "../data/types";
+import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 
 // One selected category trivially scores 1.0 for every recipe with that

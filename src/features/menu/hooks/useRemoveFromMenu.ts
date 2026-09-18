@@ -1,9 +1,9 @@
-import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
+import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { removeMenuEntry } from "../api";
-import { menuKeys } from "../queryKeys";
-import type { Menu } from "../types";
+import { removeMenuEntry } from "../data/api";
+import { menuKeys } from "../data/queryKeys";
+import type { Menu } from "../data/types";
 
 interface RemoveFromMenuVariables {
   recipeId: string;

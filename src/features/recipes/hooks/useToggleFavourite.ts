@@ -1,10 +1,10 @@
-import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
+import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { addFavourite, removeFavourite } from "../api";
-import { recipeKeys } from "../queryKeys";
-import type { RecipeDetail, RecipeListResponse } from "../types";
+import { addFavourite, removeFavourite } from "../data/api";
+import { recipeKeys } from "../data/queryKeys";
+import type { RecipeDetail, RecipeListResponse } from "../data/types";
 
 interface ToggleFavouriteVariables {
   recipeId: string;

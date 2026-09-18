@@ -5,16 +5,16 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { logout } from "../api";
 import {
   AUTH_SESSION_QUERY_KEY,
   AuthProvider,
   useAuth,
 } from "../components/AuthContext";
-import type { User } from "../types";
+import { logout } from "../data/api";
+import type { User } from "../data/types";
 import { useLogout } from "./useLogout";
 
-vi.mock("../api", () => ({
+vi.mock("../data/api", () => ({
   fetchMe: vi.fn(),
   logout: vi.fn(),
 }));

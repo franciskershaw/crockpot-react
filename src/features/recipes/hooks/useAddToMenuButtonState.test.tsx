@@ -5,7 +5,7 @@ import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEnt
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { RecipeCard as RecipeCardData } from "../types";
+import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useAddToMenuButtonState } from "./useAddToMenuButtonState";
 
 vi.mock("@/features/menu/hooks/useMenuEntry", () => ({

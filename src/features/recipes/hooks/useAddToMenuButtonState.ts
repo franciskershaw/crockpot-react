@@ -4,7 +4,7 @@ import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 
-import type { RecipeCard as RecipeCardData } from "../types";
+import type { RecipeCard as RecipeCardData } from "../data/types";
 
 const MIN_SERVES = 1;
 const MAX_SERVES = 50;

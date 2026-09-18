@@ -1,16 +1,16 @@
 import type { ReactNode } from "react";
-import type { RecipeCard } from "@/features/recipes/types";
+import type { RecipeCard } from "@/features/recipes/data/types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { updateMenuEntryServes } from "../api";
-import { menuKeys } from "../queryKeys";
-import type { Menu } from "../types";
+import { updateMenuEntryServes } from "../data/api";
+import { menuKeys } from "../data/queryKeys";
+import type { Menu } from "../data/types";
 import { useUpdateMenuEntryServes } from "./useUpdateMenuEntryServes";
 
-vi.mock("../api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../api")>()),
+vi.mock("../data/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../data/api")>()),
   updateMenuEntryServes: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));

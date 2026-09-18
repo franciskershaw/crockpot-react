@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 
+import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
-import type { RecipeCard as RecipeCardData } from "../types";
 
 export function RecipeFavouriteButton({
   recipe,

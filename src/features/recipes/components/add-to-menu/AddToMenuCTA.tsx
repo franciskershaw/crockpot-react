@@ -8,9 +8,11 @@ import { AddToMenuBadge } from "./AddToMenuBadge";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
 
-const IDLE_BG = "#3e5a33"; // --green
-const EDITING_BG = "#fffcf6"; // --card
-const EDITING_BORDER = "#e0d4bb"; // --border
+// Motion animates these directly and can't interpolate a CSS custom property, so
+// they're literal copies of --green/--card/--border (index.css) — keep in sync by hand.
+const IDLE_BG = "#3e5a33";
+const EDITING_BG = "#fffcf6";
+const EDITING_BORDER = "#e0d4bb";
 const TRANSPARENT = "rgba(0,0,0,0)";
 
 // Desktop width (164px = w-41) matches the compact AddToMenuButton's own fully-expanded pill width exactly.

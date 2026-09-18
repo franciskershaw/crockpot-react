@@ -21,10 +21,16 @@ const BACK_LABELS: Record<string, string> = {
   [DEFAULT_TO]: "Back to recipes",
 };
 
+// Single leading slash only — rejects `//`/`/\` (protocol-relative) and schemes like `https:`, which <Link> would follow as a real cross-origin href.
+function isSafeRelativePath(value: string): boolean {
+  return /^\/[^/\\]/.test(value);
+}
+
 export function resolveBackDestination(
   from: string | null | undefined,
 ): ResolvedBackLabel {
-  const to = from?.trim() || DEFAULT_TO;
+  const trimmed = from?.trim();
+  const to = trimmed && isSafeRelativePath(trimmed) ? trimmed : DEFAULT_TO;
   return { to, label: BACK_LABELS[to] ?? BACK_LABELS[DEFAULT_TO] };
 }
 

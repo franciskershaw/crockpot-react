@@ -46,7 +46,6 @@
   --ingredient-chip-bg: #e9efe2;
   --ingredient-chip-border: #cfe0c4;
   --ingredient-chip-text: #3e5a33;
-  --eyebrow: #a2977f;
   --notes-heading: #6b4e12;
   --notes-bullet: #c89a2e;
   --notes-bg: #fdf8e7;
@@ -97,7 +96,6 @@
   --color-ingredient-chip-bg: var(--ingredient-chip-bg);
   --color-ingredient-chip-border: var(--ingredient-chip-border);
   --color-ingredient-chip-text: var(--ingredient-chip-text);
-  --color-eyebrow: var(--eyebrow);
   --color-notes-heading: var(--notes-heading);
   --color-notes-bullet: var(--notes-bullet);
   --color-notes-bg: var(--notes-bg);

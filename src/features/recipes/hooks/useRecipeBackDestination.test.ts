@@ -47,6 +47,34 @@ describe("resolveBackDestination", () => {
       label: "Back to recipes",
     });
   });
+
+  it("falls back to /recipes for a protocol-relative from (open-redirect attempt)", () => {
+    expect(resolveBackDestination("//evil.com")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("falls back to /recipes for an absolute-URL from (open-redirect attempt)", () => {
+    expect(resolveBackDestination("https://evil.com")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("falls back to /recipes for a backslash-prefixed from (open-redirect attempt)", () => {
+    expect(resolveBackDestination("/\\evil.com")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("falls back to /recipes for a from with no leading slash", () => {
+    expect(resolveBackDestination("recipes")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
 });
 
 describe("canGoBackInApp", () => {

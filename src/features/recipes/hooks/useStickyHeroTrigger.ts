@@ -11,7 +11,7 @@ export const ACTION_BAND_PADDING_BOTTOM_PX = 12;
 // pb-6 (hero) + py-5 top (RecipeContent): the natural row-to-tabs gap the fixed bars must reproduce.
 export const NATURAL_ROW_TO_TABS_GAP_PX = 24 + 20;
 
-// Must match RecipeHero's `top-21`; only drives the background-swap cosmetic, not the row's actual (pure CSS sticky) position.
+// Must match RecipeHero's `top-19`; only drives the background-swap cosmetic, not the row's actual (pure CSS sticky) position.
 const STICKY_TOP_PX = 76;
 
 export type StickyHeroTrigger = ReturnType<typeof useStickyHeroTrigger>;

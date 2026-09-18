@@ -120,7 +120,7 @@ export function RecipeHero({
       </div>
 
       {/* -mt-14 pulls this up onto the image, exactly over the invisible row above; mb-14 gives back the same space so later content (tabs) isn't dragged up with it — real `sticky`, so it pins natively with no JS involved. */}
-      <div className="sticky top-19 z-30 -mt-15 mb-2 md:hidden ">
+      <div className="sticky top-19 z-30 -mt-14 mb-14 md:hidden ">
         {/* A small amount of breathing room around the buttons, not a cover for the whole handoff zone; translucent + blurred so anything behind reads as a soft smudge, not sharp detail. Always rendered; opacity/transition fades it in only once actually stuck. */}
         <div
           aria-hidden

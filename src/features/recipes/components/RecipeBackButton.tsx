@@ -7,8 +7,8 @@ export function RecipeBackButton() {
   const navigate = useNavigate();
   const { to, label, canGoBack } = useRecipeBackDestination();
 
-  // Real history-back when we know there's a prior in-app entry (restores
-  // scroll/filters for free); otherwise fall through to the plain <Link>.
+  // Real history-back when we know there's a prior entry (restores scroll/filters
+  // for free), else falls through to <Link>; assumes that entry is `to`, which only holds while every from= source sets it to its own current location.
   const handleClick = (event: React.MouseEvent) => {
     if (!canGoBack) return;
     event.preventDefault();

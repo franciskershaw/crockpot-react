@@ -197,3 +197,15 @@ decision as fully closed. No code written yet.
   within the same branch (7→8→9 files, as later pieces added their own
   copies) before the ticket even closes — recount at close-out, not just
   at write time.
+
+## 2026-09-18 — CFE-005 — Recipe detail page. One guess-based fix needed a redo; rest was clean.
+
+- The instruction-number alignment fix guessed a padding-top pixel value
+  from font-metric math instead of reaching for CSS's own `items-baseline`
+  alignment — wrong on the first pass, corrected only after the founder
+  sent a screenshot.
+- **Pattern**: for a first-line/badge alignment problem, reach for
+  `items-baseline` (or the equivalent CSS-native mechanism) before
+  guessing a padding/margin pixel value — a guess can look close in
+  isolation but won't hold across content variations (single-line vs.
+  multi-line instructions here).

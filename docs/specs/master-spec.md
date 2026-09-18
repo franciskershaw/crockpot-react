@@ -388,3 +388,19 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   `DropdownMenuItem`. **Done** (2026-09-11).
 
 - **CFE-023** - 'Remove from menu' on the shopping cart sometimes appears before the loading spinner disappears and the exit animation kicks off
+
+- **CFE-032** — `RecipeDetailPage`'s skeleton flashes on fast
+  connections. Root cause: `RecipeDetailPage.tsx:31`
+  (`if (isPending) return <RecipeDetailSkeleton />;`) renders the
+  skeleton unconditionally on any pending state, so on a fast load the
+  browse-page card → skeleton → real content sequence happens in one or
+  two frames — jarring rather than reassuring, the opposite of what a
+  skeleton is for. Fix direction (not yet grilled): delay showing
+  `RecipeDetailSkeleton` until the query has been pending past a short
+  threshold (a common pattern — e.g. don't render it before ~150-300ms
+  of pending state, and once shown keep it for a minimum duration so it
+  doesn't itself flash off after one frame); exact thresholds and
+  whether this becomes a shared `useDelayedPending`-style hook (`RecipeGrid`'s
+  own loading state may have the same flash risk, worth checking at the
+  same time) are a grill question, not decided here. Founder-flagged
+  UX regression on already-shipped `CFE-005` work, not a functional bug.

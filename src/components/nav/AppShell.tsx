@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { MobileTabBar } from "@/components/nav/MobileTabBar";
+import { RouteFallback } from "@/components/nav/RouteFallback";
 import { SiteHeader } from "@/components/nav/SiteHeader";
-import { RouteFallback } from "@/components/RouteFallback";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { Outlet } from "react-router-dom";
 

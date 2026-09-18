@@ -2,13 +2,13 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import { AppShell } from "@/components/nav/AppShell";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
-import { LandingPage } from "@/features/landing/LandingPage";
-import { MenuScreen } from "@/features/menu/MenuScreen";
+import { LandingPage } from "@/features/landing/pages/LandingPage";
+import { MenuPage } from "@/features/menu/pages/MenuPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
 
-// Only BrowseRecipesPage/AuthCallback are lazy; LandingPage/MenuScreen are most visitors' first view and gain nothing from a chunk round trip.
+// Only BrowseRecipesPage/AuthCallback/RecipeDetailRoute are lazy; LandingPage/MenuPage are most visitors' first view and gain nothing from a chunk round trip.
 function lazyNamed<
   M extends Record<K, ComponentType>,
   K extends keyof M & string,
@@ -21,11 +21,11 @@ const AuthCallback = lazyNamed(
   "AuthCallback",
 );
 const BrowseRecipesPage = lazyNamed(
-  () => import("@/features/recipes/pages/BrowseRecipesPage"),
+  () => import("@/features/recipes-browse/pages/BrowseRecipesPage"),
   "BrowseRecipesPage",
 );
 const RecipeDetailRoute = lazyNamed(
-  () => import("@/features/recipes/pages/RecipeDetailPage"),
+  () => import("@/features/recipes-detail/pages/RecipeDetailPage"),
   "RecipeDetailRoute",
 );
 
@@ -51,7 +51,7 @@ export function AppRoutes() {
           path="/menu"
           element={
             <RequireAuth>
-              <MenuScreen />
+              <MenuPage />
             </RequireAuth>
           }
         />

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useAuth } from "../components/AuthContext";
-import { getAuthErrorMessage } from "../types";
+import { getAuthErrorMessage } from "../data/types";
 import { AuthCallback } from "./AuthCallback";
 
 vi.mock("../components/AuthContext", () => ({

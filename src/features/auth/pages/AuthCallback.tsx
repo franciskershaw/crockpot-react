@@ -4,7 +4,7 @@ import { Navigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { useAuth } from "../components/AuthContext";
-import { getAuthErrorMessage } from "../types";
+import { getAuthErrorMessage } from "../data/types";
 
 export function AuthCallback() {
   const [params] = useSearchParams();

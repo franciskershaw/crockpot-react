@@ -1,7 +1,7 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import type { User } from "@/features/auth/types";
+import type { User } from "@/features/auth/data/types";
 
-import type { RecipeDetail } from "../types";
+import type { RecipeDetail } from "../data/types";
 
 export function canManageRecipe(
   recipe: Pick<RecipeDetail, "createdById">,

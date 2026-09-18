@@ -4,16 +4,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getMenu } from "../api";
-import { menuKeys } from "../queryKeys";
-import type { Menu, MenuEntry } from "../types";
+import { getMenu } from "../data/api";
+import { menuKeys } from "../data/queryKeys";
+import type { Menu, MenuEntry } from "../data/types";
 import { useMenuEntry } from "./useMenuEntry";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
-vi.mock("../api", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("../api")>()),
+vi.mock("../data/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../data/api")>()),
   getMenu: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));

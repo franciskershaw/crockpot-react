@@ -4,8 +4,8 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
-import type { RecipeCard as RecipeCardData } from "../types";
 import { RecipeCard, visibleMatchTier } from "./RecipeCard";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
@@ -14,7 +14,7 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 vi.mock("../hooks/useToggleFavourite", () => ({
   useToggleFavourite: vi.fn(),
 }));
-vi.mock("./add-to-menu/AddToMenuButton", () => ({
+vi.mock("./AddToMenuButton", () => ({
   AddToMenuButton: () => <button>Mock Add To Menu</button>,
 }));
 

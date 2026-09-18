@@ -1,6 +1,6 @@
 import { lazy, type ReactElement } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { getMenu } from "@/features/menu/api";
+import { getMenu } from "@/features/menu/data/api";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -14,7 +14,7 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 vi.mock("@/features/auth/hooks/useLogout", () => ({
   useLogout: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
-vi.mock("@/features/menu/api", () => ({
+vi.mock("@/features/menu/data/api", () => ({
   getMenu: vi.fn(),
 }));
 

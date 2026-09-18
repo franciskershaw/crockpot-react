@@ -210,6 +210,28 @@ decision as fully closed. No code written yet.
   isolation but won't hold across content variations (single-line vs.
   multi-line instructions here).
 
+## 2026-09-18 — CFE-031 — Feature-folder reorg (recipes split + data/ bucket + follow-on cleanup). Mode switched mid-ticket; two grill-time corrections, no rework after landing.
+
+- Grilled hand-written, switched to AI-driven partway through once the
+  founder hit real friction on import-editing volume — clean handoff, no
+  rework from the switch itself. Grill-time corrections: a grep
+  false-positive (`RecipeCard` substring-matched the unrelated
+  `RecipeCardPlaceholder`) wrongly called it browse-only, corrected once
+  the founder pushed back with a concrete future-reuse claim; the
+  `add-to-menu/` folder's "tight cluster" exception broke once
+  `AddToMenuCTA` moved to a different top-level feature, so it flattened
+  rather than being renamed.
+- The `vi.mock()` trap `CFE-004` flagged (2026-09-05) recurred twice
+  more: a bare `vi.mock("../x", ...)` string is invisible to `tsc`
+  (only the `importOriginal<typeof import("../x")>()` generic form is
+  type-checked), so a stale mock target fails silently rather than
+  loudly. The handoff doc's own explicit grep-for-`vi.mock` verification
+  line — not trust in `tsc -b` alone — is what caught both instances.
+- **Pattern**: checking whether a component is actually used anywhere
+  needs a word-boundary/JSX-usage grep (`<ComponentName\b`), never a
+  bare substring — a same-prefixed but unrelated component will
+  false-positive silently.
+
 ## 2026-09-18 — Tech-debt pass #2. 7 findings, 4 tickets. One live numbering collision, worked around.
 
 - Second whole-codebase pass, covering everything shipped since pass #1

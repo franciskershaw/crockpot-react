@@ -1,8 +1,8 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { useApiQuery } from "@/lib/Tanstack/useApiQuery";
+import { useApiQuery } from "@/lib/tanstack/useApiQuery";
 
-import { getMenu } from "../api";
-import { menuKeys } from "../queryKeys";
+import { getMenu } from "../data/api";
+import { menuKeys } from "../data/queryKeys";
 
 export function useMenu() {
   const { isAuthenticated } = useAuth();

@@ -1,10 +1,10 @@
-import { useApiMutation } from "@/lib/Tanstack/useApiMutation";
+import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { deleteRecipe } from "../api";
-import { recipeKeys } from "../queryKeys";
-import type { RecipeListResponse } from "../types";
+import { deleteRecipe } from "../data/api";
+import { recipeKeys } from "../data/queryKeys";
+import type { RecipeListResponse } from "../data/types";
 
 const LIST_FILTER = { queryKey: recipeKeys.lists() };
 

@@ -7,6 +7,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 
 import { getRecipe } from "../api";
 import { RecipeContent } from "../components/RecipeContent";
+import { RecipeDetailSkeleton } from "../components/RecipeDetailSkeleton";
 import { RecipeHero } from "../components/RecipeHero";
 import { useStickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
 import { recipeKeys } from "../queryKeys";
@@ -23,7 +24,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
   });
   const { sentinelRef, isStuck } = useStickyHeroTrigger();
 
-  if (isPending) return null;
+  if (isPending) return <RecipeDetailSkeleton />;
 
   if (error instanceof ApiError && error.status === 404) {
     return (

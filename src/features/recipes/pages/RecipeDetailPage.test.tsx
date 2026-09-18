@@ -98,6 +98,26 @@ function setupMenuAndAuth() {
 }
 
 describe("RecipeDetailPage", () => {
+  it("shows a loading skeleton while the recipe is loading, then swaps to the recipe", async () => {
+    setupMenuAndAuth();
+    let resolveRecipe: (recipe: RecipeDetail) => void;
+    mockGetRecipe.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRecipe = resolve;
+      }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.queryByText("BBQ Pulled Pork")).not.toBeInTheDocument();
+
+    resolveRecipe!(recipeDetail({ name: "BBQ Pulled Pork" }));
+
+    expect(await screen.findByText("BBQ Pulled Pork")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
   it("renders the recipe once it loads", async () => {
     setupMenuAndAuth();
     mockGetRecipe.mockResolvedValue(recipeDetail({ name: "BBQ Pulled Pork" }));

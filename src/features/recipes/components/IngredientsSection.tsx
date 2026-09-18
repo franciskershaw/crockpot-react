@@ -22,8 +22,8 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
   const grouped = groupIngredientsByCategory(scaledIngredients);
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 shadow-[0_2px_0_var(--color-card-shadow)]">
-      <h2 className="mb-5 font-display text-2xl text-foreground">
+    <div className="pt-3 md:rounded-lg md:border md:border-border md:bg-card md:p-6 md:shadow-[0_2px_0_var(--color-card-shadow)]">
+      <h2 className="mb-5 hidden font-display text-2xl text-foreground md:block">
         Ingredients ({scaledIngredients.length})
       </h2>
 
@@ -58,14 +58,14 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
         </div>
       </fieldset>
 
-      <div className="space-y-6">
+      <div className="divide-y divide-border">
         {Object.entries(grouped).map(([categoryName, ingredients]) => {
           const Icon = getCategoryIcon(categoryName);
           return (
-            <div key={categoryName}>
-              <h3 className="mb-3 flex items-center gap-2 text-base font-semibold">
-                <span className="flex size-6 items-center justify-center rounded-full bg-ingredient-chip-bg text-ingredient-chip-text">
-                  <Icon size={14} strokeWidth={2} />
+            <div key={categoryName} className="py-5 first:pt-0 last:pb-0">
+              <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+                <span className="flex size-7 items-center justify-center rounded-full bg-ingredient-chip-bg text-ingredient-chip-text">
+                  <Icon size={16} strokeWidth={2} />
                 </span>
                 {categoryName}
               </h3>
@@ -73,16 +73,18 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
                 {ingredients.map((ingredient) => (
                   <div
                     key={ingredient.itemId}
-                    className="flex items-baseline gap-2 text-base"
+                    className="flex items-baseline gap-2 text-[17px]"
                   >
-                    <span className="font-semibold text-foreground">
-                      {ingredient.quantity}
-                    </span>
-                    {ingredient.unitAbbreviation && (
-                      <span className="text-muted-foreground">
-                        {ingredient.unitAbbreviation}
+                    <span className="flex items-baseline gap-1">
+                      <span className="font-semibold text-foreground">
+                        {ingredient.quantity}
                       </span>
-                    )}
+                      {ingredient.unitAbbreviation && (
+                        <span className="text-muted-foreground">
+                          {ingredient.unitAbbreviation}
+                        </span>
+                      )}
+                    </span>
                     <span className="text-foreground">
                       {ingredient.itemName}
                     </span>

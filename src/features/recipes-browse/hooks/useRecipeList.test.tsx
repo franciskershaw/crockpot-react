@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { listRecipes } from "@/features/recipes/data/api";
 import type { RecipeListResponse } from "@/features/recipes/data/types";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useRecipeList } from "./useRecipeList";
@@ -42,14 +42,27 @@ function wrapper() {
 }
 
 describe("useRecipeList", () => {
-  it("fetches page 1 first", async () => {
+  it("fetches page 1 first, 12 recipes per page", async () => {
     mockListRecipes.mockResolvedValue(response({ page: 1, totalPages: 3 }));
 
     renderHook(() => useRecipeList({}), { wrapper: wrapper() });
 
     await waitFor(() =>
-      expect(mockListRecipes).toHaveBeenCalledWith({ page: 1 }),
+      expect(mockListRecipes).toHaveBeenCalledWith({ page: 1, limit: 12 }),
     );
+  });
+
+  it("keeps the 12-per-page limit on later pages", async () => {
+    mockListRecipes.mockResolvedValue(response({ page: 1, totalPages: 3 }));
+
+    const { result } = renderHook(() => useRecipeList({}), {
+      wrapper: wrapper(),
+    });
+    await waitFor(() => expect(result.current.hasNextPage).toBe(true));
+
+    await act(() => result.current.fetchNextPage());
+
+    expect(mockListRecipes).toHaveBeenLastCalledWith({ page: 2, limit: 12 });
   });
 
   it("offers a next page while page < totalPages", async () => {

@@ -2,8 +2,10 @@ import { useAuth } from "@/features/auth/components/AuthContext";
 import { listRecipes } from "@/features/recipes/data/api";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { renderWithProviders } from "@/test/renderWithProviders";
-import { screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { RecipeGrid } from "./RecipeGrid";
@@ -135,5 +137,71 @@ describe("RecipeGrid", () => {
     await waitFor(() =>
       expect(screen.getByText("Best Match")).toBeInTheDocument(),
     );
+  });
+
+  describe("entrance animation", () => {
+    function grid() {
+      return (
+        <RecipeGrid
+          params={{}}
+          from="/recipes"
+          activeFilterCount={0}
+          onClearFilters={vi.fn()}
+        />
+      );
+    }
+
+    function mockOnePage() {
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      mockListRecipes.mockResolvedValue({
+        recipes: [recipe()],
+        page: 1,
+        limit: 12,
+        total: 1,
+        totalPages: 1,
+      });
+    }
+
+    function cardWrapper() {
+      return screen.getByText("BBQ Pulled Pork").closest("div[style]");
+    }
+
+    it("animates cards in on a first load", async () => {
+      mockOnePage();
+
+      renderWithProviders(grid());
+
+      await waitFor(() =>
+        expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument(),
+      );
+      expect(cardWrapper()).toHaveStyle({ opacity: "0" });
+    });
+
+    it("renders already-cached cards settled when the grid remounts", async () => {
+      mockOnePage();
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      const ui = (
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter>{grid()}</MemoryRouter>
+        </QueryClientProvider>
+      );
+
+      const first = render(ui);
+      await waitFor(() =>
+        expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument(),
+      );
+      first.unmount();
+
+      render(ui);
+
+      expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument();
+      expect(cardWrapper()).not.toHaveStyle({ opacity: "0" });
+    });
   });
 });

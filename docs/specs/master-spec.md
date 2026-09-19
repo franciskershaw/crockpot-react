@@ -392,3 +392,5 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   **CFE-033** - (manually added by Francis) Browse page recipe card entry animations need some refining. Looks nice when landing on the page but:
   - I think we're loading in 10 recipes instead of 9 which means the rows of 3 looks odd.
   - If we return to the browse page from the recipe detail page, the animations can go all over the place. It would be better to only do it when landing at the top for the first time, or when we load more recipes by scrolling down
+
+  **Done** (2026-09-19). The client sent no `limit`, so the server default of 20 applied (not 10) — now 12 per page (divides into 1/2/3 columns). `RecipeGrid` renders cards already cached at mount settled (`initial={false}`); first loads, filter changes and new pages still animate.

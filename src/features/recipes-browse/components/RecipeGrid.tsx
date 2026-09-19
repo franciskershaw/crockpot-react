@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
@@ -38,6 +38,12 @@ export function RecipeGrid({
     isError,
     refetch,
   } = useRecipeList(params);
+
+  // Cards already cached when the grid mounts (e.g. returning from a recipe
+  // detail page) render settled instead of replaying the entrance.
+  const [settledIds] = useState(
+    () => new Set(data?.pages.flatMap((page) => page.recipes.map((r) => r.id))),
+  );
 
   const lastTriggerRef = useRef(0);
   const latestRef = useRef({ hasNextPage, isFetchingNextPage, fetchNextPage });
@@ -117,7 +123,7 @@ export function RecipeGrid({
         return (
           <motion.div
             key={recipe.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={settledIds.has(recipe.id) ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
               delay: isNewItem

@@ -257,3 +257,7 @@ decision as fully closed. No code written yet.
   backlog's current tail immediately before assigning new ticket
   numbers, don't reuse numbers computed at the start of a long-running
   pass.
+
+## 2026-09-19 — CFE-033 — Browse page size + card-animation replay. Clean.
+
+- Two independently-reversible fixes, each red-then-green; no rework. Reading the code first corrected the ticket's premise (server default was 20, not 10).

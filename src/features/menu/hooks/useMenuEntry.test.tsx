@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -29,23 +30,7 @@ function entry(overrides: Partial<MenuEntry> = {}): MenuEntry {
   return {
     recipeId: "r_1",
     serves: 4,
-    recipe: {
-      id: "r_1",
-      name: "BBQ Pulled Pork",
-      imageUrl: null,
-      imageFilename: null,
-      timeInMinutes: 30,
-      serves: 4,
-      approved: true,
-      categories: [],
-      createdAt: "2026-01-01T00:00:00.000Z",
-      isFavourite: false,
-      matchedIngredientCount: 0,
-      totalIngredientCount: 0,
-      matchedCategoryCount: 0,
-      score: 0,
-      tier: null,
-    },
+    recipe: buildRecipeCard(),
     ...overrides,
   };
 }

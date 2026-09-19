@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { RecipeCard } from "@/features/recipes/data/types";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -20,27 +20,6 @@ const mockAddMenuEntry = vi.mocked(addMenuEntry);
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-function recipeCard(overrides: Partial<RecipeCard> = {}): RecipeCard {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
 
 function setup(menu: Menu) {
   const queryClient = new QueryClient({
@@ -70,7 +49,7 @@ describe("useAddToMenu", () => {
 
     const { result } = renderHook(() => useAddToMenu(), { wrapper });
 
-    result.current.mutate({ recipe: recipeCard(), serves: 6 });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
 
     await waitFor(() => {
       const data = queryClient.getQueryData<Menu>(menuKeys.menu());
@@ -84,13 +63,13 @@ describe("useAddToMenu", () => {
 
   it("replaces an existing entry for the same recipe rather than duplicating it", async () => {
     const { queryClient, wrapper } = setup({
-      entries: [{ recipeId: "r_1", serves: 4, recipe: recipeCard() }],
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
     });
     mockAddMenuEntry.mockResolvedValue({ message: "ok" });
 
     const { result } = renderHook(() => useAddToMenu(), { wrapper });
 
-    result.current.mutate({ recipe: recipeCard(), serves: 8 });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 8 });
 
     await waitFor(() => {
       const data = queryClient.getQueryData<Menu>(menuKeys.menu());
@@ -105,7 +84,7 @@ describe("useAddToMenu", () => {
 
     const { result } = renderHook(() => useAddToMenu(), { wrapper });
 
-    result.current.mutate({ recipe: recipeCard(), serves: 6 });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
 

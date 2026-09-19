@@ -1,15 +1,12 @@
 import type { ReactNode } from "react";
+import { buildRecipeCard, buildRecipeDetail } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { deleteRecipe } from "../data/api";
 import { recipeKeys } from "../data/queryKeys";
-import type {
-  RecipeCard,
-  RecipeDetail,
-  RecipeListResponse,
-} from "../data/types";
+import type { RecipeCard, RecipeListResponse } from "../data/types";
 import { useDeleteRecipe } from "./useDeleteRecipe";
 
 vi.mock("../data/api", async (importOriginal) => ({
@@ -23,41 +20,6 @@ const mockDeleteRecipe = vi.mocked(deleteRecipe);
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-function recipe(overrides: Partial<RecipeCard> = {}): RecipeCard {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
-
-function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
-  return {
-    ...recipe(),
-    description: null,
-    instructions: [],
-    notes: [],
-    ingredients: [],
-    createdById: "u_1",
-    createdByName: "Jamie",
-    updatedAt: "2026-01-01T00:00:00.000Z",
-    ...overrides,
-  };
-}
 
 function page(recipes: RecipeCard[]): RecipeListResponse {
   return { recipes, page: 1, limit: 20, total: recipes.length, totalPages: 1 };
@@ -96,8 +58,8 @@ describe("useDeleteRecipe", () => {
 
   it("evicts the deleted recipe from cached list pages on success", async () => {
     const { queryClient, queryKey, wrapper } = setup([
-      recipe({ id: "r_1" }),
-      recipe({ id: "r_2" }),
+      buildRecipeCard({ id: "r_1" }),
+      buildRecipeCard({ id: "r_2" }),
     ]);
     mockDeleteRecipe.mockResolvedValue(undefined);
 
@@ -122,7 +84,7 @@ describe("useDeleteRecipe", () => {
   it("removes the recipe's own detail cache entry on success", async () => {
     const { queryClient, wrapper } = setup([]);
     const detailKey = recipeKeys.detail("r_1");
-    queryClient.setQueryData(detailKey, recipeDetail({ id: "r_1" }));
+    queryClient.setQueryData(detailKey, buildRecipeDetail({ id: "r_1" }));
     mockDeleteRecipe.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useDeleteRecipe(), { wrapper });
@@ -134,7 +96,9 @@ describe("useDeleteRecipe", () => {
   });
 
   it("leaves cached list pages untouched while the request is pending", async () => {
-    const { queryClient, queryKey, wrapper } = setup([recipe({ id: "r_1" })]);
+    const { queryClient, queryKey, wrapper } = setup([
+      buildRecipeCard({ id: "r_1" }),
+    ]);
     let resolveDelete: () => void;
     mockDeleteRecipe.mockReturnValue(
       new Promise((resolve) => {

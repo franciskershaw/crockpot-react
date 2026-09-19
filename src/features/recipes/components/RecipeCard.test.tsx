@@ -1,4 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -26,24 +27,12 @@ afterEach(() => {
 });
 
 function recipe(overrides: Partial<RecipeCardData> = {}): RecipeCardData {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
+  return buildRecipeCard({
     timeInMinutes: 320,
     serves: 12,
-    approved: true,
     categories: [{ id: "c_1", name: "Batch" }],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
     ...overrides,
-  };
+  });
 }
 
 describe("RecipeCard", () => {

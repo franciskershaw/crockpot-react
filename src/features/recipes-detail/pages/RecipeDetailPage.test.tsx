@@ -5,6 +5,7 @@ import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import { getRecipe } from "@/features/recipes/data/api";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -43,34 +44,6 @@ const mockUseRemoveFromMenu = vi.mocked(useRemoveFromMenu);
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    description: null,
-    instructions: [],
-    notes: [],
-    ingredients: [],
-    createdById: "u_1",
-    createdByName: "Jamie",
-    updatedAt: "2026-01-01T00:00:00.000Z",
-    ...overrides,
-  };
-}
 
 function setupMenuAndAuth(
   authOverrides: Partial<ReturnType<typeof useAuth>> = {},
@@ -115,7 +88,7 @@ describe("RecipeDetailPage", () => {
     expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.queryByText("BBQ Pulled Pork")).not.toBeInTheDocument();
 
-    resolveRecipe!(recipeDetail({ name: "BBQ Pulled Pork" }));
+    resolveRecipe!(buildRecipeDetail({ name: "BBQ Pulled Pork" }));
 
     expect(await screen.findByText("BBQ Pulled Pork")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
@@ -123,7 +96,9 @@ describe("RecipeDetailPage", () => {
 
   it("renders the recipe once it loads", async () => {
     setupMenuAndAuth();
-    mockGetRecipe.mockResolvedValue(recipeDetail({ name: "BBQ Pulled Pork" }));
+    mockGetRecipe.mockResolvedValue(
+      buildRecipeDetail({ name: "BBQ Pulled Pork" }),
+    );
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
@@ -133,7 +108,7 @@ describe("RecipeDetailPage", () => {
 
   it("renders a back-to-recipes control once loaded", async () => {
     setupMenuAndAuth();
-    mockGetRecipe.mockResolvedValue(recipeDetail());
+    mockGetRecipe.mockResolvedValue(buildRecipeDetail());
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
@@ -154,7 +129,7 @@ describe("RecipeDetailPage", () => {
       },
     });
     mockGetRecipe.mockResolvedValue(
-      recipeDetail({ createdById: "u_1", approved: false }),
+      buildRecipeDetail({ createdById: "u_1", approved: false }),
     );
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -174,7 +149,7 @@ describe("RecipeDetailPage", () => {
       },
     });
     mockGetRecipe.mockResolvedValue(
-      recipeDetail({ createdById: "u_1", approved: true }),
+      buildRecipeDetail({ createdById: "u_1", approved: true }),
     );
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -195,7 +170,7 @@ describe("RecipeDetailPage", () => {
       },
     });
     mockGetRecipe.mockResolvedValue(
-      recipeDetail({ createdById: "u_1", approved: false }),
+      buildRecipeDetail({ createdById: "u_1", approved: false }),
     );
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -207,7 +182,7 @@ describe("RecipeDetailPage", () => {
   it("renders the description only when the recipe has one", async () => {
     setupMenuAndAuth();
     mockGetRecipe.mockResolvedValue(
-      recipeDetail({ description: "A freezer-stash regular." }),
+      buildRecipeDetail({ description: "A freezer-stash regular." }),
     );
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
@@ -219,7 +194,7 @@ describe("RecipeDetailPage", () => {
 
   it("omits the description section when the recipe has none", async () => {
     setupMenuAndAuth();
-    mockGetRecipe.mockResolvedValue(recipeDetail({ description: null }));
+    mockGetRecipe.mockResolvedValue(buildRecipeDetail({ description: null }));
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
@@ -247,7 +222,7 @@ describe("RecipeDetailPage", () => {
 
     expect(await screen.findByText("Something went wrong")).toBeInTheDocument();
 
-    mockGetRecipe.mockResolvedValue(recipeDetail());
+    mockGetRecipe.mockResolvedValue(buildRecipeDetail());
     await userEvent.click(screen.getByRole("button", { name: /retry/i }));
 
     await waitFor(() => expect(mockGetRecipe).toHaveBeenCalledTimes(2));

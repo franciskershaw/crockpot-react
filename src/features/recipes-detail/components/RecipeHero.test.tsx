@@ -4,6 +4,7 @@ import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -37,34 +38,16 @@ afterEach(() => {
 });
 
 function recipe(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
-  return {
-    id: "r_1",
+  return buildRecipeDetail({
     name: "Slow Cooker Beef Casserole",
-    imageUrl: null,
-    imageFilename: null,
     timeInMinutes: 360,
-    serves: 4,
-    approved: true,
     categories: [
       { id: "c_1", name: "Batch" },
       { id: "c_2", name: "Comfort" },
     ],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    description: null,
-    instructions: [],
-    notes: [],
-    ingredients: [],
-    createdById: "u_1",
     createdByName: "Jamie M.",
-    updatedAt: "2026-01-01T00:00:00.000Z",
     ...overrides,
-  };
+  });
 }
 
 function setup({

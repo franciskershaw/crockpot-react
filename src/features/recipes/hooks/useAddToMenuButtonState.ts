@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
-
-const MIN_SERVES = 1;
-const MAX_SERVES = 50;
+import { useBoundedServes } from "./useBoundedServes";
 
 export function stopEvent(event: React.MouseEvent) {
   event.preventDefault();
@@ -22,14 +20,13 @@ export function useAddToMenuButtonState(recipe: RecipeCardData) {
     isPending: menuPending,
   } = useMenuEntry(recipe.id);
 
-  const defaultServes = menuServes ?? recipe.serves;
-  const [servingAmount, setServingAmount] = useState(defaultServes);
-
-  useEffect(() => {
-    if (menuServes !== undefined) {
-      setServingAmount(menuServes);
-    }
-  }, [menuServes]);
+  const {
+    serves: servingAmount,
+    adjust,
+    reset: resetServes,
+    canDecrease,
+    canIncrease,
+  } = useBoundedServes(menuServes ?? recipe.serves);
 
   const addToMenu = useAddToMenu();
   const updateServes = useUpdateMenuEntryServes();
@@ -44,9 +41,9 @@ export function useAddToMenuButtonState(recipe: RecipeCardData) {
     (event: React.MouseEvent) => {
       stopEvent(event);
       setIsEditing(false);
-      setServingAmount(defaultServes);
+      resetServes();
     },
-    [defaultServes],
+    [resetServes],
   );
 
   const handleConfirm = useCallback(
@@ -76,12 +73,13 @@ export function useAddToMenuButtonState(recipe: RecipeCardData) {
     [recipe.id, removeFromMenu],
   );
 
-  const adjustAmount = useCallback((event: React.MouseEvent, delta: number) => {
-    stopEvent(event);
-    setServingAmount((amount) =>
-      Math.max(MIN_SERVES, Math.min(MAX_SERVES, amount + delta)),
-    );
-  }, []);
+  const adjustAmount = useCallback(
+    (event: React.MouseEvent, delta: number) => {
+      stopEvent(event);
+      adjust(delta);
+    },
+    [adjust],
+  );
 
   const isMutating =
     addToMenu.isPending || updateServes.isPending || removeFromMenu.isPending;
@@ -92,8 +90,8 @@ export function useAddToMenuButtonState(recipe: RecipeCardData) {
     menuServes,
     menuPending,
     servingAmount,
-    canDecrease: servingAmount > MIN_SERVES,
-    canIncrease: servingAmount < MAX_SERVES,
+    canDecrease,
+    canIncrease,
     isMutating,
     isRemoving: removeFromMenu.isPending,
     handleCartClick,

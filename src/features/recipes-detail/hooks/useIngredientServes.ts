@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import type { HydratedIngredient } from "@/features/recipes/data/types";
-
-const MIN_SERVES = 1;
-const MAX_SERVES = 50;
+import { useBoundedServes } from "@/features/recipes/hooks/useBoundedServes";
 
 export function scaleIngredients(
   ingredients: HydratedIngredient[],
@@ -31,27 +28,14 @@ export function useIngredientServes(
   originalServes: number,
 ): IngredientServesState {
   const { serves: menuServes } = useMenuEntry(recipeId);
-  const defaultServes = menuServes ?? originalServes;
-
-  const [override, setOverride] = useState<number | null>(null);
-
-  // A locally-adjusted view shouldn't persist once the underlying default it was adjusted from has moved on.
-  useEffect(() => {
-    setOverride(null);
-  }, [defaultServes]);
-
-  const effectiveServes = override ?? defaultServes;
-
-  const adjustServes = (delta: number) => {
-    setOverride(
-      Math.max(MIN_SERVES, Math.min(MAX_SERVES, effectiveServes + delta)),
-    );
-  };
+  const { serves, adjust, canDecrease, canIncrease } = useBoundedServes(
+    menuServes ?? originalServes,
+  );
 
   return {
-    effectiveServes,
-    adjustServes,
-    canDecrease: effectiveServes > MIN_SERVES,
-    canIncrease: effectiveServes < MAX_SERVES,
+    effectiveServes: serves,
+    adjustServes: adjust,
+    canDecrease,
+    canIncrease,
   };
 }

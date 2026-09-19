@@ -116,6 +116,43 @@ describe("useAddToMenuButtonState", () => {
     expect(result.current.servingAmount).toBe(4);
   });
 
+  it("follows the menu entry's serves when they change, discarding a local adjustment", () => {
+    setup({ isInMenu: true, serves: 6 });
+    const { result, rerender } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard({ serves: 4 })),
+    );
+    expect(result.current.servingAmount).toBe(6);
+
+    act(() => result.current.adjustAmount(stubEvent, 1));
+    expect(result.current.servingAmount).toBe(7);
+
+    mockUseMenuEntry.mockReturnValue({
+      isInMenu: true,
+      serves: 8,
+      isPending: false,
+    });
+    rerender();
+
+    expect(result.current.servingAmount).toBe(8);
+  });
+
+  it("returns to the recipe's own serves once the recipe leaves the menu", () => {
+    setup({ isInMenu: true, serves: 8 });
+    const { result, rerender } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard({ serves: 4 })),
+    );
+    expect(result.current.servingAmount).toBe(8);
+
+    mockUseMenuEntry.mockReturnValue({
+      isInMenu: false,
+      serves: undefined,
+      isPending: false,
+    });
+    rerender();
+
+    expect(result.current.servingAmount).toBe(4);
+  });
+
   it("confirm calls addToMenu when not already in the menu", () => {
     const { addToMenu, updateServes } = setup({ isInMenu: false });
     const { result } = renderHook(() =>

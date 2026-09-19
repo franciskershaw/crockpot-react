@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { buildRecipeCard, buildRecipeDetail } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -26,43 +27,8 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function recipe(overrides: Partial<RecipeCard> = {}): RecipeCard {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
-
 function page(recipes: RecipeCard[]): RecipeListResponse {
   return { recipes, page: 1, limit: 20, total: recipes.length, totalPages: 1 };
-}
-
-function recipeDetail(overrides: Partial<RecipeDetail> = {}): RecipeDetail {
-  return {
-    ...recipe(),
-    description: null,
-    instructions: [],
-    notes: [],
-    ingredients: [],
-    createdById: "u_1",
-    createdByName: "Jamie",
-    updatedAt: "2026-01-01T00:00:00.000Z",
-    ...overrides,
-  };
 }
 
 function setup(recipes: RecipeCard[]) {
@@ -88,7 +54,7 @@ function setup(recipes: RecipeCard[]) {
 describe("useToggleFavourite", () => {
   it("optimistically flips isFavourite in the list cache before the request resolves", async () => {
     const { queryClient, queryKey, wrapper } = setup([
-      recipe({ id: "r_1", isFavourite: false }),
+      buildRecipeCard({ id: "r_1", isFavourite: false }),
     ]);
     let resolveAdd: (v: { message: string }) => void;
     mockAddFavourite.mockReturnValue(
@@ -113,7 +79,9 @@ describe("useToggleFavourite", () => {
   });
 
   it("calls removeFavourite when the recipe was already favourited", async () => {
-    const { wrapper } = setup([recipe({ id: "r_1", isFavourite: true })]);
+    const { wrapper } = setup([
+      buildRecipeCard({ id: "r_1", isFavourite: true }),
+    ]);
     mockRemoveFavourite.mockResolvedValue({ message: "ok" });
 
     const { result } = renderHook(() => useToggleFavourite(), { wrapper });
@@ -127,7 +95,7 @@ describe("useToggleFavourite", () => {
 
   it("rolls back the optimistic flip when the request fails", async () => {
     const { queryClient, queryKey, wrapper } = setup([
-      recipe({ id: "r_1", isFavourite: false }),
+      buildRecipeCard({ id: "r_1", isFavourite: false }),
     ]);
     mockAddFavourite.mockRejectedValue(new Error("network error"));
 
@@ -146,7 +114,10 @@ describe("useToggleFavourite", () => {
   it("optimistically flips isFavourite in the detail cache before the request resolves", async () => {
     const { queryClient, wrapper } = setup([]);
     const detailKey = recipeKeys.detail("r_1");
-    queryClient.setQueryData(detailKey, recipeDetail({ isFavourite: false }));
+    queryClient.setQueryData(
+      detailKey,
+      buildRecipeDetail({ isFavourite: false }),
+    );
     let resolveAdd: (v: { message: string }) => void;
     mockAddFavourite.mockReturnValue(
       new Promise((resolve) => {
@@ -170,7 +141,10 @@ describe("useToggleFavourite", () => {
   it("rolls back the optimistic flip in the detail cache when the request fails", async () => {
     const { queryClient, wrapper } = setup([]);
     const detailKey = recipeKeys.detail("r_1");
-    queryClient.setQueryData(detailKey, recipeDetail({ isFavourite: false }));
+    queryClient.setQueryData(
+      detailKey,
+      buildRecipeDetail({ isFavourite: false }),
+    );
     let rejectAdd: (error: Error) => void;
     mockAddFavourite.mockReturnValue(
       new Promise((_resolve, reject) => {
@@ -200,7 +174,7 @@ describe("useToggleFavourite", () => {
   it("leaves an unrelated recipe's detail cache untouched", async () => {
     const { queryClient, wrapper } = setup([]);
     const otherKey = recipeKeys.detail("r_2");
-    queryClient.setQueryData(otherKey, recipeDetail({ id: "r_2" }));
+    queryClient.setQueryData(otherKey, buildRecipeDetail({ id: "r_2" }));
     mockAddFavourite.mockResolvedValue({ message: "ok" });
 
     const { result } = renderHook(() => useToggleFavourite(), { wrapper });

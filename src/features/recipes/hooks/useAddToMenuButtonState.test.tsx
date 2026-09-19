@@ -2,10 +2,10 @@ import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useAddToMenuButtonState } from "./useAddToMenuButtonState";
 
 vi.mock("@/features/menu/hooks/useMenuEntry", () => ({
@@ -35,27 +35,6 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function recipe(overrides: Partial<RecipeCardData> = {}): RecipeCardData {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
-
 function setup({
   isInMenu = false,
   serves,
@@ -84,7 +63,9 @@ function setup({
 describe("useAddToMenuButtonState", () => {
   it("defaults servingAmount to the recipe's own serves when not in the menu", () => {
     setup({ isInMenu: false });
-    const { result } = renderHook(() => useAddToMenuButtonState(recipe()));
+    const { result } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard()),
+    );
 
     expect(result.current.servingAmount).toBe(4);
     expect(result.current.isEditing).toBe(false);
@@ -92,7 +73,9 @@ describe("useAddToMenuButtonState", () => {
 
   it("clicking the cart opens the editor", () => {
     setup({ isInMenu: false });
-    const { result } = renderHook(() => useAddToMenuButtonState(recipe()));
+    const { result } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard()),
+    );
 
     act(() => result.current.handleCartClick(stubEvent));
 
@@ -102,7 +85,7 @@ describe("useAddToMenuButtonState", () => {
   it("adjustAmount clamps between 1 and 50", () => {
     setup({ isInMenu: false });
     const { result } = renderHook(() =>
-      useAddToMenuButtonState(recipe({ serves: 1 })),
+      useAddToMenuButtonState(buildRecipeCard({ serves: 1 })),
     );
 
     expect(result.current.canDecrease).toBe(false);
@@ -120,7 +103,7 @@ describe("useAddToMenuButtonState", () => {
   it("cancel closes the editor and resets servingAmount to the default", () => {
     setup({ isInMenu: false });
     const { result } = renderHook(() =>
-      useAddToMenuButtonState(recipe({ serves: 4 })),
+      useAddToMenuButtonState(buildRecipeCard({ serves: 4 })),
     );
 
     act(() => result.current.handleCartClick(stubEvent));
@@ -136,13 +119,13 @@ describe("useAddToMenuButtonState", () => {
   it("confirm calls addToMenu when not already in the menu", () => {
     const { addToMenu, updateServes } = setup({ isInMenu: false });
     const { result } = renderHook(() =>
-      useAddToMenuButtonState(recipe({ serves: 4 })),
+      useAddToMenuButtonState(buildRecipeCard({ serves: 4 })),
     );
 
     act(() => result.current.handleConfirm(stubEvent));
 
     expect(addToMenu.mutate).toHaveBeenCalledWith(
-      { recipe: recipe({ serves: 4 }), serves: 4 },
+      { recipe: buildRecipeCard({ serves: 4 }), serves: 4 },
       expect.anything(),
     );
     expect(updateServes.mutate).not.toHaveBeenCalled();
@@ -150,7 +133,9 @@ describe("useAddToMenuButtonState", () => {
 
   it("confirm calls updateMenuEntryServes when already in the menu", () => {
     const { addToMenu, updateServes } = setup({ isInMenu: true, serves: 6 });
-    const { result } = renderHook(() => useAddToMenuButtonState(recipe()));
+    const { result } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard()),
+    );
 
     act(() => result.current.handleConfirm(stubEvent));
 
@@ -163,7 +148,9 @@ describe("useAddToMenuButtonState", () => {
 
   it("remove calls removeFromMenu", () => {
     const { removeFromMenu } = setup({ isInMenu: true, serves: 6 });
-    const { result } = renderHook(() => useAddToMenuButtonState(recipe()));
+    const { result } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard()),
+    );
 
     act(() => result.current.handleRemove(stubEvent));
 

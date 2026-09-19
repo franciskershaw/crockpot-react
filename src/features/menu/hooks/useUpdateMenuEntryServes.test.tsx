@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { RecipeCard } from "@/features/recipes/data/types";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -21,27 +21,6 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-function recipeCard(overrides: Partial<RecipeCard> = {}): RecipeCard {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
-
 function setup(menu: Menu) {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -61,7 +40,7 @@ function setup(menu: Menu) {
 describe("useUpdateMenuEntryServes", () => {
   it("optimistically patches the matching entry's serves before the request resolves", async () => {
     const { queryClient, wrapper } = setup({
-      entries: [{ recipeId: "r_1", serves: 4, recipe: recipeCard() }],
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
     });
     let resolveUpdate: (v: { message: string }) => void;
     mockUpdateMenuEntryServes.mockReturnValue(
@@ -88,11 +67,11 @@ describe("useUpdateMenuEntryServes", () => {
   it("leaves other entries untouched", async () => {
     const { queryClient, wrapper } = setup({
       entries: [
-        { recipeId: "r_1", serves: 4, recipe: recipeCard() },
+        { recipeId: "r_1", serves: 4, recipe: buildRecipeCard() },
         {
           recipeId: "r_2",
           serves: 2,
-          recipe: recipeCard({ id: "r_2", name: "Veggie Chilli" }),
+          recipe: buildRecipeCard({ id: "r_2", name: "Veggie Chilli" }),
         },
       ],
     });
@@ -112,7 +91,7 @@ describe("useUpdateMenuEntryServes", () => {
 
   it("rolls back to the previous serves when the request fails", async () => {
     const { queryClient, wrapper } = setup({
-      entries: [{ recipeId: "r_1", serves: 4, recipe: recipeCard() }],
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
     });
     mockUpdateMenuEntryServes.mockRejectedValue(new Error("network error"));
 

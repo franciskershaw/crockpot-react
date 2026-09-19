@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getMenu } from "../data/api";
 import { menuKeys } from "../data/queryKeys";
 import type { Menu, MenuEntry } from "../data/types";
+import { useMenu } from "./useMenu";
 import { useMenuEntry } from "./useMenuEntry";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
@@ -29,23 +31,7 @@ function entry(overrides: Partial<MenuEntry> = {}): MenuEntry {
   return {
     recipeId: "r_1",
     serves: 4,
-    recipe: {
-      id: "r_1",
-      name: "BBQ Pulled Pork",
-      imageUrl: null,
-      imageFilename: null,
-      timeInMinutes: 30,
-      serves: 4,
-      approved: true,
-      categories: [],
-      createdAt: "2026-01-01T00:00:00.000Z",
-      isFavourite: false,
-      matchedIngredientCount: 0,
-      totalIngredientCount: 0,
-      matchedCategoryCount: 0,
-      score: 0,
-      tier: null,
-    },
+    recipe: buildRecipeCard(),
     ...overrides,
   };
 }
@@ -80,6 +66,20 @@ describe("useMenuEntry", () => {
 
     expect(result.current.isPending).toBe(true);
     expect(result.current.isInMenu).toBe(false);
+  });
+
+  it("stays pending, not a false not-in-menu, when the menu fails to load", async () => {
+    const { wrapper } = setup(undefined);
+    mockGetMenu.mockRejectedValue(new Error("network down"));
+
+    const { result } = renderHook(
+      () => ({ menu: useMenu(), entry: useMenuEntry("r_1") }),
+      { wrapper },
+    );
+
+    await waitFor(() => expect(result.current.menu.isError).toBe(true));
+    expect(result.current.entry.isPending).toBe(true);
+    expect(result.current.entry.isInMenu).toBe(false);
   });
 
   it("resolves not-in-menu when the recipe isn't among the menu's entries", () => {

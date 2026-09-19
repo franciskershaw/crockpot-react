@@ -2,11 +2,11 @@ import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
+import { buildRecipeCard } from "@/test/recipeFixtures";
 import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { RecipeCard as RecipeCardData } from "../data/types";
 import { AddToMenuButton } from "./AddToMenuButton";
 
 vi.mock("@/features/menu/hooks/useMenuEntry", () => ({
@@ -30,27 +30,6 @@ const mockUseRemoveFromMenu = vi.mocked(useRemoveFromMenu);
 afterEach(() => {
   vi.clearAllMocks();
 });
-
-function recipe(overrides: Partial<RecipeCardData> = {}): RecipeCardData {
-  return {
-    id: "r_1",
-    name: "BBQ Pulled Pork",
-    imageUrl: null,
-    imageFilename: null,
-    timeInMinutes: 30,
-    serves: 4,
-    approved: true,
-    categories: [],
-    createdAt: "2026-01-01T00:00:00.000Z",
-    isFavourite: false,
-    matchedIngredientCount: 0,
-    totalIngredientCount: 0,
-    matchedCategoryCount: 0,
-    score: 0,
-    tier: null,
-    ...overrides,
-  };
-}
 
 function setup({
   isInMenu = false,
@@ -80,7 +59,7 @@ function setup({
 describe("AddToMenuButton", () => {
   it("shows the cart icon with no badge when not in the menu", () => {
     setup({ isInMenu: false });
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     expect(
       screen.getByRole("button", { name: "Add to menu" }),
@@ -90,7 +69,7 @@ describe("AddToMenuButton", () => {
 
   it("shows a serves badge and an edit label when already in the menu", () => {
     setup({ isInMenu: true, serves: 6 });
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     expect(
       screen.getByRole("button", { name: "Edit menu item" }),
@@ -100,7 +79,7 @@ describe("AddToMenuButton", () => {
 
   it("disables the cart icon while the menu is still loading", () => {
     setup({ isPending: true });
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     expect(
       screen.getByRole("button", { name: "Loading menu status" }),
@@ -109,7 +88,7 @@ describe("AddToMenuButton", () => {
 
   it("expands to a serving stepper on click, defaulting to the recipe's own serves", async () => {
     setup({ isInMenu: false });
-    render(<AddToMenuButton recipe={recipe({ serves: 4 })} />);
+    render(<AddToMenuButton recipe={buildRecipeCard({ serves: 4 })} />);
 
     await userEvent
       .setup()
@@ -127,14 +106,14 @@ describe("AddToMenuButton", () => {
   it("confirming a new addition calls addToMenu with the adjusted serves", async () => {
     const { addToMenu } = setup({ isInMenu: false });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe({ serves: 4 })} />);
+    render(<AddToMenuButton recipe={buildRecipeCard({ serves: 4 })} />);
 
     await user.click(screen.getByRole("button", { name: "Add to menu" }));
     await user.click(screen.getByRole("button", { name: "Increase servings" }));
     await user.click(screen.getByRole("button", { name: "Confirm amount" }));
 
     expect(addToMenu.mutate).toHaveBeenCalledWith(
-      { recipe: recipe({ serves: 4 }), serves: 5 },
+      { recipe: buildRecipeCard({ serves: 4 }), serves: 5 },
       expect.anything(),
     );
   });
@@ -142,7 +121,7 @@ describe("AddToMenuButton", () => {
   it("confirming an edit to an in-menu recipe calls updateMenuEntryServes, not addToMenu", async () => {
     const { updateServes, addToMenu } = setup({ isInMenu: true, serves: 6 });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     await user.click(screen.getByRole("button", { name: "Edit menu item" }));
     await user.click(screen.getByRole("button", { name: "Confirm amount" }));
@@ -157,7 +136,7 @@ describe("AddToMenuButton", () => {
   it("disables decrease at the minimum from the start", async () => {
     setup({ isInMenu: false });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe({ serves: 1 })} />);
+    render(<AddToMenuButton recipe={buildRecipeCard({ serves: 1 })} />);
 
     await user.click(screen.getByRole("button", { name: "Add to menu" }));
 
@@ -169,7 +148,7 @@ describe("AddToMenuButton", () => {
   it("disables increase once it reaches the maximum of 50", async () => {
     setup({ isInMenu: false });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe({ serves: 49 })} />);
+    render(<AddToMenuButton recipe={buildRecipeCard({ serves: 49 })} />);
 
     await user.click(screen.getByRole("button", { name: "Add to menu" }));
     await user.click(screen.getByRole("button", { name: "Increase servings" }));
@@ -183,7 +162,7 @@ describe("AddToMenuButton", () => {
   it("cancel closes the editor without mutating", async () => {
     const { addToMenu } = setup({ isInMenu: false });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     await user.click(screen.getByRole("button", { name: "Add to menu" }));
     await user.click(await screen.findByRole("button", { name: "Cancel" }));
@@ -199,7 +178,7 @@ describe("AddToMenuButton", () => {
   it("removing an in-menu recipe calls removeFromMenu", async () => {
     const { removeFromMenu } = setup({ isInMenu: true, serves: 6 });
     const user = userEvent.setup();
-    render(<AddToMenuButton recipe={recipe()} />);
+    render(<AddToMenuButton recipe={buildRecipeCard()} />);
 
     await user.click(screen.getByRole("button", { name: "Edit menu item" }));
     await user.click(screen.getByRole("button", { name: /remove from menu/i }));

@@ -261,3 +261,7 @@ decision as fully closed. No code written yet.
 ## 2026-09-19 — CFE-033 — Browse page size + card-animation replay. Clean.
 
 - Two independently-reversible fixes, each red-then-green; no rework. Reading the code first corrected the ticket's premise (server default was 20, not 10).
+
+## 2026-09-19 — CFE-027 — Shared RecipeCard/RecipeDetail test fixtures + `useMenuEntry` regression test. Clean.
+
+- 15 files migrated; suite and `tsc -b` green before and after. The finding's file paths had gone stale after `CFE-031`'s reorg, so the file list was re-derived by grep rather than trusted. Divergent per-file defaults were kept as thin local wrappers so no assertion changed. The regression test was mutation-checked (removing `|| isError` fails it).

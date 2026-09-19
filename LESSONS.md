@@ -290,3 +290,9 @@ decision as fully closed. No code written yet.
 - I had proposed a content fade-in to "soften" the skeleton-to-content swap; caught before building — an unmounted skeleton can't cross-fade, so it would dip to blank instead.
 - **Pattern**: for a "don't flash on fast loads" problem, try a delayed CSS animation before reaching for a timer hook, and check that a proposed transition has both sides mounted before promising a cross-fade.
 
+## 2026-09-19 — Branch review of the day's work (`d2a3782..HEAD`). No bugs or security findings; four debt notes.
+
+- The skill defaults to the current branch vs `main`, which is empty when working directly on `main`; an explicit base range (`<last commit before the day>..HEAD`) is the way to review a day's commits. The two agents got the production-code diff only (import-only hunks and a whitespace re-indent trimmed, tests and docs left to the quality pass) to keep the pasted prompt bounded.
+- The agents' two low-confidence flags were resolved by reading the code (one caller of `listRecipes`; a failed page fetch surfaces as `isError`), not passed on as unverified. One of my own tests turned out to lock behaviour a queued ticket (`CFE-037`) will change.
+- **Pattern**: when writing a test that awaits a UI state produced by known-unwanted behaviour (here, the error panel), note it against the ticket that will change that behaviour at the time, not at review.
+

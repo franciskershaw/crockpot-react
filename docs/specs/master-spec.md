@@ -369,6 +369,25 @@ running; skipped ahead to leave room rather than collide.*
   dropping an initial call that is safe only while the carousel has no
   `startIndex`). **Done** (2026-09-19).
 
+*From the branch review of 2026-09-19's work (`d2a3782..HEAD`; no bugs or
+security findings — debt notes only):*
+- **CFE-038** — Review follow-ups, all small and mechanical, to bundle
+  (none blocking):
+  - Extract the delayed-fade skeleton wrapper
+    (`animate-in fade-in delay-200 duration-150 fill-mode-backwards` + its
+    comment) duplicated in `RecipeGrid.tsx` and `RecipeDetailSkeleton.tsx`
+    into one shared constant. Do it when `CFE-006` (or `007`/`008`) adds
+    its first skeleton, since those will otherwise copy the string.
+  - `useRecipeList` injects `limit: PAGE_SIZE` in `queryFn`, outside the
+    params that build the query key, so the key doesn't fully describe the
+    request; harmless with one caller, but move `limit` into the keyed
+    params before a second consumer of `recipeKeys.list` appears.
+  - `useBoundedServes.ts` exports `MIN_SERVES`/`MAX_SERVES` with no
+    importers; drop the `export`.
+  - Confirm intent for two spacing changes landed without a note:
+    `IngredientsSection` `pt-3` → `pt-0` and `RecipeHero` `mb-14` → `mb-2`.
+    If deliberate, record them in a handoff/LESSONS line.
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a
@@ -468,4 +487,10 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   `isError` branch also fires when `data` already holds loaded pages
   (surfaced while testing `CFE-036`). Losing the loaded recipes to one
   transient failure is probably worse than a retry affordance under the
-  grid; not yet grilled.
+  grid; not yet grilled. Must also rewrite `RecipeGrid.test.tsx`'s "does
+  not retry a failed page fetch while the sentinel stays in view": it
+  awaits that panel, so it currently locks in the behaviour this ticket
+  changes. Keep its real intent — a failed page fetch must not loop while
+  the sentinel stays in view (today only the unmounted sentinel prevents
+  it; once the grid stays mounted, the effect needs its own guard, e.g.
+  `isFetchNextPageError`).

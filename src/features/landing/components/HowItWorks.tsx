@@ -6,7 +6,7 @@ import {
   type CarouselApi,
 } from "@/components/ui/carousel";
 
-import { SECTION_GAP } from "../styles";
+import { SECTION_GAP } from "../utils/styles";
 import { StepCard, type Step } from "./StepCard";
 
 const STEPS: Step[] = [

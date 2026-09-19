@@ -3,7 +3,7 @@ import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/googleLogin";
+import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { Link, NavLink } from "react-router-dom";
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>

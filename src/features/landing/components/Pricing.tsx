@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { goToGoogleLogin } from "@/features/auth/googleLogin";
+import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 
-import { HARD_SHADOW, SECTION_GAP } from "../styles";
+import { HARD_SHADOW, SECTION_GAP } from "../utils/styles";
 import { PricingCard, type Plan } from "./PricingCard";
 import { RecipeCardPlaceholder } from "./RecipeCardPlaceholder";
 

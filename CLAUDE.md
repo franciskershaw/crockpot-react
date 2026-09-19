@@ -46,7 +46,8 @@ every other decision above: `docs/specs/master-spec.md`.
 
 ## Feature folder layout (hard rule, not a suggestion)
 
-Every `features/<name>/` folder splits into four buckets, classified purely
+Every `features/<name>/` folder splits into five buckets, with no loose
+files at the feature root, classified purely
 by *what a file is* — never by domain/concern, which requires a judgment
 call on every new file and drifts the moment two people (or two sessions)
 guess differently:
@@ -56,9 +57,13 @@ guess differently:
 - `components/` — every other `.tsx` component.
 - `hooks/` — every `use*.ts`/`use*.tsx` hook.
 - `data/` — `api.ts`, `types.ts`, `queryKeys.ts` (each a singleton per
-  feature). Strictly these three file kinds — any other single-purpose
-  file with no natural bucket (e.g. `auth/googleLogin.ts`) stays loose
-  at feature root instead, not in `data/`.
+  feature). Strictly these three file kinds.
+- `utils/` — every other non-React module (no JSX, no hooks): pure helpers
+  and lookup tables, plus shared class-string constants (`styles.ts`), e.g.
+  `recipes/utils/matchTier.ts`, `recipes/utils/styles.ts`,
+  `auth/utils/googleLogin.ts`. Replaced the earlier "loose at feature root"
+  exception (2026-09-19); keep the definition mechanical so `utils/` stays
+  a bucket, not a junk drawer.
 
 Tests colocate next to the file they cover, in whichever bucket that file
 lands in (`components/RecipeCard.tsx` + `components/RecipeCard.test.tsx`).
@@ -113,7 +118,7 @@ already signals the grouping without one.
 `components/`/`hooks/` bucket exceeds ~15 files *and* splits cleanly by
 "which routed page exclusively imports this" (mechanical, grep-able —
 not the by-concern judgment call rejected above), split the feature into
-page-specific sibling features, each with their own four buckets. Keep
+page-specific sibling features, each with their own buckets. Keep
 only 2+-page-consumer files (including `data/`) in the original folder
 as the shared core. Pre-emptively moving a single-consumer file into
 that shared core (ahead of today's import graph) needs a backlogged
@@ -150,8 +155,8 @@ buckets above, applied one level up:
 - Root — genuinely reusable across 2+ features (`Logo`, `StatePanel`). A
   file with exactly one real consumer belongs with that consumer, not
   here, regardless of how generic it feels — `GoogleIcon.tsx` moved into
-  `features/auth/` at `CFE-031` on this basis (single consumer, and
-  inherently auth-domain iconography alongside `googleLogin.ts`).
+  `features/auth/components/` at `CFE-031` on this basis (single consumer,
+  and inherently auth-domain iconography alongside `googleLogin.ts`).
 
 ## Design-artifact grounding (hard rule, not a suggestion)
 

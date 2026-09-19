@@ -8,7 +8,7 @@ import {
 import {
   getCategoryIcon,
   groupIngredientsByCategory,
-} from "../ingredientCategories";
+} from "../utils/ingredientCategories";
 
 export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
   const { effectiveServes, adjustServes, canDecrease, canIncrease } =

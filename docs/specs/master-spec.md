@@ -322,7 +322,15 @@ CFE-003.
   independently duplicated in `useAddToMenuButtonState` (`CFE-020`) and
   `useIngredientServes` (`CFE-005`); extract a shared icon-button-classes
   constant/wrapper duplicated across `RecipeFavouriteButton`/
-  `RecipeEditButton`/`RecipeDeleteButton`. Findings 3, 5.
+  `RecipeEditButton`/`RecipeDeleteButton`. Findings 3, 5. **Done**
+  (2026-09-19): `useBoundedServes` (`recipes/hooks/`) owns the bounds,
+  clamp and override-reset for both hooks, clearing their two
+  `set-state-in-effect` warnings (oxlint 9 → 7); the icon-button classes
+  are `ICON_BUTTON_CLASSES` in `recipes/utils/styles.ts`. Behaviour
+  change: after a recipe leaves the menu, the card stepper returns to the
+  recipe's own serves instead of the last menu value. Also added a
+  `utils/` bucket to the feature layout (see `CLAUDE.md`) and moved the
+  previously loose files into it.
 - **CFE-030** — `FilterOptionList`'s expand-and-scroll `setTimeout` isn't
   cancelled on rapid re-toggle; track the timer and clear it before
   scheduling a new one. Finding 6. **Done** (2026-09-19), shipped in

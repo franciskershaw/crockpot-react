@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
-import { SUBSECTION_GAP } from "../styles";
+import { SUBSECTION_GAP } from "../utils/styles";
 
 export function PlannerTease() {
   return (

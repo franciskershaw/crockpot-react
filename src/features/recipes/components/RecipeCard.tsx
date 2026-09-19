@@ -4,7 +4,7 @@ import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
-import { visibleMatchTier } from "../matchTier";
+import { visibleMatchTier } from "../utils/matchTier";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 

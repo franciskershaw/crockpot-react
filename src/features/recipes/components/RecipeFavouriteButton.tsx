@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
+import { ICON_BUTTON_CLASSES } from "../utils/styles";
 
 export function RecipeFavouriteButton({
   recipe,
@@ -30,10 +31,7 @@ export function RecipeFavouriteButton({
         recipe.isFavourite ? "Remove from favourites" : "Add to favourites"
       }
       onClick={handleClick}
-      className={cn(
-        "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-accent",
-        className,
-      )}
+      className={cn(ICON_BUTTON_CLASSES, className)}
     >
       <Heart
         size={15}

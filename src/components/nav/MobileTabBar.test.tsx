@@ -1,5 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/googleLogin";
+import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -9,7 +9,7 @@ import { MobileTabBar } from "./MobileTabBar";
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
 }));
-vi.mock("@/features/auth/googleLogin", () => ({
+vi.mock("@/features/auth/utils/googleLogin", () => ({
   goToGoogleLogin: vi.fn(),
 }));
 

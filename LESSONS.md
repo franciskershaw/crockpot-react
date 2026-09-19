@@ -271,3 +271,9 @@ decision as fully closed. No code written yet.
 - oxlint 16 → 9; the 9 left are each owned or deliberate (recorded in the spec). The whole-project warning list, not the 3 I'd seen earlier, is what made the "which are worth fixing" sort possible.
 - A drafted "no scroll after unmount" test passed before any fix (`sectionRef.current?.` is already null after unmount), so it was deleted instead of kept. A first fake-timer attempt timed out rather than failing on an assertion, which isn't a valid red; copying the repo's existing `SearchBar` test setup fixed it.
 - **Pattern**: a debounce effect that deliberately omits `onChange`/`value` from its deps is what `useEffectEvent` (React 19.2) is for; don't add the deps or suppress the lint rule.
+
+## 2026-09-19 — CFE-029 — Shared bounded-serves hook + icon-button classes. Clean code; one rule-following miss that cost a layout rework.
+
+- The serves hook went pin-test → red stubbed tests → green; pinning first exposed a stale-value quirk (a removed recipe kept its last menu serves), fixed as an approved behaviour change. `useAddToMenuButtonState` had no test for the effect being replaced, so the pin was necessary, not optional.
+- I placed two new helper files loose at a feature root because `CLAUDE.md` explicitly allowed it, without flagging that the same file records your preference against loose root files. You caught it; the fix was a `utils/` bucket and moving the existing loose files in, which left every feature root empty. Moving files also broke a type-only import that vitest couldn't see (only `tsc -b` did) and two bare `vi.mock` strings.
+- **Pattern**: when a rule permits an exception, check the rest of the same document for a stated preference against it before relying on the exception, and flag the tension instead of choosing silently. After any file move, `tsc -b` and a grep of `vi.mock` strings are the gate, not `vitest run` alone.

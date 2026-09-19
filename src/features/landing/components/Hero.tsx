@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { GoogleIcon } from "@/features/auth/GoogleIcon";
-import { goToGoogleLogin } from "@/features/auth/googleLogin";
+import { GoogleIcon } from "@/features/auth/components/GoogleIcon";
+import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { HARD_SHADOW } from "../styles";
+import { HARD_SHADOW } from "../utils/styles";
 import { RecipeCardPlaceholder } from "./RecipeCardPlaceholder";
 
 export function Hero() {

@@ -1,5 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/googleLogin";
+import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -13,7 +13,7 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 vi.mock("@/features/auth/hooks/useLogout", () => ({
   useLogout: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
 }));
-vi.mock("@/features/auth/googleLogin", () => ({
+vi.mock("@/features/auth/utils/googleLogin", () => ({
   goToGoogleLogin: vi.fn(),
 }));
 

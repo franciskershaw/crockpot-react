@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useDeleteRecipe } from "@/features/recipes/hooks/useDeleteRecipe";
+import { ICON_BUTTON_CLASSES } from "@/features/recipes/utils/styles";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -39,10 +40,7 @@ export function RecipeDeleteButton({
         <button
           type="button"
           aria-label="Delete recipe"
-          className={cn(
-            "flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-accent",
-            className,
-          )}
+          className={cn(ICON_BUTTON_CLASSES, className)}
         >
           <Trash2 size={15} strokeWidth={2} />
         </button>

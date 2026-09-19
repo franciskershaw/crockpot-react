@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { Check } from "lucide-react";
 
-import { HARD_SHADOW } from "../styles";
+import { HARD_SHADOW } from "../utils/styles";
 
 export interface Plan {
   name: string;

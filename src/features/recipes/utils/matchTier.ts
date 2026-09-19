@@ -1,4 +1,4 @@
-import type { RecipeCard } from "./data/types";
+import type { RecipeCard } from "../data/types";
 
 // One selected category trivially scores 1.0 for every recipe with that
 // tag; a single ingredient doesn't, since it's scored against the recipe's own count.

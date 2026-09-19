@@ -437,14 +437,24 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
 - **CFE-036** — Founder-reported minor bug (2026-09-19): scrolling to the
   bottom of the browse page fast enough to trigger the infinite scroll
   can leave it stuck, needing a scroll up and down to load the next
-  page. Gentle scrolling gives the intended load and animation
-  behaviour; only aggressive scrolls stall. Not yet investigated.
-  Hypothesis to check, not a finding: `RecipeGrid`'s
-  `IntersectionObserver` callback returns early while
-  `isFetchingNextPage` or within `INTERSECTION_DEBOUNCE_MS` (500ms) of
-  the last trigger, and an observer only fires again when the sentinel's
-  intersection *changes* — so a dropped callback with the sentinel still
-  in view has nothing to re-trigger it until it scrolls out and back.
-  A fix would re-check whether the sentinel is still in view once the
-  fetch settles, rather than relying on a one-shot event; exact approach
-  is a grill question.
+  page. **Done** (2026-09-19). Cause (confirmed from a console trace):
+  `RecipeGrid`'s observer callback dropped an in-view event via the
+  500ms trigger debounce, which counted from the trigger not the
+  response; an `IntersectionObserver` only reports changes, so with the
+  sentinel still in view nothing re-fired. Fix: sentinel visibility is
+  state and an effect fetches when it is in view, a next page exists and
+  nothing is in flight; debounce and ref bookkeeping removed; prefetch
+  margin widened from 200px to one viewport (`PREFETCH_MARGIN`) so the
+  next page usually lands before the user reaches the end. A rest-based
+  gate (fetch only once scrolling stops) was tried and removed: it
+  stopped chained pages on hard flings but put a visible pause at the
+  end of every scroll. If hard flings chaining several pages ever needs
+  limiting, a velocity-aware gate (defer only above a scroll-speed
+  threshold) is the untried option.
+
+- **CFE-037** — A failed next-page fetch replaces the whole browse grid
+  with the "Something went wrong" panel, because `RecipeGrid`'s
+  `isError` branch also fires when `data` already holds loaded pages
+  (surfaced while testing `CFE-036`). Losing the loaded recipes to one
+  transient failure is probably worse than a retry affordance under the
+  grid; not yet grilled.

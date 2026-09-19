@@ -277,3 +277,10 @@ decision as fully closed. No code written yet.
 - The serves hook went pin-test → red stubbed tests → green; pinning first exposed a stale-value quirk (a removed recipe kept its last menu serves), fixed as an approved behaviour change. `useAddToMenuButtonState` had no test for the effect being replaced, so the pin was necessary, not optional.
 - I placed two new helper files loose at a feature root because `CLAUDE.md` explicitly allowed it, without flagging that the same file records your preference against loose root files. You caught it; the fix was a `utils/` bucket and moving the existing loose files in, which left every feature root empty. Moving files also broke a type-only import that vitest couldn't see (only `tsc -b` did) and two bare `vi.mock` strings.
 - **Pattern**: when a rule permits an exception, check the rest of the same document for a stated preference against it before relying on the exception, and flag the tension instead of choosing silently. After any file move, `tsc -b` and a grep of `vi.mock` strings are the gate, not `vitest run` alone.
+
+## 2026-09-19 — CFE-036 — Infinite-scroll stall. Diagnosed first, then one added-and-removed gate.
+
+- A temporary console trace, run by the founder in the real browser, identified the cause before any fix (a debounce that dropped an in-view event whose observer never re-fired). The fix then went red-to-green on a fake `IntersectionObserver` that only reports when told to.
+- The state-driven fix removed the old debounce, which had been rate-limiting chained fetches by accident. A rest-based gate then stopped the chaining but moved the fetch start from before the user reaches the end to after they stop, which cost the prefetch that makes infinite scroll feel smooth. It was removed for a wider prefetch margin instead.
+- **Pattern**: when removing a mechanism that looks like a bug, ask what it was silently limiting; and don't fix a rare edge case with something that taxes the common path. Judge the feel of scroll timing in the browser, not in tests.
+

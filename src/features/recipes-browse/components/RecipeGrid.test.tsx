@@ -3,10 +3,10 @@ import { listRecipes } from "@/features/recipes/data/api";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RecipeGrid } from "./RecipeGrid";
 
@@ -185,6 +185,120 @@ describe("RecipeGrid", () => {
 
       expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument();
       expect(cardWrapper()).not.toHaveStyle({ opacity: "0" });
+    });
+  });
+
+  describe("infinite scroll", () => {
+    // Like the real observer, only reports when told to — a dropped event is
+    // not repeated while the sentinel stays in view.
+    class FakeIntersectionObserver {
+      static instances: FakeIntersectionObserver[] = [];
+      callback: IntersectionObserverCallback;
+      constructor(callback: IntersectionObserverCallback) {
+        this.callback = callback;
+        FakeIntersectionObserver.instances.push(this);
+      }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      takeRecords = () => [];
+      disconnect = () => {
+        FakeIntersectionObserver.instances =
+          FakeIntersectionObserver.instances.filter((i) => i !== this);
+      };
+      static setSentinelInView(isIntersecting: boolean) {
+        act(() => {
+          for (const instance of FakeIntersectionObserver.instances) {
+            instance.callback(
+              [{ isIntersecting } as IntersectionObserverEntry],
+              instance as unknown as IntersectionObserver,
+            );
+          }
+        });
+      }
+    }
+
+    function pageResponse(page: number) {
+      return {
+        recipes: [buildRecipeCard({ id: `r_${page}`, name: `Recipe ${page}` })],
+        page,
+        limit: 12,
+        total: 3,
+        totalPages: 3,
+      };
+    }
+
+    function pagesRequested() {
+      return mockListRecipes.mock.calls.map(([params]) => params?.page);
+    }
+
+    beforeEach(() => {
+      FakeIntersectionObserver.instances = [];
+      vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
+      mockUseAuth.mockReturnValue({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      mockListRecipes.mockImplementation(async (params) =>
+        pageResponse(params?.page ?? 1),
+      );
+      renderWithProviders(
+        <RecipeGrid
+          params={{}}
+          from="/recipes"
+          activeFilterCount={0}
+          onClearFilters={vi.fn()}
+        />,
+      );
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("fetches the next page when the sentinel is back in view right after a fetch settles", async () => {
+      await screen.findByText("Recipe 1");
+
+      FakeIntersectionObserver.setSentinelInView(true);
+      await screen.findByText("Recipe 2");
+      FakeIntersectionObserver.setSentinelInView(false);
+      FakeIntersectionObserver.setSentinelInView(true);
+
+      await waitFor(() => expect(pagesRequested()).toEqual([1, 2, 3]));
+    });
+
+    it("requests a page once when the sentinel re-enters view mid-fetch", async () => {
+      let resolvePage2!: () => void;
+      mockListRecipes.mockImplementation((params) =>
+        params?.page === 2
+          ? new Promise((resolve) => {
+              resolvePage2 = () => resolve(pageResponse(2));
+            })
+          : Promise.resolve(pageResponse(params?.page ?? 1)),
+      );
+      await screen.findByText("Recipe 1");
+
+      FakeIntersectionObserver.setSentinelInView(true);
+      await waitFor(() => expect(pagesRequested()).toEqual([1, 2]));
+      FakeIntersectionObserver.setSentinelInView(false);
+      FakeIntersectionObserver.setSentinelInView(true);
+      act(() => resolvePage2());
+      await screen.findByText("Recipe 2");
+
+      expect(pagesRequested().filter((page) => page === 2)).toHaveLength(1);
+    });
+
+    it("does not retry a failed page fetch while the sentinel stays in view", async () => {
+      mockListRecipes.mockImplementation(async (params) => {
+        if (params?.page === 2) throw new Error("network down");
+        return pageResponse(params?.page ?? 1);
+      });
+      await screen.findByText("Recipe 1");
+
+      FakeIntersectionObserver.setSentinelInView(true);
+      await screen.findByText("Something went wrong");
+
+      expect(pagesRequested()).toEqual([1, 2]);
     });
   });
 });

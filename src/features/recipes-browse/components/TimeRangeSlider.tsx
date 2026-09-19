@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { Slider as SliderPrimitive } from "radix-ui";
 
 const DEBOUNCE_MS = 300;
@@ -27,9 +27,13 @@ export function TimeRangeSlider({
     setDraft(value);
   }
 
+  const commit = useEffectEvent((next: [number, number]) => {
+    if (next[0] !== value[0] || next[1] !== value[1])
+      onChange(next[0], next[1]);
+  });
+
   useEffect(() => {
-    if (draft[0] === value[0] && draft[1] === value[1]) return;
-    const timeout = setTimeout(() => onChange(draft[0], draft[1]), DEBOUNCE_MS);
+    const timeout = setTimeout(() => commit(draft), DEBOUNCE_MS);
     return () => clearTimeout(timeout);
   }, [draft]);
 

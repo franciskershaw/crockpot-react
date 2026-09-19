@@ -5,7 +5,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getInitials, UserMenu } from "./UserMenu";
+import { UserMenu } from "./UserMenu";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
@@ -27,24 +27,6 @@ const USER = {
 
 afterEach(() => {
   vi.clearAllMocks();
-});
-
-describe("getInitials", () => {
-  it("uses the first letter of up to two name parts", () => {
-    expect(getInitials("Jamie Miller", "jamie@example.com")).toBe("JM");
-  });
-
-  it("falls back to a single letter for a one-word name", () => {
-    expect(getInitials("Jamie", "jamie@example.com")).toBe("J");
-  });
-
-  it("falls back to the email's first letter with no name", () => {
-    expect(getInitials(null, "jamie@example.com")).toBe("J");
-  });
-
-  it("falls back to the email's first letter for a blank name", () => {
-    expect(getInitials("   ", "jamie@example.com")).toBe("J");
-  });
 });
 
 describe("UserMenu", () => {

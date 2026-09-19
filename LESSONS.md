@@ -265,3 +265,9 @@ decision as fully closed. No code written yet.
 ## 2026-09-19 — CFE-027 — Shared RecipeCard/RecipeDetail test fixtures + `useMenuEntry` regression test. Clean.
 
 - 15 files migrated; suite and `tsc -b` green before and after. The finding's file paths had gone stale after `CFE-031`'s reorg, so the file list was re-derived by grep rather than trusted. Divergent per-file defaults were kept as thin local wrappers so no assertion changed. The regression test was mutation-checked (removing `|| isError` fails it).
+
+## 2026-09-19 — CFE-034 (with CFE-028/030) — Lint-warning cleanup bundle. One hollow test caught and deleted; rest clean.
+
+- oxlint 16 → 9; the 9 left are each owned or deliberate (recorded in the spec). The whole-project warning list, not the 3 I'd seen earlier, is what made the "which are worth fixing" sort possible.
+- A drafted "no scroll after unmount" test passed before any fix (`sectionRef.current?.` is already null after unmount), so it was deleted instead of kept. A first fake-timer attempt timed out rather than failing on an assertion, which isn't a valid red; copying the repo's existing `SearchBar` test setup fixed it.
+- **Pattern**: a debounce effect that deliberately omits `onChange`/`value` from its deps is what `useEffectEvent` (React 19.2) is for; don't add the deps or suppress the lint rule.

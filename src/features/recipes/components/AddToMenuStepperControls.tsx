@@ -37,6 +37,7 @@ export function AddToMenuStepperControls({
       </button>
 
       <div
+        role="presentation"
         className="flex min-w-8 items-center justify-center px-2 text-center text-sm font-medium text-foreground"
         onClick={stopEvent}
       >

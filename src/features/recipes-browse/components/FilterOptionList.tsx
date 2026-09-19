@@ -32,6 +32,7 @@ export function FilterOptionList({
   const [hasOverflow, setHasOverflow] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLUListElement>(null);
+  const expandScrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const filtered = options.filter((option) =>
     option.name.toLowerCase().includes(search.toLowerCase()),
@@ -39,6 +40,8 @@ export function FilterOptionList({
   const hasMore = filtered.length > INITIAL_VISIBLE_COUNT;
   const visible = showAll ? filtered : filtered.slice(0, INITIAL_VISIBLE_COUNT);
   const hiddenCount = filtered.length - INITIAL_VISIBLE_COUNT;
+
+  useEffect(() => () => clearTimeout(expandScrollTimerRef.current), []);
 
   useEffect(() => {
     const node = scrollRef.current;
@@ -57,16 +60,14 @@ export function FilterOptionList({
     return () => node.removeEventListener("scroll", updateScrollState);
   }, [showAll, filtered.length]);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    setIsScrolledToBottom(false);
-  }, [showAll]);
-
   function handleToggleShowAll() {
     const expanding = !showAll;
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    setIsScrolledToBottom(false);
     setShowAll(expanding);
+    clearTimeout(expandScrollTimerRef.current);
     if (expanding) {
-      setTimeout(() => {
+      expandScrollTimerRef.current = setTimeout(() => {
         sectionRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "start",

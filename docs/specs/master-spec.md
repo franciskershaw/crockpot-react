@@ -315,7 +315,8 @@ CFE-003.
   tokens, confirmed isolated to this one file (was seeded 2026-09-07 with
   a wider "likely affects other components" worry that didn't hold, now
   actioned); fix `AddToMenuStepperControls.tsx`'s non-interactive
-  `onClick` div tripping the oxlint a11y ruleset. Findings 1, 4.
+  `onClick` div tripping the oxlint a11y ruleset. Findings 1, 4. **Done**
+  (2026-09-19), shipped in `CFE-034`.
 - **CFE-029** — Recipe hook/component duplication: extract a shared
   `useBoundedServes` helper for the `MIN_SERVES`/`MAX_SERVES` clamp logic
   independently duplicated in `useAddToMenuButtonState` (`CFE-020`) and
@@ -324,7 +325,8 @@ CFE-003.
   `RecipeEditButton`/`RecipeDeleteButton`. Findings 3, 5.
 - **CFE-030** — `FilterOptionList`'s expand-and-scroll `setTimeout` isn't
   cancelled on rapid re-toggle; track the timer and clear it before
-  scheduling a new one. Finding 6.
+  scheduling a new one. Finding 6. **Done** (2026-09-19), shipped in
+  `CFE-034`.
 
 *Ticket numbers CFE-027–030 (not CFE-023–026) — CFE-023 was taken by a
 bug entry added directly to this file while this pass's audit was
@@ -343,6 +345,21 @@ running; skipped ahead to leave room rather than collide.*
   and grouped root-only app wiring into `components/app/`; fixed the
   `lib/Tanstack/` → `lib/tanstack/` casing. New standing rules recorded
   in `CLAUDE.md`. **Done** (2026-09-18), see `docs/handoffs/CFE-031.md`.
+
+*Bundled 2026-09-19:*
+- **CFE-034** — Lint-warning cleanup, bundled with `CFE-028` and
+  `CFE-030` (same files, all mechanical). oxlint went 16 → 9 warnings.
+  Fixed: `FilterOptionList` (timer + `set-state-in-effect`),
+  `AddToMenuStepperControls` (a11y), `SearchBar`/`TimeRangeSlider`
+  (`exhaustive-deps`, via `useEffectEvent`), and `getInitials`/
+  `visibleMatchTier` moved out of component files
+  (`only-export-components`). **Deliberately left**: `AuthContext` ×3
+  (the documented Provider+hook exception in `CLAUDE.md`),
+  `useAddToMenuButtonState`/`useIngredientServes` `set-state-in-effect`
+  (owned by `CFE-029`), `carousel.tsx` ×3 (shadcn-generated), and
+  `HowItWorks.tsx:63` (legitimate external-system sync; the only fix is
+  dropping an initial call that is safe only while the carousel has no
+  `startIndex`). **Done** (2026-09-19).
 
 ### Deferred: Default Items
 
@@ -398,3 +415,28 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   - If we return to the browse page from the recipe detail page, the animations can go all over the place. It would be better to only do it when landing at the top for the first time, or when we load more recipes by scrolling down
 
   **Done** (2026-09-19). The client sent no `limit`, so the server default of 20 applied (not 10) — now 12 per page (divides into 1/2/3 columns). `RecipeGrid` renders cards already cached at mount settled (`initial={false}`); first loads, filter changes and new pages still animate.
+
+- **CFE-035** — Founder-reported minor bug (2026-09-19): rapidly
+  clicking the browse card's cart button can navigate to the recipe
+  detail page instead. Not yet investigated. Hypothesis to check, not a
+  finding: the button sits inside the card's `Link`, and every handler in
+  `useAddToMenuButtonState` calls `stopEvent` — so a click that never
+  reaches a handler (the button is `disabled` while the menu is pending
+  or mutating, or the click lands mid-swap while `AnimatePresence`
+  exchanges the cart and cancel buttons) would fall through to the
+  `Link`. Needs a repro before a fix direction is picked.
+
+- **CFE-036** — Founder-reported minor bug (2026-09-19): scrolling to the
+  bottom of the browse page fast enough to trigger the infinite scroll
+  can leave it stuck, needing a scroll up and down to load the next
+  page. Gentle scrolling gives the intended load and animation
+  behaviour; only aggressive scrolls stall. Not yet investigated.
+  Hypothesis to check, not a finding: `RecipeGrid`'s
+  `IntersectionObserver` callback returns early while
+  `isFetchingNextPage` or within `INTERSECTION_DEBOUNCE_MS` (500ms) of
+  the last trigger, and an observer only fires again when the sentinel's
+  intersection *changes* — so a dropped callback with the sentinel still
+  in view has nothing to re-trigger it until it scrolls out and back.
+  A fix would re-check whether the sentinel is still in view once the
+  fetch settles, rather than relying on a one-shot event; exact approach
+  is a grill question.

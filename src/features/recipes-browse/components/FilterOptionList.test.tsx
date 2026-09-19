@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FilterOptionList } from "./FilterOptionList";
 
@@ -114,5 +114,52 @@ describe("FilterOptionList", () => {
 
     await userEvent.setup().click(checkbox1);
     expect(onToggle).toHaveBeenCalledWith("c1");
+  });
+
+  describe("expand-and-scroll timer", () => {
+    const scrollIntoView = vi.fn();
+
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      scrollIntoView.mockClear();
+    });
+
+    function renderList() {
+      return render(
+        <FilterOptionList
+          label="Categories"
+          options={SEVEN_OPTIONS}
+          selectedIds={[]}
+          onToggle={vi.fn()}
+        />,
+      );
+    }
+
+    it("scrolls the section into view once after expanding", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderList();
+
+      await user.click(screen.getByRole("button", { name: /show all/i }));
+      vi.advanceTimersByTime(200);
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    });
+
+    it("scrolls once, not per toggle, when expand/hide/expand happens inside the delay", async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      renderList();
+
+      await user.click(screen.getByRole("button", { name: /show all/i }));
+      await user.click(screen.getByRole("button", { name: "Hide" }));
+      await user.click(screen.getByRole("button", { name: /show all/i }));
+      vi.advanceTimersByTime(200);
+
+      expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    });
   });
 });

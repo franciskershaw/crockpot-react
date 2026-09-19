@@ -43,7 +43,7 @@ export function Pricing() {
       </p>
 
       <div className="mt-10 lg:grid lg:grid-cols-[2fr_3fr] lg:items-center lg:gap-12">
-        <div className="hidden lg:relative lg:block lg:h-[440px]">
+        <div className="hidden lg:relative lg:block lg:h-110">
           <RecipeCardPlaceholder
             meta="25 mins · serves 4"
             className="absolute left-0 top-0 -rotate-3"

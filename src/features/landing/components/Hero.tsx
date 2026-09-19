@@ -55,7 +55,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="hidden lg:relative lg:block lg:h-[500px]">
+      <div className="hidden lg:relative lg:block lg:h-125">
         <RecipeCardPlaceholder
           meta="30 mins · serves 4"
           className="absolute left-0 top-0 -rotate-3"

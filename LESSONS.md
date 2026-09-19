@@ -284,3 +284,9 @@ decision as fully closed. No code written yet.
 - The state-driven fix removed the old debounce, which had been rate-limiting chained fetches by accident. A rest-based gate then stopped the chaining but moved the fetch start from before the user reaches the end to after they stop, which cost the prefetch that makes infinite scroll feel smooth. It was removed for a wider prefetch margin instead.
 - **Pattern**: when removing a mechanism that looks like a bug, ask what it was silently limiting; and don't fix a rare edge case with something that taxes the common path. Judge the feel of scroll timing in the browser, not in tests.
 
+## 2026-09-19 — CFE-032 — Delayed skeletons (detail page, then browse grid). One wrong idea caught before building.
+
+- A CSS-only delayed fade-in (already-installed `tw-animate-css`) replaced the JS delay-plus-minimum-display hook the spec anticipated: no state, no latency cost. The two halves shipped as separate units so the grid version could be dropped independently; timing feel was judged in the browser, and the compiled CSS was read directly (a class-name test would only mirror the code).
+- I had proposed a content fade-in to "soften" the skeleton-to-content swap; caught before building — an unmounted skeleton can't cross-fade, so it would dip to blank instead.
+- **Pattern**: for a "don't flash on fast loads" problem, try a delayed CSS animation before reaching for a timer hook, and check that a proposed transition has both sides mounted before promising a cross-fade.
+

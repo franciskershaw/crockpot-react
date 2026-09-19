@@ -72,12 +72,15 @@ export function RecipeGrid({
   }, [sentinelInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) {
+    // Invisible for the first 200ms so a fast load never shows it, then fades in.
     return (
-      <ResponsiveRecipeGrid>
-        {Array.from({ length: INITIAL_SKELETON_COUNT }).map((_, i) => (
-          <RecipeCardSkeleton key={i} />
-        ))}
-      </ResponsiveRecipeGrid>
+      <div className="animate-in fade-in delay-200 duration-150 fill-mode-backwards">
+        <ResponsiveRecipeGrid>
+          {Array.from({ length: INITIAL_SKELETON_COUNT }).map((_, i) => (
+            <RecipeCardSkeleton key={i} />
+          ))}
+        </ResponsiveRecipeGrid>
+      </div>
     );
   }
 

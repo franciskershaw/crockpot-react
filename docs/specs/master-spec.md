@@ -417,6 +417,17 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   own loading state may have the same flash risk, worth checking at the
   same time) are a grill question, not decided here. Founder-flagged
   UX regression on already-shipped `CFE-005` work, not a functional bug.
+  **Done** (2026-09-19): both skeletons (`RecipeDetailSkeleton`, and
+  `RecipeGrid`'s cold-load skeleton) sit inside a CSS-only
+  `animate-in fade-in delay-200 duration-150 fill-mode-backwards` wrapper
+  (`tw-animate-css`) — invisible for the first 200ms so fast loads never
+  show them, faded in on slow ones. No hook or state, no added latency:
+  chosen over a JS delay + minimum-display hook, at the cost of a possible
+  faint partly-faded skeleton if data lands at ~200–350ms. The next-page
+  skeleton row is unchanged (it has its own `motion` entrance). Not
+  built: a card-seeded hero (render the cached browse card's fields
+  instantly, skeleton only for ingredients/instructions) — the bigger
+  option if the detail page's cold load ever needs to feel better still.
 
   **CFE-033** - (manually added by Francis) Browse page recipe card entry animations need some refining. Looks nice when landing on the page but:
   - I think we're loading in 10 recipes instead of 9 which means the rows of 3 looks odd.

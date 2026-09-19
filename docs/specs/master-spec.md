@@ -305,7 +305,11 @@ CFE-003.
   all growth from `CFE-005`'s recipe-detail tests — was seeded
   2026-09-08, now actioned); add the missing `useMenuEntry` regression
   test for the `isError`-folds-into-`isPending` fix (`CFE-020`'s Bugbot
-  finding, implemented but never covered). Findings 2, 7.
+  finding, implemented but never covered). Findings 2, 7. **Done**
+  (2026-09-19): builders live in `src/test/recipeFixtures.ts`
+  (`buildRecipeCard`/`buildRecipeDetail`); files whose tests depend on
+  different defaults keep a thin local `recipe()` wrapper passing only
+  the differing fields. The regression test is mutation-verified.
 - **CFE-028** — Add-to-menu consistency: swap `AddToMenuButton.tsx`'s
   remaining raw Tailwind `gray-*`/`white/95` classes for `src/index.css`
   tokens, confirmed isolated to this one file (was seeded 2026-09-07 with

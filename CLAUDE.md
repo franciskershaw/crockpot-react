@@ -39,7 +39,9 @@ every other decision above: `docs/specs/master-spec.md`.
 - Tests: Vitest + Testing Library (suggestion-only, not a gate yet — flag
   a test when logic has real branching/state transitions/edge cases a
   refactor could silently break; skip trivial passthrough or pure
-  presentational markup)
+  presentational markup). Shared test infra lives in `src/test/`: build
+  `RecipeCard`/`RecipeDetail` test data with `buildRecipeCard`/
+  `buildRecipeDetail` (`recipeFixtures.ts`), never a hand-copied literal.
 - Hosting: Vercel
 
 ## Feature folder layout (hard rule, not a suggestion)

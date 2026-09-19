@@ -22,7 +22,7 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
   const grouped = groupIngredientsByCategory(scaledIngredients);
 
   return (
-    <div className="pt-3 md:rounded-lg md:border md:border-border md:bg-card md:p-6 md:shadow-[0_2px_0_var(--color-card-shadow)]">
+    <div className="pt-0 md:rounded-lg md:border md:border-border md:bg-card md:p-6 md:shadow-[0_2px_0_var(--color-card-shadow)]">
       <h2 className="mb-5 hidden font-display text-2xl text-foreground md:block">
         Ingredients ({scaledIngredients.length})
       </h2>

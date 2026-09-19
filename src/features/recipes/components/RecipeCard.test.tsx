@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
-import { RecipeCard, visibleMatchTier } from "./RecipeCard";
+import { RecipeCard } from "./RecipeCard";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
@@ -375,28 +375,4 @@ describe("RecipeCard", () => {
       expect(screen.getByText(expected)).toBeInTheDocument();
     },
   );
-});
-
-describe("visibleMatchTier", () => {
-  it("returns null when the recipe has no tier", () => {
-    expect(visibleMatchTier(null, 0, 0)).toBeNull();
-    expect(visibleMatchTier(null, 3, 3)).toBeNull();
-  });
-
-  it("suppresses a tier when exactly one category is selected and no ingredients", () => {
-    expect(visibleMatchTier("best", 0, 1)).toBeNull();
-    expect(visibleMatchTier("good", 0, 1)).toBeNull();
-  });
-
-  it("does not suppress when 2+ categories are selected, even with no ingredients", () => {
-    expect(visibleMatchTier("best", 0, 2)).toBe("best");
-  });
-
-  it("does not suppress a single selected ingredient with no categories", () => {
-    expect(visibleMatchTier("good", 1, 0)).toBe("good");
-  });
-
-  it("does not suppress a single category when an ingredient is also selected", () => {
-    expect(visibleMatchTier("best", 1, 1)).toBe("best");
-  });
 });

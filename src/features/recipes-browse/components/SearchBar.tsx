@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
@@ -21,9 +21,12 @@ export function SearchBar({
     setDraft(value);
   }
 
+  const commit = useEffectEvent((next: string) => {
+    if (next !== value) onChange(next);
+  });
+
   useEffect(() => {
-    if (draft === value) return;
-    const timeout = setTimeout(() => onChange(draft), DEBOUNCE_MS);
+    const timeout = setTimeout(() => commit(draft), DEBOUNCE_MS);
     return () => clearTimeout(timeout);
   }, [draft]);
 

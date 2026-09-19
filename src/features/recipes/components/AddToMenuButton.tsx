@@ -27,7 +27,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
 
   return (
     <div className="relative">
-      <div className="flex h-8 items-center rounded-full border border-gray-200 bg-white/95 shadow-sm">
+      <div className="flex h-8 items-center rounded-full border border-border bg-card/95 shadow-sm">
         <div className="relative flex h-8 w-8 items-center justify-center">
           <AnimatePresence mode="wait">
             {isEditing ? (
@@ -40,7 +40,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 transition={{ duration: 0.2 }}
                 onClick={handleCancel}
                 aria-label="Cancel"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </motion.button>
@@ -63,10 +63,10 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 }
                 className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors disabled:cursor-not-allowed ${
                   menuPending
-                    ? "text-gray-300"
+                    ? "text-muted-foreground/50"
                     : isInMenu
                       ? "cursor-pointer text-success hover:bg-accent"
-                      : "cursor-pointer text-gray-600 hover:bg-accent"
+                      : "cursor-pointer text-muted-foreground hover:bg-accent"
                 }`}
               >
                 <ShoppingCart
@@ -99,7 +99,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 animate={{ scaleY: 1 }}
                 exit={{ scaleY: 0 }}
                 transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-4 w-px bg-gray-300"
+                className="h-4 w-px bg-border"
               />
 
               <motion.div
@@ -125,7 +125,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
                 animate={{ scaleY: 1 }}
                 exit={{ scaleY: 0 }}
                 transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-4 w-px bg-gray-300"
+                className="h-4 w-px bg-border"
               />
 
               <AddToMenuConfirmButton

@@ -4,22 +4,9 @@ import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
+import { visibleMatchTier } from "../matchTier";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
-
-// One selected category trivially scores 1.0 for every recipe with that
-// tag; a single ingredient doesn't, since it's scored against the recipe's own count.
-export function visibleMatchTier(
-  tier: RecipeCardData["tier"],
-  selectedIngredientCount: number,
-  selectedCategoryCount: number,
-): RecipeCardData["tier"] {
-  if (tier === null) return null;
-  if (selectedIngredientCount === 0 && selectedCategoryCount === 1) {
-    return null;
-  }
-  return tier;
-}
 
 const TIER_LABEL = {
   best: "Best Match",

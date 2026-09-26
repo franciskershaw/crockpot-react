@@ -1,0 +1,92 @@
+import { deferred, setupQueryClient } from "@/test/queryClientTestUtils";
+import { buildShoppingListItem } from "@/test/shoppingListFixtures";
+import { renderHook, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { updateShoppingListItem } from "../data/api";
+import { shoppingListKeys } from "../data/queryKeys";
+import type { ShoppingList } from "../data/types";
+import { useUpdateShoppingListItem } from "./useUpdateShoppingListItem";
+
+vi.mock("../data/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../data/api")>()),
+  updateShoppingListItem: vi.fn(),
+}));
+vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
+
+const mockUpdate = vi.mocked(updateShoppingListItem);
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+function setup() {
+  return setupQueryClient([
+    [
+      shoppingListKeys.list(),
+      {
+        items: [
+          buildShoppingListItem({ id: "sli_1", quantity: 2 }),
+          buildShoppingListItem({ id: "sli_2", itemName: "Garlic" }),
+        ],
+      } satisfies ShoppingList,
+    ],
+  ]);
+}
+
+function row(queryClient: ReturnType<typeof setup>["queryClient"], id: string) {
+  return queryClient
+    .getQueryData<ShoppingList>(shoppingListKeys.list())
+    ?.items.find((item) => item.id === id);
+}
+
+describe("useUpdateShoppingListItem", () => {
+  it("optimistically ticks the row before the request resolves", async () => {
+    const { queryClient, wrapper } = setup();
+    const request = deferred<{ message: string }>();
+    mockUpdate.mockReturnValue(request.promise);
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+
+    await waitFor(() => expect(row(queryClient, "sli_1")?.obtained).toBe(true));
+    expect(row(queryClient, "sli_2")?.obtained).toBe(false);
+    expect(mockUpdate).toHaveBeenCalledWith("sli_1", { obtained: true });
+    request.resolve({ message: "ok" });
+  });
+
+  it("optimistically edits the quantity without touching obtained", async () => {
+    const { queryClient, wrapper } = setup();
+    const request = deferred<{ message: string }>();
+    mockUpdate.mockReturnValue(request.promise);
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", quantity: 6 });
+
+    await waitFor(() => expect(row(queryClient, "sli_1")?.quantity).toBe(6));
+    expect(row(queryClient, "sli_1")?.obtained).toBe(false);
+    expect(mockUpdate).toHaveBeenCalledWith("sli_1", { quantity: 6 });
+    request.resolve({ message: "ok" });
+  });
+
+  it("rolls the optimistic change back when the request fails", async () => {
+    const { queryClient, wrapper } = setup();
+    const request = deferred<{ message: string }>();
+    mockUpdate.mockReturnValue(request.promise);
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+    await waitFor(() => expect(row(queryClient, "sli_1")?.obtained).toBe(true));
+
+    request.reject(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(row(queryClient, "sli_1")?.obtained).toBe(false);
+  });
+});

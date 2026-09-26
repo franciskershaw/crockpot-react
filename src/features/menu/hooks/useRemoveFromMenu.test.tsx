@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -76,5 +77,21 @@ describe("useRemoveFromMenu", () => {
 
     const data = queryClient.getQueryData<Menu>(menuKeys.menu());
     expect(data?.entries).toHaveLength(1);
+  });
+
+  it("marks the shopping list stale once the menu write succeeds", async () => {
+    const { queryClient, wrapper } = setup({
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
+    });
+    queryClient.setQueryData(shoppingListKeys.list(), { items: [] });
+    mockRemoveMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useRemoveFromMenu(), { wrapper });
+    result.current.mutate({ recipeId: "r_1" });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
+    ).toBe(true);
   });
 });

@@ -1,3 +1,4 @@
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -37,5 +38,7 @@ export function useRemoveFromMenu() {
     onError: (_error, _variables, context) => {
       queryClient.setQueryData(menuKeys.menu(), context?.previous);
     },
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: shoppingListKeys.list() }),
   });
 }

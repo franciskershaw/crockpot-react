@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -105,5 +106,23 @@ describe("useUpdateMenuEntryServes", () => {
 
     const data = queryClient.getQueryData<Menu>(menuKeys.menu());
     expect(data?.entries[0].serves).toBe(4);
+  });
+
+  it("marks the shopping list stale once the menu write succeeds", async () => {
+    const { queryClient, wrapper } = setup({
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
+    });
+    queryClient.setQueryData(shoppingListKeys.list(), { items: [] });
+    mockUpdateMenuEntryServes.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useUpdateMenuEntryServes(), {
+      wrapper,
+    });
+    result.current.mutate({ recipeId: "r_1", serves: 8 });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
+    ).toBe(true);
   });
 });

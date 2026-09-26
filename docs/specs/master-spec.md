@@ -241,10 +241,9 @@ CFE-003.
   Grilled 2026-09-23, see `docs/handoffs/CFE-006.md` for the full decision
   set. Introduces a mobile-only compact-row + cart-icon-badge + overlay-edit
   + undo-banner pattern that `CFE-007`/`CFE-008` reuse for their own mobile
-  rows; desktop reuses the existing `RecipeCard` unchanged. **Blocked on
-  `crockpot-go` `CROC-052`** (new: clear-dismissals endpoint) before the
-  shopping list's Regenerate button can ship — the rest of the ticket is
-  buildable against already-shipped endpoints.
+  rows; desktop reuses the existing `RecipeCard` unchanged. Regenerate
+  calls `crockpot-go`'s `POST /shopping-list/regenerate` (`CROC-052`,
+  shipped — a full reset, so it sits behind a confirm dialog).
 - **CFE-007** — Favourites tab. `CFE-006` already lands the `/favourites`
   route (an empty stub page) under its shared "Your Crockpot" layout,
   along with the header/mobile-nav active state for the tab paths; this

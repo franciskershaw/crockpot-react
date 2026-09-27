@@ -3,6 +3,7 @@ import { useMenu } from "@/features/menu/hooks/useMenu";
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
+import { AddItemSearch } from "./AddItemSearch";
 import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { ShoppingListCategory } from "./ShoppingListCategory";
@@ -28,6 +29,8 @@ export function ShoppingListPanel() {
         )}
         <RegenerateShoppingListButton disabled={recipeCount === 0} />
       </header>
+
+      <AddItemSearch onPick={() => {}} />
 
       {grouped &&
         (grouped.groups.length > 0 ? (

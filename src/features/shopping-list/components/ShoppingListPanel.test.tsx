@@ -19,6 +19,7 @@ vi.mock("../hooks/useRegenerateShoppingList", () => ({
 vi.mock("../hooks/useClearShoppingList", () => ({
   useClearShoppingList: vi.fn(),
 }));
+vi.mock("./AddItemSearch", () => ({ AddItemSearch: () => null }));
 vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({ item }: { item: ShoppingListItem }) => (
     <div data-testid="row">{item.itemName}</div>

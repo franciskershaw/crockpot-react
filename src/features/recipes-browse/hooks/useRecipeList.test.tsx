@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
 import { listRecipes } from "@/features/recipes/data/api";
+import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import type { RecipeListResponse } from "@/features/recipes/data/types";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -33,12 +33,7 @@ function response(
 }
 
 function wrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
-  });
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  return setupQueryClient().wrapper;
 }
 
 describe("useRecipeList", () => {
@@ -49,6 +44,19 @@ describe("useRecipeList", () => {
 
     await waitFor(() =>
       expect(mockListRecipes).toHaveBeenCalledWith({ page: 1, limit: 12 }),
+    );
+  });
+
+  it("keys the query by the full request, page size included", async () => {
+    mockListRecipes.mockResolvedValue(response());
+    const { queryClient, wrapper } = setupQueryClient();
+
+    renderHook(() => useRecipeList({ q: "chicken" }), { wrapper });
+
+    await waitFor(() =>
+      expect(
+        queryClient.getQueryData(recipeKeys.list({ q: "chicken", limit: 12 })),
+      ).toBeDefined(),
     );
   });
 

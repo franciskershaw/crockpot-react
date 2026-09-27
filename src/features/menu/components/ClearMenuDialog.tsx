@@ -16,7 +16,6 @@ export function ClearMenuDialog(props: {
       title="Clear your menu?"
       description="This removes every recipe from your menu and rebuilds your shopping list. Items you've added by hand stay."
       confirmLabel="Clear menu"
-      pendingLabel="Clearing…"
       destructive
       onConfirm={(close) => {
         clearMenu.mutate();

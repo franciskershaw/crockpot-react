@@ -96,7 +96,12 @@ function renderHero(
   { isStuck = false }: { isStuck?: boolean } = {},
 ) {
   return renderWithProviders(
-    <RecipeHero recipe={recipeData} isStuck={isStuck} sentinelRef={() => {}} />,
+    <RecipeHero
+      recipe={recipeData}
+      hasActionBar={mockUseAuth().isAuthenticated}
+      isStuck={isStuck}
+      sentinelRef={() => {}}
+    />,
   );
 }
 

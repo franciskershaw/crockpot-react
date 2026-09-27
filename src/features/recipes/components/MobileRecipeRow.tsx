@@ -3,11 +3,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
-import {
-  stopEvent,
-  useAddToMenuButtonState,
-} from "../hooks/useAddToMenuButtonState";
+import { useAddToMenuButtonState } from "../hooks/useAddToMenuButtonState";
 import { recipeDetailPath } from "../utils/recipeDetailPath";
+import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";

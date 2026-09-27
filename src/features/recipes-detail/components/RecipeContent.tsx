@@ -27,9 +27,11 @@ const TAB_BAND_TOP_PX =
 
 export function RecipeContent({
   recipe,
+  hasActionBar,
   isStuck,
 }: {
   recipe: RecipeDetail;
+  hasActionBar: boolean;
   isStuck: boolean;
 }) {
   // Shared with the fixed duplicate tab bar (decision 5) so both stay in sync.
@@ -72,7 +74,9 @@ export function RecipeContent({
           "fixed inset-x-0 z-20 bg-background/95 py-3 backdrop-blur-sm transition-opacity duration-150 md:hidden",
           isStuck ? "opacity-100" : "pointer-events-none opacity-0",
         )}
-        style={{ top: `${TAB_BAND_TOP_PX}px` }}
+        style={{
+          top: `${hasActionBar ? TAB_BAND_TOP_PX : HEADER_HEIGHT_PX}px`,
+        }}
         {...(!isStuck && { inert: true })}
       >
         <Tabs

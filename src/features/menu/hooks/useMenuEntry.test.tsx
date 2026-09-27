@@ -1,7 +1,6 @@
-import type { ReactNode } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -42,18 +41,8 @@ function setup(menu: Menu | undefined) {
     isAuthenticated: true,
     isLoading: false,
   });
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  if (menu) {
-    queryClient.setQueryData(menuKeys.menu(), menu);
-  } else {
-    mockGetMenu.mockReturnValue(new Promise(() => {}));
-  }
-
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
+  if (!menu) mockGetMenu.mockReturnValue(new Promise(() => {}));
+  const { wrapper } = setupQueryClient(menu ? [[menuKeys.menu(), menu]] : []);
 
   return { wrapper };
 }

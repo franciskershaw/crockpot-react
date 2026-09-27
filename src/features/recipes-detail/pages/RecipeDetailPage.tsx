@@ -26,7 +26,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     queryFn: () => getRecipe(recipeId),
   });
   const { sentinelRef, isStuck } = useStickyHeroTrigger();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   if (isPending) return <RecipeDetailSkeleton />;
 
@@ -59,13 +59,22 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
   return (
     <div>
       {isOwnPendingRecipe(recipe, user) && <RecipePendingApprovalBanner />}
-      <RecipeHero recipe={recipe} sentinelRef={sentinelRef} isStuck={isStuck} />
+      <RecipeHero
+        recipe={recipe}
+        hasActionBar={isAuthenticated}
+        sentinelRef={sentinelRef}
+        isStuck={isStuck}
+      />
       {recipe.description && (
         <p className="mx-auto max-w-2xl px-6 py-10 text-center text-lg italic text-muted-foreground">
           {recipe.description}
         </p>
       )}
-      <RecipeContent recipe={recipe} isStuck={isStuck} />
+      <RecipeContent
+        recipe={recipe}
+        hasActionBar={isAuthenticated}
+        isStuck={isStuck}
+      />
     </div>
   );
 }

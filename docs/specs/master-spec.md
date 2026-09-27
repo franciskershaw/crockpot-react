@@ -410,6 +410,15 @@ security findings — debt notes only):*
   - Confirm intent for two spacing changes landed without a note:
     `IngredientsSection` `pt-3` → `pt-0` and `RecipeHero` `mb-14` → `mb-2`.
     If deliberate, record them in a handoff/LESSONS line.
+  - **Progress (2026-09-27)**: bounds unexported; `limit` now in the query
+    key. The spacing item turned out to be a logged-out bug: the mobile
+    sticky action row in `RecipeHero` collapsed to 16px with no buttons,
+    so `-mt-14 mb-2` pulled the tabs 32px under the hero, and once stuck
+    it showed an empty dark band. Logged out (no actions) the sticky row
+    now isn't rendered: the fixed tab bar sits directly under the header
+    and the handoff sentinel moves to where the tabs start. `pt-0` and
+    `mb-2` are kept (deliberate). Skeleton-wrapper item moved to `CFE-040`.
+    Awaiting the founder's visual check.
 
 *From the third whole-codebase tech-debt pass, 2026-09-27. Full detail:
 `docs/findings/2026-09-27-tech-debt.md`.*
@@ -434,7 +443,9 @@ security findings — debt notes only):*
   `setupQueryClient`; move recipe reference-data keys into `recipeKeys`;
   move `stopEvent` to `utils/` and reuse it in `RecipeCard`; make
   `ConfirmActionDialog`'s `pendingLabel` optional. Findings 9–12.
-  **Not started.**
+  **Done** (2026-09-27): 7 of 10 test setups migrated; `useLogout`'s
+  `AuthProvider` test, `RecipeGrid`'s remount test and `AppShell` keep
+  their own setup (each needs a provider tree the helper doesn't build).
 - **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
   `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
   Vercel deploy**, which itself waits on `crockpot-go` deploying.

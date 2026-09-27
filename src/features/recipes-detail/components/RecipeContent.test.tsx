@@ -35,7 +35,9 @@ describe("RecipeContent", () => {
       isPending: false,
     });
     const user = userEvent.setup();
-    render(<RecipeContent recipe={recipe()} isStuck={false} />);
+    render(
+      <RecipeContent recipe={recipe()} hasActionBar={false} isStuck={false} />,
+    );
 
     // 1 copy = the always-mounted desktop version; Radix only mounts the active mobile tab.
     expect(screen.getAllByText("Toss the beef in flour.")).toHaveLength(1);

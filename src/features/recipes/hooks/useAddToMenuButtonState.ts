@@ -5,12 +5,8 @@ import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
+import { stopEvent } from "../utils/stopEvent";
 import { useBoundedServes } from "./useBoundedServes";
-
-export function stopEvent(event: React.MouseEvent) {
-  event.preventDefault();
-  event.stopPropagation();
-}
 
 export function useAddToMenuButtonState(
   recipe: RecipeCardData,

@@ -1,7 +1,6 @@
-import type { ReactNode } from "react";
 import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
+import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -23,19 +22,7 @@ afterEach(() => {
 });
 
 function setup(menu: Menu) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  queryClient.setQueryData(menuKeys.menu(), menu);
-
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-
-  return { queryClient, wrapper };
+  return setupQueryClient([[menuKeys.menu(), menu]]);
 }
 
 describe("useRemoveFromMenu", () => {

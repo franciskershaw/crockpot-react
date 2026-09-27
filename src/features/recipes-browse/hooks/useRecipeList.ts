@@ -8,9 +8,10 @@ import { keepPreviousData } from "@tanstack/react-query";
 const PAGE_SIZE = 12;
 
 export function useRecipeList(params: RecipeListParams) {
+  const request = { ...params, limit: PAGE_SIZE };
   return useApiInfiniteQuery({
-    queryKey: recipeKeys.list(params),
-    queryFn: (page) => listRecipes({ ...params, page, limit: PAGE_SIZE }),
+    queryKey: recipeKeys.list(request),
+    queryFn: (page) => listRecipes({ ...request, page }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,

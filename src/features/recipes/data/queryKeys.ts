@@ -13,4 +13,6 @@ export const recipeKeys = {
     ] as const,
   details: () => [...recipeKeys.all, "detail"] as const,
   detail: (id: string) => [...recipeKeys.details(), id] as const,
+  categories: ["recipeCategories"] as const,
+  timeRange: ["recipeTimeRange"] as const,
 };

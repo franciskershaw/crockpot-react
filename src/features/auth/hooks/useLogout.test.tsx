@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
+import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
@@ -33,17 +34,7 @@ const user: User = {
 };
 
 function makeWrapper() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, user);
-  const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-  return { queryClient, wrapper };
+  return setupQueryClient([[AUTH_SESSION_QUERY_KEY, user]]);
 }
 
 afterEach(() => {

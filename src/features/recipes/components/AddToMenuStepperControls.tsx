@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
-import { stopEvent } from "../hooks/useAddToMenuButtonState";
+import { stopEvent } from "../utils/stopEvent";
 
 export function AddToMenuStepperControls({
   servingAmount,

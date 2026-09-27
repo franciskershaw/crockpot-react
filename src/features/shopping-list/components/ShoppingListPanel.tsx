@@ -106,7 +106,6 @@ export function ShoppingListPanel({
             title="Clear shopping list?"
             description="This removes every item, including ones you've added yourself."
             confirmLabel="Clear list"
-            pendingLabel="Clearing…"
             destructive
             onConfirm={(close) => {
               clear.mutate();

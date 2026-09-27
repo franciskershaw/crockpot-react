@@ -28,7 +28,7 @@ export function ConfirmActionDialog({
   title: string;
   description: string;
   confirmLabel: string;
-  pendingLabel: string;
+  pendingLabel?: string;
   isPending?: boolean;
   destructive?: boolean;
   onConfirm: (close: () => void) => void;
@@ -55,7 +55,7 @@ export function ConfirmActionDialog({
             onClick={() => onConfirm(close)}
             disabled={isPending}
           >
-            {isPending ? pendingLabel : confirmLabel}
+            {isPending && pendingLabel ? pendingLabel : confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

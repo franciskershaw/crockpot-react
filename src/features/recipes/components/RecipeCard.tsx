@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { visibleMatchTier } from "../utils/matchTier";
 import { recipeDetailPath } from "../utils/recipeDetailPath";
+import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 
@@ -65,10 +66,7 @@ export function RecipeCard({
             <div className="absolute right-2.5 top-2.5">
               <RecipeFavouriteButton
                 recipe={recipe}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                }}
+                onClick={stopEvent}
                 className="border border-border bg-card"
               />
             </div>

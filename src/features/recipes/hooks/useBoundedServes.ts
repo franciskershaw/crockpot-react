@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 
-export const MIN_SERVES = 1;
-export const MAX_SERVES = 50;
+const MIN_SERVES = 1;
+const MAX_SERVES = 50;
 
 // A local adjustment shouldn't outlive the default it was adjusted from.
 export function useBoundedServes(defaultServes: number) {

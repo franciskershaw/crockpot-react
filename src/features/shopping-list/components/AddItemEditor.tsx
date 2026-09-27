@@ -86,7 +86,7 @@ export function AddItemEditor({
       </span>
       <div
         className={cn(
-          "flex h-7.5 shrink-0 items-center rounded-full border bg-card shadow-[0_1px_3px_rgba(60,48,30,0.12)] transition-colors",
+          "flex h-7.5 shrink-0 items-center rounded-full border bg-card shadow-control transition-colors",
           isError ? "border-rust-icon" : "border-editor-border",
         )}
       >
@@ -132,7 +132,7 @@ export function AddItemEditor({
           <SelectContent
             position="popper"
             align="start"
-            className="min-w-42 rounded-lg border-border bg-card shadow-[0_12px_30px_rgba(35,32,27,0.16)]"
+            className="min-w-42 rounded-lg border-border bg-card shadow-popover"
           >
             <UnitOption value={NO_UNIT} name="No unit" />
             {allowedUnits.length > 0 && (

@@ -51,7 +51,7 @@ export function QuantityControl({
           "flex h-7 items-center rounded-full border",
           obtained
             ? "border-slider-track"
-            : "border-border bg-card shadow-[0_1px_1px_rgba(60,48,30,0.06)]",
+            : "border-border bg-card shadow-quantity",
         )}
       >
         <motion.div

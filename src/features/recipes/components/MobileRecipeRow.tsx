@@ -7,6 +7,7 @@ import {
   stopEvent,
   useAddToMenuButtonState,
 } from "../hooks/useAddToMenuButtonState";
+import { recipeDetailPath } from "../utils/recipeDetailPath";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
@@ -40,7 +41,7 @@ export function MobileRecipeRow({
   return (
     <div className="relative">
       <Link
-        to={`/recipes/${recipe.id}?${new URLSearchParams({ from }).toString()}`}
+        to={recipeDetailPath(recipe.id, from)}
         className="flex min-h-18 items-center gap-3 rounded-lg border border-border bg-card p-2 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
         <div className="size-14 shrink-0 overflow-hidden rounded-md bg-muted">

@@ -137,6 +137,13 @@ function renderWith(
   return render(page);
 }
 
+function slotKinds(container: HTMLElement, recipeTestId: string) {
+  const undoTile = within(container).queryByRole("status");
+  return [
+    ...container.querySelectorAll(`[data-testid="${recipeTestId}"], output`),
+  ].map((slot) => (slot === undoTile ? "undo" : "recipe"));
+}
+
 function menuWithout(names: string[], removed: string) {
   return {
     data: {
@@ -226,19 +233,17 @@ describe("MenuPage", () => {
       </MemoryRouter>,
     );
 
-    await within(screen.getByTestId("menu-grid")).findByTestId("menu-undo");
-    const slots = within(screen.getByTestId("menu-grid")).getAllByTestId(
-      /recipe-card|menu-undo/,
-    );
-    expect(slots.map((slot) => slot.getAttribute("data-testid"))).toEqual([
-      "recipe-card",
-      "menu-undo",
-      "recipe-card",
+    const grid = screen.getByTestId("menu-grid");
+    const undoTile = await within(grid).findByRole("status");
+    expect(slotKinds(grid, "recipe-card")).toEqual([
+      "recipe",
+      "undo",
+      "recipe",
     ]);
-    expect(slots[1]).toHaveTextContent("Removed Fajita Wraps");
+    expect(undoTile).toHaveTextContent("Removed Fajita Wraps");
 
     await userEvent.click(
-      within(slots[1]).getByRole("button", { name: "Undo" }),
+      within(undoTile).getByRole("button", { name: "Undo" }),
     );
 
     expect(addToMenu).toHaveBeenCalledWith({
@@ -249,7 +254,7 @@ describe("MenuPage", () => {
 
     renderWith(names, rerender);
     await waitFor(() =>
-      expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0),
+      expect(screen.queryAllByRole("status")).toHaveLength(0),
     );
   });
 
@@ -262,14 +267,12 @@ describe("MenuPage", () => {
     act(() =>
       screen.getByRole("button", { name: "Remove Fajita Wraps" }).click(),
     );
-    expect((await screen.findAllByTestId("menu-undo")).length).toBeGreaterThan(
-      0,
-    );
+    expect((await screen.findAllByRole("status")).length).toBeGreaterThan(0);
 
     act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS));
 
     await waitFor(() =>
-      expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0),
+      expect(screen.queryAllByRole("status")).toHaveLength(0),
     );
   });
 
@@ -298,15 +301,9 @@ describe("MenuPage", () => {
       </MemoryRouter>,
     );
 
-    await within(screen.getByTestId("menu-list")).findByTestId("menu-undo");
-    const slots = within(screen.getByTestId("menu-list")).getAllByTestId(
-      /mobile-row|menu-undo/,
-    );
-    expect(slots.map((slot) => slot.getAttribute("data-testid"))).toEqual([
-      "mobile-row",
-      "menu-undo",
-      "mobile-row",
-    ]);
+    const list = screen.getByTestId("menu-list");
+    await within(list).findByRole("status");
+    expect(slotKinds(list, "mobile-row")).toEqual(["recipe", "undo", "recipe"]);
   });
 
   it("offers the shopping list as a sheet for mobile", () => {

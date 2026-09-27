@@ -141,7 +141,7 @@ function CreateItemForm({
                 </SelectTrigger>
                 <SelectContent
                   position="popper"
-                  className="rounded-lg border-border bg-card shadow-[0_12px_30px_rgba(35,32,27,0.16)]"
+                  className="rounded-lg border-border bg-card shadow-popover"
                 >
                   {categories?.map((category) => (
                     <SelectItem
@@ -231,8 +231,8 @@ export function CreateItemDialog({
     >
       <DialogContent
         onOpenAutoFocus={(event) => event.preventDefault()}
-        overlayClassName="bg-[rgba(35,32,27,0.42)]"
-        className="gap-0 rounded-xl border-0 bg-card p-5.5 shadow-[0_24px_60px_rgba(35,32,27,0.3)] sm:max-w-[400px]"
+        overlayClassName="bg-foreground/42"
+        className="gap-0 rounded-xl border-0 bg-card p-5.5 shadow-dialog sm:max-w-[400px]"
       >
         <DialogHeader className="mb-5 gap-1.5 text-left">
           <DialogTitle className="font-display text-2xl font-medium">

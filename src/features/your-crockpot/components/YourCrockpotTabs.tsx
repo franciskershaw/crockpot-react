@@ -17,7 +17,7 @@ export function YourCrockpotTabs() {
             cn(
               "rounded-full px-5.5 py-2.25 text-[15px] leading-[1.15] transition-colors",
               isActive
-                ? "bg-card font-bold text-foreground shadow-[0_1px_2px_rgba(60,48,30,0.1)]"
+                ? "bg-card font-bold text-foreground shadow-tab"
                 : "font-medium text-muted-foreground hover:text-foreground",
             )
           }

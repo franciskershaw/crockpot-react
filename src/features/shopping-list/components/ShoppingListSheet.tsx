@@ -20,7 +20,7 @@ export function ShoppingListSheet() {
             ? `Open shopping list, ${remaining} left to buy`
             : "Open shopping list"
         }
-        className="fixed right-4 bottom-20 z-30 flex size-14 cursor-pointer items-center justify-center rounded-full bg-green text-on-dark shadow-[0_8px_20px_rgba(35,32,27,0.25)] md:hidden"
+        className="fixed right-4 bottom-20 z-30 flex size-14 cursor-pointer items-center justify-center rounded-full bg-green text-on-dark shadow-fab md:hidden"
       >
         <ShoppingCart size={22} strokeWidth={2} />
         {remaining > 0 && (

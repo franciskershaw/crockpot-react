@@ -8,10 +8,7 @@ export function MenuUndoTile({
   onUndo: () => void;
 }) {
   return (
-    <div
-      data-testid="menu-undo"
-      className="flex min-h-13 items-center justify-between gap-3 rounded-lg border border-dashed border-empty-border pr-2 pl-4 text-[13px] text-ink-body"
-    >
+    <output className="flex min-h-13 items-center justify-between gap-3 rounded-lg border border-dashed border-empty-border pr-2 pl-4 text-[13px] text-ink-body">
       <span className="min-w-0 truncate">Removed {title}</span>
       <button
         type="button"
@@ -21,6 +18,6 @@ export function MenuUndoTile({
       >
         Undo
       </button>
-    </div>
+    </output>
   );
 }

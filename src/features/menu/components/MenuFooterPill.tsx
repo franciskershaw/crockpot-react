@@ -4,7 +4,7 @@ import { ClearMenuDialog } from "./ClearMenuDialog";
 
 export function MenuFooterPill({ recipeCount }: { recipeCount: number }) {
   return (
-    <div className="sticky bottom-7 mt-6 hidden w-fit md:flex lg:absolute lg:left-0 lg:mt-0 items-center gap-1 rounded-full border border-pill-border bg-card p-1.5 shadow-[0_12px_30px_rgba(35,32,27,0.2)]">
+    <div className="sticky bottom-7 mt-6 hidden w-fit md:flex lg:absolute lg:left-0 lg:mt-0 items-center gap-1 rounded-full border border-pill-border bg-card p-1.5 shadow-floating">
       {recipeCount === 0 ? (
         <>
           <span className="px-3 text-sm">Menu is empty</span>

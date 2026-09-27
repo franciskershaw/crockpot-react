@@ -31,7 +31,7 @@ export function ShoppingListPanel({
   return (
     <section
       className={cn(
-        "flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_6px_20px_rgba(60,48,30,0.07)] lg:max-h-full",
+        "flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-panel lg:max-h-full",
         className,
       )}
     >

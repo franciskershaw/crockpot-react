@@ -150,7 +150,7 @@ export function AddItemSearch({
                 event.preventDefault();
               }
             }}
-            className="w-(--radix-popover-trigger-width) rounded-lg border-border bg-card p-1 shadow-[0_12px_30px_rgba(35,32,27,0.16)]"
+            className="w-(--radix-popover-trigger-width) rounded-lg border-border bg-card p-1 shadow-popover"
           >
             <Command.List>
               {results.length === 0 ? (

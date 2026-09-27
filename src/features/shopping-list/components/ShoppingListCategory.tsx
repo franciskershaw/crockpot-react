@@ -4,18 +4,33 @@ import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import type { ShoppingListCategoryGroup } from "../utils/groupShoppingList";
+import type { RecentlyAdded } from "./AddExtraItem";
 import { ShoppingListRow } from "./ShoppingListRow";
 
 const COLLAPSE_ON_COMPLETE_DELAY_MS = 400;
 
 export function ShoppingListCategory({
   group,
+  recentlyAdded = null,
 }: {
   group: ShoppingListCategoryGroup;
+  recentlyAdded?: RecentlyAdded | null;
 }) {
   const isComplete = group.obtainedCount === group.totalCount;
   const [isExpanded, setIsExpanded] = useState(!isComplete);
   const wasComplete = useRef(isComplete);
+  const [openedForKey, setOpenedForKey] = useState<number | null>(null);
+
+  const addedItemId = group.items.find(
+    (item) =>
+      recentlyAdded !== null &&
+      item.itemId === recentlyAdded.itemId &&
+      item.unitId === recentlyAdded.unitId,
+  )?.id;
+  if (recentlyAdded && addedItemId && openedForKey !== recentlyAdded.key) {
+    setOpenedForKey(recentlyAdded.key);
+    setIsExpanded(true);
+  }
 
   useEffect(() => {
     const justCompleted = isComplete && !wasComplete.current;
@@ -70,7 +85,13 @@ export function ShoppingListCategory({
           >
             <div className="border-b border-card-shadow bg-search-secondary px-4.5 pt-0.5 pb-2.5">
               {group.items.map((item) => (
-                <ShoppingListRow key={item.id} item={item} />
+                <ShoppingListRow
+                  key={item.id}
+                  item={item}
+                  flashKey={
+                    item.id === addedItemId ? recentlyAdded?.key : undefined
+                  }
+                />
               ))}
             </div>
           </motion.div>

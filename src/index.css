@@ -5,6 +5,17 @@
   --font-sans: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Newsreader", georgia, "Times New Roman", serif;
   --animate-spin-slow: spin 3s linear infinite;
+  --animate-row-flash: row-flash 2.2s ease-out forwards;
+
+  @keyframes row-flash {
+    0%,
+    35% {
+      background-color: var(--row-flash);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
 }
 
 :root {
@@ -59,6 +70,8 @@
   --ink-subtle: #8a8065;
   --green-complete: #4e7040;
   --rust-icon: #b05b41;
+  --unit-trigger: #5f5747;
+  --row-flash: #e6ecdd;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -118,6 +131,7 @@
   --color-ink-subtle: var(--ink-subtle);
   --color-green-complete: var(--green-complete);
   --color-rust-icon: var(--rust-icon);
+  --color-unit-trigger: var(--unit-trigger);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

@@ -19,7 +19,24 @@ vi.mock("../hooks/useRegenerateShoppingList", () => ({
 vi.mock("../hooks/useClearShoppingList", () => ({
   useClearShoppingList: vi.fn(),
 }));
-vi.mock("./AddItemSearch", () => ({ AddItemSearch: () => null }));
+vi.mock("./AddExtraItem", () => ({
+  AddExtraItem: ({
+    onAdded,
+  }: {
+    onAdded: (added: {
+      itemId: string;
+      unitId: string | null;
+      key: number;
+    }) => void;
+  }) => (
+    <button
+      type="button"
+      onClick={() => onAdded({ itemId: "i_milk", unitId: null, key: 1 })}
+    >
+      add milk
+    </button>
+  ),
+}));
 vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({ item }: { item: ShoppingListItem }) => (
     <div data-testid="row">{item.itemName}</div>
@@ -192,5 +209,25 @@ describe("ShoppingListPanel", () => {
   it("explains how to rebuild an empty list", () => {
     setup({ items: [], recipeCount: 2 });
     expect(screen.getByText(/Your list is empty/)).toBeInTheDocument();
+  });
+
+  it("opens the category of an item that was just added", async () => {
+    setup({
+      items: [
+        buildShoppingListItem({
+          id: "a",
+          itemId: "i_milk",
+          itemName: "Milk",
+          ...dairy,
+          obtained: true,
+        }),
+      ],
+    });
+    const dairyHeader = screen.getByRole("button", { name: /Dairy/ });
+    expect(dairyHeader).toHaveAttribute("aria-expanded", "false");
+
+    await userEvent.click(screen.getByRole("button", { name: "add milk" }));
+
+    expect(dairyHeader).toHaveAttribute("aria-expanded", "true");
   });
 });

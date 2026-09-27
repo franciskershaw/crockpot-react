@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Popover,
   PopoverAnchor,
@@ -25,13 +25,23 @@ function HighlightedName({ match }: { match: ItemMatch }) {
   );
 }
 
-export function AddItemSearch({ onPick }: { onPick: (item: Item) => void }) {
+export function AddItemSearch({
+  onPick,
+  focusOnMount = false,
+}: {
+  onPick: (item: Item) => void;
+  focusOnMount?: boolean;
+}) {
   const { data: items } = useItems();
   const { data: categories } = useItemCategories();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focusOnMount) inputRef.current?.focus();
+  }, [focusOnMount]);
 
   const results = useMemo(
     () => searchItems(items ?? [], query),
@@ -58,7 +68,7 @@ export function AddItemSearch({ onPick }: { onPick: (item: Item) => void }) {
   };
 
   return (
-    <div className="border-b border-card-shadow px-4 py-3.5">
+    <div>
       <Command shouldFilter={false} loop label="Add something extra">
         <Popover
           open={isOpen}

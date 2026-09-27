@@ -8,8 +8,16 @@ import { groupShoppingList } from "../utils/groupShoppingList";
 import { ShoppingListCategory } from "./ShoppingListCategory";
 
 vi.mock("./ShoppingListRow", () => ({
-  ShoppingListRow: ({ item }: { item: ShoppingListItem }) => (
-    <div data-testid="row">{item.itemName}</div>
+  ShoppingListRow: ({
+    item,
+    flashKey,
+  }: {
+    item: ShoppingListItem;
+    flashKey?: number;
+  }) => (
+    <div data-testid="row" data-flash={flashKey ?? ""}>
+      {item.itemName}
+    </div>
   ),
 }));
 
@@ -17,6 +25,7 @@ function group(obtained: [boolean, boolean]) {
   return groupShoppingList([
     buildShoppingListItem({
       id: "a",
+      itemId: "i_1",
       itemName: "Onions",
       obtained: obtained[0],
     }),
@@ -73,5 +82,37 @@ describe("ShoppingListCategory", () => {
 
     expect(header()).toHaveAttribute("aria-expanded", "true");
     expect(screen.getByText("Onions")).toBeInTheDocument();
+  });
+
+  it("opens and flashes the row that was just added", () => {
+    const { rerender } = render(
+      <ShoppingListCategory group={group([true, true])} />,
+    );
+    expect(header()).toHaveAttribute("aria-expanded", "false");
+
+    rerender(
+      <ShoppingListCategory
+        group={group([true, true])}
+        recentlyAdded={{ itemId: "i_1", unitId: null, key: 7 }}
+      />,
+    );
+
+    expect(header()).toHaveAttribute("aria-expanded", "true");
+    const rows = screen.getAllByTestId("row");
+    expect(rows.map((row) => row.getAttribute("data-flash"))).toEqual([
+      "7",
+      "",
+    ]);
+  });
+
+  it("ignores an addition that belongs to another category", () => {
+    render(
+      <ShoppingListCategory
+        group={group([true, true])}
+        recentlyAdded={{ itemId: "i_other", unitId: null, key: 7 }}
+      />,
+    );
+
+    expect(header()).toHaveAttribute("aria-expanded", "false");
   });
 });

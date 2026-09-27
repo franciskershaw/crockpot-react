@@ -147,4 +147,17 @@ describe("AddItemSearch", () => {
       expect(screen.queryByRole("listbox")).not.toBeInTheDocument(),
     );
   });
+
+  it("focuses the input on mount only when asked to", () => {
+    const { unmount } = render(<AddItemSearch onPick={vi.fn()} />);
+    expect(
+      screen.getByRole("combobox", { name: "Add something extra" }),
+    ).not.toHaveFocus();
+    unmount();
+
+    render(<AddItemSearch onPick={vi.fn()} focusOnMount />);
+    expect(
+      screen.getByRole("combobox", { name: "Add something extra" }),
+    ).toHaveFocus();
+  });
 });

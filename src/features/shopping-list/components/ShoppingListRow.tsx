@@ -7,12 +7,26 @@ import { useDeleteShoppingListItem } from "../hooks/useDeleteShoppingListItem";
 import { useUpdateShoppingListItem } from "../hooks/useUpdateShoppingListItem";
 import { QuantityControl } from "./QuantityControl";
 
-export function ShoppingListRow({ item }: { item: ShoppingListItem }) {
+export function ShoppingListRow({
+  item,
+  flashKey,
+}: {
+  item: ShoppingListItem;
+  flashKey?: number;
+}) {
   const update = useUpdateShoppingListItem();
   const remove = useDeleteShoppingListItem();
 
   return (
-    <div className="flex items-center gap-2.25 border-b border-row-divider py-1.5 last:border-b-0">
+    <div className="relative isolate flex items-center gap-2.25 border-b border-row-divider py-1.5 last:border-b-0">
+      {flashKey !== undefined && (
+        <span
+          key={flashKey}
+          data-row-flash
+          aria-hidden
+          className="absolute inset-y-0 -inset-x-2 -z-10 animate-row-flash rounded-md"
+        />
+      )}
       <Checkbox
         checked={item.obtained}
         onCheckedChange={(checked) =>

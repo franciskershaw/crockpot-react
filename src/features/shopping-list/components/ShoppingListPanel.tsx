@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
-import { AddItemSearch } from "./AddItemSearch";
+import { AddExtraItem, type RecentlyAdded } from "./AddExtraItem";
 import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { ShoppingListCategory } from "./ShoppingListCategory";
@@ -12,6 +13,9 @@ export function ShoppingListPanel() {
   const { data } = useShoppingList();
   const { data: menu } = useMenu();
   const clear = useClearShoppingList();
+  const [recentlyAdded, setRecentlyAdded] = useState<RecentlyAdded | null>(
+    null,
+  );
 
   const recipeCount = menu?.entries.length ?? 0;
   const grouped = data ? groupShoppingList(data.items) : null;
@@ -30,12 +34,16 @@ export function ShoppingListPanel() {
         <RegenerateShoppingListButton disabled={recipeCount === 0} />
       </header>
 
-      <AddItemSearch onPick={() => {}} />
+      <AddExtraItem onAdded={setRecentlyAdded} />
 
       {grouped &&
         (grouped.groups.length > 0 ? (
           grouped.groups.map((group) => (
-            <ShoppingListCategory key={group.categoryId} group={group} />
+            <ShoppingListCategory
+              key={group.categoryId}
+              group={group}
+              recentlyAdded={recentlyAdded}
+            />
           ))
         ) : (
           <p className="border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle">

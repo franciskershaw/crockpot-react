@@ -120,4 +120,15 @@ describe("ShoppingListRow", () => {
 
     expect(update).not.toHaveBeenCalled();
   });
+
+  it("flashes when given a flash key", () => {
+    const { container, rerender } = render(
+      <ShoppingListRow item={buildShoppingListItem()} />,
+    );
+    expect(container.querySelector("[data-row-flash]")).toBeNull();
+
+    rerender(<ShoppingListRow item={buildShoppingListItem()} flashKey={3} />);
+
+    expect(container.querySelector("[data-row-flash]")).not.toBeNull();
+  });
 });

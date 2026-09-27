@@ -1,52 +1,11 @@
-import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
-import { useApiMutation } from "@/lib/tanstack/useApiMutation";
-import { useQueryClient } from "@tanstack/react-query";
-
 import { updateMenuEntryServes } from "../data/api";
-import { menuKeys } from "../data/queryKeys";
-import type { Menu } from "../data/types";
-
-interface UpdateMenuEntryServesVariables {
-  recipeId: string;
-  serves: number;
-}
-
-function patchServes(
-  data: Menu | undefined,
-  recipeId: string,
-  serves: number,
-): Menu | undefined {
-  if (!data) return data;
-  return {
-    entries: data.entries.map((entry) =>
-      entry.recipeId === recipeId ? { ...entry, serves } : entry,
-    ),
-  };
-}
+import { setServes } from "../utils/menuTransforms";
+import { useOptimisticMenuMutation } from "./useOptimisticMenuMutation";
 
 export function useUpdateMenuEntryServes() {
-  const queryClient = useQueryClient();
-
-  return useApiMutation<
-    { message: string },
-    UpdateMenuEntryServesVariables,
-    { previous: Menu | undefined }
-  >({
+  return useOptimisticMenuMutation({
     mutationFn: ({ recipeId, serves }) =>
       updateMenuEntryServes(recipeId, serves),
-    onMutate: async ({ recipeId, serves }) => {
-      await queryClient.cancelQueries({ queryKey: menuKeys.menu() });
-      const previous = queryClient.getQueryData<Menu>(menuKeys.menu());
-      queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
-        patchServes(data, recipeId, serves),
-      );
-      return { previous };
-    },
-    onError: (_error, _variables, context) => {
-      queryClient.setQueryData(menuKeys.menu(), context?.previous);
-      queryClient.invalidateQueries({ queryKey: menuKeys.menu() });
-    },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: shoppingListKeys.list() }),
+    ...setServes,
   });
 }

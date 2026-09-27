@@ -418,14 +418,18 @@ security findings — debt notes only):*
     now isn't rendered: the fixed tab bar sits directly under the header
     and the handoff sentinel moves to where the tabs start. `pt-0` and
     `mb-2` are kept (deliberate). Skeleton-wrapper item moved to `CFE-040`.
-    Awaiting the founder's visual check.
+    **Done** (2026-09-27), shipped with `CFE-043`.
 
 *From the third whole-codebase tech-debt pass, 2026-09-27. Full detail:
 `docs/findings/2026-09-27-tech-debt.md`.*
 - **CFE-039** — Lazy-load the Your Crockpot routes: `CFE-006` pulled
   `motion`/`zod`/`react-hook-form`/`cmdk` into the eager bundle via
   `MenuPage` (742 kB main chunk, Vite size warning), reversing
-  `CFE-019`'s split. Finding 1. **Not started.**
+  `CFE-019`'s split. Finding 1. **Done** (2026-09-27): Menu/Favourites/
+  My recipes pages lazy; `YourCrockpotLayout` stays eager and suspends its
+  own tab body so the header shows at once; `CreateItemDialog` lazy inside
+  `AddExtraItem` (admin-only, sole `zod`/`react-hook-form` user). Main
+  chunk 742 → 289 kB, landing's eager JS ~852 → ~487 kB, no size warning.
 - **CFE-040** — Loading and error states for the Menu tab and shopping
   list (both render blank today, the class `CFE-016` fixed for browse).
   Absorbs `CFE-038`'s shared skeleton-wrapper item. Finding 2.

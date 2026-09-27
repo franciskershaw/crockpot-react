@@ -307,3 +307,12 @@ decision as fully closed. No code written yet.
 - Whole codebase, with a full read of `CFE-006`'s new features. 12 findings, 2 of them reopened: the eager bundle regained `motion`/`zod`/`react-hook-form` via `MenuPage`, and blank-on-failure query states came back on the two new surfaces. Grouped into `CFE-039`–`044` (`CFE-044`, security headers, is blocked on the first deploy). Full detail: `docs/findings/2026-09-27-tech-debt.md`.
 - Both reopened items are a decision made for one ticket's code (eager `MenuPage`, error states on browse) that the next big ticket quietly outgrew. The build's chunk warning was the only signal, and nothing reads it.
 - **Pattern**: when a ticket adds imports to a route an earlier ticket kept eager on purpose, re-run `npm run build` and check the chunk warning as part of verification.
+
+## 2026-09-27 — CFE-038 + CFE-043 — Tech-debt batch. Mechanical items clean; the "confirm spacing intent" item was a real bug.
+
+- The code items went straight through with one red-to-green test (query key now includes `limit`). The spacing note hid a logged-out layout bug: the mobile sticky action row collapsed with no buttons. A first fix (fixed row height) stopped the overlap but left an empty dark band once stuck, which only the founder's scrolled screenshot showed; the real fix drops the row when there are no actions.
+- **Pattern**: for layout driven by auth-dependent content, check both auth states and the scrolled/stuck state before calling it fixed.
+
+## 2026-09-27 — CFE-039 — Lazy-load the Your Crockpot routes. Clean.
+
+- Verified by build output (a source-map check of which chunk holds each heavy dependency), not tests. Keeping the layout eager with its own `Suspense` kept the page header visible while the tab chunk loads. Adding a second caller moved `RouteFallback` out of `nav/` under the caller-count rule.

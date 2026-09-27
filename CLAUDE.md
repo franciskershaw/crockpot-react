@@ -146,13 +146,14 @@ Same single-consumer-lives-with-its-consumer principle as the feature
 buckets above, applied one level up:
 
 - `ui/` — shadcn-generated primitives, regenerated/customized in place.
-- `nav/` — `AppShell` and anything with no caller outside it (e.g.
-  `RouteFallback`, moved here at `CFE-031` despite reading as generic in
-  *nature* — its one real caller decided the question, not its abstract
-  kind).
+- `nav/` — `AppShell` and anything with no caller outside it. The
+  caller count decides, not how generic a file feels: `RouteFallback`
+  moved here at `CFE-031` with one caller, then back to the root at
+  `CFE-039` once `YourCrockpotLayout` became a second.
 - `app/` — mounted only by `App.tsx` itself (`ErrorBoundary`,
   `ScrollToTop`); root wiring, not reusable UI. Added at `CFE-031`.
-- Root — genuinely reusable across 2+ features (`Logo`, `StatePanel`). A
+- Root — genuinely reusable across 2+ features (`Logo`, `StatePanel`,
+  `RouteFallback`). A
   file with exactly one real consumer belongs with that consumer, not
   here, regardless of how generic it feels — `GoogleIcon.tsx` moved into
   `features/auth/components/` at `CFE-031` on this basis (single consumer,

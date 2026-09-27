@@ -3,15 +3,12 @@ import { AppShell } from "@/components/nav/AppShell";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
-import { MenuPage } from "@/features/menu/pages/MenuPage";
-import { FavouritesPage } from "@/features/your-crockpot/pages/FavouritesPage";
-import { MyRecipesPage } from "@/features/your-crockpot/pages/MyRecipesPage";
 import { YourCrockpotLayout } from "@/features/your-crockpot/pages/YourCrockpotLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
 
-// Only BrowseRecipesPage/AuthCallback/RecipeDetailRoute are lazy; LandingPage/MenuPage are most visitors' first view and gain nothing from a chunk round trip.
+// LandingPage stays eager as the anonymous first view; everything else is lazy so it never carries motion/zod/cmdk. YourCrockpotLayout stays eager and suspends its own tab body, keeping the header up.
 function lazyNamed<
   M extends Record<K, ComponentType>,
   K extends keyof M & string,
@@ -30,6 +27,18 @@ const BrowseRecipesPage = lazyNamed(
 const RecipeDetailRoute = lazyNamed(
   () => import("@/features/recipes-detail/pages/RecipeDetailPage"),
   "RecipeDetailRoute",
+);
+const MenuPage = lazyNamed(
+  () => import("@/features/menu/pages/MenuPage"),
+  "MenuPage",
+);
+const FavouritesPage = lazyNamed(
+  () => import("@/features/your-crockpot/pages/FavouritesPage"),
+  "FavouritesPage",
+);
+const MyRecipesPage = lazyNamed(
+  () => import("@/features/your-crockpot/pages/MyRecipesPage"),
+  "MyRecipesPage",
 );
 
 export function AppRoutes() {

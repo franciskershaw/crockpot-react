@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { RouteFallback } from "@/components/RouteFallback";
 import { MenuActionsMenu } from "@/features/menu/components/MenuActionsMenu";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { Outlet, useLocation } from "react-router-dom";
@@ -43,7 +45,9 @@ export function YourCrockpotLayout() {
         </div>
       </div>
       <div className="min-h-0 flex-1">
-        <Outlet />
+        <Suspense fallback={<RouteFallback />}>
+          <Outlet />
+        </Suspense>
       </div>
     </div>
   );

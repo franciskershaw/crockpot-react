@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
 import type { Item, Unit } from "@/features/catalog/data/types";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { render, screen } from "@testing-library/react";
@@ -15,20 +16,24 @@ const chicken: Item = {
 };
 
 vi.mock("@/features/catalog/hooks/useUnits", () => ({ useUnits: vi.fn() }));
+vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("../hooks/useAddShoppingListItem", () => ({
   useAddShoppingListItem: vi.fn(),
 }));
 vi.mock("./AddItemSearch", () => ({
   AddItemSearch: ({
     onPick,
+    onCreate,
     focusOnMount,
   }: {
     onPick: (item: Item) => void;
+    onCreate?: (name: string) => void;
     focusOnMount?: boolean;
   }) => (
     <button
       type="button"
       data-autofocus={String(Boolean(focusOnMount))}
+      data-can-create={String(Boolean(onCreate))}
       onClick={() => onPick(chicken)}
     >
       search
@@ -65,7 +70,14 @@ const mutate = vi.fn();
 const reset = vi.fn();
 let isError = false;
 
+function signInAs(role: "FREE" | "ADMIN") {
+  vi.mocked(useAuth).mockReturnValue({
+    user: { role },
+  } as unknown as ReturnType<typeof useAuth>);
+}
+
 beforeEach(() => {
+  signInAs("FREE");
   mutate.mockReset();
   isError = false;
   vi.mocked(useUnits).mockReturnValue({
@@ -159,6 +171,25 @@ describe("AddExtraItem", () => {
 
     expect(screen.getByRole("button", { name: "search" })).toHaveAttribute(
       "data-autofocus",
+      "false",
+    );
+  });
+
+  it("lets admins create a new item from the search", () => {
+    signInAs("ADMIN");
+    setup();
+
+    expect(screen.getByRole("button", { name: "search" })).toHaveAttribute(
+      "data-can-create",
+      "true",
+    );
+  });
+
+  it("doesn't offer item creation to non-admins", () => {
+    setup();
+
+    expect(screen.getByRole("button", { name: "search" })).toHaveAttribute(
+      "data-can-create",
       "false",
     );
   });

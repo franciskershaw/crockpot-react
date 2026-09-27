@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import type { Item } from "@/features/catalog/data/types";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { cn } from "@/lib/utils";
@@ -18,10 +19,13 @@ export function AddExtraItem({
 }: {
   onAdded: (added: RecentlyAdded) => void;
 }) {
+  const { user } = useAuth();
   const { data: units } = useUnits();
   const add = useAddShoppingListItem();
   const [picked, setPicked] = useState<Item | null>(null);
   const [returnFocus, setReturnFocus] = useState(false);
+  const [, setNewItemName] = useState<string | null>(null);
+  const isAdmin = user?.role === "ADMIN";
   const addCount = useRef(0);
 
   const allowedUnits = useMemo(() => {
@@ -72,6 +76,7 @@ export function AddExtraItem({
       ) : (
         <AddItemSearch
           focusOnMount={returnFocus}
+          onCreate={isAdmin ? setNewItemName : undefined}
           onPick={(item) => {
             add.reset();
             setPicked(item);

@@ -15,3 +15,9 @@ export interface ItemCategory {
   id: string;
   name: string;
 }
+
+export interface CreateItemInput {
+  name: string;
+  categoryId: string;
+  allowedUnitIds: string[];
+}

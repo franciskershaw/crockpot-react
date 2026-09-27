@@ -160,4 +160,79 @@ describe("AddItemSearch", () => {
       screen.getByRole("combobox", { name: "Add something extra" }),
     ).toHaveFocus();
   });
+
+  describe("admin add-new row", () => {
+    function setupAdmin() {
+      const onPick = vi.fn();
+      const onCreate = vi.fn();
+      render(<AddItemSearch onPick={onPick} onCreate={onCreate} />);
+      const input = screen.getByRole("combobox", {
+        name: "Add something extra",
+      });
+      return { onPick, onCreate, input };
+    }
+
+    it("offers to add the query as a new item after the results", async () => {
+      const { input, onCreate } = setupAdmin();
+
+      await userEvent.type(input, " chi ");
+      const addRow = await screen.findByRole("option", {
+        name: "Add “chi” as a new item",
+      });
+      expect(screen.getAllByRole("option").at(-1)).toBe(addRow);
+      await userEvent.click(addRow);
+
+      expect(onCreate).toHaveBeenCalledWith("chi");
+      expect(input).toHaveValue(" chi ");
+      await waitFor(() =>
+        expect(screen.queryByRole("listbox")).not.toBeInTheDocument(),
+      );
+    });
+
+    it("highlights the add row when nothing matches, so Enter creates", async () => {
+      const { input, onCreate } = setupAdmin();
+
+      await userEvent.type(input, "gochujang");
+      expect(
+        await screen.findByText("Nothing called “gochujang” yet."),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: "Add “gochujang” as a new item" }),
+      ).toHaveAttribute("aria-selected", "true");
+      await userEvent.keyboard("{Enter}");
+
+      expect(onCreate).toHaveBeenCalledWith("gochujang");
+    });
+
+    it("reaches the add row with the arrow keys", async () => {
+      const { input, onCreate, onPick } = setupAdmin();
+
+      await userEvent.type(input, "chi");
+      await screen.findByRole("listbox");
+      await userEvent.keyboard("{ArrowUp}{Enter}");
+
+      expect(onCreate).toHaveBeenCalledWith("chi");
+      expect(onPick).not.toHaveBeenCalled();
+    });
+
+    it("isn't offered when an item with that exact name exists", async () => {
+      const { input } = setupAdmin();
+
+      await userEvent.type(input, "ONIONS");
+      await screen.findByRole("listbox");
+
+      expect(
+        screen.queryByRole("option", { name: /as a new item/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("never offers the add row without onCreate", async () => {
+    const { input } = setup();
+
+    await userEvent.type(input, "gochujang");
+    await screen.findByText("Nothing called “gochujang” yet.");
+
+    expect(screen.queryByRole("option")).not.toBeInTheDocument();
+  });
 });

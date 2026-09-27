@@ -12,6 +12,8 @@ import { Plus, X } from "lucide-react";
 
 import { searchItems, type ItemMatch } from "../utils/searchItems";
 
+const CREATE_ITEM_VALUE = "__create_item__";
+
 function HighlightedName({ match }: { match: ItemMatch }) {
   const { name } = match.item;
   return (
@@ -27,9 +29,11 @@ function HighlightedName({ match }: { match: ItemMatch }) {
 
 export function AddItemSearch({
   onPick,
+  onCreate,
   focusOnMount = false,
 }: {
   onPick: (item: Item) => void;
+  onCreate?: (name: string) => void;
   focusOnMount?: boolean;
 }) {
   const { data: items } = useItems();
@@ -65,6 +69,19 @@ export function AddItemSearch({
   const pick = (item: Item) => {
     onPick(item);
     reset();
+  };
+
+  const trimmedQuery = query.trim();
+  const canCreate =
+    onCreate !== undefined &&
+    trimmedQuery !== "" &&
+    !(items ?? []).some(
+      (item) => item.name.toLowerCase() === trimmedQuery.toLowerCase(),
+    );
+
+  const create = () => {
+    onCreate?.(trimmedQuery);
+    setIsOpen(false);
   };
 
   return (
@@ -127,25 +144,42 @@ export function AddItemSearch({
             }}
             className="w-(--radix-popover-trigger-width) rounded-lg border-border bg-card p-1 shadow-[0_12px_30px_rgba(35,32,27,0.16)]"
           >
-            <Command.List className="max-h-[304px] overflow-y-auto">
+            <Command.List>
               {results.length === 0 ? (
                 <p className="px-2.5 py-3.5 text-sm text-ink-subtle">
-                  Nothing called “{query.trim()}” yet.
+                  Nothing called “{trimmedQuery}” yet.
                 </p>
               ) : (
-                results.map((match) => (
-                  <Command.Item
-                    key={match.item.id}
-                    value={match.item.id}
-                    onSelect={() => pick(match.item)}
-                    className="group flex h-9.5 cursor-pointer items-center gap-3 rounded-[5px] px-2.5 text-[15px] data-[selected=true]:bg-chip"
-                  >
-                    <HighlightedName match={match} />
-                    <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
-                      {categoryNames.get(match.item.categoryId)}
-                    </span>
-                  </Command.Item>
-                ))
+                <Command.Group className="max-h-[304px] overflow-y-auto">
+                  {results.map((match) => (
+                    <Command.Item
+                      key={match.item.id}
+                      value={match.item.id}
+                      onSelect={() => pick(match.item)}
+                      className="group flex h-9.5 cursor-pointer items-center gap-3 rounded-[5px] px-2.5 text-[15px] data-[selected=true]:bg-chip"
+                    >
+                      <HighlightedName match={match} />
+                      <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
+                        {categoryNames.get(match.item.categoryId)}
+                      </span>
+                    </Command.Item>
+                  ))}
+                </Command.Group>
+              )}
+              {canCreate && (
+                <>
+                  <Command.Separator className="my-1 h-px bg-card-shadow" />
+                  <Command.Group>
+                    <Command.Item
+                      value={CREATE_ITEM_VALUE}
+                      onSelect={create}
+                      className="flex h-9.5 cursor-pointer items-center gap-2.5 rounded-[5px] px-2.5 text-[15px] font-bold text-green data-[selected=true]:bg-chip"
+                    >
+                      <Plus size={16} strokeWidth={2.2} className="shrink-0" />
+                      Add “{trimmedQuery}” as a new item
+                    </Command.Item>
+                  </Command.Group>
+                </>
               )}
             </Command.List>
           </PopoverContent>

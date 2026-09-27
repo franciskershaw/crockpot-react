@@ -1,10 +1,10 @@
+import { refetchAfterLastMutation } from "@/lib/tanstack/refetchAfterLastMutation";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { clearShoppingList } from "../data/api";
 import { shoppingListKeys } from "../data/queryKeys";
 import type { ShoppingList } from "../data/types";
-import { refetchAfterLastChange } from "../utils/refetchAfterLastChange";
 
 export function useClearShoppingList() {
   const queryClient = useQueryClient();
@@ -29,6 +29,11 @@ export function useClearShoppingList() {
     onError: (_error, _variables, context) => {
       queryClient.setQueryData(shoppingListKeys.list(), context?.previous);
     },
-    onSettled: () => refetchAfterLastChange(queryClient),
+    onSettled: () =>
+      refetchAfterLastMutation(
+        queryClient,
+        shoppingListKeys.change(),
+        shoppingListKeys.list(),
+      ),
   });
 }

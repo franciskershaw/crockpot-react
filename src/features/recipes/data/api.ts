@@ -46,6 +46,15 @@ export function listRecipes(
   return apiFetch<RecipeListResponse>(`/recipes${search ? `?${search}` : ""}`);
 }
 
+export function getFavourites(
+  page: number,
+  limit: number,
+): Promise<RecipeListResponse> {
+  return apiFetch<RecipeListResponse>(
+    `/recipes/favourites?page=${page}&limit=${limit}`,
+  );
+}
+
 export function listRecipeCategories(): Promise<RecipeCategory[]> {
   return apiFetch<RecipeCategory[]>("/recipe-categories");
 }

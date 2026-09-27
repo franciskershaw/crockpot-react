@@ -11,6 +11,7 @@ export const recipeKeys = {
       ...recipeKeys.lists(),
       buildRecipeListSearchParams(params).toString(),
     ] as const,
+  favourites: () => [...recipeKeys.all, "favourites"] as const,
   details: () => [...recipeKeys.all, "detail"] as const,
   detail: (id: string) => [...recipeKeys.details(), id] as const,
   categories: ["recipeCategories"] as const,

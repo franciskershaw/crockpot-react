@@ -23,3 +23,13 @@ describe("recipeKeys.list", () => {
     );
   });
 });
+
+describe("recipeKeys.favourites", () => {
+  it("sits under the recipes root but outside the list keys", () => {
+    const key = recipeKeys.favourites();
+    expect(key.slice(0, recipeKeys.all.length)).toEqual([...recipeKeys.all]);
+    expect(key.slice(0, recipeKeys.lists().length)).not.toEqual([
+      ...recipeKeys.lists(),
+    ]);
+  });
+});

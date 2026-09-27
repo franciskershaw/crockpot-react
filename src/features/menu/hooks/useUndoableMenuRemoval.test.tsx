@@ -1,4 +1,4 @@
-import { UNDO_WINDOW_MS } from "@/lib/useUndoWindow";
+import { deferred } from "@/test/queryClientTestUtils";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -11,8 +11,8 @@ import { useUndoableMenuRemoval } from "./useUndoableMenuRemoval";
 vi.mock("./useAddToMenu", () => ({ useAddToMenu: vi.fn() }));
 vi.mock("./useRemoveFromMenu", () => ({ useRemoveFromMenu: vi.fn() }));
 
-const addToMenu = { mutate: vi.fn(), isPending: false };
-const removeFromMenu = { mutate: vi.fn(), isPending: false };
+const addToMenu = { mutate: vi.fn() };
+const removeFromMenu = { mutateAsync: vi.fn() };
 
 function entry(id: string, serves = 6): MenuEntry {
   return {
@@ -23,7 +23,7 @@ function entry(id: string, serves = 6): MenuEntry {
 }
 
 beforeEach(() => {
-  removeFromMenu.isPending = false;
+  removeFromMenu.mutateAsync.mockResolvedValue({ message: "ok" });
   vi.mocked(useAddToMenu).mockReturnValue(
     addToMenu as unknown as ReturnType<typeof useAddToMenu>,
   );
@@ -34,86 +34,75 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.clearAllMocks();
-  vi.useRealTimers();
 });
 
 describe("useUndoableMenuRemoval", () => {
-  it("removes the recipe and remembers it, with its position, for undo", () => {
+  it("removes the recipe and remembers where it sat, for undo", async () => {
     const { result } = renderHook(() => useUndoableMenuRemoval());
 
-    act(() => result.current.remove(entry("r_1"), 2));
+    await act(() => result.current.remove(entry("r_1"), "r_0", 2));
 
-    expect(removeFromMenu.mutate).toHaveBeenCalledWith(
-      { recipeId: "r_1" },
-      expect.anything(),
-    );
-    expect(result.current.removed).toEqual({ entry: entry("r_1"), index: 2 });
+    expect(removeFromMenu.mutateAsync).toHaveBeenCalledWith({
+      recipeId: "r_1",
+    });
+    expect(result.current.removals).toEqual([
+      expect.objectContaining({
+        key: "r_1",
+        item: entry("r_1"),
+        anchorKey: "r_0",
+        index: 2,
+      }),
+    ]);
   });
 
-  it("adds the recipe back at its previous serves and position on undo", () => {
+  it("keeps every removal when several are made", async () => {
     const { result } = renderHook(() => useUndoableMenuRemoval());
 
-    act(() => result.current.remove(entry("r_1", 6), 2));
-    act(() => result.current.undo());
+    await act(() => result.current.remove(entry("r_1"), null, 0));
+    await act(() => result.current.remove(entry("r_2"), null, 0));
 
+    expect(result.current.removals.map((r) => r.key)).toEqual(["r_1", "r_2"]);
+  });
+
+  it("holds off undo on a removal until it has gone through", async () => {
+    const removal = deferred<{ message: string }>();
+    removeFromMenu.mutateAsync.mockReturnValue(removal.promise);
+    const { result } = renderHook(() => useUndoableMenuRemoval());
+
+    act(() => {
+      result.current.remove(entry("r_1"), null, 0);
+    });
+    expect(result.current.canUndo("r_1")).toBe(false);
+
+    await act(async () => removal.resolve({ message: "ok" }));
+    expect(result.current.canUndo("r_1")).toBe(true);
+  });
+
+  it("adds a recipe back at the given position and serves on undo, once", async () => {
+    const { result } = renderHook(() => useUndoableMenuRemoval());
+    await act(() => result.current.remove(entry("r_1", 6), null, 0));
+
+    act(() => result.current.undo("r_1", 1));
+    act(() => result.current.undo("r_1", 1));
+
+    expect(addToMenu.mutate).toHaveBeenCalledTimes(1);
     expect(addToMenu.mutate).toHaveBeenCalledWith({
       recipe: entry("r_1").recipe,
       serves: 6,
-      index: 2,
+      index: 1,
     });
-    expect(result.current.removed?.undone).toBe(true);
-    expect(result.current.canUndo).toBe(false);
+    expect(result.current.canUndo("r_1")).toBe(false);
   });
 
-  it("forgets the removal once the undo window has passed", () => {
-    vi.useFakeTimers();
+  it("forgets only a removal that failed, since that recipe comes back", async () => {
+    removeFromMenu.mutateAsync
+      .mockRejectedValueOnce(new Error("network error"))
+      .mockResolvedValueOnce({ message: "ok" });
     const { result } = renderHook(() => useUndoableMenuRemoval());
 
-    act(() => result.current.remove(entry("r_1"), 0));
-    act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS - 1));
-    expect(result.current.removed).not.toBeNull();
+    await act(() => result.current.remove(entry("r_1"), null, 0));
+    await act(() => result.current.remove(entry("r_2"), null, 0));
 
-    act(() => vi.advanceTimersByTime(1));
-    expect(result.current.removed).toBeNull();
-  });
-
-  it("restarts the undo window for a second removal, replacing the first", () => {
-    vi.useFakeTimers();
-    const { result } = renderHook(() => useUndoableMenuRemoval());
-
-    act(() => result.current.remove(entry("r_1"), 0));
-    act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS - 1000));
-    act(() => result.current.remove(entry("r_2"), 1));
-    act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS - 1));
-
-    expect(result.current.removed).toEqual({ entry: entry("r_2"), index: 1 });
-  });
-
-  it("forgets the removal if it fails, since the recipe comes back", () => {
-    const { result } = renderHook(() => useUndoableMenuRemoval());
-
-    act(() => result.current.remove(entry("r_1"), 0));
-    expect(removeFromMenu.mutate).toHaveBeenCalledTimes(1);
-    const [, callbacks] = removeFromMenu.mutate.mock.calls[0];
-    act(() => callbacks.onError());
-
-    expect(result.current.removed).toBeNull();
-  });
-
-  it("holds off undo until the removal has gone through", () => {
-    removeFromMenu.isPending = true;
-    const { result } = renderHook(() => useUndoableMenuRemoval());
-
-    act(() => result.current.remove(entry("r_1"), 0));
-
-    expect(result.current.canUndo).toBe(false);
-  });
-
-  it("allows undo once the removal has gone through", () => {
-    const { result } = renderHook(() => useUndoableMenuRemoval());
-
-    act(() => result.current.remove(entry("r_1"), 0));
-
-    expect(result.current.canUndo).toBe(true);
+    expect(result.current.removals.map((r) => r.key)).toEqual(["r_2"]);
   });
 });

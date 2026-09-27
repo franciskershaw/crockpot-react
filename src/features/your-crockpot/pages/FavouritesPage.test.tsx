@@ -1,9 +1,9 @@
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { useToggleFavourite } from "@/features/recipes/hooks/useToggleFavourite";
-import { UNDO_WINDOW_MS } from "@/lib/useUndoWindow";
+import { UNDO_WINDOW_MS } from "@/lib/useUndoQueue";
 import { FakeIntersectionObserver } from "@/test/fakeIntersectionObserver";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { act, render, screen, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { MotionGlobalConfig } from "motion/react";
 import { MemoryRouter } from "react-router-dom";
@@ -71,14 +71,17 @@ afterAll(() => {
 });
 
 const toggle = vi.fn();
+const toggleAsync = vi.fn();
 const loadMore = vi.fn();
 const refetch = vi.fn();
 
 beforeEach(() => {
   FakeIntersectionObserver.instances = [];
   vi.stubGlobal("IntersectionObserver", FakeIntersectionObserver);
+  toggleAsync.mockResolvedValue({ message: "ok" });
   vi.mocked(useToggleFavourite).mockReturnValue({
     mutate: toggle,
+    mutateAsync: toggleAsync,
     isPending: false,
   } as unknown as ReturnType<typeof useToggleFavourite>);
 });
@@ -134,12 +137,11 @@ const page = () => (
 );
 
 function slotKinds(container: HTMLElement, recipeTestId: string) {
-  const undoTile = within(container).queryByRole("status");
   return [
     ...container.querySelectorAll(`[data-testid="${recipeTestId}"], output`),
   ]
     .filter((slot) => !slot.closest("[inert]"))
-    .map((slot) => (slot === undoTile ? "undo" : "recipe"));
+    .map((slot) => (slot.tagName === "OUTPUT" ? "undo" : "recipe"));
 }
 
 function names(testId: string) {
@@ -222,10 +224,10 @@ describe("FavouritesPage", () => {
     await userEvent.click(
       screen.getByRole("button", { name: "Unfavourite Fajita Wraps" }),
     );
-    expect(toggle).toHaveBeenCalledWith(
-      { recipeId: "id_Fajita Wraps", wasFavourite: true },
-      expect.anything(),
-    );
+    expect(toggleAsync).toHaveBeenCalledWith({
+      recipeId: "id_Fajita Wraps",
+      wasFavourite: true,
+    });
     mockFavourites([["Beef Casserole", "Pulled Pork"]]);
     rerender(page());
 
@@ -250,6 +252,35 @@ describe("FavouritesPage", () => {
         index: 1,
       },
     });
+  });
+
+  it("keeps a tile in place for each of several un-hearts", async () => {
+    mockFavourites([
+      ["Beef Casserole", "Fajita Wraps", "Pulled Pork", "Tacos"],
+    ]);
+    const { rerender } = render(page());
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Unfavourite Fajita Wraps" }),
+    );
+    mockFavourites([["Beef Casserole", "Pulled Pork", "Tacos"]]);
+    rerender(page());
+    await userEvent.click(
+      screen.getByRole("button", { name: "Unfavourite Tacos" }),
+    );
+    mockFavourites([["Beef Casserole", "Pulled Pork"]]);
+    rerender(page());
+
+    const grid = screen.getByTestId("favourites-grid");
+    await waitFor(() =>
+      expect(slotKinds(grid, "recipe-card")).toEqual([
+        "recipe",
+        "undo",
+        "recipe",
+        "undo",
+      ]),
+    );
+    expect(toggleAsync).toHaveBeenCalledTimes(2);
   });
 
   it("puts an undo in an un-hearted row's place on mobile too", async () => {

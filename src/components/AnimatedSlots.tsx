@@ -1,35 +1,29 @@
 import type { ReactNode } from "react";
+import type { UndoSlot } from "@/lib/undoSlots";
 import { AnimatePresence, motion } from "motion/react";
-
-export interface Slot<T> {
-  key: string;
-  item: T;
-  index: number;
-  undo?: boolean;
-}
 
 const EASE_OUT = [0.25, 0.1, 0.25, 1] as const;
 
 export function AnimatedSlots<T>({
   slots,
   renderItem,
-  undoTile,
+  renderUndo,
 }: {
-  slots: Slot<T>[];
-  renderItem: (item: T, index: number) => ReactNode;
-  undoTile: ReactNode;
+  slots: UndoSlot<T>[];
+  renderItem: (slot: UndoSlot<T>) => ReactNode;
+  renderUndo: (slot: UndoSlot<T>) => ReactNode;
 }) {
   return (
     <AnimatePresence initial={false}>
-      {slots.map(({ key, item, index, undo }) => (
+      {slots.map((slot) => (
         <motion.div
-          key={key}
+          key={slot.key}
           layout="position"
           exit={{ opacity: 0, transition: { duration: 0.25 } }}
           transition={{ layout: { duration: 0.35, ease: EASE_OUT } }}
         >
           <AnimatePresence mode="wait" initial={false}>
-            {!undo ? (
+            {!slot.undo ? (
               <motion.div
                 key="entry"
                 initial={{ opacity: 0, y: 20 }}
@@ -42,7 +36,7 @@ export function AnimatedSlots<T>({
                 transition={{ duration: 0.35, ease: EASE_OUT }}
                 className="h-full *:h-full"
               >
-                {renderItem(item, index)}
+                {renderItem(slot)}
               </motion.div>
             ) : (
               <motion.div
@@ -55,9 +49,11 @@ export function AnimatedSlots<T>({
               >
                 {/* Keeps the removed item's exact footprint under the tile. */}
                 <div aria-hidden inert className="invisible h-full *:h-full">
-                  {renderItem(item, index)}
+                  {renderItem(slot)}
                 </div>
-                <div className="absolute inset-0 *:h-full">{undoTile}</div>
+                <div className="absolute inset-0 *:h-full">
+                  {renderUndo(slot)}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

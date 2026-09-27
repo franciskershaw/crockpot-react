@@ -1,4 +1,4 @@
-import { useUndoWindow } from "@/lib/useUndoWindow";
+import { useUndoQueue } from "@/lib/useUndoQueue";
 
 import type { MenuEntry } from "../data/types";
 import { useAddToMenu } from "./useAddToMenu";
@@ -7,34 +7,36 @@ import { useRemoveFromMenu } from "./useRemoveFromMenu";
 export function useUndoableMenuRemoval() {
   const removeFromMenu = useRemoveFromMenu();
   const addToMenu = useAddToMenu();
-  const { removed, start, forget, markUndone } = useUndoWindow<{
-    entry: MenuEntry;
-    index: number;
-  }>();
+  const { removals, start, settle, forget, markUndone } =
+    useUndoQueue<MenuEntry>();
 
-  const remove = (entry: MenuEntry, index: number) => {
-    const removal = { entry, index };
-    start(removal);
-    removeFromMenu.mutate(
-      { recipeId: entry.recipeId },
-      { onError: () => forget(removal) },
+  // mutateAsync: per-call callbacks on mutate only fire for the latest call.
+  const remove = (
+    entry: MenuEntry,
+    anchorKey: string | null,
+    index: number,
+  ) => {
+    const key = entry.recipeId;
+    start({ key, item: entry, anchorKey, index });
+    return removeFromMenu.mutateAsync({ recipeId: key }).then(
+      () => settle(key),
+      () => forget(key),
     );
   };
 
-  const undo = () => {
-    if (!removed || removed.undone) return;
+  const canUndo = (key: string) =>
+    removals.some((r) => r.key === key && r.settled && !r.undone);
+
+  const undo = (key: string, index: number) => {
+    const removal = removals.find((r) => r.key === key);
+    if (!removal || !canUndo(key)) return;
     addToMenu.mutate({
-      recipe: removed.entry.recipe,
-      serves: removed.entry.serves,
-      index: removed.index,
+      recipe: removal.item.recipe,
+      serves: removal.item.serves,
+      index,
     });
-    markUndone();
+    markUndone(key);
   };
 
-  return {
-    removed,
-    canUndo: removed !== null && !removed.undone && !removeFromMenu.isPending,
-    remove,
-    undo,
-  };
+  return { removals, remove, canUndo, undo };
 }

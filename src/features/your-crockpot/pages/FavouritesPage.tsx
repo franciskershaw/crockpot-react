@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { AnimatedSlots, type Slot } from "@/components/AnimatedSlots";
+import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { PILL_CTA_CLASSES } from "@/lib/styles";
+import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
 import { useSentinelInView } from "@/lib/useSentinelInView";
 import { AlertTriangle, Heart } from "lucide-react";
 import { motion } from "motion/react";
@@ -30,10 +31,9 @@ export function FavouritesPage() {
     loadMore,
   } = useFavourites();
   const recipes = data?.pages.flatMap((page) => page.recipes);
-  const { removed, canUndo, remove, undo } = useUndoableFavouriteRemoval();
-  const showUndo =
-    removed !== null &&
-    !recipes?.some((recipe) => recipe.id === removed.recipe.id);
+  const { removals, remove, canUndo, undo } = useUndoableFavouriteRemoval();
+  const slots = buildUndoSlots(recipes ?? [], (recipe) => recipe.id, removals);
+  const showUndo = slots.some((slot) => slot.undo);
 
   const { sentinelRef, inView } = useSentinelInView();
   // After a failed page, only scrolling away and back retries it — never a loop.
@@ -57,23 +57,12 @@ export function FavouritesPage() {
     loadMore,
   ]);
 
-  const slots: Slot<RecipeCardData>[] =
-    recipes?.map((recipe, index) => ({
-      key: recipe.id,
-      item: recipe,
-      index,
-    })) ?? [];
-  if (removed && showUndo) {
-    slots.splice(removed.index, 0, {
-      key: removed.recipe.id,
-      item: removed.recipe,
-      index: removed.index,
-      undo: true,
-    });
-  }
-
-  const undoTile = removed && (
-    <UndoTile title={removed.recipe.name} canUndo={canUndo} onUndo={undo} />
+  const renderUndo = (slot: UndoSlot<RecipeCardData>) => (
+    <UndoTile
+      title={slot.item.name}
+      canUndo={canUndo(slot.key)}
+      onUndo={() => undo(slot.key, slot.index)}
+    />
   );
 
   return (
@@ -111,12 +100,14 @@ export function FavouritesPage() {
           >
             <AnimatedSlots
               slots={slots}
-              undoTile={undoTile}
-              renderItem={(recipe, index) => (
+              renderUndo={renderUndo}
+              renderItem={(slot) => (
                 <MobileRecipeRow
-                  recipe={recipe}
+                  recipe={slot.item}
                   from="/favourites"
-                  onUnfavourite={() => remove(recipe, index)}
+                  onUnfavourite={() =>
+                    remove(slot.item, slot.anchorKey, slot.index)
+                  }
                 />
               )}
             />
@@ -127,12 +118,14 @@ export function FavouritesPage() {
           >
             <AnimatedSlots
               slots={slots}
-              undoTile={undoTile}
-              renderItem={(recipe, index) => (
+              renderUndo={renderUndo}
+              renderItem={(slot) => (
                 <RecipeCard
-                  recipe={recipe}
+                  recipe={slot.item}
                   from="/favourites"
-                  onUnfavourite={() => remove(recipe, index)}
+                  onUnfavourite={() =>
+                    remove(slot.item, slot.anchorKey, slot.index)
+                  }
                 />
               )}
             />

@@ -1,5 +1,5 @@
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
-import { UNDO_WINDOW_MS } from "@/lib/useUndoWindow";
+import { UNDO_WINDOW_MS } from "@/lib/useUndoQueue";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import {
   act,
@@ -94,8 +94,9 @@ beforeEach(() => {
     mutate: addToMenu,
     isPending: false,
   } as unknown as ReturnType<typeof useAddToMenu>);
+  removeFromMenu.mockResolvedValue({ message: "ok" });
   vi.mocked(useRemoveFromMenu).mockReturnValue({
-    mutate: removeFromMenu,
+    mutateAsync: removeFromMenu,
     isPending: false,
   } as unknown as ReturnType<typeof useRemoveFromMenu>);
   vi.mocked(useClearMenu).mockReturnValue({
@@ -138,12 +139,11 @@ function renderWith(
 }
 
 function slotKinds(container: HTMLElement, recipeTestId: string) {
-  const undoTile = within(container).queryByRole("status");
   return [
     ...container.querySelectorAll(`[data-testid="${recipeTestId}"], output`),
   ]
     .filter((slot) => !slot.closest("[inert]"))
-    .map((slot) => (slot === undoTile ? "undo" : "recipe"));
+    .map((slot) => (slot.tagName === "OUTPUT" ? "undo" : "recipe"));
 }
 
 function menuWithout(names: string[], removed: string) {
@@ -224,10 +224,7 @@ describe("MenuPage", () => {
     await userEvent.click(
       screen.getByRole("button", { name: "Remove Fajita Wraps" }),
     );
-    expect(removeFromMenu).toHaveBeenCalledWith(
-      { recipeId: "r_1" },
-      expect.anything(),
-    );
+    expect(removeFromMenu).toHaveBeenCalledWith({ recipeId: "r_1" });
     vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
     rerender(
       <MemoryRouter>
@@ -257,6 +254,44 @@ describe("MenuPage", () => {
     renderWith(names, rerender);
     await waitFor(() =>
       expect(screen.queryAllByRole("status")).toHaveLength(0),
+    );
+  });
+
+  it("keeps a tile in place for each of several removals", async () => {
+    const names = ["Beef Casserole", "Fajita Wraps", "Pulled Pork", "Tacos"];
+    const { rerender } = renderWith(names);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Remove Fajita Wraps" }),
+    );
+    vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
+    rerender(
+      <MemoryRouter>
+        <MenuPage />
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Remove Tacos" }));
+    vi.mocked(useMenu).mockReturnValue({
+      data: {
+        entries: menuWithout(names, "Fajita Wraps").data!.entries.filter(
+          (entry) => entry.recipe.name !== "Tacos",
+        ),
+      },
+    } as unknown as ReturnType<typeof useMenu>);
+    rerender(
+      <MemoryRouter>
+        <MenuPage />
+      </MemoryRouter>,
+    );
+
+    const grid = screen.getByTestId("menu-grid");
+    await waitFor(() =>
+      expect(slotKinds(grid, "recipe-card")).toEqual([
+        "recipe",
+        "undo",
+        "recipe",
+        "undo",
+      ]),
     );
   });
 

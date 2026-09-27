@@ -1,4 +1,4 @@
-import { AnimatedSlots, type Slot } from "@/components/AnimatedSlots";
+import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
+import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
 import { AlertTriangle, ChefHat } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -19,31 +20,19 @@ import { useUndoableMenuRemoval } from "../hooks/useUndoableMenuRemoval";
 export function MenuPage() {
   const { data: menu, isError, refetch } = useMenu();
   const entries = menu?.entries;
-  const { removed, canUndo, remove, undo } = useUndoableMenuRemoval();
-  const showUndo =
-    removed !== null &&
-    !entries?.some((entry) => entry.recipeId === removed.entry.recipeId);
+  const { removals, remove, canUndo, undo } = useUndoableMenuRemoval();
+  const slots = buildUndoSlots(
+    entries ?? [],
+    (entry) => entry.recipeId,
+    removals,
+  );
+  const showUndo = slots.some((slot) => slot.undo);
 
-  const slots: Slot<MenuEntry>[] =
-    entries?.map((entry, index) => ({
-      key: entry.recipeId,
-      item: entry,
-      index,
-    })) ?? [];
-  if (removed && showUndo) {
-    slots.splice(removed.index, 0, {
-      key: removed.entry.recipeId,
-      item: removed.entry,
-      index: removed.index,
-      undo: true,
-    });
-  }
-
-  const undoTile = removed && (
+  const renderUndo = (slot: UndoSlot<MenuEntry>) => (
     <UndoTile
-      title={removed.entry.recipe.name}
-      canUndo={canUndo}
-      onUndo={undo}
+      title={slot.item.recipe.name}
+      canUndo={canUndo(slot.key)}
+      onUndo={() => undo(slot.key, slot.index)}
     />
   );
 
@@ -79,12 +68,14 @@ export function MenuPage() {
               >
                 <AnimatedSlots
                   slots={slots}
-                  undoTile={undoTile}
-                  renderItem={(entry, index) => (
+                  renderUndo={renderUndo}
+                  renderItem={(slot) => (
                     <MobileRecipeRow
-                      recipe={entry.recipe}
+                      recipe={slot.item.recipe}
                       from="/menu"
-                      onRemoveFromMenu={() => remove(entry, index)}
+                      onRemoveFromMenu={() =>
+                        remove(slot.item, slot.anchorKey, slot.index)
+                      }
                     />
                   )}
                 />
@@ -95,12 +86,14 @@ export function MenuPage() {
               >
                 <AnimatedSlots
                   slots={slots}
-                  undoTile={undoTile}
-                  renderItem={(entry, index) => (
+                  renderUndo={renderUndo}
+                  renderItem={(slot) => (
                     <RecipeCard
-                      recipe={entry.recipe}
+                      recipe={slot.item.recipe}
                       from="/menu"
-                      onRemoveFromMenu={() => remove(entry, index)}
+                      onRemoveFromMenu={() =>
+                        remove(slot.item, slot.anchorKey, slot.index)
+                      }
                     />
                   )}
                 />

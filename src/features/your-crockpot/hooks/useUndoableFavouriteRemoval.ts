@@ -1,37 +1,41 @@
 import type { RecipeCard } from "@/features/recipes/data/types";
 import { useToggleFavourite } from "@/features/recipes/hooks/useToggleFavourite";
-import { useUndoWindow } from "@/lib/useUndoWindow";
+import { useUndoQueue } from "@/lib/useUndoQueue";
 
 export function useUndoableFavouriteRemoval() {
   const toggleFavourite = useToggleFavourite();
-  const { removed, start, forget, markUndone } = useUndoWindow<{
-    recipe: RecipeCard;
-    index: number;
-  }>();
+  const { removals, start, settle, forget, markUndone } =
+    useUndoQueue<RecipeCard>();
 
-  const remove = (recipe: RecipeCard, index: number) => {
-    const removal = { recipe, index };
-    start(removal);
-    toggleFavourite.mutate(
-      { recipeId: recipe.id, wasFavourite: true },
-      { onError: () => forget(removal) },
-    );
+  // mutateAsync: per-call callbacks on mutate only fire for the latest call.
+  const remove = (
+    recipe: RecipeCard,
+    anchorKey: string | null,
+    index: number,
+  ) => {
+    const key = recipe.id;
+    start({ key, item: recipe, anchorKey, index });
+    return toggleFavourite
+      .mutateAsync({ recipeId: key, wasFavourite: true })
+      .then(
+        () => settle(key),
+        () => forget(key),
+      );
   };
 
-  const undo = () => {
-    if (!removed || removed.undone) return;
+  const canUndo = (key: string) =>
+    removals.some((r) => r.key === key && r.settled && !r.undone);
+
+  const undo = (key: string, index: number) => {
+    const removal = removals.find((r) => r.key === key);
+    if (!removal || !canUndo(key)) return;
     toggleFavourite.mutate({
-      recipeId: removed.recipe.id,
+      recipeId: key,
       wasFavourite: false,
-      restoreAt: { recipe: removed.recipe, index: removed.index },
+      restoreAt: { recipe: removal.item, index },
     });
-    markUndone();
+    markUndone(key);
   };
 
-  return {
-    removed,
-    canUndo: removed !== null && !removed.undone && !toggleFavourite.isPending,
-    remove,
-    undo,
-  };
+  return { removals, remove, canUndo, undo };
 }

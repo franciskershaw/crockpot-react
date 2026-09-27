@@ -135,6 +135,17 @@ rules here that would drift from it.
   localStorage — shareable/bookmarkable, and the query string doubles as
   the TanStack Query cache key.
 
+- **Optimistic menu mutations** (from `CFE-041`, 2026-09-27): every menu
+  mutation goes through `useOptimisticMenuMutation`, with a pure
+  `apply`/`revert` pair per operation, where the revert undoes only its
+  own change and is a safe no-op if the target has since changed; a
+  shared `menuKeys.change()` key; a `GET /menu` refetch only after a
+  failure, and only when it is the last menu change settling. The client
+  keeps the server's newest-first order (adds go on top). Rejected: the
+  shopping list's always-refetch (the server doesn't transform menu
+  entries) and a generic `lib/` hook. Revisit if the server starts
+  changing entries beyond what was sent.
+
 ## Tooling (reused from `packing-list-react` as-is)
 
 - Formatter: Prettier + `@ianvs/prettier-plugin-sort-imports`
@@ -439,7 +450,10 @@ security findings — debt notes only):*
   four menu mutation hooks share copy-pasted optimistic code whose
   whole-snapshot rollback can drop a concurrent change. Adopt
   shopping-list's guarded refetch-on-settle. Findings 3, 5.
-  **Not started**, ideally before `CFE-008`.
+  **Grilled** (2026-09-27), see `docs/handoffs/CFE-041.md`; ideally before
+  `CFE-008`. The grill found the menu's order mismatch (server
+  newest-first, client appended) and a backend gap filed as `crockpot-go`
+  `CROC-058`.
 - **CFE-042** — Shopping-list UI duplication: two quantity editors with
   different validation, the text-field class string copied four times,
   and dead `components/ui/command.tsx`. Findings 6–8. **Not started.**

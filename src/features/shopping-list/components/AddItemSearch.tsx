@@ -7,6 +7,8 @@ import {
 import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
+import { FIELD_CLASSES } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
 import { Plus, X } from "lucide-react";
 
@@ -104,7 +106,7 @@ export function AddItemSearch({
           <PopoverAnchor asChild>
             <div
               ref={anchorRef}
-              className="flex h-10 items-center gap-2 rounded-[7px] border-[1.5px] border-border bg-card px-3 transition-[border-color,box-shadow] focus-within:border-green focus-within:ring-[3px] focus-within:ring-green/14"
+              className={cn(FIELD_CLASSES, "flex h-10 items-center gap-2 px-3")}
             >
               <Plus
                 size={17}

@@ -91,11 +91,11 @@ describe("AddItemEditor", () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
-  it("limits the quantity to 4 digits and 2 decimal places", async () => {
+  it("limits the quantity to 6 digits and 2 decimal places", async () => {
     const { quantity } = setup();
 
-    await userEvent.type(quantity, "2345");
-    expect(quantity).toHaveValue("1234");
+    await userEvent.type(quantity, "234567");
+    expect(quantity).toHaveValue("123456");
 
     await userEvent.clear(quantity);
     await userEvent.type(quantity, "1.255");

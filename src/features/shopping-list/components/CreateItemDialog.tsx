@@ -19,11 +19,14 @@ import type { Item } from "@/features/catalog/data/types";
 import { useCreateItem } from "@/features/catalog/hooks/useCreateItem";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { FIELD_CLASSES } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
+import { focusAtEnd } from "../utils/focusAtEnd";
 import { UnitMultiSelect } from "./UnitMultiSelect";
 
 const createItemSchema = z.object({
@@ -37,9 +40,6 @@ const createItemSchema = z.object({
 });
 
 type CreateItemValues = z.infer<typeof createItemSchema>;
-
-const FIELD_CLASSES =
-  "h-10 w-full rounded-[7px] border-[1.5px] border-border bg-card px-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-green focus:ring-[3px] focus:ring-green/14 aria-invalid:border-rust-icon";
 
 function capitalise(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -75,12 +75,7 @@ function CreateItemForm({
   const categoryId = useWatch({ control, name: "categoryId" });
   const { ref: registerNameRef, ...nameField } = register("name");
 
-  useEffect(() => {
-    const input = nameInput.current;
-    if (!input) return;
-    input.focus({ preventScroll: true });
-    input.setSelectionRange(input.value.length, input.value.length);
-  }, []);
+  useEffect(() => focusAtEnd(nameInput.current), []);
 
   const onSubmit = (values: CreateItemValues) =>
     createItem.mutate(values, {
@@ -112,7 +107,10 @@ function CreateItemForm({
               nameInput.current = input;
             }}
             aria-invalid={errors.name ? true : undefined}
-            className={FIELD_CLASSES}
+            className={cn(
+              FIELD_CLASSES,
+              "h-10 w-full px-3 text-sm outline-none aria-invalid:border-rust-icon",
+            )}
           />
           {errors.name && (
             <p className="mt-1.5 text-[13px] text-rust-text">

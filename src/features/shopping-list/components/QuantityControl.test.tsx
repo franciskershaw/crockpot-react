@@ -59,7 +59,23 @@ describe("QuantityControl", () => {
     expect(onCommit).not.toHaveBeenCalled();
   });
 
-  it.each(["", "0", "-1", "abc"])(
+  it("limits typing to 6 digits and 2 decimal places", async () => {
+    const { input } = await openEditor();
+
+    await userEvent.clear(input);
+    await userEvent.type(input, "1e5");
+    expect(input).toHaveValue("15");
+
+    await userEvent.clear(input);
+    await userEvent.type(input, "-1");
+    expect(input).toHaveValue("1");
+
+    await userEvent.clear(input);
+    await userEvent.type(input, "12345678.999");
+    expect(input).toHaveValue("123456.99");
+  });
+
+  it.each(["", "0", "abc"])(
     "won't confirm an invalid quantity (%j)",
     async (value) => {
       const { input, onCommit } = await openEditor();

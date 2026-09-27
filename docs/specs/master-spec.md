@@ -451,7 +451,14 @@ security findings — debt notes only):*
   `docs/handoffs/CFE-041.md`.
 - **CFE-042** — Shopping-list UI duplication: two quantity editors with
   different validation, the text-field class string copied four times,
-  and dead `components/ui/command.tsx`. Findings 6–8. **Not started.**
+  and dead `components/ui/command.tsx`. Findings 6–8. **Done**
+  (2026-09-27): both quantity editors filter typing to one shared rule,
+  positive, up to 6 digits and 2 decimals (`shopping-list/utils/quantity.ts`),
+  because recipe rows in g/ml can pass 9999 and the column is
+  `NUMERIC(10, 2)`. `FIELD_CLASSES` lives in `src/lib/styles.ts`, shared
+  ahead of a second feature caller at the founder's call (expected:
+  `CFE-010`'s recipe form); the category `SelectTrigger` keeps its own
+  `focus-visible` classes. `command.tsx` deleted.
 - **CFE-043** — Housekeeping: migrate older hook tests onto
   `setupQueryClient`; move recipe reference-data keys into `recipeKeys`;
   move `stopEvent` to `utils/` and reuse it in `RecipeCard`; make

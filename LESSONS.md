@@ -321,3 +321,7 @@ decision as fully closed. No code written yet.
 
 - Reading crockpot-go at the grill showed the client/server menu order mismatch and a backend shopping-list gap (`CROC-058`), neither in the ticket. Writing the hook tests found that "refetch only if last to settle" lost the refetch when a failure overlapped a success; fixed by marking the menu stale and having the last settler refetch.
 - **Pattern**: for a "refetch only when the last one settles" guard, test a failure overlapping a success, not just two failures.
+
+## 2026-09-27 — CFE-042 — Shopping-list duplication. Clean; checking the backend changed the rule.
+
+- No rework. Checking crockpot-go's column (`NUMERIC(10, 2)`) and real recipe quantities in grams showed that the add box's 4-digit cap would have broken editing, so the shared rule became 6 digits rather than either existing one.

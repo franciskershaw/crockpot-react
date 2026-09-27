@@ -1,7 +1,10 @@
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+
+import { focusAtEnd } from "../utils/focusAtEnd";
+import { isQuantityInput, parseQuantity } from "../utils/quantity";
 
 const EDITING_SLOT_WIDTH = 30;
 const SLOT_SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
@@ -23,14 +26,8 @@ export function QuantityControl({
   const [draft, setDraft] = useState("");
   const [restingWidth, setRestingWidth] = useState<number | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const parsed = Number(draft);
-  const isValid = draft.trim() !== "" && Number.isFinite(parsed) && parsed > 0;
-
-  const focusAtEnd = useCallback((input: HTMLInputElement | null) => {
-    if (!input) return;
-    input.focus({ preventScroll: true });
-    input.setSelectionRange(input.value.length, input.value.length);
-  }, []);
+  const parsed = parseQuantity(draft);
+  const isValid = parsed !== null;
 
   const open = () => {
     setRestingWidth(triggerRef.current?.offsetWidth ?? null);
@@ -39,7 +36,7 @@ export function QuantityControl({
   };
   const cancel = () => setIsEditing(false);
   const confirm = () => {
-    if (!isValid) return;
+    if (parsed === null) return;
     setIsEditing(false);
     if (parsed !== quantity) onCommit(parsed);
   };
@@ -133,7 +130,11 @@ export function QuantityControl({
                   aria-label="Quantity"
                   inputMode="decimal"
                   value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
+                  onChange={(event) => {
+                    if (isQuantityInput(event.target.value)) {
+                      setDraft(event.target.value);
+                    }
+                  }}
                   onKeyDown={(event) => {
                     if (event.key === "Enter") {
                       event.preventDefault();

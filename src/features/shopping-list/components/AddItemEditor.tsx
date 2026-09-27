@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 import { Check, Loader2, X } from "lucide-react";
 import { Select as SelectPrimitive } from "radix-ui";
 
+import { focusAtEnd } from "../utils/focusAtEnd";
+import { isQuantityInput, parseQuantity } from "../utils/quantity";
+
 const NO_UNIT = "none";
-const QUANTITY_PATTERN = /^\d{0,4}(\.\d{0,2})?$/;
 
 function Divider() {
   return <span aria-hidden className="h-3.5 w-px shrink-0 bg-border" />;
@@ -62,15 +64,9 @@ export function AddItemEditor({
 }) {
   const [quantity, setQuantity] = useState("1");
   const [unitId, setUnitId] = useState(NO_UNIT);
-  const parsed = Number(quantity);
-  const canConfirm = quantity !== "" && parsed > 0 && !isPending;
+  const parsed = parseQuantity(quantity);
+  const canConfirm = parsed !== null && !isPending;
   const selectedUnit = allowedUnits.find((unit) => unit.id === unitId);
-
-  const focusAtEnd = useCallback((input: HTMLInputElement | null) => {
-    if (!input) return;
-    input.focus({ preventScroll: true });
-    input.setSelectionRange(input.value.length, input.value.length);
-  }, []);
 
   const confirm = () => {
     if (canConfirm) onConfirm(parsed, unitId === NO_UNIT ? null : unitId);
@@ -106,7 +102,7 @@ export function AddItemEditor({
           inputMode="decimal"
           value={quantity}
           onChange={(event) => {
-            if (QUANTITY_PATTERN.test(event.target.value)) {
+            if (isQuantityInput(event.target.value)) {
               setQuantity(event.target.value);
             }
           }}

@@ -6,6 +6,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { Unit } from "@/features/catalog/data/types";
+import { FIELD_CLASSES } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
 import { Check, ChevronDown, X } from "lucide-react";
 
@@ -37,7 +39,12 @@ export function UnitMultiSelect({
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverAnchor asChild>
-        <div className="flex min-h-10 flex-wrap items-center gap-1 rounded-[7px] border-[1.5px] border-border bg-card py-1 pr-2 pl-1.5 transition-[border-color,box-shadow] focus-within:border-green focus-within:ring-[3px] focus-within:ring-green/14">
+        <div
+          className={cn(
+            FIELD_CLASSES,
+            "flex min-h-10 flex-wrap items-center gap-1 py-1 pr-2 pl-1.5",
+          )}
+        >
           <span data-testid="unit-chips" className="contents">
             {picked.map((unit) => (
               <span

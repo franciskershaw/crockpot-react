@@ -44,8 +44,9 @@ export function BottomSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        overlayClassName="bg-foreground/55"
-        className="inset-x-0 top-auto bottom-0 left-0 flex max-h-[calc(100dvh-16px)] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-background p-0 shadow-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom"
+        animation="none"
+        overlayClassName="bg-foreground/55 duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:duration-400"
+        className="inset-x-0 top-auto bottom-0 left-0 flex max-h-[calc(100dvh-16px)] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-background p-0 shadow-none duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:duration-400 data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom"
       >
         {header && (
           <div className="relative shrink-0 px-5 pt-5 pb-3">

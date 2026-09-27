@@ -24,21 +24,23 @@ export function YourCrockpotLayout() {
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pt-6 pb-10 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden lg:pb-0">
-      <div className="mb-3 flex shrink-0 flex-wrap items-end justify-between gap-4 border-b border-slider-track pb-5">
-        <div className="flex w-full items-start justify-between gap-3 md:w-auto">
-          <div>
-            <h1 className="mb-1.25 font-display text-[46px] leading-none font-medium tracking-[-0.015em] text-foreground">
-              {tab.label}
-            </h1>
-            <p className="text-[15px] text-muted-foreground">{subtitle}</p>
-          </div>
-          {showMenuActions && (
-            <div className="-mr-2 md:hidden">
-              <MenuActionsMenu />
+      <div className="sticky top-16 z-20 -mx-6 -mt-6 shrink-0 bg-background px-6 pt-6 pb-3 lg:static">
+        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-slider-track pb-5">
+          <div className="flex w-full items-start justify-between gap-3 md:w-auto">
+            <div>
+              <h1 className="mb-1.25 font-display text-[46px] leading-none font-medium tracking-[-0.015em] text-foreground">
+                {tab.label}
+              </h1>
+              <p className="text-[15px] text-muted-foreground">{subtitle}</p>
             </div>
-          )}
+            {showMenuActions && (
+              <div className="-mr-2 md:hidden">
+                <MenuActionsMenu />
+              </div>
+            )}
+          </div>
+          <YourCrockpotTabs />
         </div>
-        <YourCrockpotTabs />
       </div>
       <div className="min-h-0 flex-1">
         <Outlet />

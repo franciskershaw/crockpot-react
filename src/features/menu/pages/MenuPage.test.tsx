@@ -1,9 +1,26 @@
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { act, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  waitFor,
+  within,
+  type RenderResult,
+} from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { MotionGlobalConfig } from "motion/react";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import { useAddToMenu } from "../hooks/useAddToMenu";
 import { useClearMenu } from "../hooks/useClearMenu";
@@ -59,6 +76,14 @@ vi.mock("@/features/shopping-list/components/ShoppingListPanel", () => ({
   ShoppingListPanel: () => <aside data-testid="shopping-list" />,
 }));
 
+beforeAll(() => {
+  MotionGlobalConfig.skipAnimations = true;
+});
+
+afterAll(() => {
+  MotionGlobalConfig.skipAnimations = false;
+});
+
 const clear = vi.fn();
 const addToMenu = vi.fn();
 const removeFromMenu = vi.fn();
@@ -84,7 +109,10 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function renderWith(names: string[] | null) {
+function renderWith(
+  names: string[] | null,
+  rerender?: RenderResult["rerender"],
+) {
   vi.mocked(useMenu).mockReturnValue({
     data:
       names === null
@@ -97,11 +125,16 @@ function renderWith(names: string[] | null) {
             })),
           },
   } as unknown as ReturnType<typeof useMenu>);
-  return render(
+  const page = (
     <MemoryRouter>
       <MenuPage />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
+  if (rerender) {
+    rerender(page);
+    return { rerender };
+  }
+  return render(page);
 }
 
 function menuWithout(names: string[], removed: string) {
@@ -193,6 +226,7 @@ describe("MenuPage", () => {
       </MemoryRouter>,
     );
 
+    await within(screen.getByTestId("menu-grid")).findByTestId("menu-undo");
     const slots = within(screen.getByTestId("menu-grid")).getAllByTestId(
       /recipe-card|menu-undo/,
     );
@@ -212,23 +246,31 @@ describe("MenuPage", () => {
       serves: 4,
       index: 1,
     });
-    expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0);
+
+    renderWith(names, rerender);
+    await waitFor(() =>
+      expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0),
+    );
   });
 
   it("drops the undo after a few seconds", async () => {
     const names = ["Beef Casserole", "Fajita Wraps"];
     renderWith(names);
 
-    vi.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
     act(() =>
       screen.getByRole("button", { name: "Remove Fajita Wraps" }).click(),
     );
-    expect(screen.getAllByTestId("menu-undo").length).toBeGreaterThan(0);
+    expect((await screen.findAllByTestId("menu-undo")).length).toBeGreaterThan(
+      0,
+    );
 
     act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS));
 
-    expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0);
+    await waitFor(() =>
+      expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0),
+    );
   });
 
   it("shows each recipe as a compact row for mobile", () => {
@@ -256,6 +298,7 @@ describe("MenuPage", () => {
       </MemoryRouter>,
     );
 
+    await within(screen.getByTestId("menu-list")).findByTestId("menu-undo");
     const slots = within(screen.getByTestId("menu-list")).getAllByTestId(
       /mobile-row|menu-undo/,
     );

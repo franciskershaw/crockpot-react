@@ -9,6 +9,7 @@ export const UNDO_WINDOW_MS = 5000;
 export interface RemovedMenuEntry {
   entry: MenuEntry;
   index: number;
+  undone?: boolean;
 }
 
 export function useUndoableMenuRemoval() {
@@ -34,19 +35,21 @@ export function useUndoableMenuRemoval() {
     );
   };
 
+  // Kept (marked undone) until the timer clears it, so the slot survives
+  // the tick before the optimistic re-add lands.
   const undo = () => {
-    if (!removed) return;
+    if (!removed || removed.undone) return;
     addToMenu.mutate({
       recipe: removed.entry.recipe,
       serves: removed.entry.serves,
       index: removed.index,
     });
-    setRemoved(null);
+    setRemoved({ ...removed, undone: true });
   };
 
   return {
     removed,
-    canUndo: removed !== null && !removeFromMenu.isPending,
+    canUndo: removed !== null && !removed.undone && !removeFromMenu.isPending,
     remove,
     undo,
   };

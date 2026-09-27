@@ -63,7 +63,8 @@ describe("useUndoableMenuRemoval", () => {
       serves: 6,
       index: 2,
     });
-    expect(result.current.removed).toBeNull();
+    expect(result.current.removed?.undone).toBe(true);
+    expect(result.current.canUndo).toBe(false);
   });
 
   it("forgets the removal once the undo window has passed", () => {

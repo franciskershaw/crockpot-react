@@ -235,4 +235,26 @@ describe("AddItemSearch", () => {
 
     expect(screen.queryByRole("option")).not.toBeInTheDocument();
   });
+
+  it("reopens the list for its current query when resumed", async () => {
+    const onCreate = vi.fn();
+    const { rerender } = render(
+      <AddItemSearch onPick={vi.fn()} onCreate={onCreate} resumeKey={0} />,
+    );
+    const input = screen.getByRole("combobox", { name: "Add something extra" });
+    await userEvent.type(input, "gochujang");
+    await userEvent.click(
+      await screen.findByRole("option", { name: /as a new item/ }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument(),
+    );
+
+    rerender(
+      <AddItemSearch onPick={vi.fn()} onCreate={onCreate} resumeKey={1} />,
+    );
+
+    expect(await screen.findByRole("listbox")).toBeInTheDocument();
+    expect(input).toHaveValue("gochujang");
+  });
 });

@@ -25,20 +25,64 @@ vi.mock("./AddItemSearch", () => ({
     onPick,
     onCreate,
     focusOnMount,
+    resumeKey,
   }: {
     onPick: (item: Item) => void;
     onCreate?: (name: string) => void;
     focusOnMount?: boolean;
+    resumeKey?: number;
   }) => (
-    <button
-      type="button"
-      data-autofocus={String(Boolean(focusOnMount))}
-      data-can-create={String(Boolean(onCreate))}
-      onClick={() => onPick(chicken)}
-    >
-      search
-    </button>
+    <>
+      <button
+        type="button"
+        data-autofocus={String(Boolean(focusOnMount))}
+        data-can-create={String(Boolean(onCreate))}
+        data-resume={resumeKey ?? ""}
+        onClick={() => onPick(chicken)}
+      >
+        search
+      </button>
+      {onCreate && (
+        <button type="button" onClick={() => onCreate("gochujang")}>
+          create gochujang
+        </button>
+      )}
+    </>
   ),
+}));
+vi.mock("./CreateItemDialog", () => ({
+  CreateItemDialog: ({
+    open,
+    initialName,
+    onCreated,
+    onCancel,
+  }: {
+    open: boolean;
+    initialName: string;
+    onCreated: (item: Item) => void;
+    onCancel: () => void;
+  }) =>
+    open ? (
+      <div data-testid="create-dialog">
+        {initialName}
+        <button
+          type="button"
+          onClick={() =>
+            onCreated({
+              id: "i_new",
+              name: "Gochujang",
+              categoryId: "c_1",
+              allowedUnitIds: [],
+            })
+          }
+        >
+          created
+        </button>
+        <button type="button" onClick={onCancel}>
+          cancel dialog
+        </button>
+      </div>
+    ) : null,
 }));
 vi.mock("./AddItemEditor", () => ({
   AddItemEditor: ({
@@ -192,5 +236,52 @@ describe("AddExtraItem", () => {
       "data-can-create",
       "false",
     );
+  });
+
+  it("opens the new-item dialog with the searched name", async () => {
+    signInAs("ADMIN");
+    setup();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "create gochujang" }),
+    );
+
+    expect(screen.getByTestId("create-dialog")).toHaveTextContent("gochujang");
+  });
+
+  it("opens a newly created item straight into the editor, allowing any unit", async () => {
+    signInAs("ADMIN");
+    setup();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "create gochujang" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "created" }));
+
+    expect(screen.queryByTestId("create-dialog")).not.toBeInTheDocument();
+    expect(screen.getByTestId("editor")).toHaveTextContent(
+      "Gochujang: g,kg,tsp",
+    );
+  });
+
+  it("returns to the search, reopened with its query, when the dialog is cancelled", async () => {
+    signInAs("ADMIN");
+    setup();
+    const search = screen.getByRole("button", { name: "search" });
+    const resumeBefore = search.getAttribute("data-resume");
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "create gochujang" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "cancel dialog" }),
+    );
+
+    expect(screen.queryByTestId("create-dialog")).not.toBeInTheDocument();
+    expect(
+      screen
+        .getByRole("button", { name: "search" })
+        .getAttribute("data-resume"),
+    ).not.toBe(resumeBefore);
   });
 });

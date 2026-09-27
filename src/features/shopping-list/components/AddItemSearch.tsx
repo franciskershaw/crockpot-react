@@ -31,15 +31,23 @@ export function AddItemSearch({
   onPick,
   onCreate,
   focusOnMount = false,
+  resumeKey = 0,
 }: {
   onPick: (item: Item) => void;
   onCreate?: (name: string) => void;
   focusOnMount?: boolean;
+  resumeKey?: number;
 }) {
   const { data: items } = useItems();
   const { data: categories } = useItemCategories();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [resumedKey, setResumedKey] = useState(resumeKey);
+
+  if (resumeKey !== resumedKey) {
+    setResumedKey(resumeKey);
+    if (query.trim() !== "") setIsOpen(true);
+  }
   const inputRef = useRef<HTMLInputElement>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
 

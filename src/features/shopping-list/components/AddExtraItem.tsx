@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useAddShoppingListItem } from "../hooks/useAddShoppingListItem";
 import { AddItemEditor } from "./AddItemEditor";
 import { AddItemSearch } from "./AddItemSearch";
+import { CreateItemDialog } from "./CreateItemDialog";
 
 export interface RecentlyAdded {
   itemId: string;
@@ -24,12 +25,14 @@ export function AddExtraItem({
   const add = useAddShoppingListItem();
   const [picked, setPicked] = useState<Item | null>(null);
   const [returnFocus, setReturnFocus] = useState(false);
-  const [, setNewItemName] = useState<string | null>(null);
+  const [newItemName, setNewItemName] = useState<string | null>(null);
+  const [resumeKey, setResumeKey] = useState(0);
   const isAdmin = user?.role === "ADMIN";
   const addCount = useRef(0);
 
   const allowedUnits = useMemo(() => {
     if (!picked) return [];
+    if (picked.allowedUnitIds.length === 0) return units ?? [];
     const unitsById = new Map(units?.map((unit) => [unit.id, unit]));
     return picked.allowedUnitIds.flatMap((id) => {
       const unit = unitsById.get(id);
@@ -76,10 +79,26 @@ export function AddExtraItem({
       ) : (
         <AddItemSearch
           focusOnMount={returnFocus}
+          resumeKey={resumeKey}
           onCreate={isAdmin ? setNewItemName : undefined}
           onPick={(item) => {
             add.reset();
             setPicked(item);
+          }}
+        />
+      )}
+      {isAdmin && (
+        <CreateItemDialog
+          open={newItemName !== null}
+          initialName={newItemName ?? ""}
+          onCreated={(item) => {
+            setNewItemName(null);
+            add.reset();
+            setPicked(item);
+          }}
+          onCancel={() => {
+            setNewItemName(null);
+            setResumeKey((key) => key + 1);
           }}
         />
       )}

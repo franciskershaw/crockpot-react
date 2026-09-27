@@ -157,6 +157,40 @@ describe("RecipeCard", () => {
     });
   });
 
+  it("hands un-hearting to onUnfavourite instead of toggling itself", async () => {
+    const mutate = vi.fn();
+    const onUnfavourite = vi.fn();
+    mockUseAuth.mockReturnValue({
+      user: {
+        id: "u_1",
+        email: "jamie@example.com",
+        name: "Jamie",
+        image: null,
+        role: "FREE",
+      },
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate,
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+
+    renderWithProviders(
+      <RecipeCard
+        recipe={recipe({ isFavourite: true })}
+        from="/favourites"
+        onUnfavourite={onUnfavourite}
+      />,
+    );
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Remove from favourites" }));
+
+    expect(onUnfavourite).toHaveBeenCalledTimes(1);
+    expect(mutate).not.toHaveBeenCalled();
+  });
+
   it("lazy-loads its image by default", () => {
     mockUseAuth.mockReturnValue({
       user: null,

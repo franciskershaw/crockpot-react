@@ -1,3 +1,4 @@
+import { PILL_CTA_CLASSES } from "@/lib/styles";
 import { Link } from "react-router-dom";
 
 import { ClearMenuDialog } from "./ClearMenuDialog";
@@ -8,10 +9,7 @@ export function MenuFooterPill({ recipeCount }: { recipeCount: number }) {
       {recipeCount === 0 ? (
         <>
           <span className="px-3 text-sm">Menu is empty</span>
-          <Link
-            to="/recipes"
-            className="rounded-full bg-foreground px-4.5 py-2.5 text-sm font-bold text-on-dark"
-          >
+          <Link to="/recipes" className={PILL_CTA_CLASSES}>
             Browse recipes
           </Link>
         </>

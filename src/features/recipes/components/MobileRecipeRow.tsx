@@ -14,10 +14,12 @@ export function MobileRecipeRow({
   recipe,
   from,
   onRemoveFromMenu,
+  onUnfavourite,
 }: {
   recipe: RecipeCardData;
   from: string;
   onRemoveFromMenu?: () => void;
+  onUnfavourite?: () => void;
 }) {
   const {
     isEditing,
@@ -63,7 +65,11 @@ export function MobileRecipeRow({
             {recipe.timeInMinutes} mins
           </p>
         </div>
-        <RecipeFavouriteButton recipe={recipe} onClick={stopEvent} />
+        <RecipeFavouriteButton
+          recipe={recipe}
+          onClick={stopEvent}
+          onUnfavourite={onUnfavourite}
+        />
         <button
           type="button"
           onClick={handleCartClick}

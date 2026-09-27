@@ -27,6 +27,7 @@ export function RecipeCard({
   selectedCategoryCount = 0,
   selectedIngredientCount = 0,
   onRemoveFromMenu,
+  onUnfavourite,
 }: {
   recipe: RecipeCardData;
   from: string;
@@ -34,6 +35,7 @@ export function RecipeCard({
   selectedCategoryCount?: number;
   selectedIngredientCount?: number;
   onRemoveFromMenu?: () => void;
+  onUnfavourite?: () => void;
 }) {
   const { isAuthenticated } = useAuth();
   const matchTier = visibleMatchTier(
@@ -67,6 +69,7 @@ export function RecipeCard({
               <RecipeFavouriteButton
                 recipe={recipe}
                 onClick={stopEvent}
+                onUnfavourite={onUnfavourite}
                 className="border border-border bg-card"
               />
             </div>

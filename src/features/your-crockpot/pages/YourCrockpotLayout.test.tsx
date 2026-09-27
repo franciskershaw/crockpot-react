@@ -4,9 +4,11 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
+import { useFavourites } from "../hooks/useFavourites";
 import { YourCrockpotLayout } from "./YourCrockpotLayout";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
+vi.mock("../hooks/useFavourites", () => ({ useFavourites: vi.fn() }));
 vi.mock("@/features/menu/components/MenuActionsMenu", () => ({
   MenuActionsMenu: () => <button type="button">More menu actions</button>,
 }));
@@ -15,7 +17,28 @@ function actionsMenu() {
   return screen.queryByRole("button", { name: "More menu actions" });
 }
 
-function renderAt(path: string, recipeCount: number | null = 2) {
+function renderAt(
+  path: string,
+  recipeCount: number | null = 2,
+  favouriteCount: number | null = null,
+) {
+  vi.mocked(useFavourites).mockReturnValue({
+    data:
+      favouriteCount === null
+        ? undefined
+        : {
+            pages: [
+              {
+                recipes: [],
+                page: 1,
+                limit: 12,
+                total: favouriteCount,
+                totalPages: 1,
+              },
+            ],
+            pageParams: [1],
+          },
+  } as unknown as ReturnType<typeof useFavourites>);
   vi.mocked(useMenu).mockReturnValue({
     data:
       recipeCount === null
@@ -79,16 +102,67 @@ describe("YourCrockpotLayout", () => {
 
     const tabs = screen.getByRole("navigation", { name: "Your Crockpot" });
     expect(screen.getAllByRole("link").map((link) => link.textContent)).toEqual(
-      ["Menu", "Favourites", "My recipes"],
+      ["Menu 2", "Favourites", "My recipes"],
     );
     expect(screen.getByRole("link", { name: "Favourites" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("link", { name: "Menu" })).not.toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Menu 2" })).not.toHaveAttribute(
       "aria-current",
     );
     expect(tabs).toBeInTheDocument();
+  });
+
+  it("titles the Favourites tab with how many recipes are saved", () => {
+    renderAt("/favourites", 2, 24);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Favourites" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Your Crockpot · 24 saved recipes"),
+    ).toBeInTheDocument();
+  });
+
+  it("uses the singular for one saved recipe", () => {
+    renderAt("/favourites", 2, 1);
+    expect(
+      screen.getByText("Your Crockpot · 1 saved recipe"),
+    ).toBeInTheDocument();
+  });
+
+  it("says when nothing is saved", () => {
+    renderAt("/favourites", 2, 0);
+    expect(
+      screen.getByText("Your Crockpot · no saved recipes yet"),
+    ).toBeInTheDocument();
+  });
+
+  it("titles Favourites plainly while its count is loading", () => {
+    renderAt("/favourites", 2, null);
+    expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
+  });
+
+  it("counts recipes on the Menu and Favourites tabs, but not My recipes", () => {
+    renderAt("/menu", 6, 24);
+
+    expect(screen.getByRole("link", { name: "Menu 6" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Favourites 24" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "My recipes" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no count until a tab's data loads, and 0 once it has", () => {
+    renderAt("/menu", 0, null);
+
+    expect(screen.getByRole("link", { name: "Menu 0" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Favourites" }),
+    ).toBeInTheDocument();
   });
 
   it("offers the menu actions on the Menu tab", () => {

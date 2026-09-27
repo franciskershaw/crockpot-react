@@ -37,7 +37,10 @@ const recipe = buildRecipeCard({
   isFavourite: true,
 });
 
-function setup({ onRemoveFromMenu = vi.fn() } = {}) {
+function setup({
+  onRemoveFromMenu = vi.fn(),
+  onUnfavourite,
+}: { onRemoveFromMenu?: () => void; onUnfavourite?: () => void } = {}) {
   vi.mocked(useMenuEntry).mockReturnValue({
     isInMenu: true,
     serves: 6,
@@ -55,9 +58,10 @@ function setup({ onRemoveFromMenu = vi.fn() } = {}) {
   vi.mocked(useRemoveFromMenu).mockReturnValue(
     removeFromMenu as unknown as ReturnType<typeof useRemoveFromMenu>,
   );
-  vi.mocked(useToggleFavourite).mockReturnValue({
-    mutate: vi.fn(),
-  } as unknown as ReturnType<typeof useToggleFavourite>);
+  const toggleFavourite = { mutate: vi.fn() };
+  vi.mocked(useToggleFavourite).mockReturnValue(
+    toggleFavourite as unknown as ReturnType<typeof useToggleFavourite>,
+  );
 
   render(
     <MemoryRouter>
@@ -69,6 +73,7 @@ function setup({ onRemoveFromMenu = vi.fn() } = {}) {
               recipe={recipe}
               from="/menu"
               onRemoveFromMenu={onRemoveFromMenu}
+              onUnfavourite={onUnfavourite}
             />
           }
         />
@@ -76,7 +81,7 @@ function setup({ onRemoveFromMenu = vi.fn() } = {}) {
       </Routes>
     </MemoryRouter>,
   );
-  return { updateServes, removeFromMenu, onRemoveFromMenu };
+  return { updateServes, removeFromMenu, onRemoveFromMenu, toggleFavourite };
 }
 
 function servesPill() {
@@ -93,6 +98,19 @@ describe("MobileRecipeRow", () => {
       screen.getByRole("button", { name: "Remove from favourites" }),
     ).toBeInTheDocument();
     expect(servesPill()).toHaveTextContent("6");
+  });
+
+  it("hands un-hearting to onUnfavourite instead of toggling itself", async () => {
+    const onUnfavourite = vi.fn();
+    const { toggleFavourite } = setup({ onUnfavourite });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Remove from favourites" }),
+    );
+
+    expect(onUnfavourite).toHaveBeenCalledTimes(1);
+    expect(toggleFavourite.mutate).not.toHaveBeenCalled();
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
   });
 
   it("opens the recipe, remembering where it came from", async () => {

@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
+import { useSentinelInView } from "@/lib/useSentinelInView";
 import { AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -14,9 +15,6 @@ import { ResponsiveRecipeGrid } from "./ResponsiveRecipeGrid";
 
 const INITIAL_SKELETON_COUNT = 6;
 const NEXT_PAGE_SKELETON_COUNT = 3;
-// Start fetching about a viewport before the end so the next page is usually
-// there by the time the user arrives.
-const PREFETCH_MARGIN = "100% 0px";
 // Matches ResponsiveRecipeGrid's widest breakpoint (xl:grid-cols-3) — these
 // are above the fold on first paint, so they shouldn't wait on loading="lazy".
 const PRIORITY_CARD_COUNT = 3;
@@ -48,23 +46,7 @@ export function RecipeGrid({
     () => new Set(data?.pages.flatMap((page) => page.recipes.map((r) => r.id))),
   );
 
-  const [sentinelInView, setSentinelInView] = useState(false);
-
-  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      (entries) =>
-        setSentinelInView(entries[entries.length - 1].isIntersecting),
-      { rootMargin: PREFETCH_MARGIN },
-    );
-
-    observer.observe(node);
-    return () => {
-      observer.disconnect();
-      setSentinelInView(false);
-    };
-  }, []);
+  const { sentinelRef, inView: sentinelInView } = useSentinelInView();
 
   // Driven by state, not observer events: an event dropped while a fetch was
   // running is never repeated while the sentinel stays in view.

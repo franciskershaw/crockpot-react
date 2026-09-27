@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { listRecipes } from "@/features/recipes/data/api";
+import { FakeIntersectionObserver } from "@/test/fakeIntersectionObserver";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -189,34 +190,6 @@ describe("RecipeGrid", () => {
   });
 
   describe("infinite scroll", () => {
-    // Like the real observer, only reports when told to — a dropped event is
-    // not repeated while the sentinel stays in view.
-    class FakeIntersectionObserver {
-      static instances: FakeIntersectionObserver[] = [];
-      callback: IntersectionObserverCallback;
-      constructor(callback: IntersectionObserverCallback) {
-        this.callback = callback;
-        FakeIntersectionObserver.instances.push(this);
-      }
-      observe = vi.fn();
-      unobserve = vi.fn();
-      takeRecords = () => [];
-      disconnect = () => {
-        FakeIntersectionObserver.instances =
-          FakeIntersectionObserver.instances.filter((i) => i !== this);
-      };
-      static setSentinelInView(isIntersecting: boolean) {
-        act(() => {
-          for (const instance of FakeIntersectionObserver.instances) {
-            instance.callback(
-              [{ isIntersecting } as IntersectionObserverEntry],
-              instance as unknown as IntersectionObserver,
-            );
-          }
-        });
-      }
-    }
-
     function pageResponse(page: number) {
       return {
         recipes: [buildRecipeCard({ id: `r_${page}`, name: `Recipe ${page}` })],

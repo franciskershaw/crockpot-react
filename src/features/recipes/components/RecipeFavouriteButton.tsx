@@ -9,15 +9,21 @@ export function RecipeFavouriteButton({
   recipe,
   className,
   onClick,
+  onUnfavourite,
 }: {
   recipe: Pick<RecipeCardData, "id" | "isFavourite">;
   className?: string;
   onClick?: (event: React.MouseEvent) => void;
+  onUnfavourite?: () => void;
 }) {
   const toggleFavourite = useToggleFavourite();
 
   const handleClick = (event: React.MouseEvent) => {
     onClick?.(event);
+    if (recipe.isFavourite && onUnfavourite) {
+      onUnfavourite();
+      return;
+    }
     toggleFavourite.mutate({
       recipeId: recipe.id,
       wasFavourite: recipe.isFavourite,

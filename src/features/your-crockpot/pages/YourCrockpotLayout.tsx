@@ -5,6 +5,7 @@ import { useMenu } from "@/features/menu/hooks/useMenu";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { YourCrockpotTabs } from "../components/YourCrockpotTabs";
+import { useFavourites } from "../hooks/useFavourites";
 import {
   findYourCrockpotTab,
   YOUR_CROCKPOT_TABS,
@@ -16,13 +17,26 @@ function menuSubtitle(recipeCount: number | undefined) {
   return `Your Crockpot · ${recipeCount} ${recipeCount === 1 ? "recipe" : "recipes"}`;
 }
 
+function favouritesSubtitle(count: number | undefined) {
+  if (count === undefined) return "Your Crockpot";
+  if (count === 0) return "Your Crockpot · no saved recipes yet";
+  return `Your Crockpot · ${count} saved ${count === 1 ? "recipe" : "recipes"}`;
+}
+
 export function YourCrockpotLayout() {
   const { pathname } = useLocation();
   const { data: menu } = useMenu();
+  const { data: favourites } = useFavourites();
+  const menuCount = menu?.entries.length;
+  const favouriteCount = favourites?.pages[0]?.total;
   const tab = findYourCrockpotTab(pathname) ?? YOUR_CROCKPOT_TABS[0];
-  const showMenuActions = tab.to === "/menu" && (menu?.entries.length ?? 0) > 0;
+  const showMenuActions = tab.to === "/menu" && (menuCount ?? 0) > 0;
   const subtitle =
-    tab.to === "/menu" ? menuSubtitle(menu?.entries.length) : "Your Crockpot";
+    tab.to === "/menu"
+      ? menuSubtitle(menuCount)
+      : tab.to === "/favourites"
+        ? favouritesSubtitle(favouriteCount)
+        : "Your Crockpot";
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col px-6 pt-6 pb-10 lg:h-[calc(100dvh-4rem)] lg:overflow-hidden lg:pb-0">
@@ -41,7 +55,9 @@ export function YourCrockpotLayout() {
               </div>
             )}
           </div>
-          <YourCrockpotTabs />
+          <YourCrockpotTabs
+            counts={{ "/menu": menuCount, "/favourites": favouriteCount }}
+          />
         </div>
       </div>
       <div className="min-h-0 flex-1">

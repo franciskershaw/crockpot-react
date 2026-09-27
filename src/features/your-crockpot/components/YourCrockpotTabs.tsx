@@ -3,7 +3,11 @@ import { NavLink } from "react-router-dom";
 
 import { YOUR_CROCKPOT_TABS } from "../utils/yourCrockpotTabs";
 
-export function YourCrockpotTabs() {
+export function YourCrockpotTabs({
+  counts,
+}: {
+  counts: Partial<Record<string, number>>;
+}) {
   return (
     <nav
       aria-label="Your Crockpot"
@@ -23,6 +27,14 @@ export function YourCrockpotTabs() {
           }
         >
           {tab.label}
+          {counts[tab.to] !== undefined && (
+            <>
+              {" "}
+              <span className="font-normal text-muted-foreground">
+                {counts[tab.to]}
+              </span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

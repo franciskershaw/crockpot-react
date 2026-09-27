@@ -1,4 +1,5 @@
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
+import { UNDO_WINDOW_MS } from "@/lib/useUndoWindow";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import {
   act,
@@ -26,7 +27,6 @@ import { useAddToMenu } from "../hooks/useAddToMenu";
 import { useClearMenu } from "../hooks/useClearMenu";
 import { useMenu } from "../hooks/useMenu";
 import { useRemoveFromMenu } from "../hooks/useRemoveFromMenu";
-import { UNDO_WINDOW_MS } from "../hooks/useUndoableMenuRemoval";
 import { MenuPage } from "./MenuPage";
 
 vi.mock("../hooks/useMenu", () => ({ useMenu: vi.fn() }));

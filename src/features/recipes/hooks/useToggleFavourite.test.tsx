@@ -304,6 +304,87 @@ describe("useToggleFavourite — favourites cache", () => {
     expect(totals()).toEqual([1]);
   });
 
+  it("marks the favourites list stale once an un-heart settles, without refetching", async () => {
+    const { queryClient, wrapper, ids } = setupFavourites([
+      [fav("r_1"), fav("r_2")],
+    ]);
+    mockRemoveFavourite.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+    result.current.mutate({ recipeId: "r_1", wasFavourite: true });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient.getQueryState(recipeKeys.favourites())?.isInvalidated,
+    ).toBe(true);
+    expect(ids()).toEqual([["r_2"]]);
+  });
+
+  it("puts an undone recipe back at its old slot, and takes it out again if that fails", async () => {
+    const { wrapper, ids, totals } = setupFavourites([
+      [fav("r_1"), fav("r_2")],
+      [fav("r_3"), fav("r_5")],
+    ]);
+    const add = deferred<{ message: string }>();
+    mockAddFavourite.mockReturnValue(add.promise);
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+    result.current.mutate({
+      recipeId: "r_4",
+      wasFavourite: false,
+      restoreAt: { recipe: fav("r_4"), index: 3 },
+    });
+
+    await waitFor(() =>
+      expect(ids()).toEqual([
+        ["r_1", "r_2"],
+        ["r_3", "r_4", "r_5"],
+      ]),
+    );
+    expect(totals()).toEqual([5, 5]);
+
+    add.reject(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(ids()).toEqual([
+      ["r_1", "r_2"],
+      ["r_3", "r_5"],
+    ]);
+    expect(totals()).toEqual([4, 4]);
+  });
+
+  it("raises the total when a recipe is hearted elsewhere, and lowers it again if that fails", async () => {
+    const { wrapper, totals } = setupFavourites([[fav("r_1")]]);
+    const add = deferred<{ message: string }>();
+    mockAddFavourite.mockReturnValue(add.promise);
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+    result.current.mutate({ recipeId: "r_2", wasFavourite: false });
+
+    await waitFor(() => expect(totals()).toEqual([2]));
+
+    add.reject(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(totals()).toEqual([1]);
+  });
+
+  it("counts as a favourite change while in flight", async () => {
+    const { queryClient, wrapper } = setupFavourites([[fav("r_1")]]);
+    const remove = deferred<{ message: string }>();
+    mockRemoveFavourite.mockReturnValue(remove.promise);
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+    result.current.mutate({ recipeId: "r_1", wasFavourite: true });
+
+    await waitFor(() =>
+      expect(
+        queryClient.isMutating({ mutationKey: recipeKeys.favouriteChange() }),
+      ).toBe(1),
+    );
+    remove.resolve({ message: "ok" });
+  });
+
   it("marks the favourites list stale when a recipe is hearted, without inserting it", async () => {
     const { queryClient, wrapper, ids } = setupFavourites([[fav("r_1")]]);
     mockAddFavourite.mockResolvedValue({ message: "ok" });

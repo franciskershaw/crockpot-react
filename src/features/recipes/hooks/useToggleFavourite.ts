@@ -6,15 +6,26 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { addFavourite, removeFavourite } from "../data/api";
 import { recipeKeys } from "../data/queryKeys";
-import type {
-  RecipeCard,
-  RecipeDetail,
-  RecipeListResponse,
-} from "../data/types";
+import type { RecipeDetail, RecipeListResponse } from "../data/types";
+import {
+  findFavourite,
+  withFavouriteRestored,
+  withoutFavourite,
+  withTotal,
+  type FavouritesData,
+  type FavouriteSlot,
+} from "../utils/favouritesCache";
 
 interface ToggleFavouriteVariables {
   recipeId: string;
   wasFavourite: boolean;
+  restoreAt?: FavouriteSlot;
+}
+
+interface FavouritesChange {
+  removed?: FavouriteSlot;
+  restored?: FavouriteSlot;
+  counted?: boolean;
 }
 
 type ListQueryData = InfiniteData<RecipeListResponse, number>;
@@ -22,71 +33,36 @@ type ListQueryData = InfiniteData<RecipeListResponse, number>;
 const LIST_FILTER = { queryKey: recipeKeys.lists() };
 const FAVOURITES_KEY = recipeKeys.favourites();
 
-interface RemovedFavourite {
-  recipe: RecipeCard;
-  pageIndex: number;
-  index: number;
-}
-
-function withTotal(data: ListQueryData, delta: number): ListQueryData {
-  return {
-    ...data,
-    pages: data.pages.map((page) => ({ ...page, total: page.total + delta })),
-  };
-}
-
-function findFavourite(
-  data: ListQueryData,
-  recipeId: string,
-): RemovedFavourite | undefined {
-  for (const [pageIndex, page] of data.pages.entries()) {
-    const index = page.recipes.findIndex((recipe) => recipe.id === recipeId);
-    if (index !== -1) {
-      return { recipe: page.recipes[index], pageIndex, index };
-    }
+function applyFavouritesChange(
+  data: FavouritesData | undefined,
+  { recipeId, wasFavourite, restoreAt }: ToggleFavouriteVariables,
+): { data: FavouritesData; change: FavouritesChange } | undefined {
+  if (!data) return;
+  if (wasFavourite) {
+    const removed = findFavourite(data, recipeId);
+    return (
+      removed && { data: withoutFavourite(data, recipeId), change: { removed } }
+    );
   }
+  if (findFavourite(data, recipeId)) return;
+  if (restoreAt) {
+    return {
+      data: withFavouriteRestored(data, restoreAt),
+      change: { restored: restoreAt },
+    };
+  }
+  return { data: withTotal(data, 1), change: { counted: true } };
 }
 
-function withoutFavourite(
-  data: ListQueryData,
+function revertFavouritesChange(
+  data: FavouritesData,
   recipeId: string,
-): ListQueryData {
-  return withTotal(
-    {
-      ...data,
-      pages: data.pages.map((page) => ({
-        ...page,
-        recipes: page.recipes.filter((recipe) => recipe.id !== recipeId),
-      })),
-    },
-    -1,
-  );
-}
-
-function withFavouriteRestored(
-  data: ListQueryData,
-  { recipe, pageIndex, index }: RemovedFavourite,
-): ListQueryData {
-  if (findFavourite(data, recipe.id) || data.pages.length === 0) return data;
-  const target = Math.min(pageIndex, data.pages.length - 1);
-  return withTotal(
-    {
-      ...data,
-      pages: data.pages.map((page, i) =>
-        i === target
-          ? {
-              ...page,
-              recipes: [
-                ...page.recipes.slice(0, index),
-                recipe,
-                ...page.recipes.slice(index),
-              ],
-            }
-          : page,
-      ),
-    },
-    1,
-  );
+  { removed, restored, counted }: FavouritesChange,
+): FavouritesData {
+  if (removed) return withFavouriteRestored(data, removed);
+  if (restored) return withoutFavourite(data, recipeId);
+  if (counted) return withTotal(data, -1);
+  return data;
 }
 
 function flipFavourite(
@@ -132,11 +108,13 @@ export function useToggleFavourite() {
   return useApiMutation<
     { message: string },
     ToggleFavouriteVariables,
-    { removedFavourite?: RemovedFavourite }
+    { favouritesChange?: FavouritesChange }
   >({
+    mutationKey: recipeKeys.favouriteChange(),
     mutationFn: ({ recipeId, wasFavourite }) =>
       wasFavourite ? removeFavourite(recipeId) : addFavourite(recipeId),
-    onMutate: async ({ recipeId, wasFavourite }) => {
+    onMutate: async (variables) => {
+      const { recipeId, wasFavourite } = variables;
       const detailKey = recipeKeys.detail(recipeId);
       await queryClient.cancelQueries(LIST_FILTER);
       await queryClient.cancelQueries({ queryKey: detailKey });
@@ -153,26 +131,14 @@ export function useToggleFavourite() {
         data ? flipFavouriteOnMenu(data, recipeId, !wasFavourite) : data,
       );
 
-      const favourites =
-        queryClient.getQueryData<ListQueryData>(FAVOURITES_KEY);
-      const removedFavourite =
-        wasFavourite && favourites
-          ? findFavourite(favourites, recipeId)
-          : undefined;
-      if (removedFavourite) {
-        queryClient.setQueryData<ListQueryData>(FAVOURITES_KEY, (data) =>
-          data ? withoutFavourite(data, recipeId) : data,
-        );
+      const applied = applyFavouritesChange(
+        queryClient.getQueryData<FavouritesData>(FAVOURITES_KEY),
+        variables,
+      );
+      if (applied) {
+        queryClient.setQueryData(FAVOURITES_KEY, applied.data);
       }
-      return { removedFavourite };
-    },
-    onSuccess: (_data, { wasFavourite }) => {
-      if (!wasFavourite) {
-        queryClient.invalidateQueries({
-          queryKey: FAVOURITES_KEY,
-          refetchType: "none",
-        });
-      }
+      return { favouritesChange: applied?.change };
     },
     onError: (_error, { recipeId, wasFavourite }, context) => {
       // Revert only this recipe's flip, not a whole snapshot.
@@ -186,12 +152,20 @@ export function useToggleFavourite() {
       queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
         data ? flipFavouriteOnMenu(data, recipeId, wasFavourite) : data,
       );
-      const removedFavourite = context?.removedFavourite;
-      if (removedFavourite) {
-        queryClient.setQueryData<ListQueryData>(FAVOURITES_KEY, (data) =>
-          data ? withFavouriteRestored(data, removedFavourite) : data,
+      const favouritesChange = context?.favouritesChange;
+      if (favouritesChange) {
+        queryClient.setQueryData<FavouritesData>(FAVOURITES_KEY, (data) =>
+          data
+            ? revertFavouritesChange(data, recipeId, favouritesChange)
+            : data,
         );
       }
     },
+    // Offsets may have shifted; the page refetches before loading more, or on its next visit.
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: FAVOURITES_KEY,
+        refetchType: "none",
+      }),
   });
 }

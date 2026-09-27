@@ -1,3 +1,4 @@
+import { UNDO_WINDOW_MS } from "@/lib/useUndoWindow";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -5,10 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { MenuEntry } from "../data/types";
 import { useAddToMenu } from "./useAddToMenu";
 import { useRemoveFromMenu } from "./useRemoveFromMenu";
-import {
-  UNDO_WINDOW_MS,
-  useUndoableMenuRemoval,
-} from "./useUndoableMenuRemoval";
+import { useUndoableMenuRemoval } from "./useUndoableMenuRemoval";
 
 vi.mock("./useAddToMenu", () => ({ useAddToMenu: vi.fn() }));
 vi.mock("./useRemoveFromMenu", () => ({ useRemoveFromMenu: vi.fn() }));

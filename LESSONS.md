@@ -330,3 +330,9 @@ decision as fully closed. No code written yet.
 
 - No screenshot drew these states, so they were built from existing components (skeletons copied from the real components' geometry, `StatePanel`) rather than blocking on a design spec. The only error shown is on a first-load failure, which avoids the `CFE-037` trap of losing loaded data to one failed refresh. Two self-inflicted slips were caught by the gate: stray JSX parens after replacing an `x && (…)` wrapper, and a test helper that rendered twice.
 - **Pattern**: for loading/error states with no design, copy the loaded component's geometry, and show the error only when there's no data.
+
+## 2026-09-27 — CFE-007 — Favourites tab. Most rework was design only visible on screen; review caught three real undo/paging bugs.
+
+- Two grill decisions (undo restores the slot; refetch once the last change settles) contradicted each other and surfaced mid-build, because a "cheap" grill never composed them. Five visual rounds followed once Favourites showed off-menu recipes, exposing `CFE-006`'s mobile row; undo grew from one tile to a shared, pausable queue. The branch review found a pause leak, a misplaced tile, a refetch loop, and a red-phase guard test protecting a wrong count.
+- **Pattern**: for a new screen, build a thin visible slice first (list + empty state), then the logic layers, so there's something to look at by the first commit.
+- **Pattern**: a test that passes on red gets the same scrutiny as new code — ask whether the behaviour it guards is right, not just that it's guarded.

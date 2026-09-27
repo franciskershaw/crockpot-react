@@ -250,98 +250,13 @@ CFE-003.
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive
   shopping list, absorbing the former `CFE-009`. See
   `docs/handoffs/CFE-006.md`. **Done** (2026-09-27).
-- **CFE-007** — Favourites tab. `CFE-006` already lands the `/favourites`
-  route (an empty stub page) under its shared "Your Crockpot" layout,
-  along with the header/mobile-nav active state for the tab paths; this
-  ticket fills the page. When `/planner` (`CFE-012`) is added, extend
-  that active-state match to include it. Mobile reuses `CFE-006`'s
-  `MobileRecipeRow` (`recipes/components/`) and follows `EmptyMenuPanel`'s
-  empty-state pattern (`docs/handoffs/CFE-006.md` decisions 6, 9);
-  desktop stays the existing `RecipeCard` grid, unchanged.
-
-  **Grilled 2026-09-27** against `yp3.png` (desktop), `yp7.png` (empty
-  panel), `yp8.png` (mobile rows; no mobile Favourites screenshot).
-  Cheap to undo. **Implementation mode: AI-driven.**
-
-  Acceptance criteria:
-  - [ ] Data: `GET /recipes/favourites` via an infinite query, page size
-        12, keyed `recipeKeys.favourites()` — outside `recipeKeys.lists()`
-        so browse's `flipFavourite` never touches it. Newest-favourited
-        first (server order). Infinite scroll with `RecipeGrid`'s sentinel
-        pattern.
-  - [ ] Un-hearting on the tab removes the card at once and puts a
-        "Removed X — Undo" tile in its slot, the same size as the removed
-        item. Removal commits immediately; Undo re-favourites and restores
-        the slot on screen (on a later visit it sits at the top, since the
-        server sees a new favourite). An error on removal clears only that
-        tile and restores the card.
-  - [ ] Undo, shared with Menu (`useUndoQueue`, `buildUndoSlots`,
-        `AnimatedSlots`, `UndoTile`): every removal keeps its own tile,
-        placed after the slot it sat behind; each new removal restarts one
-        shared 5s window, and all tiles clear together when it ends.
-        Hovering a tile or focusing its Undo pauses the window, released
-        if the tile goes away. A bar along each tile's bottom shows the
-        window (steps instead of sliding under reduced motion).
-  - [ ] Offset safety: a favourite change marks the list stale with no
-        refetch; loading the next page refetches a stale list first, and
-        waits while a favourite change is in flight. After any failed fetch
-        with data shown, only scrolling the end away and back retries.
-  - [ ] `useToggleFavourite`, from any surface: un-heart removes the recipe
-        from the favourites cache optimistically, or only lowers `total`
-        when it isn't loaded; heart raises `total` and marks the list
-        stale; each reverts on error. Returning to the tab after
-        un-hearting on the detail page shows no flicker and no undo tile.
-  - [ ] Layout: `MobileRecipeRow` list below `md`; `RecipeCard` grid at
-        `md:2 lg:3 xl:4`, `gap-4` (`yp3.png`).
-  - [ ] Mobile row (Menu and Favourites): heart and cart as bordered
-        circles in a fixed cluster; the cart matches desktop (fills green
-        with a serves badge when on the menu, plain when not, "Add to
-        menu" / "Edit menu item"). Replaces `CFE-006`'s people-icon serves
-        pill. The add-to-menu overlay (row, desktop card, detail CTA)
-        closes on confirm and keeps the controls it opened with; the
-        desktop card's version of this was `CFE-023`, to confirm there.
-  - [ ] Loading: 12 skeletons (`RecipeCardSkeleton` / `MobileRecipeRowSkeleton`,
-        `DELAYED_FADE_IN_CLASSES`). Error only on first-load failure
-        (`StatePanel` + Retry); a failed background refresh keeps the list.
-  - [ ] Empty: `EmptyMenuPanel` becomes a shared `EmptyTabPanel` (icon,
-        heading, body, optional action) in `src/components/`; Menu passes
-        no action (its CTA stays in the footer pill). Favourites: Heart
-        icon, "No favourites yet", "Tap the heart on any recipe you love
-        and it's saved here for next time.", "Browse recipes" button to
-        `/recipes`. Removing the last favourite shows the undo tile until
-        it expires, then the panel.
-  - [ ] Subtitle: "Your Crockpot · N saved recipes" / "1 saved recipe" /
-        "no saved recipes yet"; "Your Crockpot" while loading or errored.
-        From the first page's `total`, moving with optimistic remove/undo.
-  - [ ] Tab counts on Menu and Favourites (`yp3.png`/`yp7.png`): a lighter
-        number after the label (`text-muted-foreground`, regular weight
-        even when active); no number before data loads, "0" once loaded.
-        The layout reads the same menu and favourites queries as the pages
-        (favourites now fetched on any Your Crockpot tab). My recipes'
-        count is owned by `CFE-008`; Planner has none. On mobile the tab
-        strip scrolls sideways (`yp8.png`), keeping the current tab in view.
-
-  Non-goals: filters/search on favourites; a menu size cap (`CFE-045` /
-  `crockpot-go` `CROC-059`); recommendations in empty states (`crockpot-go`
-  `CROC-050`); any backend change.
-
-  Verification:
-  - Logic — Vitest, failing test first per piece: `useToggleFavourite`'s
-    favourites-cache edits (remove, revert at position, stale-mark on
-    heart, `total`), the undo queue (shared window, pause, claim) and
-    slot placement, the no-loop load-more guard, subtitle/count wording,
-    undo-tile-before-empty rule.
-  - API boundary — founder runs `GET /recipes/favourites` paging and
-    `POST`/`DELETE` favourite against local `crockpot-go`.
-  - Visual — founder's screenshots vs `yp3.png` (4-col desktop, subtitle,
-    counts), `yp7.png` (panel), `yp8.png` (mobile rows); shown before any
-    commit message.
-  - Interactive — hands-on: un-heart → Undo; several quick un-hearts;
-    un-heart on detail → back; heart on browse → open tab; with 13+
-    favourites, remove one then scroll; remove the last one.
-  - Limits — 5s undo and page size 12 through the real client.
-  - Build — `npm run build`, no chunk warning: the eager
-    `YourCrockpotLayout` must not pull `motion` in via the shared slots.
+- **CFE-007** — Favourites tab. **Done** (2026-09-27). Also reshaped
+  pieces Menu shares: the mobile row's cart and badge (replacing
+  `CFE-006`'s serves pill), an undo tile per removal on one shared,
+  pausable 5s window with a countdown bar, and the add-to-menu overlay
+  closing on confirm (fixing `CFE-023`). See `LESSONS.md`. When `/planner`
+  (`CFE-012`) is added, extend the Your Crockpot tab active-state match
+  to include it.
 - **CFE-008** — My recipes tab: create/edit/delete own recipes,
   create-recipe entry point. Desktop matches `yp4.png` **minus its inline
   "Create a recipe" placeholder tile**, dropped at `CFE-006`'s grill
@@ -603,7 +518,10 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   and cursor-pointer fixes on `UserMenu`'s avatar trigger and
   `DropdownMenuItem`. **Done** (2026-09-11).
 
-- **CFE-023** - 'Remove from menu' on the shopping cart sometimes appears before the loading spinner disappears and the exit animation kicks off
+- **CFE-023** — 'Remove from menu' on the shopping cart sometimes appeared
+  before the loading spinner disappeared and the exit animation kicked
+  off. **Done** (2026-09-27), fixed in `CFE-007`: the overlay closes on
+  confirm and keeps the controls it opened with.
 
 - **CFE-032** — `RecipeDetailPage`'s skeleton flashes on fast
   connections. Root cause: `RecipeDetailPage.tsx:31`

@@ -24,7 +24,7 @@ export function ShoppingListRow({
           key={flashKey}
           data-row-flash
           aria-hidden
-          className="absolute inset-y-0 -inset-x-2 -z-10 animate-row-flash rounded-md"
+          className="absolute inset-y-0 -inset-x-4.5 -z-10 animate-row-flash"
         />
       )}
       <Checkbox

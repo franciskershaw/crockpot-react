@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -51,6 +52,13 @@ export function ShoppingListCategory({
         onClick={() => setIsExpanded((expanded) => !expanded)}
         className="flex w-full cursor-pointer items-center gap-3 border-b border-card-shadow px-4.5 py-3.75 text-left"
       >
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ingredient-chip-bg text-ingredient-chip-text">
+          <CategoryIcon
+            categoryName={group.categoryName}
+            size={16}
+            strokeWidth={2}
+          />
+        </span>
         <span className="flex-1 text-base font-semibold">
           {group.categoryName}
         </span>
@@ -83,7 +91,7 @@ export function ShoppingListCategory({
             }}
             className="overflow-hidden"
           >
-            <div className="border-b border-card-shadow bg-search-secondary px-4.5 pt-0.5 pb-2.5">
+            <div className="border-b border-card-shadow bg-search-secondary px-4.5 pt-0.5">
               {group.items.map((item) => (
                 <ShoppingListRow
                   key={item.id}

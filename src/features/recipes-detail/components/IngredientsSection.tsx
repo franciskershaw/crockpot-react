@@ -1,3 +1,4 @@
+import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import type { RecipeDetail } from "@/features/recipes/data/types";
 import { Minus, Plus, Users } from "lucide-react";
 
@@ -5,10 +6,7 @@ import {
   scaleIngredients,
   useIngredientServes,
 } from "../hooks/useIngredientServes";
-import {
-  getCategoryIcon,
-  groupIngredientsByCategory,
-} from "../utils/ingredientCategories";
+import { groupIngredientsByCategory } from "../utils/ingredientCategories";
 
 export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
   const { effectiveServes, adjustServes, canDecrease, canIncrease } =
@@ -60,12 +58,15 @@ export function IngredientsSection({ recipe }: { recipe: RecipeDetail }) {
 
       <div className="divide-y divide-border">
         {Object.entries(grouped).map(([categoryName, ingredients]) => {
-          const Icon = getCategoryIcon(categoryName);
           return (
             <div key={categoryName} className="py-5 first:pt-0 last:pb-0">
               <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
                 <span className="flex size-7 items-center justify-center rounded-full bg-ingredient-chip-bg text-ingredient-chip-text">
-                  <Icon size={16} strokeWidth={2} />
+                  <CategoryIcon
+                    categoryName={categoryName}
+                    size={16}
+                    strokeWidth={2}
+                  />
                 </span>
                 {categoryName}
               </h3>

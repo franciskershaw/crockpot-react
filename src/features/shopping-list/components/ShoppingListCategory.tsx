@@ -21,6 +21,7 @@ export function ShoppingListCategory({
   const [isExpanded, setIsExpanded] = useState(!isComplete);
   const wasComplete = useRef(isComplete);
   const [openedForKey, setOpenedForKey] = useState<number | null>(null);
+  const [flashEndedForKey, setFlashEndedForKey] = useState<number | null>(null);
   const [scrollForKey, setScrollForKey] = useState<number | null>(null);
   const addedRowRef = useRef<HTMLDivElement>(null);
 
@@ -34,6 +35,13 @@ export function ShoppingListCategory({
     setOpenedForKey(recentlyAdded.key);
     if (isExpanded) setScrollForKey(recentlyAdded.key);
     else setIsExpanded(true);
+  }
+  if (
+    !isExpanded &&
+    openedForKey !== null &&
+    flashEndedForKey !== openedForKey
+  ) {
+    setFlashEndedForKey(openedForKey);
   }
 
   useEffect(() => {
@@ -112,7 +120,10 @@ export function ShoppingListCategory({
                   item={item}
                   ref={item.id === addedItemId ? addedRowRef : undefined}
                   flashKey={
-                    item.id === addedItemId ? recentlyAdded?.key : undefined
+                    item.id === addedItemId &&
+                    recentlyAdded?.key !== flashEndedForKey
+                      ? recentlyAdded?.key
+                      : undefined
                   }
                 />
               ))}

@@ -19,6 +19,7 @@ const DEFAULT_TO = "/recipes";
 // An unrecognized from is still trusted for navigation, just falls back to the generic label.
 const BACK_LABELS: Record<string, string> = {
   [DEFAULT_TO]: "Back to recipes",
+  "/menu": "Back to menu",
 };
 
 // Single leading slash only — rejects `//`/`/\` (protocol-relative) and schemes like `https:`, which <Link> would follow as a real cross-origin href.

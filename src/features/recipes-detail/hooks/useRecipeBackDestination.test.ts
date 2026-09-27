@@ -34,9 +34,16 @@ describe("resolveBackDestination", () => {
     });
   });
 
-  it("trusts an unrecognized from for navigation but uses the generic label", () => {
+  it("resolves the known /menu label", () => {
     expect(resolveBackDestination("/menu")).toEqual({
       to: "/menu",
+      label: "Back to menu",
+    });
+  });
+
+  it("trusts an unrecognized from for navigation but uses the generic label", () => {
+    expect(resolveBackDestination("/somewhere-else")).toEqual({
+      to: "/somewhere-else",
       label: "Back to recipes",
     });
   });

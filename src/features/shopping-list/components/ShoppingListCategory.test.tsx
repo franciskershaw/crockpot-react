@@ -183,4 +183,22 @@ describe("ShoppingListCategory", () => {
 
     expect(scroll).toHaveBeenCalledTimes(1);
   });
+
+  it("doesn't replay the flash when the category is closed and reopened", async () => {
+    render(
+      <ShoppingListCategory
+        group={group([true, false])}
+        recentlyAdded={added}
+      />,
+    );
+    expect(screen.getByText("Onions")).toHaveAttribute("data-flash", "7");
+
+    await userEvent.click(header());
+    await waitFor(() =>
+      expect(screen.queryByText("Onions")).not.toBeInTheDocument(),
+    );
+    await userEvent.click(header());
+
+    expect(screen.getByText("Onions")).toHaveAttribute("data-flash", "");
+  });
 });

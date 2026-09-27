@@ -1,13 +1,10 @@
-import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import { Link } from "react-router-dom";
 
-import { useClearMenu } from "../hooks/useClearMenu";
+import { ClearMenuDialog } from "./ClearMenuDialog";
 
 export function MenuFooterPill({ recipeCount }: { recipeCount: number }) {
-  const clearMenu = useClearMenu();
-
   return (
-    <div className="sticky bottom-7 mt-6 flex w-fit lg:absolute lg:left-0 lg:mt-0 items-center gap-1 rounded-full border border-pill-border bg-card p-1.5 shadow-[0_12px_30px_rgba(35,32,27,0.2)]">
+    <div className="sticky bottom-7 mt-6 hidden w-fit md:flex lg:absolute lg:left-0 lg:mt-0 items-center gap-1 rounded-full border border-pill-border bg-card p-1.5 shadow-[0_12px_30px_rgba(35,32,27,0.2)]">
       {recipeCount === 0 ? (
         <>
           <span className="px-3 text-sm">Menu is empty</span>
@@ -24,7 +21,7 @@ export function MenuFooterPill({ recipeCount }: { recipeCount: number }) {
             {recipeCount} {recipeCount === 1 ? "recipe" : "recipes"} on your
             menu
           </span>
-          <ConfirmActionDialog
+          <ClearMenuDialog
             trigger={
               <button
                 type="button"
@@ -33,15 +30,6 @@ export function MenuFooterPill({ recipeCount }: { recipeCount: number }) {
                 Clear menu
               </button>
             }
-            title="Clear your menu?"
-            description="This removes every recipe from your menu and rebuilds your shopping list. Items you've added by hand stay."
-            confirmLabel="Clear menu"
-            pendingLabel="Clearing…"
-            destructive
-            onConfirm={(close) => {
-              clearMenu.mutate();
-              close();
-            }}
           />
         </>
       )}

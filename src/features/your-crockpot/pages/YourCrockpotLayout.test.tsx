@@ -7,6 +7,13 @@ import { describe, expect, it, vi } from "vitest";
 import { YourCrockpotLayout } from "./YourCrockpotLayout";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
+vi.mock("@/features/menu/components/MenuActionsMenu", () => ({
+  MenuActionsMenu: () => <button type="button">More menu actions</button>,
+}));
+
+function actionsMenu() {
+  return screen.queryByRole("button", { name: "More menu actions" });
+}
 
 function renderAt(path: string, recipeCount: number | null = 2) {
   vi.mocked(useMenu).mockReturnValue({
@@ -82,5 +89,20 @@ describe("YourCrockpotLayout", () => {
       "aria-current",
     );
     expect(tabs).toBeInTheDocument();
+  });
+
+  it("offers the menu actions on the Menu tab", () => {
+    renderAt("/menu", 2);
+    expect(actionsMenu()).toBeInTheDocument();
+  });
+
+  it("hides the menu actions when there's nothing on the menu", () => {
+    renderAt("/menu", 0);
+    expect(actionsMenu()).not.toBeInTheDocument();
+  });
+
+  it("hides the menu actions on the other tabs", () => {
+    renderAt("/favourites", 2);
+    expect(actionsMenu()).not.toBeInTheDocument();
   });
 });

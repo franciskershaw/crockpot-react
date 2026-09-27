@@ -12,6 +12,8 @@ import {
 
 export function ConfirmActionDialog({
   trigger,
+  open,
+  onOpenChange,
   title,
   description,
   confirmLabel,
@@ -20,7 +22,9 @@ export function ConfirmActionDialog({
   destructive = false,
   onConfirm,
 }: {
-  trigger: ReactElement;
+  trigger?: ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   title: string;
   description: string;
   confirmLabel: string;
@@ -29,12 +33,14 @@ export function ConfirmActionDialog({
   destructive?: boolean;
   onConfirm: (close: () => void) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = open ?? internalOpen;
+  const setIsOpen = onOpenChange ?? setInternalOpen;
   const close = () => setIsOpen(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

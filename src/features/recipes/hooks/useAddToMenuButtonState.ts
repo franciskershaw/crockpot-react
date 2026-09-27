@@ -13,6 +13,8 @@ export function useAddToMenuButtonState(
   { onRemove }: { onRemove?: () => void } = {},
 ) {
   const [isEditing, setIsEditing] = useState(false);
+  // Optimistic writes flip isInMenu mid-edit; the open editor keeps the state it opened with.
+  const [editingInMenu, setEditingInMenu] = useState(false);
   const {
     isInMenu,
     serves: menuServes,
@@ -31,10 +33,14 @@ export function useAddToMenuButtonState(
   const updateServes = useUpdateMenuEntryServes();
   const removeFromMenu = useRemoveFromMenu();
 
-  const handleCartClick = useCallback((event: React.MouseEvent) => {
-    stopEvent(event);
-    setIsEditing(true);
-  }, []);
+  const handleCartClick = useCallback(
+    (event: React.MouseEvent) => {
+      stopEvent(event);
+      setEditingInMenu(isInMenu);
+      setIsEditing(true);
+    },
+    [isInMenu],
+  );
 
   const handleCancel = useCallback(
     (event: React.MouseEvent) => {
@@ -48,14 +54,11 @@ export function useAddToMenuButtonState(
   const handleConfirm = useCallback(
     (event: React.MouseEvent) => {
       stopEvent(event);
-      const onSuccess = () => setIsEditing(false);
+      setIsEditing(false);
       if (isInMenu) {
-        updateServes.mutate(
-          { recipeId: recipe.id, serves: servingAmount },
-          { onSuccess },
-        );
+        updateServes.mutate({ recipeId: recipe.id, serves: servingAmount });
       } else {
-        addToMenu.mutate({ recipe, serves: servingAmount }, { onSuccess });
+        addToMenu.mutate({ recipe, serves: servingAmount });
       }
     },
     [isInMenu, recipe, servingAmount, addToMenu, updateServes],
@@ -64,14 +67,12 @@ export function useAddToMenuButtonState(
   const handleRemove = useCallback(
     (event: React.MouseEvent) => {
       stopEvent(event);
+      setIsEditing(false);
       if (onRemove) {
         onRemove();
         return;
       }
-      removeFromMenu.mutate(
-        { recipeId: recipe.id },
-        { onSuccess: () => setIsEditing(false) },
-      );
+      removeFromMenu.mutate({ recipeId: recipe.id });
     },
     [recipe.id, removeFromMenu, onRemove],
   );
@@ -90,6 +91,7 @@ export function useAddToMenuButtonState(
   return {
     isEditing,
     isInMenu,
+    editingInMenu,
     menuServes,
     menuPending,
     servingAmount,

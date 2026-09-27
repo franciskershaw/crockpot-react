@@ -153,48 +153,69 @@ describe("useAddToMenuButtonState", () => {
     expect(result.current.servingAmount).toBe(4);
   });
 
-  it("confirm calls addToMenu when not already in the menu", () => {
+  it("confirm adds to the menu and closes the editor straight away", () => {
     const { addToMenu, updateServes } = setup({ isInMenu: false });
     const { result } = renderHook(() =>
       useAddToMenuButtonState(buildRecipeCard({ serves: 4 })),
     );
 
+    act(() => result.current.handleCartClick(stubEvent));
     act(() => result.current.handleConfirm(stubEvent));
 
-    expect(addToMenu.mutate).toHaveBeenCalledWith(
-      { recipe: buildRecipeCard({ serves: 4 }), serves: 4 },
-      expect.anything(),
-    );
+    expect(addToMenu.mutate).toHaveBeenCalledWith({
+      recipe: buildRecipeCard({ serves: 4 }),
+      serves: 4,
+    });
     expect(updateServes.mutate).not.toHaveBeenCalled();
+    expect(result.current.isEditing).toBe(false);
   });
 
-  it("confirm calls updateMenuEntryServes when already in the menu", () => {
+  it("confirm updates the serves and closes the editor straight away when already in the menu", () => {
     const { addToMenu, updateServes } = setup({ isInMenu: true, serves: 6 });
     const { result } = renderHook(() =>
       useAddToMenuButtonState(buildRecipeCard()),
     );
 
+    act(() => result.current.handleCartClick(stubEvent));
     act(() => result.current.handleConfirm(stubEvent));
 
-    expect(updateServes.mutate).toHaveBeenCalledWith(
-      { recipeId: "r_1", serves: 6 },
-      expect.anything(),
-    );
+    expect(updateServes.mutate).toHaveBeenCalledWith({
+      recipeId: "r_1",
+      serves: 6,
+    });
     expect(addToMenu.mutate).not.toHaveBeenCalled();
+    expect(result.current.isEditing).toBe(false);
   });
 
-  it("remove calls removeFromMenu", () => {
+  it("remove takes the recipe off the menu and closes the editor straight away", () => {
     const { removeFromMenu } = setup({ isInMenu: true, serves: 6 });
     const { result } = renderHook(() =>
       useAddToMenuButtonState(buildRecipeCard()),
     );
 
+    act(() => result.current.handleCartClick(stubEvent));
     act(() => result.current.handleRemove(stubEvent));
 
-    expect(removeFromMenu.mutate).toHaveBeenCalledWith(
-      { recipeId: "r_1" },
-      expect.anything(),
+    expect(removeFromMenu.mutate).toHaveBeenCalledWith({ recipeId: "r_1" });
+    expect(result.current.isEditing).toBe(false);
+  });
+
+  it("keeps the editor's controls as they were when it opened, while the menu changes underneath", () => {
+    setup({ isInMenu: false });
+    const { result, rerender } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard()),
     );
+    act(() => result.current.handleCartClick(stubEvent));
+
+    mockUseMenuEntry.mockReturnValue({
+      isInMenu: true,
+      serves: 4,
+      isPending: false,
+    });
+    rerender();
+
+    expect(result.current.isInMenu).toBe(true);
+    expect(result.current.editingInMenu).toBe(false);
   });
 
   it("hands removal to onRemove instead of removing directly, when given", () => {

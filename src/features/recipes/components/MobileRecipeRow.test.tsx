@@ -40,18 +40,23 @@ const recipe = buildRecipeCard({
 function setup({
   onRemoveFromMenu = vi.fn(),
   onUnfavourite,
-}: { onRemoveFromMenu?: () => void; onUnfavourite?: () => void } = {}) {
+  isInMenu = true,
+}: {
+  onRemoveFromMenu?: () => void;
+  onUnfavourite?: () => void;
+  isInMenu?: boolean;
+} = {}) {
   vi.mocked(useMenuEntry).mockReturnValue({
-    isInMenu: true,
-    serves: 6,
+    isInMenu,
+    serves: isInMenu ? 6 : undefined,
     isPending: false,
   });
   const updateServes = { mutate: vi.fn(), isPending: false };
   const removeFromMenu = { mutate: vi.fn(), isPending: false };
-  vi.mocked(useAddToMenu).mockReturnValue({
-    mutate: vi.fn(),
-    isPending: false,
-  } as unknown as ReturnType<typeof useAddToMenu>);
+  const addToMenu = { mutate: vi.fn(), isPending: false };
+  vi.mocked(useAddToMenu).mockReturnValue(
+    addToMenu as unknown as ReturnType<typeof useAddToMenu>,
+  );
   vi.mocked(useUpdateMenuEntryServes).mockReturnValue(
     updateServes as unknown as ReturnType<typeof useUpdateMenuEntryServes>,
   );
@@ -81,7 +86,13 @@ function setup({
       </Routes>
     </MemoryRouter>,
   );
-  return { updateServes, removeFromMenu, onRemoveFromMenu, toggleFavourite };
+  return {
+    addToMenu,
+    updateServes,
+    removeFromMenu,
+    onRemoveFromMenu,
+    toggleFavourite,
+  };
 }
 
 function servesPill() {
@@ -98,6 +109,31 @@ describe("MobileRecipeRow", () => {
       screen.getByRole("button", { name: "Remove from favourites" }),
     ).toBeInTheDocument();
     expect(servesPill()).toHaveTextContent("6");
+  });
+
+  it("offers to add a recipe that isn't on the menu, without a serves count", () => {
+    setup({ isInMenu: false });
+
+    expect(
+      screen.getByRole("button", { name: "Add to menu" }),
+    ).not.toHaveTextContent(/\d/);
+    expect(
+      screen.queryByRole("button", { name: "Edit menu item" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("adds a recipe to the menu at its own serves from the editor", async () => {
+    const { addToMenu } = setup({ isInMenu: false });
+
+    await userEvent.click(screen.getByRole("button", { name: "Add to menu" }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Confirm amount" }),
+    );
+
+    expect(addToMenu.mutate).toHaveBeenCalledWith({
+      recipe,
+      serves: recipe.serves,
+    });
   });
 
   it("hands un-hearting to onUnfavourite instead of toggling itself", async () => {
@@ -162,10 +198,10 @@ describe("MobileRecipeRow", () => {
       screen.getByRole("button", { name: "Confirm amount" }),
     );
 
-    expect(updateServes.mutate).toHaveBeenCalledWith(
-      { recipeId: recipe.id, serves: 7 },
-      expect.anything(),
-    );
+    expect(updateServes.mutate).toHaveBeenCalledWith({
+      recipeId: recipe.id,
+      serves: 7,
+    });
   });
 
   it("hands removal to the page so it can offer undo", async () => {

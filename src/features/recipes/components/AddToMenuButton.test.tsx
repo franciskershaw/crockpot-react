@@ -112,10 +112,10 @@ describe("AddToMenuButton", () => {
     await user.click(screen.getByRole("button", { name: "Increase servings" }));
     await user.click(screen.getByRole("button", { name: "Confirm amount" }));
 
-    expect(addToMenu.mutate).toHaveBeenCalledWith(
-      { recipe: buildRecipeCard({ serves: 4 }), serves: 5 },
-      expect.anything(),
-    );
+    expect(addToMenu.mutate).toHaveBeenCalledWith({
+      recipe: buildRecipeCard({ serves: 4 }),
+      serves: 5,
+    });
   });
 
   it("confirming an edit to an in-menu recipe calls updateMenuEntryServes, not addToMenu", async () => {
@@ -126,10 +126,10 @@ describe("AddToMenuButton", () => {
     await user.click(screen.getByRole("button", { name: "Edit menu item" }));
     await user.click(screen.getByRole("button", { name: "Confirm amount" }));
 
-    expect(updateServes.mutate).toHaveBeenCalledWith(
-      { recipeId: "r_1", serves: 6 },
-      expect.anything(),
-    );
+    expect(updateServes.mutate).toHaveBeenCalledWith({
+      recipeId: "r_1",
+      serves: 6,
+    });
     expect(addToMenu.mutate).not.toHaveBeenCalled();
   });
 
@@ -183,9 +183,6 @@ describe("AddToMenuButton", () => {
     await user.click(screen.getByRole("button", { name: "Edit menu item" }));
     await user.click(screen.getByRole("button", { name: /remove from menu/i }));
 
-    expect(removeFromMenu.mutate).toHaveBeenCalledWith(
-      { recipeId: "r_1" },
-      expect.anything(),
-    );
+    expect(removeFromMenu.mutate).toHaveBeenCalledWith({ recipeId: "r_1" });
   });
 });

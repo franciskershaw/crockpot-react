@@ -17,6 +17,7 @@ export function AddToMenuButton({
   const {
     isEditing,
     isInMenu,
+    editingInMenu,
     menuServes,
     menuPending,
     servingAmount,
@@ -119,7 +120,7 @@ export function AddToMenuButton({
                   canDecrease={canDecrease}
                   canIncrease={canIncrease}
                   isMutating={isMutating}
-                  isInMenu={isInMenu}
+                  isInMenu={editingInMenu}
                   isRemoving={isRemoving}
                   onAdjust={adjustAmount}
                   onRemove={handleRemove}

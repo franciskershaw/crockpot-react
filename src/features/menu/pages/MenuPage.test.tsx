@@ -141,7 +141,9 @@ function slotKinds(container: HTMLElement, recipeTestId: string) {
   const undoTile = within(container).queryByRole("status");
   return [
     ...container.querySelectorAll(`[data-testid="${recipeTestId}"], output`),
-  ].map((slot) => (slot === undoTile ? "undo" : "recipe"));
+  ]
+    .filter((slot) => !slot.closest("[inert]"))
+    .map((slot) => (slot === undoTile ? "undo" : "recipe"));
 }
 
 function menuWithout(names: string[], removed: string) {

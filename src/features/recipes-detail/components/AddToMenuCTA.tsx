@@ -30,6 +30,7 @@ export function AddToMenuCTA({
   const {
     isEditing,
     isInMenu,
+    editingInMenu,
     menuServes,
     menuPending,
     servingAmount,
@@ -134,7 +135,7 @@ export function AddToMenuCTA({
                   canDecrease={canDecrease}
                   canIncrease={canIncrease}
                   isMutating={isMutating}
-                  isInMenu={isInMenu}
+                  isInMenu={editingInMenu}
                   isRemoving={isRemoving}
                   onAdjust={adjustAmount}
                   onRemove={handleRemove}

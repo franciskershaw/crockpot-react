@@ -157,10 +157,10 @@ describe.each(["desktop", "mobile"] as const)(
       );
       await user.click(screen.getByRole("button", { name: "Confirm amount" }));
 
-      expect(addToMenu.mutate).toHaveBeenCalledWith(
-        { recipe: buildRecipeCard({ serves: 4 }), serves: 5 },
-        expect.anything(),
-      );
+      expect(addToMenu.mutate).toHaveBeenCalledWith({
+        recipe: buildRecipeCard({ serves: 4 }),
+        serves: 5,
+      });
     });
 
     it("removing calls removeFromMenu", async () => {
@@ -173,10 +173,7 @@ describe.each(["desktop", "mobile"] as const)(
         screen.getByRole("button", { name: "Remove from menu" }),
       );
 
-      expect(removeFromMenu.mutate).toHaveBeenCalledWith(
-        { recipeId: "r_1" },
-        expect.anything(),
-      );
+      expect(removeFromMenu.mutate).toHaveBeenCalledWith({ recipeId: "r_1" });
     });
   },
 );

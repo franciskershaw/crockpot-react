@@ -66,8 +66,9 @@ export function FavouritesPage() {
   if (removed && showUndo) {
     slots.splice(removed.index, 0, {
       key: removed.recipe.id,
-      item: null,
+      item: removed.recipe,
       index: removed.index,
+      undo: true,
     });
   }
 

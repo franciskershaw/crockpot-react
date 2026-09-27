@@ -1,4 +1,5 @@
-import { Users, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ShoppingCart, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
 
@@ -6,9 +7,16 @@ import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useAddToMenuButtonState } from "../hooks/useAddToMenuButtonState";
 import { recipeDetailPath } from "../utils/recipeDetailPath";
 import { stopEvent } from "../utils/stopEvent";
+import { ICON_BUTTON_CLASSES } from "../utils/styles";
+import { AddToMenuBadge } from "./AddToMenuBadge";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
+
+const OVERLAY_FADE_S = 0.25;
+// Bordered 32px circles with an invisible 4px ring, so each tap area is 40px without overlapping.
+const ROW_ACTION_CLASSES =
+  "relative after:absolute after:-inset-1 after:content-['']";
 
 export function MobileRecipeRow({
   recipe,
@@ -24,6 +32,7 @@ export function MobileRecipeRow({
   const {
     isEditing,
     isInMenu,
+    editingInMenu,
     menuServes,
     menuPending,
     servingAmount,
@@ -65,23 +74,48 @@ export function MobileRecipeRow({
             {recipe.timeInMinutes} mins
           </p>
         </div>
-        <RecipeFavouriteButton
-          recipe={recipe}
-          onClick={stopEvent}
-          onUnfavourite={onUnfavourite}
-        />
-        <button
-          type="button"
-          onClick={handleCartClick}
-          disabled={menuPending}
-          aria-label="Edit menu item"
-          className="group flex h-11 shrink-0 cursor-pointer items-center disabled:cursor-not-allowed"
-        >
-          <span className="flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-semibold text-ink-body tabular-nums transition-colors group-hover:bg-chip group-hover:text-foreground">
-            <Users size={14} strokeWidth={2} />
-            {menuServes ?? servingAmount}
-          </span>
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <RecipeFavouriteButton
+            recipe={recipe}
+            onClick={stopEvent}
+            onUnfavourite={onUnfavourite}
+            className={cn(ROW_ACTION_CLASSES, "border border-border bg-card")}
+          />
+          <button
+            type="button"
+            onClick={handleCartClick}
+            disabled={menuPending}
+            aria-label={
+              menuPending
+                ? "Loading menu status"
+                : isInMenu
+                  ? "Edit menu item"
+                  : "Add to menu"
+            }
+            className={cn(
+              ICON_BUTTON_CLASSES,
+              ROW_ACTION_CLASSES,
+              "border border-border bg-card disabled:cursor-not-allowed",
+              menuPending
+                ? "text-muted-foreground/50"
+                : isInMenu
+                  ? "text-success"
+                  : "text-muted-foreground",
+            )}
+          >
+            <ShoppingCart
+              className={cn(
+                "size-4 transition-all duration-200",
+                isInMenu && "fill-current",
+              )}
+            />
+            <AddToMenuBadge
+              show={isInMenu && !menuPending}
+              count={menuServes ?? servingAmount}
+              exitDelay={OVERLAY_FADE_S}
+            />
+          </button>
+        </div>
       </Link>
 
       <AnimatePresence>
@@ -90,8 +124,11 @@ export function MobileRecipeRow({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="absolute inset-0 flex justify-center rounded-lg bg-background/86 pt-1.5 backdrop-blur-[3px]"
+            transition={{ duration: OVERLAY_FADE_S }}
+            className={cn(
+              "absolute inset-0 z-20 flex justify-center rounded-lg bg-background/86 backdrop-blur-[3px]",
+              editingInMenu ? "pt-1.5" : "items-center",
+            )}
           >
             <motion.div
               initial={{ y: -8, opacity: 0 }}
@@ -114,7 +151,7 @@ export function MobileRecipeRow({
                 canDecrease={canDecrease}
                 canIncrease={canIncrease}
                 isMutating={isMutating}
-                isInMenu={isInMenu}
+                isInMenu={editingInMenu}
                 isRemoving={isRemoving}
                 onAdjust={adjustAmount}
                 onRemove={handleRemove}

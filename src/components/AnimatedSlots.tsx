@@ -3,8 +3,9 @@ import { AnimatePresence, motion } from "motion/react";
 
 export interface Slot<T> {
   key: string;
-  item: T | null;
+  item: T;
   index: number;
+  undo?: boolean;
 }
 
 const EASE_OUT = [0.25, 0.1, 0.25, 1] as const;
@@ -20,7 +21,7 @@ export function AnimatedSlots<T>({
 }) {
   return (
     <AnimatePresence initial={false}>
-      {slots.map(({ key, item, index }) => (
+      {slots.map(({ key, item, index, undo }) => (
         <motion.div
           key={key}
           layout="position"
@@ -28,7 +29,7 @@ export function AnimatedSlots<T>({
           transition={{ layout: { duration: 0.35, ease: EASE_OUT } }}
         >
           <AnimatePresence mode="wait" initial={false}>
-            {item ? (
+            {!undo ? (
               <motion.div
                 key="entry"
                 initial={{ opacity: 0, y: 20 }}
@@ -50,9 +51,13 @@ export function AnimatedSlots<T>({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, transition: { duration: 0.15 } }}
                 transition={{ duration: 0.25 }}
-                className="h-full *:h-full"
+                className="relative h-full"
               >
-                {undoTile}
+                {/* Keeps the removed item's exact footprint under the tile. */}
+                <div aria-hidden inert className="invisible h-full *:h-full">
+                  {renderItem(item, index)}
+                </div>
+                <div className="absolute inset-0 *:h-full">{undoTile}</div>
               </motion.div>
             )}
           </AnimatePresence>

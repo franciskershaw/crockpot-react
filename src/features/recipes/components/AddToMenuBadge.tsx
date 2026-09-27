@@ -1,11 +1,15 @@
 import { AnimatePresence, motion } from "motion/react";
 
+const SPRING = { type: "spring", stiffness: 500, damping: 30 } as const;
+
 export function AddToMenuBadge({
   show,
   count,
+  exitDelay = 0,
 }: {
   show: boolean;
   count: number;
+  exitDelay?: number;
 }) {
   return (
     <AnimatePresence>
@@ -13,8 +17,12 @@ export function AddToMenuBadge({
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+          exit={{
+            opacity: 0,
+            scale: 0,
+            transition: { ...SPRING, delay: exitDelay },
+          }}
+          transition={SPRING}
           className="absolute -top-2 -right-2 z-10 flex size-5 items-center justify-center overflow-visible rounded-full border-2 border-background bg-success text-xs font-medium text-success-foreground shadow-lg"
         >
           {count}

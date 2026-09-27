@@ -33,8 +33,9 @@ export function MenuPage() {
   if (removed && showUndo) {
     slots.splice(removed.index, 0, {
       key: removed.entry.recipeId,
-      item: null,
+      item: removed.entry,
       index: removed.index,
+      undo: true,
     });
   }
 

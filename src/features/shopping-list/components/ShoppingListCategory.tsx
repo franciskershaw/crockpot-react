@@ -21,6 +21,8 @@ export function ShoppingListCategory({
   const [isExpanded, setIsExpanded] = useState(!isComplete);
   const wasComplete = useRef(isComplete);
   const [openedForKey, setOpenedForKey] = useState<number | null>(null);
+  const [scrollForKey, setScrollForKey] = useState<number | null>(null);
+  const addedRowRef = useRef<HTMLDivElement>(null);
 
   const addedItemId = group.items.find(
     (item) =>
@@ -30,8 +32,17 @@ export function ShoppingListCategory({
   )?.id;
   if (recentlyAdded && addedItemId && openedForKey !== recentlyAdded.key) {
     setOpenedForKey(recentlyAdded.key);
-    setIsExpanded(true);
+    if (isExpanded) setScrollForKey(recentlyAdded.key);
+    else setIsExpanded(true);
   }
+
+  useEffect(() => {
+    if (scrollForKey === null) return;
+    addedRowRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [scrollForKey]);
 
   useEffect(() => {
     const justCompleted = isComplete && !wasComplete.current;
@@ -89,6 +100,9 @@ export function ShoppingListCategory({
               height: { duration: 0.25, ease: [0.4, 0, 0.2, 1] },
               opacity: { duration: 0.2 },
             }}
+            onAnimationComplete={() => {
+              if (isExpanded) setScrollForKey(openedForKey);
+            }}
             className="overflow-hidden"
           >
             <div className="border-b border-card-shadow bg-search-secondary px-4.5 pt-0.5">
@@ -96,6 +110,7 @@ export function ShoppingListCategory({
                 <ShoppingListRow
                   key={item.id}
                   item={item}
+                  ref={item.id === addedItemId ? addedRowRef : undefined}
                   flashKey={
                     item.id === addedItemId ? recentlyAdded?.key : undefined
                   }

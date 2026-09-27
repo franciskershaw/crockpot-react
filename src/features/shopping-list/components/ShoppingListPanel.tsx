@@ -22,8 +22,8 @@ export function ShoppingListPanel() {
   const grouped = data ? groupShoppingList(data.items) : null;
 
   return (
-    <section className="overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_6px_20px_rgba(60,48,30,0.07)]">
-      <header className="flex items-center gap-3 bg-foreground py-3.25 pr-4 pl-5 text-on-dark">
+    <section className="flex flex-col overflow-hidden rounded-[10px] lg:max-h-full border border-border bg-card shadow-[0_6px_20px_rgba(60,48,30,0.07)]">
+      <header className="flex shrink-0 items-center gap-3 bg-foreground py-3.25 pr-4 pl-5 text-on-dark">
         <h2 className="flex-1 font-display text-[23px] font-normal">
           Shopping list
         </h2>
@@ -37,34 +37,36 @@ export function ShoppingListPanel() {
 
       <AddExtraItem onAdded={setRecentlyAdded} />
 
-      {grouped &&
-        (grouped.groups.length > 0 ? (
-          grouped.groups.map((group) => (
-            <ShoppingListCategory
-              key={group.categoryId}
-              group={group}
-              recentlyAdded={recentlyAdded}
-            />
-          ))
-        ) : (
-          <p
-            className={cn(
-              "border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle",
-              recipeCount === 0 && "text-center leading-relaxed",
-            )}
-          >
-            {recipeCount > 0 ? (
-              "Your list is empty — Regenerate to rebuild it from your menu."
-            ) : (
-              <>
-                Your list is empty.
-                <br /> Add a recipe, or add an item by hand above.
-              </>
-            )}
-          </p>
-        ))}
+      <div className="-mb-px min-h-0 overflow-y-auto">
+        {grouped &&
+          (grouped.groups.length > 0 ? (
+            grouped.groups.map((group) => (
+              <ShoppingListCategory
+                key={group.categoryId}
+                group={group}
+                recentlyAdded={recentlyAdded}
+              />
+            ))
+          ) : (
+            <p
+              className={cn(
+                "border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle",
+                recipeCount === 0 && "text-center leading-relaxed",
+              )}
+            >
+              {recipeCount > 0 ? (
+                "Your list is empty — Regenerate to rebuild it from your menu."
+              ) : (
+                <>
+                  Your list is empty.
+                  <br /> Add a recipe, or add an item by hand above.
+                </>
+              )}
+            </p>
+          ))}
+      </div>
 
-      <footer className="flex items-center justify-between px-4.5 py-3.5">
+      <footer className="flex shrink-0 items-center border-t border-card-shadow justify-between px-4.5 py-3.5">
         <span className="text-[13px] text-ink-subtle">
           Built from {recipeCount} {recipeCount === 1 ? "recipe" : "recipes"} on
           your menu

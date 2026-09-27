@@ -1,7 +1,8 @@
+import type { Ref } from "react";
 import { buildShoppingListItem } from "@/test/shoppingListFixtures";
 import { render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { ShoppingListItem } from "../data/types";
 import { groupShoppingList } from "../utils/groupShoppingList";
@@ -11,11 +12,13 @@ vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({
     item,
     flashKey,
+    ref,
   }: {
     item: ShoppingListItem;
     flashKey?: number;
+    ref?: Ref<HTMLDivElement>;
   }) => (
-    <div data-testid="row" data-flash={flashKey ?? ""}>
+    <div ref={ref} data-testid="row" data-flash={flashKey ?? ""}>
       {item.itemName}
     </div>
   ),
@@ -40,6 +43,12 @@ function group(obtained: [boolean, boolean]) {
 function header() {
   return screen.getByRole("button", { name: /Fruit & veg/ });
 }
+
+const added = { itemId: "i_1", unitId: null, key: 7 };
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("ShoppingListCategory", () => {
   it("starts collapsed when every item is already ticked", () => {
@@ -114,5 +123,64 @@ describe("ShoppingListCategory", () => {
     );
 
     expect(header()).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("scrolls the added row into view once the category has finished opening", async () => {
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    const { rerender } = render(
+      <ShoppingListCategory group={group([true, true])} />,
+    );
+
+    rerender(
+      <ShoppingListCategory
+        group={group([true, true])}
+        recentlyAdded={added}
+      />,
+    );
+    expect(scroll).not.toHaveBeenCalled();
+
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+    expect(scroll).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "nearest",
+    });
+    expect(scroll.mock.contexts[0]).toBe(screen.getByText("Onions"));
+  });
+
+  it("scrolls the added row into view straight away when already open", () => {
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    const { rerender } = render(
+      <ShoppingListCategory group={group([true, false])} />,
+    );
+
+    rerender(
+      <ShoppingListCategory
+        group={group([true, false])}
+        recentlyAdded={added}
+      />,
+    );
+
+    expect(scroll).toHaveBeenCalledTimes(1);
+    expect(scroll.mock.contexts[0]).toBe(screen.getByText("Onions"));
+  });
+
+  it("doesn't scroll again when reopened by hand after an addition", async () => {
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    render(
+      <ShoppingListCategory
+        group={group([true, false])}
+        recentlyAdded={added}
+      />,
+    );
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+
+    await userEvent.click(header());
+    await waitFor(() =>
+      expect(screen.queryByText("Onions")).not.toBeInTheDocument(),
+    );
+    await userEvent.click(header());
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    expect(scroll).toHaveBeenCalledTimes(1);
   });
 });

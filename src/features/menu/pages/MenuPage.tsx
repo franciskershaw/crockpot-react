@@ -30,7 +30,7 @@ export function MenuPage() {
         </div>
         {entries && <MenuFooterPill recipeCount={entries.length} />}
       </div>
-      <div className="min-w-0 lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-6">
+      <div className="min-w-0 lg:-mx-1 lg:h-full lg:px-1 lg:pt-1 lg:pb-6">
         <ShoppingListPanel />
       </div>
     </div>

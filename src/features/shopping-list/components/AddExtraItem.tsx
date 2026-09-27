@@ -48,7 +48,7 @@ export function AddExtraItem({
   return (
     <div
       className={cn(
-        "border-b border-card-shadow px-4 py-3.5 transition-colors",
+        "border-b border-card-shadow px-3 py-2.5 transition-colors",
         picked && "bg-search-secondary",
       )}
     >

@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
@@ -10,15 +11,20 @@ import { QuantityControl } from "./QuantityControl";
 export function ShoppingListRow({
   item,
   flashKey,
+  ref,
 }: {
   item: ShoppingListItem;
   flashKey?: number;
+  ref?: Ref<HTMLDivElement>;
 }) {
   const update = useUpdateShoppingListItem();
   const remove = useDeleteShoppingListItem();
 
   return (
-    <div className="relative isolate flex items-center gap-2.25 border-b border-row-divider py-1.5 last:border-b-0">
+    <div
+      ref={ref}
+      className="relative isolate flex items-center gap-2.25 border-b border-row-divider py-1.5 last:border-b-0"
+    >
       {flashKey !== undefined && (
         <span
           key={flashKey}

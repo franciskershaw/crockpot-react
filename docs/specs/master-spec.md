@@ -445,15 +445,10 @@ security findings — debt notes only):*
   list (both render blank today, the class `CFE-016` fixed for browse).
   Absorbs `CFE-038`'s shared skeleton-wrapper item. Finding 2.
   **Not started.**
-- **CFE-041** — Menu cache consistency: `useDeleteRecipe` leaves a
-  deleted recipe in the cached menu (the server cascades it off); the
-  four menu mutation hooks share copy-pasted optimistic code whose
-  whole-snapshot rollback can drop a concurrent change. Adopt
-  shopping-list's guarded refetch-on-settle. Findings 3, 5.
-  **Grilled** (2026-09-27), see `docs/handoffs/CFE-041.md`; ideally before
-  `CFE-008`. The grill found the menu's order mismatch (server
-  newest-first, client appended) and a backend gap filed as `crockpot-go`
-  `CROC-058`.
+- **CFE-041** — Menu cache consistency: shared optimistic menu
+  mutations with per-change revert, newest-first adds, and recipe deletes
+  evicting from the menu. Findings 3, 5. **Done** (2026-09-27), see
+  `docs/handoffs/CFE-041.md`.
 - **CFE-042** — Shopping-list UI duplication: two quantity editors with
   different validation, the text-field class string copied four times,
   and dead `components/ui/command.tsx`. Findings 6–8. **Not started.**

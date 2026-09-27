@@ -316,3 +316,8 @@ decision as fully closed. No code written yet.
 ## 2026-09-27 — CFE-039 — Lazy-load the Your Crockpot routes. Clean.
 
 - Verified by build output (a source-map check of which chunk holds each heavy dependency), not tests. Keeping the layout eager with its own `Suspense` kept the page header visible while the tab chunk loads. Adding a second caller moved `RouteFallback` out of `nav/` under the caller-count rule.
+
+## 2026-09-27 — CFE-041 — Menu cache consistency. Grill caught two hidden facts; one design gap found while building.
+
+- Reading crockpot-go at the grill showed the client/server menu order mismatch and a backend shopping-list gap (`CROC-058`), neither in the ticket. Writing the hook tests found that "refetch only if last to settle" lost the refetch when a failure overlapped a success; fixed by marking the menu stale and having the last settler refetch.
+- **Pattern**: for a "refetch only when the last one settles" guard, test a failure overlapping a success, not just two failures.

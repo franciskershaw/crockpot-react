@@ -1,5 +1,5 @@
+import type { Item } from "@/features/catalog/data/types";
 import type {
-  Item,
   RecipeCategory,
   RecipeTimeRange,
 } from "@/features/recipes/data/types";

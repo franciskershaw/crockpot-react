@@ -1,7 +1,6 @@
 import { apiFetch } from "@/lib/http/client";
 
 import type {
-  Item,
   RecipeCategory,
   RecipeDetail,
   RecipeListParams,
@@ -49,10 +48,6 @@ export function listRecipes(
 
 export function listRecipeCategories(): Promise<RecipeCategory[]> {
   return apiFetch<RecipeCategory[]>("/recipe-categories");
-}
-
-export function listItems(): Promise<Item[]> {
-  return apiFetch<Item[]>("/items");
 }
 
 export function getRecipeTimeRange(): Promise<RecipeTimeRange> {

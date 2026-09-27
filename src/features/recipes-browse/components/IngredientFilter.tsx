@@ -1,4 +1,4 @@
-import type { Item } from "@/features/recipes/data/types";
+import type { Item } from "@/features/catalog/data/types";
 
 import { FilterOptionList } from "./FilterOptionList";
 

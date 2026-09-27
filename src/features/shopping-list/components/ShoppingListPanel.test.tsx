@@ -46,7 +46,15 @@ vi.mock("./ShoppingListRow", () => ({
 const regenerate = vi.fn();
 const clear = vi.fn();
 
-function setup({ items = [] as ShoppingListItem[], recipeCount = 2 } = {}) {
+function setup({
+  items = [] as ShoppingListItem[],
+  recipeCount = 2,
+  onClose,
+}: {
+  items?: ShoppingListItem[];
+  recipeCount?: number;
+  onClose?: () => void;
+} = {}) {
   vi.mocked(useShoppingList).mockReturnValue({
     data: { items },
   } as unknown as ReturnType<typeof useShoppingList>);
@@ -59,7 +67,7 @@ function setup({ items = [] as ShoppingListItem[], recipeCount = 2 } = {}) {
       })),
     },
   } as unknown as ReturnType<typeof useMenu>);
-  render(<ShoppingListPanel />);
+  render(<ShoppingListPanel onClose={onClose} />);
 }
 
 beforeEach(() => {
@@ -242,6 +250,24 @@ describe("ShoppingListPanel", () => {
     setup({ items: [], recipeCount: 2 });
     expect(
       screen.queryByRole("button", { name: "Clear list" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers a close button when it can be closed", async () => {
+    const onClose = vi.fn();
+    setup({ items, onClose });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Close shopping list" }),
+    );
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("has no close button when it can't be closed", () => {
+    setup({ items });
+    expect(
+      screen.queryByRole("button", { name: "Close shopping list" }),
     ).not.toBeInTheDocument();
   });
 });

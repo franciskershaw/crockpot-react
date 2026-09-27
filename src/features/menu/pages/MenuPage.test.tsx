@@ -52,6 +52,9 @@ vi.mock("@/features/recipes/components/MobileRecipeRow", () => ({
     </div>
   ),
 }));
+vi.mock("@/features/shopping-list/components/ShoppingListSheet", () => ({
+  ShoppingListSheet: () => <div data-testid="shopping-list-sheet" />,
+}));
 vi.mock("@/features/shopping-list/components/ShoppingListPanel", () => ({
   ShoppingListPanel: () => <aside data-testid="shopping-list" />,
 }));
@@ -261,5 +264,10 @@ describe("MenuPage", () => {
       "menu-undo",
       "mobile-row",
     ]);
+  });
+
+  it("offers the shopping list as a sheet for mobile", () => {
+    renderWith(["Beef Casserole"]);
+    expect(screen.getByTestId("shopping-list-sheet")).toBeInTheDocument();
   });
 });

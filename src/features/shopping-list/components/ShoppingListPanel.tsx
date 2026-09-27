@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
 
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useShoppingList } from "../hooks/useShoppingList";
@@ -10,7 +11,13 @@ import { AddExtraItem, type RecentlyAdded } from "./AddExtraItem";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { ShoppingListCategory } from "./ShoppingListCategory";
 
-export function ShoppingListPanel() {
+export function ShoppingListPanel({
+  className,
+  onClose,
+}: {
+  className?: string;
+  onClose?: () => void;
+}) {
   const { data } = useShoppingList();
   const { data: menu } = useMenu();
   const clear = useClearShoppingList();
@@ -22,7 +29,12 @@ export function ShoppingListPanel() {
   const grouped = data ? groupShoppingList(data.items) : null;
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-[10px] lg:max-h-full border border-border bg-card shadow-[0_6px_20px_rgba(60,48,30,0.07)]">
+    <section
+      className={cn(
+        "flex flex-col overflow-hidden rounded-[10px] border border-border bg-card shadow-[0_6px_20px_rgba(60,48,30,0.07)] lg:max-h-full",
+        className,
+      )}
+    >
       <header className="flex shrink-0 items-center gap-3 bg-foreground py-3.25 pr-4 pl-5 text-on-dark">
         <h2 className="flex-1 font-display text-[23px] font-normal">
           Shopping list
@@ -33,6 +45,16 @@ export function ShoppingListPanel() {
           </span>
         )}
         <RegenerateShoppingListButton disabled={recipeCount === 0} />
+        {onClose && (
+          <button
+            type="button"
+            aria-label="Close shopping list"
+            onClick={onClose}
+            className="-my-2 -mr-2 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-on-dark-muted transition-colors hover:text-on-dark"
+          >
+            <X size={18} strokeWidth={2.2} />
+          </button>
+        )}
       </header>
 
       <AddExtraItem onAdded={setRecentlyAdded} />

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
+import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
 
 import { EmptyMenuPanel } from "../components/EmptyMenuPanel";
 import { MenuFooterPill } from "../components/MenuFooterPill";
@@ -43,7 +44,7 @@ export function MenuPage() {
               <>
                 <div
                   data-testid="menu-list"
-                  className="flex flex-col gap-2.5 md:hidden"
+                  className="flex flex-col gap-2.5 pb-16 md:hidden"
                 >
                   {withUndoTile(
                     entries.map((entry, index) => (
@@ -76,9 +77,10 @@ export function MenuPage() {
         </div>
         {entries && <MenuFooterPill recipeCount={entries.length} />}
       </div>
-      <div className="min-w-0 lg:-mx-1 lg:h-full lg:px-1 lg:pt-1 lg:pb-6">
+      <div className="hidden min-w-0 md:block lg:-mx-1 lg:h-full lg:px-1 lg:pt-1 lg:pb-6">
         <ShoppingListPanel />
       </div>
+      <ShoppingListSheet />
     </div>
   );
 }

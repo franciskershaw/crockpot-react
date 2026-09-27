@@ -1,3 +1,5 @@
+import { menuKeys } from "@/features/menu/data/queryKeys";
+import type { Menu } from "@/features/menu/data/types";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
@@ -31,6 +33,20 @@ function flipFavourite(
   };
 }
 
+function flipFavouriteOnMenu(
+  data: Menu,
+  recipeId: string,
+  isFavourite: boolean,
+): Menu {
+  return {
+    entries: data.entries.map((entry) =>
+      entry.recipeId === recipeId
+        ? { ...entry, recipe: { ...entry.recipe, isFavourite } }
+        : entry,
+    ),
+  };
+}
+
 function flipFavouriteDetail(
   data: RecipeDetail,
   isFavourite: boolean,
@@ -48,12 +64,16 @@ export function useToggleFavourite() {
       const detailKey = recipeKeys.detail(recipeId);
       await queryClient.cancelQueries(LIST_FILTER);
       await queryClient.cancelQueries({ queryKey: detailKey });
+      await queryClient.cancelQueries({ queryKey: menuKeys.menu() });
 
       queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
         data ? flipFavourite(data, recipeId, !wasFavourite) : data,
       );
       queryClient.setQueryData<RecipeDetail>(detailKey, (data) =>
         data ? flipFavouriteDetail(data, !wasFavourite) : data,
+      );
+      queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
+        data ? flipFavouriteOnMenu(data, recipeId, !wasFavourite) : data,
       );
     },
     onError: (_error, { recipeId, wasFavourite }) => {
@@ -64,6 +84,9 @@ export function useToggleFavourite() {
       queryClient.setQueryData<RecipeDetail>(
         recipeKeys.detail(recipeId),
         (data) => (data ? flipFavouriteDetail(data, wasFavourite) : data),
+      );
+      queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
+        data ? flipFavouriteOnMenu(data, recipeId, wasFavourite) : data,
       );
     },
   });

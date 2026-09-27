@@ -70,7 +70,10 @@
   --ink-subtle: #8a8065;
   --green-complete: #4e7040;
   --rust-icon: #b05b41;
-  --unit-trigger: #5f5747;
+  --ink-body: #5f5747;
+  --pill-border: #d6c9ae;
+  --empty-border: #dccfb4;
+  --empty-bg: #faf5e9;
   --row-flash: #e6ecdd;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
@@ -131,7 +134,10 @@
   --color-ink-subtle: var(--ink-subtle);
   --color-green-complete: var(--green-complete);
   --color-rust-icon: var(--rust-icon);
-  --color-unit-trigger: var(--unit-trigger);
+  --color-ink-body: var(--ink-body);
+  --color-pill-border: var(--pill-border);
+  --color-empty-border: var(--empty-border);
+  --color-empty-bg: var(--empty-bg);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import { useMenu } from "@/features/menu/hooks/useMenu";
+import { cn } from "@/lib/utils";
 
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
 import { AddExtraItem, type RecentlyAdded } from "./AddExtraItem";
-import { ConfirmActionDialog } from "./ConfirmActionDialog";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { ShoppingListCategory } from "./ShoppingListCategory";
 
@@ -46,10 +47,20 @@ export function ShoppingListPanel() {
             />
           ))
         ) : (
-          <p className="border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle">
-            {recipeCount > 0
-              ? "Your list is empty — Regenerate to rebuild it from your menu."
-              : "Add recipes to your menu to build a shopping list."}
+          <p
+            className={cn(
+              "border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle",
+              recipeCount === 0 && "text-center leading-relaxed",
+            )}
+          >
+            {recipeCount > 0 ? (
+              "Your list is empty — Regenerate to rebuild it from your menu."
+            ) : (
+              <>
+                Your list is empty.
+                <br /> Add a recipe, or add an item by hand above.
+              </>
+            )}
           </p>
         ))}
 
@@ -58,25 +69,27 @@ export function ShoppingListPanel() {
           Built from {recipeCount} {recipeCount === 1 ? "recipe" : "recipes"} on
           your menu
         </span>
-        <ConfirmActionDialog
-          trigger={
-            <button
-              type="button"
-              className="cursor-pointer text-sm font-semibold text-rust-text"
-            >
-              Clear list
-            </button>
-          }
-          title="Clear shopping list?"
-          description="This removes every item, including ones you've added yourself."
-          confirmLabel="Clear list"
-          pendingLabel="Clearing…"
-          destructive
-          onConfirm={(close) => {
-            clear.mutate();
-            close();
-          }}
-        />
+        {grouped && grouped.totalCount > 0 && (
+          <ConfirmActionDialog
+            trigger={
+              <button
+                type="button"
+                className="cursor-pointer text-sm font-semibold text-rust-text"
+              >
+                Clear list
+              </button>
+            }
+            title="Clear shopping list?"
+            description="This removes every item, including ones you've added yourself."
+            confirmLabel="Clear list"
+            pendingLabel="Clearing…"
+            destructive
+            onConfirm={(close) => {
+              clear.mutate();
+              close();
+            }}
+          />
+        )}
       </footer>
     </section>
   );

@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { menuKeys } from "@/features/menu/data/queryKeys";
+import type { Menu } from "@/features/menu/data/types";
 import { buildRecipeCard, buildRecipeDetail } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -186,5 +188,43 @@ describe("useToggleFavourite", () => {
     expect(queryClient.getQueryData<RecipeDetail>(otherKey)?.isFavourite).toBe(
       false,
     );
+  });
+
+  it("flips isFavourite on the menu's recipe cards too, and rolls it back on failure", async () => {
+    const { queryClient, wrapper } = setup([]);
+    queryClient.setQueryData<Menu>(menuKeys.menu(), {
+      entries: [
+        {
+          recipeId: "r_1",
+          serves: 4,
+          recipe: buildRecipeCard({ id: "r_1", isFavourite: false }),
+        },
+        {
+          recipeId: "r_2",
+          serves: 2,
+          recipe: buildRecipeCard({ id: "r_2", isFavourite: false }),
+        },
+      ],
+    });
+    let rejectAdd: (error: Error) => void = () => {};
+    mockAddFavourite.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        rejectAdd = reject;
+      }),
+    );
+    const favourites = () =>
+      queryClient
+        .getQueryData<Menu>(menuKeys.menu())
+        ?.entries.map((entry) => entry.recipe.isFavourite);
+
+    const { result } = renderHook(() => useToggleFavourite(), { wrapper });
+    result.current.mutate({ recipeId: "r_1", wasFavourite: false });
+
+    await waitFor(() => expect(favourites()).toEqual([true, false]));
+
+    rejectAdd(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(favourites()).toEqual([false, false]);
   });
 });

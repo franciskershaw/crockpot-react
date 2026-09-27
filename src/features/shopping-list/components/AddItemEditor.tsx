@@ -125,7 +125,7 @@ export function AddItemEditor({
         <Select value={unitId} onValueChange={setUnitId}>
           <SelectTrigger
             aria-label="Unit"
-            className="mx-0.5 h-6! cursor-pointer gap-1 rounded-full border-0 px-2 text-sm text-unit-trigger shadow-none focus-visible:ring-0 data-[state=open]:bg-chip [&_svg]:size-3.5! [&_svg]:opacity-100 [&_svg]:transition-transform data-[state=open]:[&_svg]:rotate-180"
+            className="mx-0.5 h-6! cursor-pointer gap-1 rounded-full border-0 px-2 text-sm text-ink-body shadow-none focus-visible:ring-0 data-[state=open]:bg-chip [&_svg]:size-3.5! [&_svg]:opacity-100 [&_svg]:transition-transform data-[state=open]:[&_svg]:rotate-180"
           >
             <SelectValue>{selectedUnit?.abbreviation ?? "No unit"}</SelectValue>
           </SelectTrigger>

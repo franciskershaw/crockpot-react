@@ -1,7 +1,7 @@
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import { RotateCw } from "lucide-react";
 
 import { useRegenerateShoppingList } from "../hooks/useRegenerateShoppingList";
-import { ConfirmActionDialog } from "./ConfirmActionDialog";
 
 export function RegenerateShoppingListButton({
   disabled,

@@ -230,4 +230,18 @@ describe("ShoppingListPanel", () => {
 
     expect(dairyHeader).toHaveAttribute("aria-expanded", "true");
   });
+
+  it("suggests adding a recipe or an item when the menu is empty too", () => {
+    setup({ items: [], recipeCount: 0 });
+    expect(screen.getByText(/Your list is empty\./)).toHaveTextContent(
+      "Your list is empty. Add a recipe, or add an item by hand above.",
+    );
+  });
+
+  it("only offers Clear list when there's something to clear", () => {
+    setup({ items: [], recipeCount: 2 });
+    expect(
+      screen.queryByRole("button", { name: "Clear list" }),
+    ).not.toBeInTheDocument();
+  });
 });

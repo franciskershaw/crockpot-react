@@ -134,4 +134,31 @@ describe("useAddToMenu", () => {
       queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
     ).toBe(true);
   });
+
+  it("refetches the menu after a failure, so other changes aren't rolled back", async () => {
+    const { queryClient, wrapper } = setup({
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
+    });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockAddMenuEntry.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: menuKeys.menu() }),
+    );
+  });
+
+  it("keeps its own order after a successful add rather than refetching the menu", async () => {
+    const { queryClient, wrapper } = setup({ entries: [] });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockAddMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: menuKeys.menu() });
+  });
 });

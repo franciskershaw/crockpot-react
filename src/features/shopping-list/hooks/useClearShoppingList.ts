@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { clearShoppingList } from "../data/api";
 import { shoppingListKeys } from "../data/queryKeys";
 import type { ShoppingList } from "../data/types";
+import { refetchAfterLastChange } from "../utils/refetchAfterLastChange";
 
 export function useClearShoppingList() {
   const queryClient = useQueryClient();
@@ -13,6 +14,7 @@ export function useClearShoppingList() {
     void,
     { previous: ShoppingList | undefined }
   >({
+    mutationKey: shoppingListKeys.change(),
     mutationFn: clearShoppingList,
     onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: shoppingListKeys.list() });
@@ -27,5 +29,6 @@ export function useClearShoppingList() {
     onError: (_error, _variables, context) => {
       queryClient.setQueryData(shoppingListKeys.list(), context?.previous);
     },
+    onSettled: () => refetchAfterLastChange(queryClient),
   });
 }

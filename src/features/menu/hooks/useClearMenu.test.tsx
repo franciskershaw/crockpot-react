@@ -78,4 +78,17 @@ describe("useClearMenu", () => {
       queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
     ).toBe(true);
   });
+
+  it("refetches the menu after a failure, so other changes aren't rolled back", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockClearMenu.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useClearMenu(), { wrapper });
+    result.current.mutate();
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: menuKeys.menu() }),
+    );
+  });
 });

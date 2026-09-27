@@ -72,4 +72,21 @@ describe("useDeleteShoppingListItem", () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(ids(queryClient)).toEqual(["sli_1", "sli_2"]);
   });
+
+  it("refetches the list once the delete has saved", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockDelete.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useDeleteShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1" });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: shoppingListKeys.list(),
+      }),
+    );
+  });
 });

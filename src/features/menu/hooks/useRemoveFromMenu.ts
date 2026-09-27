@@ -37,6 +37,7 @@ export function useRemoveFromMenu() {
     },
     onError: (_error, _variables, context) => {
       queryClient.setQueryData(menuKeys.menu(), context?.previous);
+      queryClient.invalidateQueries({ queryKey: menuKeys.menu() });
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: shoppingListKeys.list() }),

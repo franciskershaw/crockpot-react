@@ -89,4 +89,63 @@ describe("useUpdateShoppingListItem", () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(row(queryClient, "sli_1")?.obtained).toBe(false);
   });
+
+  it("refetches the list once the change has saved", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockUpdate.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: shoppingListKeys.list(),
+      }),
+    );
+  });
+
+  it("refetches the list after a failure, so other rows aren't rolled back", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockUpdate.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: shoppingListKeys.list(),
+      }),
+    );
+  });
+
+  it("holds the refetch until the last change in flight has saved", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    const first = deferred<{ message: string }>();
+    const second = deferred<{ message: string }>();
+    mockUpdate
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(second.promise);
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+    result.current.mutate({ id: "sli_2", obtained: true });
+    await waitFor(() => expect(mockUpdate).toHaveBeenCalledTimes(2));
+
+    first.resolve({ message: "ok" });
+    await waitFor(() => expect(row(queryClient, "sli_1")?.obtained).toBe(true));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(invalidate).not.toHaveBeenCalled();
+
+    second.resolve({ message: "ok" });
+    await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
+  });
 });

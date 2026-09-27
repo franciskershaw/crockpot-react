@@ -94,4 +94,19 @@ describe("useRemoveFromMenu", () => {
       queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
     ).toBe(true);
   });
+
+  it("refetches the menu after a failure, so other changes aren't rolled back", async () => {
+    const { queryClient, wrapper } = setup({
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
+    });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockRemoveMenuEntry.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useRemoveFromMenu(), { wrapper });
+    result.current.mutate({ recipeId: "r_1" });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: menuKeys.menu() }),
+    );
+  });
 });

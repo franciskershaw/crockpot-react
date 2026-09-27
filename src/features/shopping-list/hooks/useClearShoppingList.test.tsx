@@ -63,4 +63,19 @@ describe("useClearShoppingList", () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(items(queryClient)).toHaveLength(1);
   });
+
+  it("refetches the list once the clear has saved", async () => {
+    const { queryClient, wrapper } = setup();
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockClear.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useClearShoppingList(), { wrapper });
+    result.current.mutate();
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({
+        queryKey: shoppingListKeys.list(),
+      }),
+    );
+  });
 });

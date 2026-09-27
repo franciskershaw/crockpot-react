@@ -34,6 +34,24 @@ vi.mock("@/features/recipes/components/RecipeCard", () => ({
     </div>
   ),
 }));
+vi.mock("@/features/recipes/components/MobileRecipeRow", () => ({
+  MobileRecipeRow: ({
+    recipe,
+    from,
+    onRemoveFromMenu,
+  }: {
+    recipe: RecipeCardData;
+    from: string;
+    onRemoveFromMenu?: () => void;
+  }) => (
+    <div data-testid="mobile-row" data-from={from}>
+      <span>{recipe.name}</span>
+      <button type="button" onClick={() => onRemoveFromMenu?.()}>
+        Remove {recipe.name} on mobile
+      </button>
+    </div>
+  ),
+}));
 vi.mock("@/features/shopping-list/components/ShoppingListPanel", () => ({
   ShoppingListPanel: () => <aside data-testid="shopping-list" />,
 }));
@@ -172,7 +190,9 @@ describe("MenuPage", () => {
       </MemoryRouter>,
     );
 
-    const slots = screen.getAllByTestId(/recipe-card|menu-undo/);
+    const slots = within(screen.getByTestId("menu-grid")).getAllByTestId(
+      /recipe-card|menu-undo/,
+    );
     expect(slots.map((slot) => slot.getAttribute("data-testid"))).toEqual([
       "recipe-card",
       "menu-undo",
@@ -189,7 +209,7 @@ describe("MenuPage", () => {
       serves: 4,
       index: 1,
     });
-    expect(screen.queryByTestId("menu-undo")).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0);
   });
 
   it("drops the undo after a few seconds", async () => {
@@ -201,10 +221,45 @@ describe("MenuPage", () => {
     act(() =>
       screen.getByRole("button", { name: "Remove Fajita Wraps" }).click(),
     );
-    expect(screen.getByTestId("menu-undo")).toBeInTheDocument();
+    expect(screen.getAllByTestId("menu-undo").length).toBeGreaterThan(0);
 
     act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS));
 
-    expect(screen.queryByTestId("menu-undo")).not.toBeInTheDocument();
+    expect(screen.queryAllByTestId("menu-undo")).toHaveLength(0);
+  });
+
+  it("shows each recipe as a compact row for mobile", () => {
+    renderWith(["Beef Casserole", "Fajita Wraps"]);
+
+    const rows = screen.getAllByTestId("mobile-row");
+    expect(rows.map((row) => row.querySelector("span")?.textContent)).toEqual([
+      "Beef Casserole",
+      "Fajita Wraps",
+    ]);
+    expect(rows[0]).toHaveAttribute("data-from", "/menu");
+  });
+
+  it("puts an undo in a removed row's place on mobile too", async () => {
+    const names = ["Beef Casserole", "Fajita Wraps", "Pulled Pork"];
+    const { rerender } = renderWith(names);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Remove Fajita Wraps on mobile" }),
+    );
+    vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
+    rerender(
+      <MemoryRouter>
+        <MenuPage />
+      </MemoryRouter>,
+    );
+
+    const slots = within(screen.getByTestId("menu-list")).getAllByTestId(
+      /mobile-row|menu-undo/,
+    );
+    expect(slots.map((slot) => slot.getAttribute("data-testid"))).toEqual([
+      "mobile-row",
+      "menu-undo",
+      "mobile-row",
+    ]);
   });
 });

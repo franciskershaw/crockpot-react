@@ -62,6 +62,34 @@ describe("useAddToMenu", () => {
     resolveAdd!({ message: "ok" });
   });
 
+  it("puts the entry back at a given position, e.g. when undoing a removal", async () => {
+    const entry = (id: string) => ({
+      recipeId: id,
+      serves: 4,
+      recipe: buildRecipeCard({ id }),
+    });
+    const { queryClient, wrapper } = setup({
+      entries: [entry("r_a"), entry("r_c"), entry("r_d")],
+    });
+    mockAddMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+
+    result.current.mutate({
+      recipe: buildRecipeCard({ id: "r_b" }),
+      serves: 4,
+      index: 1,
+    });
+
+    await waitFor(() =>
+      expect(
+        queryClient
+          .getQueryData<Menu>(menuKeys.menu())
+          ?.entries.map((e) => e.recipeId),
+      ).toEqual(["r_a", "r_b", "r_c", "r_d"]),
+    );
+  });
+
   it("replaces an existing entry for the same recipe rather than duplicating it", async () => {
     const { queryClient, wrapper } = setup({
       entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],

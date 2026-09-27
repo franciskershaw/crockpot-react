@@ -196,4 +196,17 @@ describe("useAddToMenuButtonState", () => {
       expect.anything(),
     );
   });
+
+  it("hands removal to onRemove instead of removing directly, when given", () => {
+    const { removeFromMenu } = setup({ isInMenu: true, serves: 6 });
+    const onRemove = vi.fn();
+    const { result } = renderHook(() =>
+      useAddToMenuButtonState(buildRecipeCard(), { onRemove }),
+    );
+
+    act(() => result.current.handleRemove(stubEvent));
+
+    expect(onRemove).toHaveBeenCalled();
+    expect(removeFromMenu.mutate).not.toHaveBeenCalled();
+  });
 });

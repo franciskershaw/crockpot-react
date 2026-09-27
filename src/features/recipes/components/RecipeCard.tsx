@@ -24,12 +24,14 @@ export function RecipeCard({
   priority = false,
   selectedCategoryCount = 0,
   selectedIngredientCount = 0,
+  onRemoveFromMenu,
 }: {
   recipe: RecipeCardData;
   from: string;
   priority?: boolean;
   selectedCategoryCount?: number;
   selectedIngredientCount?: number;
+  onRemoveFromMenu?: () => void;
 }) {
   const { isAuthenticated } = useAuth();
   const matchTier = visibleMatchTier(
@@ -56,7 +58,7 @@ export function RecipeCard({
         {isAuthenticated && (
           <>
             <div className="absolute left-2.5 top-2.5">
-              <AddToMenuButton recipe={recipe} />
+              <AddToMenuButton recipe={recipe} onRemove={onRemoveFromMenu} />
             </div>
 
             <div className="absolute right-2.5 top-2.5">

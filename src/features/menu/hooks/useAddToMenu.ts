@@ -10,19 +10,24 @@ import type { Menu } from "../data/types";
 interface AddToMenuVariables {
   recipe: RecipeCard;
   serves: number;
+  index?: number;
 }
 
 function upsertEntry(
   data: Menu | undefined,
   recipe: RecipeCard,
   serves: number,
+  index?: number,
 ): Menu {
-  const withoutRecipe = (data?.entries ?? []).filter(
+  const entries = (data?.entries ?? []).filter(
     (entry) => entry.recipeId !== recipe.id,
   );
-  return {
-    entries: [...withoutRecipe, { recipeId: recipe.id, serves, recipe }],
-  };
+  entries.splice(index ?? entries.length, 0, {
+    recipeId: recipe.id,
+    serves,
+    recipe,
+  });
+  return { entries };
 }
 
 export function useAddToMenu() {
@@ -34,11 +39,11 @@ export function useAddToMenu() {
     { previous: Menu | undefined }
   >({
     mutationFn: ({ recipe, serves }) => addMenuEntry(recipe.id, serves),
-    onMutate: async ({ recipe, serves }) => {
+    onMutate: async ({ recipe, serves, index }) => {
       await queryClient.cancelQueries({ queryKey: menuKeys.menu() });
       const previous = queryClient.getQueryData<Menu>(menuKeys.menu());
       queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
-        upsertEntry(data, recipe, serves),
+        upsertEntry(data, recipe, serves, index),
       );
       return { previous };
     },

@@ -12,7 +12,10 @@ export function stopEvent(event: React.MouseEvent) {
   event.stopPropagation();
 }
 
-export function useAddToMenuButtonState(recipe: RecipeCardData) {
+export function useAddToMenuButtonState(
+  recipe: RecipeCardData,
+  { onRemove }: { onRemove?: () => void } = {},
+) {
   const [isEditing, setIsEditing] = useState(false);
   const {
     isInMenu,
@@ -65,12 +68,16 @@ export function useAddToMenuButtonState(recipe: RecipeCardData) {
   const handleRemove = useCallback(
     (event: React.MouseEvent) => {
       stopEvent(event);
+      if (onRemove) {
+        onRemove();
+        return;
+      }
       removeFromMenu.mutate(
         { recipeId: recipe.id },
         { onSuccess: () => setIsEditing(false) },
       );
     },
-    [recipe.id, removeFromMenu],
+    [recipe.id, removeFromMenu, onRemove],
   );
 
   const adjustAmount = useCallback(

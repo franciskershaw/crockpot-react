@@ -1,20 +1,36 @@
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useAddToMenu } from "../hooks/useAddToMenu";
 import { useClearMenu } from "../hooks/useClearMenu";
 import { useMenu } from "../hooks/useMenu";
+import { useRemoveFromMenu } from "../hooks/useRemoveFromMenu";
+import { UNDO_WINDOW_MS } from "../hooks/useUndoableMenuRemoval";
 import { MenuPage } from "./MenuPage";
 
 vi.mock("../hooks/useMenu", () => ({ useMenu: vi.fn() }));
 vi.mock("../hooks/useClearMenu", () => ({ useClearMenu: vi.fn() }));
+vi.mock("../hooks/useAddToMenu", () => ({ useAddToMenu: vi.fn() }));
+vi.mock("../hooks/useRemoveFromMenu", () => ({ useRemoveFromMenu: vi.fn() }));
 vi.mock("@/features/recipes/components/RecipeCard", () => ({
-  RecipeCard: ({ recipe, from }: { recipe: RecipeCardData; from: string }) => (
+  RecipeCard: ({
+    recipe,
+    from,
+    onRemoveFromMenu,
+  }: {
+    recipe: RecipeCardData;
+    from: string;
+    onRemoveFromMenu?: () => void;
+  }) => (
     <div data-testid="recipe-card" data-from={from}>
-      {recipe.name}
+      <span>{recipe.name}</span>
+      <button type="button" onClick={() => onRemoveFromMenu?.()}>
+        Remove {recipe.name}
+      </button>
     </div>
   ),
 }));
@@ -23,13 +39,28 @@ vi.mock("@/features/shopping-list/components/ShoppingListPanel", () => ({
 }));
 
 const clear = vi.fn();
+const addToMenu = vi.fn();
+const removeFromMenu = vi.fn();
 
 beforeEach(() => {
   clear.mockReset();
+  vi.mocked(useAddToMenu).mockReturnValue({
+    mutate: addToMenu,
+    isPending: false,
+  } as unknown as ReturnType<typeof useAddToMenu>);
+  vi.mocked(useRemoveFromMenu).mockReturnValue({
+    mutate: removeFromMenu,
+    isPending: false,
+  } as unknown as ReturnType<typeof useRemoveFromMenu>);
   vi.mocked(useClearMenu).mockReturnValue({
     mutate: clear,
     isPending: false,
   } as unknown as ReturnType<typeof useClearMenu>);
+});
+
+afterEach(() => {
+  vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
 function renderWith(names: string[] | null) {
@@ -45,11 +76,25 @@ function renderWith(names: string[] | null) {
             })),
           },
   } as unknown as ReturnType<typeof useMenu>);
-  render(
+  return render(
     <MemoryRouter>
       <MenuPage />
     </MemoryRouter>,
   );
+}
+
+function menuWithout(names: string[], removed: string) {
+  return {
+    data: {
+      entries: names
+        .map((name, i) => ({
+          recipeId: `r_${i}`,
+          serves: 4,
+          recipe: buildRecipeCard({ id: `r_${i}`, name }),
+        }))
+        .filter((entry) => entry.recipe.name !== removed),
+    },
+  } as unknown as ReturnType<typeof useMenu>;
 }
 
 describe("MenuPage", () => {
@@ -57,10 +102,9 @@ describe("MenuPage", () => {
     renderWith(["Beef Casserole", "Fajita Wraps"]);
 
     const cards = screen.getAllByTestId("recipe-card");
-    expect(cards.map((card) => card.textContent)).toEqual([
-      "Beef Casserole",
-      "Fajita Wraps",
-    ]);
+    expect(
+      cards.map((card) => card.querySelector("span")?.textContent),
+    ).toEqual(["Beef Casserole", "Fajita Wraps"]);
     expect(cards[0]).toHaveAttribute("data-from", "/menu");
     expect(screen.getByTestId("shopping-list")).toBeInTheDocument();
   });
@@ -108,5 +152,59 @@ describe("MenuPage", () => {
     expect(
       screen.queryByRole("heading", { name: "Nothing on the menu yet" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("puts an undo in the removed recipe's place, and undo adds it back", async () => {
+    const names = ["Beef Casserole", "Fajita Wraps", "Pulled Pork"];
+    const { rerender } = renderWith(names);
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Remove Fajita Wraps" }),
+    );
+    expect(removeFromMenu).toHaveBeenCalledWith(
+      { recipeId: "r_1" },
+      expect.anything(),
+    );
+    vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
+    rerender(
+      <MemoryRouter>
+        <MenuPage />
+      </MemoryRouter>,
+    );
+
+    const slots = screen.getAllByTestId(/recipe-card|menu-undo/);
+    expect(slots.map((slot) => slot.getAttribute("data-testid"))).toEqual([
+      "recipe-card",
+      "menu-undo",
+      "recipe-card",
+    ]);
+    expect(slots[1]).toHaveTextContent("Removed Fajita Wraps");
+
+    await userEvent.click(
+      within(slots[1]).getByRole("button", { name: "Undo" }),
+    );
+
+    expect(addToMenu).toHaveBeenCalledWith({
+      recipe: expect.objectContaining({ id: "r_1" }),
+      serves: 4,
+      index: 1,
+    });
+    expect(screen.queryByTestId("menu-undo")).not.toBeInTheDocument();
+  });
+
+  it("drops the undo after a few seconds", async () => {
+    const names = ["Beef Casserole", "Fajita Wraps"];
+    renderWith(names);
+
+    vi.useFakeTimers();
+    vi.mocked(useMenu).mockReturnValue(menuWithout(names, "Fajita Wraps"));
+    act(() =>
+      screen.getByRole("button", { name: "Remove Fajita Wraps" }).click(),
+    );
+    expect(screen.getByTestId("menu-undo")).toBeInTheDocument();
+
+    act(() => vi.advanceTimersByTime(UNDO_WINDOW_MS));
+
+    expect(screen.queryByTestId("menu-undo")).not.toBeInTheDocument();
   });
 });

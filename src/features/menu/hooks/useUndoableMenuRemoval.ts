@@ -7,9 +7,8 @@ import { useRemoveFromMenu } from "./useRemoveFromMenu";
 export function useUndoableMenuRemoval() {
   const removeFromMenu = useRemoveFromMenu();
   const addToMenu = useAddToMenu();
-  const { start, settle, forget, markUndone, ...queue } =
+  const { start, settle, forget, claimUndo, ...queue } =
     useUndoQueue<MenuEntry>();
-  const { removals } = queue;
 
   // mutateAsync: per-call callbacks on mutate only fire for the latest call.
   const remove = (
@@ -25,19 +24,15 @@ export function useUndoableMenuRemoval() {
     );
   };
 
-  const canUndo = (key: string) =>
-    removals.some((r) => r.key === key && r.settled && !r.undone);
-
   const undo = (key: string, index: number) => {
-    const removal = removals.find((r) => r.key === key);
-    if (!removal || !canUndo(key)) return;
+    const removal = claimUndo(key);
+    if (!removal) return;
     addToMenu.mutate({
       recipe: removal.item.recipe,
       serves: removal.item.serves,
       index,
     });
-    markUndone(key);
   };
 
-  return { ...queue, remove, canUndo, undo };
+  return { ...queue, remove, undo };
 }

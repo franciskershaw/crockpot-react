@@ -1,3 +1,5 @@
+import type { InfiniteData } from "@tanstack/react-query";
+
 export type MatchTier = "best" | "good" | null;
 
 export interface RecipeCard {
@@ -25,6 +27,8 @@ export interface RecipeListResponse {
   total: number;
   totalPages: number;
 }
+
+export type RecipeListData = InfiniteData<RecipeListResponse, number>;
 
 export type CategoryMode = "include" | "exclude";
 

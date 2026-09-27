@@ -270,23 +270,36 @@ CFE-003.
         first (server order). Infinite scroll with `RecipeGrid`'s sentinel
         pattern.
   - [ ] Un-hearting on the tab removes the card at once and puts a
-        "Removed X — Undo" tile in its slot (Menu's pattern, 5s window).
-        Removal commits immediately; Undo re-favourites and restores the
-        slot on screen (on a later visit it sits at the top, since the
-        server sees a new favourite). An error on removal clears the tile
-        and restores the card.
-  - [ ] Offset safety: after the last favourite mutation settles, refetch
-        the favourites query (`isMutating`-guarded, `CFE-041`'s pattern),
-        so removals/undos never skip or duplicate a card on the next page.
+        "Removed X — Undo" tile in its slot, the same size as the removed
+        item. Removal commits immediately; Undo re-favourites and restores
+        the slot on screen (on a later visit it sits at the top, since the
+        server sees a new favourite). An error on removal clears only that
+        tile and restores the card.
+  - [ ] Undo, shared with Menu (`useUndoQueue`, `buildUndoSlots`,
+        `AnimatedSlots`, `UndoTile`): every removal keeps its own tile,
+        placed after the slot it sat behind; each new removal restarts one
+        shared 5s window, and all tiles clear together when it ends.
+        Hovering a tile or focusing its Undo pauses the window, released
+        if the tile goes away. A bar along each tile's bottom shows the
+        window (steps instead of sliding under reduced motion).
+  - [ ] Offset safety: a favourite change marks the list stale with no
+        refetch; loading the next page refetches a stale list first, and
+        waits while a favourite change is in flight. After any failed fetch
+        with data shown, only scrolling the end away and back retries.
   - [ ] `useToggleFavourite`, from any surface: un-heart removes the recipe
-        from the favourites cache optimistically (`total` −1), reverting to
-        its old position on error; heart marks the favourites query stale
-        with no refetch. Returning to the tab after un-hearting on the
-        detail page shows no flicker and no undo tile.
+        from the favourites cache optimistically, or only lowers `total`
+        when it isn't loaded; heart raises `total` and marks the list
+        stale; each reverts on error. Returning to the tab after
+        un-hearting on the detail page shows no flicker and no undo tile.
   - [ ] Layout: `MobileRecipeRow` list below `md`; `RecipeCard` grid at
-        `md:2 lg:3 xl:4`, `gap-4` (`yp3.png`). Removal animates as on Menu
-        (`AnimatedMenuSlots` generalised off `MenuEntry` and moved to a
-        shared home).
+        `md:2 lg:3 xl:4`, `gap-4` (`yp3.png`).
+  - [ ] Mobile row (Menu and Favourites): heart and cart as bordered
+        circles in a fixed cluster; the cart matches desktop (fills green
+        with a serves badge when on the menu, plain when not, "Add to
+        menu" / "Edit menu item"). Replaces `CFE-006`'s people-icon serves
+        pill. The add-to-menu overlay (row, desktop card, detail CTA)
+        closes on confirm and keeps the controls it opened with; the
+        desktop card's version of this was `CFE-023`, to confirm there.
   - [ ] Loading: 12 skeletons (`RecipeCardSkeleton` / `MobileRecipeRowSkeleton`,
         `DELAYED_FADE_IN_CLASSES`). Error only on first-load failure
         (`StatePanel` + Retry); a failed background refresh keeps the list.
@@ -305,7 +318,8 @@ CFE-003.
         even when active); no number before data loads, "0" once loaded.
         The layout reads the same menu and favourites queries as the pages
         (favourites now fetched on any Your Crockpot tab). My recipes'
-        count is owned by `CFE-008`; Planner has none.
+        count is owned by `CFE-008`; Planner has none. On mobile the tab
+        strip scrolls sideways (`yp8.png`), keeping the current tab in view.
 
   Non-goals: filters/search on favourites; a menu size cap (`CFE-045` /
   `crockpot-go` `CROC-059`); recommendations in empty states (`crockpot-go`
@@ -314,9 +328,9 @@ CFE-003.
   Verification:
   - Logic — Vitest, failing test first per piece: `useToggleFavourite`'s
     favourites-cache edits (remove, revert at position, stale-mark on
-    heart, `total`), the undoable-removal hook (window, undo at index,
-    error clears), the refetch guard including a failure overlapping a
-    success, subtitle/count wording, undo-tile-before-empty rule.
+    heart, `total`), the undo queue (shared window, pause, claim) and
+    slot placement, the no-loop load-more guard, subtitle/count wording,
+    undo-tile-before-empty rule.
   - API boundary — founder runs `GET /recipes/favourites` paging and
     `POST`/`DELETE` favourite against local `crockpot-go`.
   - Visual — founder's screenshots vs `yp3.png` (4-col desktop, subtitle,

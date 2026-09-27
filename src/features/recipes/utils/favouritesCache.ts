@@ -1,8 +1,4 @@
-import type { InfiniteData } from "@tanstack/react-query";
-
-import type { RecipeCard, RecipeListResponse } from "../data/types";
-
-export type FavouritesData = InfiniteData<RecipeListResponse, number>;
+import type { RecipeCard, RecipeListData } from "../data/types";
 
 // index is the recipe's position across all loaded pages, as the page renders them.
 export interface FavouriteSlot {
@@ -10,7 +6,7 @@ export interface FavouriteSlot {
   index: number;
 }
 
-export function withTotal(data: FavouritesData, delta: number): FavouritesData {
+export function withTotal(data: RecipeListData, delta: number): RecipeListData {
   return {
     ...data,
     pages: data.pages.map((page) => ({ ...page, total: page.total + delta })),
@@ -18,7 +14,7 @@ export function withTotal(data: FavouritesData, delta: number): FavouritesData {
 }
 
 export function findFavourite(
-  data: FavouritesData,
+  data: RecipeListData,
   recipeId: string,
 ): FavouriteSlot | undefined {
   let offset = 0;
@@ -31,9 +27,9 @@ export function findFavourite(
 }
 
 export function withoutFavourite(
-  data: FavouritesData,
+  data: RecipeListData,
   recipeId: string,
-): FavouritesData {
+): RecipeListData {
   if (!findFavourite(data, recipeId)) return data;
   return withTotal(
     {
@@ -48,9 +44,9 @@ export function withoutFavourite(
 }
 
 export function withFavouriteRestored(
-  data: FavouritesData,
+  data: RecipeListData,
   { recipe, index }: FavouriteSlot,
-): FavouritesData {
+): RecipeListData {
   if (findFavourite(data, recipe.id) || data.pages.length === 0) return data;
   let remaining = index;
   let target = data.pages.length - 1;

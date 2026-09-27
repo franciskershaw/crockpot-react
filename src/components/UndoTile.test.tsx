@@ -6,7 +6,7 @@ import { UndoTile } from "./UndoTile";
 function renderTile(paused = false) {
   const onPause = vi.fn();
   const onResume = vi.fn();
-  render(
+  const { unmount } = render(
     <UndoTile
       title="Fajita Wraps"
       canUndo
@@ -17,7 +17,7 @@ function renderTile(paused = false) {
       onResume={onResume}
     />,
   );
-  return { tile: screen.getByRole("status"), onPause, onResume };
+  return { tile: screen.getByRole("status"), onPause, onResume, unmount };
 }
 
 describe("UndoTile", () => {
@@ -54,5 +54,26 @@ describe("UndoTile", () => {
     expect(screen.getByTestId("undo-countdown")).toHaveStyle({
       animationPlayState: "running",
     });
+  });
+
+  it("releases every hold it has if it goes away while held", () => {
+    const { tile, onPause, onResume, unmount } = renderTile();
+
+    fireEvent.pointerEnter(tile);
+    fireEvent.focus(screen.getByRole("button", { name: "Undo" }));
+    expect(onPause).toHaveBeenCalledTimes(2);
+
+    unmount();
+    expect(onResume).toHaveBeenCalledTimes(2);
+  });
+
+  it("releases nothing on the way out when it isn't held", () => {
+    const { tile, onResume, unmount } = renderTile();
+
+    fireEvent.pointerEnter(tile);
+    fireEvent.pointerLeave(tile);
+    unmount();
+
+    expect(onResume).toHaveBeenCalledTimes(1);
   });
 });

@@ -60,30 +60,50 @@ describe("useUndoQueue", () => {
     expect(keys(result)).toEqual(["b"]);
   });
 
-  it("marks one removal settled or undone without touching the others", () => {
+  it("allows undo on a removal only once it has settled, and only once", () => {
     const { result } = renderHook(() => useUndoQueue<string>());
 
     act(() => result.current.start(removal("a")));
     act(() => result.current.start(removal("b")));
+    expect(result.current.canUndo("a")).toBe(false);
     act(() => result.current.settle("a"));
-    act(() => result.current.markUndone("b"));
+    expect(result.current.canUndo("a")).toBe(true);
+    expect(result.current.canUndo("b")).toBe(false);
 
-    expect(
-      result.current.removals.map(({ settled, undone }) => ({
-        settled,
-        undone,
-      })),
-    ).toEqual([
-      { settled: true, undone: false },
-      { settled: false, undone: true },
-    ]);
+    let claimed: unknown;
+    act(() => {
+      claimed = result.current.claimUndo("a");
+    });
+    expect(claimed).toMatchObject({ key: "a", item: "item a" });
+    expect(result.current.canUndo("a")).toBe(false);
+
+    act(() => {
+      claimed = result.current.claimUndo("a");
+    });
+    expect(claimed).toBeUndefined();
+  });
+
+  it("won't undo a removal that hasn't settled", () => {
+    const { result } = renderHook(() => useUndoQueue<string>());
+
+    act(() => result.current.start(removal("a")));
+    let claimed: unknown = "not called";
+    act(() => {
+      claimed = result.current.claimUndo("a");
+    });
+
+    expect(claimed).toBeUndefined();
+    expect(result.current.removals[0].undone).toBe(false);
   });
 
   it("replaces an earlier removal of the same item", () => {
     const { result } = renderHook(() => useUndoQueue<string>());
 
     act(() => result.current.start(removal("a")));
-    act(() => result.current.markUndone("a"));
+    act(() => result.current.settle("a"));
+    act(() => {
+      result.current.claimUndo("a");
+    });
     act(() => result.current.start(removal("a")));
 
     expect(result.current.removals).toHaveLength(1);

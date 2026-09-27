@@ -10,6 +10,7 @@ import { recipeKeys } from "../data/queryKeys";
 import type {
   RecipeCard,
   RecipeDetail,
+  RecipeListData,
   RecipeListResponse,
 } from "../data/types";
 import { useToggleFavourite } from "./useToggleFavourite";
@@ -218,9 +219,7 @@ describe("useToggleFavourite", () => {
 });
 
 describe("useToggleFavourite — favourites cache", () => {
-  type FavouritesData = { pages: RecipeListResponse[]; pageParams: number[] };
-
-  function favouritesData(pages: RecipeCard[][]): FavouritesData {
+  function favouritesData(pages: RecipeCard[][]): RecipeListData {
     const total = pages.reduce((sum, recipes) => sum + recipes.length, 0);
     return {
       pages: pages.map((recipes, index) => ({
@@ -239,7 +238,7 @@ describe("useToggleFavourite — favourites cache", () => {
       [recipeKeys.favourites(), favouritesData(pages)],
     ]);
     const favourites = () =>
-      queryClient.getQueryData<FavouritesData>(recipeKeys.favourites());
+      queryClient.getQueryData<RecipeListData>(recipeKeys.favourites());
     const ids = () =>
       favourites()?.pages.map((p) => p.recipes.map((recipe) => recipe.id));
     const totals = () => favourites()?.pages.map((p) => p.total);
@@ -292,15 +291,20 @@ describe("useToggleFavourite — favourites cache", () => {
     expect(totals()).toEqual([5, 5]);
   });
 
-  it("leaves the favourites cache alone when the un-hearted recipe isn't in it", async () => {
+  it("lowers the total for an un-hearted favourite that isn't loaded yet, and restores it on failure", async () => {
     const { wrapper, ids, totals } = setupFavourites([[fav("r_1")]]);
-    mockRemoveFavourite.mockResolvedValue({ message: "ok" });
+    const remove = deferred<{ message: string }>();
+    mockRemoveFavourite.mockReturnValue(remove.promise);
 
     const { result } = renderHook(() => useToggleFavourite(), { wrapper });
     result.current.mutate({ recipeId: "r_9", wasFavourite: true });
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => expect(totals()).toEqual([0]));
     expect(ids()).toEqual([["r_1"]]);
+
+    remove.reject(new Error("network error"));
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
     expect(totals()).toEqual([1]);
   });
 

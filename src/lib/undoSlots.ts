@@ -26,8 +26,16 @@ export function buildUndoSlots<T>(
   const liveKeys = new Set(items.map(keyOf));
   const slots = items.map((item) => ({ key: keyOf(item), item, undo: false }));
 
-  for (const removal of removals) {
-    if (liveKeys.has(removal.key)) continue;
+  // A tile anchored to another removed item waits until that item's tile is placed.
+  const pending = removals.filter((removal) => !liveKeys.has(removal.key));
+  while (pending.length > 0) {
+    const ready = pending.findIndex(
+      ({ anchorKey }) =>
+        anchorKey === null ||
+        slots.some((slot) => slot.key === anchorKey) ||
+        !pending.some((other) => other.key === anchorKey),
+    );
+    const [removal] = pending.splice(ready === -1 ? 0 : ready, 1);
     slots.splice(tilePosition(slots, removal), 0, {
       key: removal.key,
       item: removal.item,

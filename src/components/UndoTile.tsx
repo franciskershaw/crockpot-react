@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { UNDO_WINDOW_MS } from "@/lib/useUndoQueue";
 
 export function UndoTile({
@@ -17,10 +18,35 @@ export function UndoTile({
   onPause?: () => void;
   onResume?: () => void;
 }) {
+  // Unmounting fires no leave or blur, so any hold still open is released here.
+  const holds = useRef(0);
+  const release = useRef(onResume);
+
+  useEffect(() => {
+    release.current = onResume;
+  }, [onResume]);
+
+  useEffect(
+    () => () => {
+      for (; holds.current > 0; holds.current -= 1) release.current?.();
+    },
+    [],
+  );
+
+  const hold = () => {
+    holds.current += 1;
+    onPause?.();
+  };
+  const letGo = () => {
+    if (holds.current === 0) return;
+    holds.current -= 1;
+    onResume?.();
+  };
+
   return (
     <output
-      onPointerEnter={onPause}
-      onPointerLeave={onResume}
+      onPointerEnter={hold}
+      onPointerLeave={letGo}
       className="relative flex min-h-13 flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-empty-border px-4 text-center text-[13px] text-ink-body"
     >
       <span className="max-w-full truncate">Removed {title}</span>
@@ -28,8 +54,8 @@ export function UndoTile({
         type="button"
         disabled={!canUndo}
         onClick={onUndo}
-        onFocus={onPause}
-        onBlur={onResume}
+        onFocus={hold}
+        onBlur={letGo}
         className="-my-1.5 flex min-h-11 shrink-0 cursor-pointer items-center px-2 font-bold text-green disabled:cursor-default disabled:opacity-50"
       >
         Undo

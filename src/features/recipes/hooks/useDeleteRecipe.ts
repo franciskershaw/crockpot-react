@@ -3,18 +3,15 @@ import type { Menu } from "@/features/menu/data/types";
 import { removeEntry } from "@/features/menu/utils/menuTransforms";
 import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
-import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { deleteRecipe } from "../data/api";
 import { recipeKeys } from "../data/queryKeys";
-import type { RecipeListResponse } from "../data/types";
+import type { RecipeListData } from "../data/types";
 
 const LIST_FILTER = { queryKey: recipeKeys.lists() };
 
-type ListQueryData = InfiniteData<RecipeListResponse, number>;
-
-function evictRecipe(data: ListQueryData, recipeId: string): ListQueryData {
+function evictRecipe(data: RecipeListData, recipeId: string): RecipeListData {
   return {
     ...data,
     pages: data.pages.map((page) => ({
@@ -30,7 +27,7 @@ export function useDeleteRecipe() {
   return useApiMutation<void, string, void>({
     mutationFn: (recipeId) => deleteRecipe(recipeId),
     onSuccess: (_data, recipeId) => {
-      queryClient.setQueriesData<ListQueryData>(LIST_FILTER, (data) =>
+      queryClient.setQueriesData<RecipeListData>(LIST_FILTER, (data) =>
         data ? evictRecipe(data, recipeId) : data,
       );
       queryClient.removeQueries({ queryKey: recipeKeys.detail(recipeId) });

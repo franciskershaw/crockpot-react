@@ -40,8 +40,18 @@ export function useUndoQueue<T>() {
     [],
   );
 
+  const canUndo = (key: string) =>
+    removals.some((r) => r.key === key && r.settled && !r.undone);
+
   return {
     removals,
+    canUndo,
+    // The removal to put back, marked undone so it can't be put back twice.
+    claimUndo: (key: string) => {
+      if (!canUndo(key)) return;
+      update(key, { undone: true });
+      return removals.find((r) => r.key === key);
+    },
     generation,
     paused,
     pause: useCallback(() => setPauses((current) => current + 1), []),
@@ -67,10 +77,6 @@ export function useUndoQueue<T>() {
           current.filter((removal) => removal.key !== key),
         ),
       [],
-    ),
-    markUndone: useCallback(
-      (key: string) => update(key, { undone: true }),
-      [update],
     ),
   };
 }

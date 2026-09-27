@@ -62,6 +62,12 @@ describe("buildUndoSlots", () => {
     ).toEqual(["a", "b", "(c)", "d"]);
   });
 
+  it("places a tile after its anchor even when the anchor was removed later", () => {
+    expect(
+      layout(["X", "C"], [removal("B", "A", 2), removal("A", "X", 1)]),
+    ).toEqual(["X", "(A)", "(B)", "C"]);
+  });
+
   it("falls back to the removed position when its anchor has gone", () => {
     expect(layout(["a", "c", "d"], [removal("x", "gone", 2)])).toEqual([
       "a",

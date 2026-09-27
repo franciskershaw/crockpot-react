@@ -26,7 +26,6 @@ export function FavouritesPage() {
     refetch,
     hasNextPage,
     isFetching,
-    isFetchNextPageError,
     changesInFlight,
     loadMore,
   } = useFavourites();
@@ -37,7 +36,7 @@ export function FavouritesPage() {
   const showUndo = slots.some((slot) => slot.undo);
 
   const { sentinelRef, inView } = useSentinelInView();
-  // After a failed page, only scrolling away and back retries it — never a loop.
+  // After a failed fetch (a page, or refreshing a stale list), only scrolling away and back retries it.
   const leftViewSinceLastLoad = useRef(false);
 
   useEffect(() => {
@@ -46,17 +45,10 @@ export function FavouritesPage() {
 
   useEffect(() => {
     if (!inView || !hasNextPage) return;
-    if (isFetchNextPageError && !leftViewSinceLastLoad.current) return;
+    if (isError && !leftViewSinceLastLoad.current) return;
     leftViewSinceLastLoad.current = false;
     loadMore();
-  }, [
-    inView,
-    hasNextPage,
-    isFetching,
-    isFetchNextPageError,
-    changesInFlight,
-    loadMore,
-  ]);
+  }, [inView, hasNextPage, isFetching, isError, changesInFlight, loadMore]);
 
   const renderUndo = (slot: UndoSlot<RecipeCardData>) => (
     <UndoTile

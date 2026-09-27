@@ -102,16 +102,16 @@ describe("ShoppingListRow", () => {
   it("closes the editor without saving when cancelled or unchanged", async () => {
     renderRow({ quantity: 2 });
     const pill = () =>
-      screen.getByRole("button", { name: "Edit quantity of Onions" });
+      screen.findByRole("button", { name: "Edit quantity of Onions" });
 
-    await userEvent.click(pill());
+    await userEvent.click(await pill());
     expect(screen.getByLabelText("Quantity")).toBeInTheDocument();
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
       expect(screen.queryByLabelText("Quantity")).not.toBeInTheDocument(),
     );
 
-    await userEvent.click(pill());
+    await userEvent.click(await pill());
     expect(screen.getByLabelText("Quantity")).toBeInTheDocument();
     await userEvent.keyboard("{Backspace}2{Enter}");
     await waitFor(() =>

@@ -1,7 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+
+const EDITING_SLOT_WIDTH = 30;
+const SLOT_SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
 
 export function QuantityControl({
   itemName,
@@ -18,6 +21,8 @@ export function QuantityControl({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [restingWidth, setRestingWidth] = useState<number | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const parsed = Number(draft);
   const isValid = draft.trim() !== "" && Number.isFinite(parsed) && parsed > 0;
 
@@ -28,6 +33,7 @@ export function QuantityControl({
   }, []);
 
   const open = () => {
+    setRestingWidth(triggerRef.current?.offsetWidth ?? null);
     setDraft(String(quantity));
     setIsEditing(true);
   };
@@ -48,7 +54,17 @@ export function QuantityControl({
             : "border-border bg-card shadow-[0_1px_1px_rgba(60,48,30,0.06)]",
         )}
       >
-        <div className="flex h-7 min-w-7.5 items-center justify-center">
+        <motion.div
+          initial={false}
+          animate={{
+            width: isEditing ? EDITING_SLOT_WIDTH : (restingWidth ?? "auto"),
+          }}
+          transition={SLOT_SPRING}
+          onAnimationComplete={() => {
+            if (!isEditing) setRestingWidth(null);
+          }}
+          className="flex h-7 items-center justify-center"
+        >
           <AnimatePresence mode="wait">
             {isEditing ? (
               <motion.button
@@ -67,6 +83,7 @@ export function QuantityControl({
             ) : (
               <motion.button
                 key="trigger"
+                ref={triggerRef}
                 type="button"
                 aria-label={`Edit quantity of ${itemName}`}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -83,7 +100,7 @@ export function QuantityControl({
               </motion.button>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         <AnimatePresence>
           {isEditing && (
@@ -92,7 +109,7 @@ export function QuantityControl({
               animate={{ width: "auto", opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{
-                width: { type: "spring", stiffness: 300, damping: 30 },
+                width: SLOT_SPRING,
                 opacity: { duration: 0.2, delay: 0.1 },
               }}
               className="flex items-center overflow-hidden"

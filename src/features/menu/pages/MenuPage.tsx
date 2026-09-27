@@ -1,20 +1,18 @@
+import { AnimatedSlots, type Slot } from "@/components/AnimatedSlots";
+import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
+import { UndoTile } from "@/components/UndoTile";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChefHat } from "lucide-react";
 import { motion } from "motion/react";
 
-import {
-  AnimatedMenuSlots,
-  type MenuSlot,
-} from "../components/AnimatedMenuSlots";
-import { EmptyMenuPanel } from "../components/EmptyMenuPanel";
 import { MenuFooterPill } from "../components/MenuFooterPill";
 import { MenuSkeleton } from "../components/MenuSkeleton";
-import { MenuUndoTile } from "../components/MenuUndoTile";
+import type { MenuEntry } from "../data/types";
 import { useMenu } from "../hooks/useMenu";
 import { useUndoableMenuRemoval } from "../hooks/useUndoableMenuRemoval";
 
@@ -26,19 +24,22 @@ export function MenuPage() {
     removed !== null &&
     !entries?.some((entry) => entry.recipeId === removed.entry.recipeId);
 
-  const slots: MenuSlot[] =
-    entries?.map((entry, index) => ({ key: entry.recipeId, entry, index })) ??
-    [];
+  const slots: Slot<MenuEntry>[] =
+    entries?.map((entry, index) => ({
+      key: entry.recipeId,
+      item: entry,
+      index,
+    })) ?? [];
   if (removed && showUndo) {
     slots.splice(removed.index, 0, {
       key: removed.entry.recipeId,
-      entry: null,
+      item: null,
       index: removed.index,
     });
   }
 
   const undoTile = removed && (
-    <MenuUndoTile
+    <UndoTile
       title={removed.entry.recipe.name}
       canUndo={canUndo}
       onUndo={undo}
@@ -64,17 +65,21 @@ export function MenuPage() {
               <MenuSkeleton />
             )
           ) : entries.length === 0 && !showUndo ? (
-            <EmptyMenuPanel />
+            <EmptyTabPanel
+              icon={ChefHat}
+              heading="Nothing on the menu yet"
+              description="Tap the basket on any recipe you fancy and it lands here. Your shopping list builds itself from whatever you add."
+            />
           ) : (
             <>
               <div
                 data-testid="menu-list"
                 className="flex flex-col gap-2.5 pb-16 md:hidden"
               >
-                <AnimatedMenuSlots
+                <AnimatedSlots
                   slots={slots}
                   undoTile={undoTile}
-                  renderEntry={(entry, index) => (
+                  renderItem={(entry, index) => (
                     <MobileRecipeRow
                       recipe={entry.recipe}
                       from="/menu"
@@ -87,10 +92,10 @@ export function MenuPage() {
                 data-testid="menu-grid"
                 className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3"
               >
-                <AnimatedMenuSlots
+                <AnimatedSlots
                   slots={slots}
                   undoTile={undoTile}
-                  renderEntry={(entry, index) => (
+                  renderItem={(entry, index) => (
                     <RecipeCard
                       recipe={entry.recipe}
                       from="/menu"

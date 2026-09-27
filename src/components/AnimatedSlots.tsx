@@ -1,28 +1,26 @@
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-import type { MenuEntry } from "../data/types";
-
-export interface MenuSlot {
+export interface Slot<T> {
   key: string;
-  entry: MenuEntry | null;
+  item: T | null;
   index: number;
 }
 
 const EASE_OUT = [0.25, 0.1, 0.25, 1] as const;
 
-export function AnimatedMenuSlots({
+export function AnimatedSlots<T>({
   slots,
-  renderEntry,
+  renderItem,
   undoTile,
 }: {
-  slots: MenuSlot[];
-  renderEntry: (entry: MenuEntry, index: number) => ReactNode;
+  slots: Slot<T>[];
+  renderItem: (item: T, index: number) => ReactNode;
   undoTile: ReactNode;
 }) {
   return (
     <AnimatePresence initial={false}>
-      {slots.map(({ key, entry, index }) => (
+      {slots.map(({ key, item, index }) => (
         <motion.div
           key={key}
           layout="position"
@@ -30,7 +28,7 @@ export function AnimatedMenuSlots({
           transition={{ layout: { duration: 0.35, ease: EASE_OUT } }}
         >
           <AnimatePresence mode="wait" initial={false}>
-            {entry ? (
+            {item ? (
               <motion.div
                 key="entry"
                 initial={{ opacity: 0, y: 20 }}
@@ -43,7 +41,7 @@ export function AnimatedMenuSlots({
                 transition={{ duration: 0.35, ease: EASE_OUT }}
                 className="h-full *:h-full"
               >
-                {renderEntry(entry, index)}
+                {renderItem(item, index)}
               </motion.div>
             ) : (
               <motion.div

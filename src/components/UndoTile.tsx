@@ -1,4 +1,4 @@
-export function MenuUndoTile({
+export function UndoTile({
   title,
   canUndo,
   onUndo,

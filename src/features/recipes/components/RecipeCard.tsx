@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { visibleMatchTier } from "../utils/matchTier";
+import { recipeDetailPath } from "../utils/recipeDetailPath";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 
@@ -24,12 +25,14 @@ export function RecipeCard({
   priority = false,
   selectedCategoryCount = 0,
   selectedIngredientCount = 0,
+  onRemoveFromMenu,
 }: {
   recipe: RecipeCardData;
   from: string;
   priority?: boolean;
   selectedCategoryCount?: number;
   selectedIngredientCount?: number;
+  onRemoveFromMenu?: () => void;
 }) {
   const { isAuthenticated } = useAuth();
   const matchTier = visibleMatchTier(
@@ -40,7 +43,7 @@ export function RecipeCard({
 
   return (
     <Link
-      to={`/recipes/${recipe.id}?${new URLSearchParams({ from }).toString()}`}
+      to={recipeDetailPath(recipe.id, from)}
       className="flex flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[0_2px_0_var(--color-card-shadow)] focus:outline-none focus-visible:ring-1 focus-visible:ring-ring"
     >
       <div className="relative h-45 w-full bg-muted">
@@ -56,7 +59,7 @@ export function RecipeCard({
         {isAuthenticated && (
           <>
             <div className="absolute left-2.5 top-2.5">
-              <AddToMenuButton recipe={recipe} />
+              <AddToMenuButton recipe={recipe} onRemove={onRemoveFromMenu} />
             </div>
 
             <div className="absolute right-2.5 top-2.5">

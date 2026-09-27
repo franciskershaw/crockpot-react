@@ -5,6 +5,25 @@
   --font-sans: "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Newsreader", georgia, "Times New Roman", serif;
   --animate-spin-slow: spin 3s linear infinite;
+  --shadow-popover: 0 12px 30px rgba(35, 32, 27, 0.16);
+  --shadow-floating: 0 12px 30px rgba(35, 32, 27, 0.2);
+  --shadow-fab: 0 8px 20px rgba(35, 32, 27, 0.25);
+  --shadow-dialog: 0 24px 60px rgba(35, 32, 27, 0.3);
+  --shadow-panel: 0 6px 20px rgba(60, 48, 30, 0.07);
+  --shadow-control: 0 1px 3px rgba(60, 48, 30, 0.12);
+  --shadow-tab: 0 1px 2px rgba(60, 48, 30, 0.1);
+  --shadow-quantity: 0 1px 1px rgba(60, 48, 30, 0.06);
+  --animate-row-flash: row-flash 2.2s ease-out forwards;
+
+  @keyframes row-flash {
+    0%,
+    35% {
+      background-color: var(--row-flash);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
 }
 
 :root {
@@ -50,6 +69,20 @@
   --notes-bullet: #c89a2e;
   --notes-bg: #fdf8e7;
   --notes-border: #f0e4bd;
+  --on-dark: #f3eee1;
+  --on-dark-muted: #bdb5a4;
+  --row-divider: #f0e8d7;
+  --editor-border: #c9bc9f;
+  --separator-muted: #b3a891;
+  --ink-done: #aea593;
+  --ink-subtle: #8a8065;
+  --green-complete: #4e7040;
+  --rust-icon: #b05b41;
+  --ink-body: #5f5747;
+  --pill-border: #d6c9ae;
+  --empty-border: #dccfb4;
+  --empty-bg: #faf5e9;
+  --row-flash: #e6ecdd;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -100,6 +133,19 @@
   --color-notes-bullet: var(--notes-bullet);
   --color-notes-bg: var(--notes-bg);
   --color-notes-border: var(--notes-border);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+  --color-row-divider: var(--row-divider);
+  --color-editor-border: var(--editor-border);
+  --color-separator-muted: var(--separator-muted);
+  --color-ink-done: var(--ink-done);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-green-complete: var(--green-complete);
+  --color-rust-icon: var(--rust-icon);
+  --color-ink-body: var(--ink-body);
+  --color-pill-border: var(--pill-border);
+  --color-empty-border: var(--empty-border);
+  --color-empty-bg: var(--empty-bg);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

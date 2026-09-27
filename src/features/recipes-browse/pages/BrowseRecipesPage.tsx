@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useItems } from "@/features/catalog/hooks/useItems";
 import { SlidersHorizontal } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
@@ -12,7 +13,6 @@ import { SearchBar } from "../components/SearchBar";
 import { useRecipeFilters } from "../hooks/useRecipeFilters";
 import { useRecipeList } from "../hooks/useRecipeList";
 import {
-  useItems,
   useRecipeCategories,
   useRecipeTimeRange,
 } from "../hooks/useReferenceData";

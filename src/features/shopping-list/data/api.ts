@@ -1,0 +1,48 @@
+import { apiFetch } from "@/lib/http/client";
+
+import type { ShoppingList } from "./types";
+
+type MessageResponse = { message: string };
+
+export function getShoppingList(): Promise<ShoppingList> {
+  return apiFetch<ShoppingList>("/shopping-list");
+}
+
+export function addShoppingListItem(
+  itemId: string,
+  quantity: number,
+  unitId: string | null,
+): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>("/shopping-list/items", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ itemId, quantity, unitId }),
+  });
+}
+
+export function updateShoppingListItem(
+  id: string,
+  changes: { obtained?: boolean; quantity?: number },
+): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>(`/shopping-list/items/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(changes),
+  });
+}
+
+export function deleteShoppingListItem(id: string): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>(`/shopping-list/items/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export function clearShoppingList(): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>("/shopping-list", { method: "DELETE" });
+}
+
+export function regenerateShoppingList(): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>("/shopping-list/regenerate", {
+    method: "POST",
+  });
+}

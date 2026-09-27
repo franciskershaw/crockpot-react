@@ -1,6 +1,6 @@
+import type { Item } from "@/features/catalog/data/types";
 import type {
   CategoryMode,
-  Item,
   RecipeCategory,
 } from "@/features/recipes/data/types";
 import { X } from "lucide-react";

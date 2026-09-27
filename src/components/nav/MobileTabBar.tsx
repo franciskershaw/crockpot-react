@@ -1,8 +1,9 @@
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
+import { isYourCrockpotPath } from "@/features/your-crockpot/utils/yourCrockpotTabs";
 import { LogIn, Plus, Search, UtensilsCrossed } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 const tabLinkClassName = ({ isActive }: { isActive: boolean }) =>
   `flex flex-1 flex-col items-center gap-1 py-3 text-sm ${
@@ -11,6 +12,8 @@ const tabLinkClassName = ({ isActive }: { isActive: boolean }) =>
 
 export function MobileTabBar() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { pathname } = useLocation();
+  const inYourCrockpot = isYourCrockpotPath(pathname);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background md:hidden">
@@ -22,10 +25,14 @@ export function MobileTabBar() {
 
         {!isLoading && isAuthenticated && (
           <>
-            <NavLink to="/menu" className={tabLinkClassName}>
+            <Link
+              to="/menu"
+              aria-current={inYourCrockpot ? "page" : undefined}
+              className={tabLinkClassName({ isActive: inYourCrockpot })}
+            >
               <UtensilsCrossed className="size-5" />
               Your Crockpot
-            </NavLink>
+            </Link>
             <AddRecipeLink className="flex flex-1 flex-col items-center gap-1 py-3 text-sm">
               <Plus className="size-5" />
               Add Recipe

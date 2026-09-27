@@ -35,3 +35,7 @@ export function removeMenuEntry(
     method: "DELETE",
   });
 }
+
+export function clearMenu(): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>("/menu", { method: "DELETE" });
+}

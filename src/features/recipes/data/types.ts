@@ -45,13 +45,6 @@ export interface RecipeCategory {
   name: string;
 }
 
-export interface Item {
-  id: string;
-  name: string;
-  categoryId: string;
-  allowedUnitIds: string[];
-}
-
 export interface RecipeTimeRange {
   minTime: number;
   maxTime: number;

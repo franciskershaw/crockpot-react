@@ -1,0 +1,164 @@
+import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
+import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
+import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
+import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
+import { buildRecipeCard } from "@/test/recipeFixtures";
+import { render, screen, waitFor } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+import { useToggleFavourite } from "../hooks/useToggleFavourite";
+import { MobileRecipeRow } from "./MobileRecipeRow";
+
+vi.mock("@/features/menu/hooks/useMenuEntry", () => ({
+  useMenuEntry: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useAddToMenu", () => ({
+  useAddToMenu: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useUpdateMenuEntryServes", () => ({
+  useUpdateMenuEntryServes: vi.fn(),
+}));
+vi.mock("@/features/menu/hooks/useRemoveFromMenu", () => ({
+  useRemoveFromMenu: vi.fn(),
+}));
+vi.mock("../hooks/useToggleFavourite", () => ({
+  useToggleFavourite: vi.fn(),
+}));
+
+afterEach(() => {
+  vi.clearAllMocks();
+});
+
+const recipe = buildRecipeCard({
+  name: "Smoky Bean Tacos",
+  timeInMinutes: 25,
+  isFavourite: true,
+});
+
+function setup({ onRemoveFromMenu = vi.fn() } = {}) {
+  vi.mocked(useMenuEntry).mockReturnValue({
+    isInMenu: true,
+    serves: 6,
+    isPending: false,
+  });
+  const updateServes = { mutate: vi.fn(), isPending: false };
+  const removeFromMenu = { mutate: vi.fn(), isPending: false };
+  vi.mocked(useAddToMenu).mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useAddToMenu>);
+  vi.mocked(useUpdateMenuEntryServes).mockReturnValue(
+    updateServes as unknown as ReturnType<typeof useUpdateMenuEntryServes>,
+  );
+  vi.mocked(useRemoveFromMenu).mockReturnValue(
+    removeFromMenu as unknown as ReturnType<typeof useRemoveFromMenu>,
+  );
+  vi.mocked(useToggleFavourite).mockReturnValue({
+    mutate: vi.fn(),
+  } as unknown as ReturnType<typeof useToggleFavourite>);
+
+  render(
+    <MemoryRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MobileRecipeRow
+              recipe={recipe}
+              from="/menu"
+              onRemoveFromMenu={onRemoveFromMenu}
+            />
+          }
+        />
+        <Route path="/recipes/:id" element={<p>Recipe detail page</p>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+  return { updateServes, removeFromMenu, onRemoveFromMenu };
+}
+
+function servesPill() {
+  return screen.getByRole("button", { name: "Edit menu item" });
+}
+
+describe("MobileRecipeRow", () => {
+  it("shows the recipe's name, time, favourite state and its serves on the menu", () => {
+    setup();
+
+    expect(screen.getByText("Smoky Bean Tacos")).toBeInTheDocument();
+    expect(screen.getByText("25 mins")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Remove from favourites" }),
+    ).toBeInTheDocument();
+    expect(servesPill()).toHaveTextContent("6");
+  });
+
+  it("opens the recipe, remembering where it came from", async () => {
+    setup();
+
+    await userEvent.click(screen.getByText("Smoky Bean Tacos"));
+
+    expect(screen.getByText("Recipe detail page")).toBeInTheDocument();
+  });
+
+  it("opens the serves editor over the row without leaving the page", async () => {
+    setup();
+
+    await userEvent.click(servesPill());
+
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
+    for (const name of [
+      "Cancel",
+      "Decrease servings",
+      "Increase servings",
+      "Confirm amount",
+      "Remove from menu",
+    ]) {
+      expect(screen.getByRole("button", { name })).toBeInTheDocument();
+    }
+  });
+
+  it("closes the editor on cancel", async () => {
+    setup();
+
+    await userEvent.click(servesPill());
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("button", { name: "Remove from menu" }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it("saves the new serves on confirm", async () => {
+    const { updateServes } = setup();
+
+    await userEvent.click(servesPill());
+    await userEvent.click(
+      screen.getByRole("button", { name: "Increase servings" }),
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Confirm amount" }),
+    );
+
+    expect(updateServes.mutate).toHaveBeenCalledWith(
+      { recipeId: recipe.id, serves: 7 },
+      expect.anything(),
+    );
+  });
+
+  it("hands removal to the page so it can offer undo", async () => {
+    const { removeFromMenu, onRemoveFromMenu } = setup();
+
+    await userEvent.click(servesPill());
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Remove from menu" }),
+    );
+
+    expect(onRemoveFromMenu).toHaveBeenCalled();
+    expect(removeFromMenu.mutate).not.toHaveBeenCalled();
+  });
+});

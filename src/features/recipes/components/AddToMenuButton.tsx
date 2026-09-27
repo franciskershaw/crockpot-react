@@ -7,7 +7,13 @@ import { AddToMenuBadge } from "./AddToMenuBadge";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
 
-export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
+export function AddToMenuButton({
+  recipe,
+  onRemove,
+}: {
+  recipe: RecipeCardData;
+  onRemove?: () => void;
+}) {
   const {
     isEditing,
     isInMenu,
@@ -23,7 +29,7 @@ export function AddToMenuButton({ recipe }: { recipe: RecipeCardData }) {
     handleConfirm,
     handleRemove,
     adjustAmount,
-  } = useAddToMenuButtonState(recipe);
+  } = useAddToMenuButtonState(recipe, { onRemove });
 
   return (
     <div className="relative">

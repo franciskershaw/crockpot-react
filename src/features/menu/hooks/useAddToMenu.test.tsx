@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -61,6 +62,34 @@ describe("useAddToMenu", () => {
     resolveAdd!({ message: "ok" });
   });
 
+  it("puts the entry back at a given position, e.g. when undoing a removal", async () => {
+    const entry = (id: string) => ({
+      recipeId: id,
+      serves: 4,
+      recipe: buildRecipeCard({ id }),
+    });
+    const { queryClient, wrapper } = setup({
+      entries: [entry("r_a"), entry("r_c"), entry("r_d")],
+    });
+    mockAddMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+
+    result.current.mutate({
+      recipe: buildRecipeCard({ id: "r_b" }),
+      serves: 4,
+      index: 1,
+    });
+
+    await waitFor(() =>
+      expect(
+        queryClient
+          .getQueryData<Menu>(menuKeys.menu())
+          ?.entries.map((e) => e.recipeId),
+      ).toEqual(["r_a", "r_b", "r_c", "r_d"]),
+    );
+  });
+
   it("replaces an existing entry for the same recipe rather than duplicating it", async () => {
     const { queryClient, wrapper } = setup({
       entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
@@ -90,5 +119,46 @@ describe("useAddToMenu", () => {
 
     const data = queryClient.getQueryData<Menu>(menuKeys.menu());
     expect(data?.entries).toHaveLength(0);
+  });
+
+  it("marks the shopping list stale once the menu write succeeds", async () => {
+    const { queryClient, wrapper } = setup({ entries: [] });
+    queryClient.setQueryData(shoppingListKeys.list(), { items: [] });
+    mockAddMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it("refetches the menu after a failure, so other changes aren't rolled back", async () => {
+    const { queryClient, wrapper } = setup({
+      entries: [{ recipeId: "r_1", serves: 4, recipe: buildRecipeCard() }],
+    });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockAddMenuEntry.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
+
+    await waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: menuKeys.menu() }),
+    );
+  });
+
+  it("keeps its own order after a successful add rather than refetching the menu", async () => {
+    const { queryClient, wrapper } = setup({ entries: [] });
+    const invalidate = vi.spyOn(queryClient, "invalidateQueries");
+    mockAddMenuEntry.mockResolvedValue({ message: "ok" });
+
+    const { result } = renderHook(() => useAddToMenu(), { wrapper });
+    result.current.mutate({ recipe: buildRecipeCard(), serves: 6 });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(invalidate).not.toHaveBeenCalledWith({ queryKey: menuKeys.menu() });
   });
 });

@@ -4,6 +4,9 @@ import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
 import { MenuPage } from "@/features/menu/pages/MenuPage";
+import { FavouritesPage } from "@/features/your-crockpot/pages/FavouritesPage";
+import { MyRecipesPage } from "@/features/your-crockpot/pages/MyRecipesPage";
+import { YourCrockpotLayout } from "@/features/your-crockpot/pages/YourCrockpotLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
@@ -48,13 +51,16 @@ export function AppRoutes() {
         <Route path="/recipes" element={<BrowseRecipesPage />} />
         <Route path="/recipes/:id" element={<RecipeDetailRoute />} />
         <Route
-          path="/menu"
           element={
             <RequireAuth>
-              <MenuPage />
+              <YourCrockpotLayout />
             </RequireAuth>
           }
-        />
+        >
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/favourites" element={<FavouritesPage />} />
+          <Route path="/my-recipes" element={<MyRecipesPage />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

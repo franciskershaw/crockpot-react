@@ -236,13 +236,36 @@ CFE-003.
   the retro. **Done** (2026-09-08).
 
 ### Epic 3: Your Crockpot — Core
-- **CFE-006** — Menu tab: current menu list, remove-from-menu,
-  favourite-from-menu, shopping-list summary panel.
-- **CFE-007** — Favourites tab.
+- **CFE-006** — Menu tab (desktop + mobile) and the full interactive
+  shopping list, absorbing the former `CFE-009`. See
+  `docs/handoffs/CFE-006.md`. **Done** (2026-09-27).
+- **CFE-007** — Favourites tab. `CFE-006` already lands the `/favourites`
+  route (an empty stub page) under its shared "Your Crockpot" layout,
+  along with the header/mobile-nav active state for the tab paths; this
+  ticket fills the page. When `/planner` (`CFE-012`) is added, extend
+  that active-state match to include it. Mobile reuses `CFE-006`'s
+  `MobileRecipeRow` (`recipes/components/`) and follows `EmptyMenuPanel`'s
+  empty-state pattern (`docs/handoffs/CFE-006.md` decisions 6, 9);
+  desktop stays the existing `RecipeCard` grid, unchanged.
 - **CFE-008** — My recipes tab: create/edit/delete own recipes,
-  create-recipe entry point.
-- **CFE-009** — Shopping list: full view (categorised, obtain toggle,
-  add-extra, clear list) — the summary panel in CFE-006 links here.
+  create-recipe entry point. Desktop matches `yp4.png` **minus its inline
+  "Create a recipe" placeholder tile**, dropped at `CFE-006`'s grill
+  (2026-09-23) — the existing "+ New recipe" button is the only create
+  entry point, and the empty state (0 recipes) uses the shared
+  empty-state panel instead (`docs/handoffs/CFE-006.md` decisions 9-10).
+  Mobile reuses `CFE-006`'s `MobileRecipeRow` (own recipes can be
+  favourited/added-to-menu from here too); there is no edit/delete
+  control on the mobile row itself — tapping through to the recipe detail
+  page (`CFE-005`) is where edit/delete happens on mobile. Desktop keeps
+  `yp4.png`'s dedicated edit/delete icon pair, unchanged. The shared
+  `Checkbox` toggles on Enter (added at `CFE-006`); if one lands inside
+  the recipe form, decide whether Enter should submit the form instead.
+- ~~**CFE-009**~~ — **Retired at `CFE-006`'s grill (2026-09-23)**: folded
+  into `CFE-006` once `yp1.png`'s redesign showed the shopping list as
+  fully interactive and inline on the Menu tab rather than a read-only
+  summary pointing at a separate ticket. See `docs/handoffs/CFE-006.md`
+  for how each of this line's former open gaps (regenerate, quantity
+  editor, progress bar, add-extra, clear-list, mobile) was resolved.
 
 ### Epic 4: Add/Edit Recipe
 - **CFE-010** — Manual recipe form (name, photo via Cloudinary widget,

@@ -1,3 +1,7 @@
+import { menuKeys } from "@/features/menu/data/queryKeys";
+import type { Menu } from "@/features/menu/data/types";
+import { removeEntry } from "@/features/menu/utils/menuTransforms";
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import type { InfiniteData } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +34,11 @@ export function useDeleteRecipe() {
         data ? evictRecipe(data, recipeId) : data,
       );
       queryClient.removeQueries({ queryKey: recipeKeys.detail(recipeId) });
+      // The server cascades the recipe off every menu that held it.
+      queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
+        removeEntry.apply(data, { recipeId }),
+      );
+      queryClient.invalidateQueries({ queryKey: shoppingListKeys.list() });
     },
   });
 }

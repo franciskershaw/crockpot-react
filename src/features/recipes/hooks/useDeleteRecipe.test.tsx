@@ -1,3 +1,6 @@
+import { menuKeys } from "@/features/menu/data/queryKeys";
+import type { Menu } from "@/features/menu/data/types";
+import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeCard, buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -104,5 +107,40 @@ describe("useDeleteRecipe", () => {
     expect(data?.pages[0].recipes.map((recipe) => recipe.id)).toEqual(["r_1"]);
 
     resolveDelete!();
+  });
+
+  it("takes the deleted recipe off the cached menu, since the server cascades it", async () => {
+    const { queryClient, wrapper } = setup([]);
+    queryClient.setQueryData<Menu>(menuKeys.menu(), {
+      entries: [
+        { recipeId: "r_1", serves: 4, recipe: buildRecipeCard({ id: "r_1" }) },
+        { recipeId: "r_2", serves: 2, recipe: buildRecipeCard({ id: "r_2" }) },
+      ],
+    });
+    mockDeleteRecipe.mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useDeleteRecipe(), { wrapper });
+    result.current.mutate("r_1");
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient
+        .getQueryData<Menu>(menuKeys.menu())
+        ?.entries.map((entry) => entry.recipeId),
+    ).toEqual(["r_2"]);
+  });
+
+  it("marks the shopping list stale on success", async () => {
+    const { queryClient, wrapper } = setup([]);
+    queryClient.setQueryData(shoppingListKeys.list(), { items: [] });
+    mockDeleteRecipe.mockResolvedValue(undefined);
+
+    const { result } = renderHook(() => useDeleteRecipe(), { wrapper });
+    result.current.mutate("r_1");
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(
+      queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
+    ).toBe(true);
   });
 });

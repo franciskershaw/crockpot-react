@@ -270,4 +270,60 @@ describe("ShoppingListPanel", () => {
       screen.queryByRole("button", { name: "Close shopping list" }),
     ).not.toBeInTheDocument();
   });
+
+  describe("while loading and on failure", () => {
+    function setupState(state: {
+      data?: { items: ShoppingListItem[] };
+      isError?: boolean;
+    }) {
+      const refetch = vi.fn();
+      vi.mocked(useMenu).mockReturnValue({
+        data: { entries: [] },
+      } as unknown as ReturnType<typeof useMenu>);
+      vi.mocked(useShoppingList).mockReturnValue({
+        data: undefined,
+        isError: false,
+        refetch,
+        ...state,
+      } as unknown as ReturnType<typeof useShoppingList>);
+      render(<ShoppingListPanel />);
+      return { refetch };
+    }
+
+    it("keeps the header and add row, with a loading placeholder in the body", () => {
+      setupState({});
+
+      expect(
+        screen.getByText("Loading your shopping list…"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Shopping list" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "add milk" }),
+      ).toBeInTheDocument();
+    });
+
+    it("offers a retry when the list fails to load", async () => {
+      const { refetch } = setupState({ isError: true });
+
+      expect(
+        screen.getByText("Couldn't load your shopping list."),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+      expect(refetch).toHaveBeenCalled();
+    });
+
+    it("keeps the list on screen when a later refresh fails", () => {
+      setupState({
+        isError: true,
+        data: { items: [buildShoppingListItem({ itemName: "Onions" })] },
+      });
+
+      expect(
+        screen.queryByText("Couldn't load your shopping list."),
+      ).not.toBeInTheDocument();
+      expect(screen.getByText("Fruit & veg")).toBeInTheDocument();
+    });
+  });
 });

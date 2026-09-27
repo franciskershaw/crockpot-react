@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";
+import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
 import { AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -72,9 +73,8 @@ export function RecipeGrid({
   }, [sentinelInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (isLoading) {
-    // Invisible for the first 200ms so a fast load never shows it, then fades in.
     return (
-      <div className="animate-in fade-in delay-200 duration-150 fill-mode-backwards">
+      <div className={DELAYED_FADE_IN_CLASSES}>
         <ResponsiveRecipeGrid>
           {Array.from({ length: INITIAL_SKELETON_COUNT }).map((_, i) => (
             <RecipeCardSkeleton key={i} />

@@ -325,3 +325,8 @@ decision as fully closed. No code written yet.
 ## 2026-09-27 — CFE-042 — Shopping-list duplication. Clean; checking the backend changed the rule.
 
 - No rework. Checking crockpot-go's column (`NUMERIC(10, 2)`) and real recipe quantities in grams showed that the add box's 4-digit cap would have broken editing, so the shared rule became 6 digits rather than either existing one.
+
+## 2026-09-27 — CFE-040 — Menu and shopping-list loading/error states. Clean.
+
+- No screenshot drew these states, so they were built from existing components (skeletons copied from the real components' geometry, `StatePanel`) rather than blocking on a design spec. The only error shown is on a first-load failure, which avoids the `CFE-037` trap of losing loaded data to one failed refresh. Two self-inflicted slips were caught by the gate: stray JSX parens after replacing an `x && (…)` wrapper, and a test helper that rendered twice.
+- **Pattern**: for loading/error states with no design, copy the loaded component's geometry, and show the error only when there's no data.

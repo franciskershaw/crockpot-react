@@ -310,4 +310,71 @@ describe("MenuPage", () => {
     renderWith(["Beef Casserole"]);
     expect(screen.getByTestId("shopping-list-sheet")).toBeInTheDocument();
   });
+
+  describe("while loading and on failure", () => {
+    function renderState(state: {
+      data?: {
+        entries: { recipeId: string; serves: number; recipe: RecipeCardData }[];
+      };
+      isPending?: boolean;
+      isError?: boolean;
+    }) {
+      const refetch = vi.fn();
+      vi.mocked(useMenu).mockReturnValue({
+        data: undefined,
+        isPending: false,
+        isError: false,
+        refetch,
+        ...state,
+      } as unknown as ReturnType<typeof useMenu>);
+      render(
+        <MemoryRouter>
+          <MenuPage />
+        </MemoryRouter>,
+      );
+      return { refetch };
+    }
+
+    it("shows a loading placeholder, not a blank column, until the menu arrives", () => {
+      renderState({ isPending: true });
+
+      expect(screen.getByText("Loading your menu…")).toBeInTheDocument();
+      expect(screen.queryByTestId("menu-grid")).not.toBeInTheDocument();
+      expect(screen.queryByText("Menu is empty")).not.toBeInTheDocument();
+    });
+
+    it("offers a retry when the menu fails to load", async () => {
+      const { refetch } = renderState({ isPending: true, isError: true });
+
+      expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+      expect(refetch).toHaveBeenCalled();
+    });
+
+    it("keeps the menu on screen when a later refresh fails", () => {
+      renderState({
+        isError: true,
+        data: {
+          entries: [
+            {
+              recipeId: "r_0",
+              serves: 4,
+              recipe: buildRecipeCard({ id: "r_0", name: "Beef Casserole" }),
+            },
+          ],
+        },
+      });
+
+      expect(screen.getAllByText("Beef Casserole").length).toBeGreaterThan(0);
+      expect(
+        screen.queryByText("Something went wrong"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the shopping list available while the menu fails", () => {
+      renderState({ isPending: true, isError: true });
+
+      expect(screen.getByTestId("shopping-list")).toBeInTheDocument();
+    });
+  });
 });

@@ -10,6 +10,7 @@ import { groupShoppingList } from "../utils/groupShoppingList";
 import { AddExtraItem, type RecentlyAdded } from "./AddExtraItem";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { ShoppingListCategory } from "./ShoppingListCategory";
+import { ShoppingListSkeleton } from "./ShoppingListSkeleton";
 
 export function ShoppingListPanel({
   className,
@@ -18,7 +19,7 @@ export function ShoppingListPanel({
   className?: string;
   onClose?: () => void;
 }) {
-  const { data } = useShoppingList();
+  const { data, isError, refetch } = useShoppingList();
   const { data: menu } = useMenu();
   const clear = useClearShoppingList();
   const [recentlyAdded, setRecentlyAdded] = useState<RecentlyAdded | null>(
@@ -60,32 +61,46 @@ export function ShoppingListPanel({
       <AddExtraItem onAdded={setRecentlyAdded} />
 
       <div className="-mb-px min-h-0 overflow-y-auto">
-        {grouped &&
-          (grouped.groups.length > 0 ? (
-            grouped.groups.map((group) => (
-              <ShoppingListCategory
-                key={group.categoryId}
-                group={group}
-                recentlyAdded={recentlyAdded}
-              />
-            ))
-          ) : (
-            <p
-              className={cn(
-                "border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle",
-                recipeCount === 0 && "text-center leading-relaxed",
-              )}
-            >
-              {recipeCount > 0 ? (
-                "Your list is empty — Regenerate to rebuild it from your menu."
-              ) : (
-                <>
-                  Your list is empty.
-                  <br /> Add a recipe, or add an item by hand above.
-                </>
-              )}
+        {!grouped ? (
+          isError ? (
+            <p className="border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle">
+              <span>Couldn't load your shopping list.</span>{" "}
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="cursor-pointer font-semibold text-green"
+              >
+                Retry
+              </button>
             </p>
-          ))}
+          ) : (
+            <ShoppingListSkeleton />
+          )
+        ) : grouped.groups.length > 0 ? (
+          grouped.groups.map((group) => (
+            <ShoppingListCategory
+              key={group.categoryId}
+              group={group}
+              recentlyAdded={recentlyAdded}
+            />
+          ))
+        ) : (
+          <p
+            className={cn(
+              "border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle",
+              recipeCount === 0 && "text-center leading-relaxed",
+            )}
+          >
+            {recipeCount > 0 ? (
+              "Your list is empty — Regenerate to rebuild it from your menu."
+            ) : (
+              <>
+                Your list is empty.
+                <br /> Add a recipe, or add an item by hand above.
+              </>
+            )}
+          </p>
+        )}
       </div>
 
       <footer className="flex shrink-0 items-center border-t border-card-shadow justify-between px-4.5 py-3.5">

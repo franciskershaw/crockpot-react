@@ -1,7 +1,8 @@
-// Invisible for the first 200ms so a fast load never shows it, then fades in.
+import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
+
 export function RecipeDetailSkeleton() {
   return (
-    <div className="animate-in fade-in delay-200 duration-150 fill-mode-backwards">
+    <div className={DELAYED_FADE_IN_CLASSES}>
       <div className="animate-pulse">
         <output aria-live="polite" className="sr-only">
           Loading recipe…

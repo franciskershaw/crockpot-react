@@ -1,7 +1,10 @@
+import { StatePanel } from "@/components/StatePanel";
+import { Button } from "@/components/ui/button";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
+import { AlertTriangle } from "lucide-react";
 import { motion } from "motion/react";
 
 import {
@@ -10,12 +13,13 @@ import {
 } from "../components/AnimatedMenuSlots";
 import { EmptyMenuPanel } from "../components/EmptyMenuPanel";
 import { MenuFooterPill } from "../components/MenuFooterPill";
+import { MenuSkeleton } from "../components/MenuSkeleton";
 import { MenuUndoTile } from "../components/MenuUndoTile";
 import { useMenu } from "../hooks/useMenu";
 import { useUndoableMenuRemoval } from "../hooks/useUndoableMenuRemoval";
 
 export function MenuPage() {
-  const { data: menu } = useMenu();
+  const { data: menu, isError, refetch } = useMenu();
   const entries = menu?.entries;
   const { removed, canUndo, remove, undo } = useUndoableMenuRemoval();
   const showUndo =
@@ -48,45 +52,55 @@ export function MenuPage() {
           layoutScroll
           className="lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-28"
         >
-          {entries &&
-            (entries.length === 0 && !showUndo ? (
-              <EmptyMenuPanel />
+          {!entries ? (
+            isError ? (
+              <StatePanel
+                icon={AlertTriangle}
+                heading="Something went wrong"
+                description="We couldn't load your menu. Check your connection and try again."
+                actions={<Button onClick={() => refetch()}>Retry</Button>}
+              />
             ) : (
-              <>
-                <div
-                  data-testid="menu-list"
-                  className="flex flex-col gap-2.5 pb-16 md:hidden"
-                >
-                  <AnimatedMenuSlots
-                    slots={slots}
-                    undoTile={undoTile}
-                    renderEntry={(entry, index) => (
-                      <MobileRecipeRow
-                        recipe={entry.recipe}
-                        from="/menu"
-                        onRemoveFromMenu={() => remove(entry, index)}
-                      />
-                    )}
-                  />
-                </div>
-                <div
-                  data-testid="menu-grid"
-                  className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3"
-                >
-                  <AnimatedMenuSlots
-                    slots={slots}
-                    undoTile={undoTile}
-                    renderEntry={(entry, index) => (
-                      <RecipeCard
-                        recipe={entry.recipe}
-                        from="/menu"
-                        onRemoveFromMenu={() => remove(entry, index)}
-                      />
-                    )}
-                  />
-                </div>
-              </>
-            ))}
+              <MenuSkeleton />
+            )
+          ) : entries.length === 0 && !showUndo ? (
+            <EmptyMenuPanel />
+          ) : (
+            <>
+              <div
+                data-testid="menu-list"
+                className="flex flex-col gap-2.5 pb-16 md:hidden"
+              >
+                <AnimatedMenuSlots
+                  slots={slots}
+                  undoTile={undoTile}
+                  renderEntry={(entry, index) => (
+                    <MobileRecipeRow
+                      recipe={entry.recipe}
+                      from="/menu"
+                      onRemoveFromMenu={() => remove(entry, index)}
+                    />
+                  )}
+                />
+              </div>
+              <div
+                data-testid="menu-grid"
+                className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3"
+              >
+                <AnimatedMenuSlots
+                  slots={slots}
+                  undoTile={undoTile}
+                  renderEntry={(entry, index) => (
+                    <RecipeCard
+                      recipe={entry.recipe}
+                      from="/menu"
+                      onRemoveFromMenu={() => remove(entry, index)}
+                    />
+                  )}
+                />
+              </div>
+            </>
+          )}
         </motion.div>
         {entries && <MenuFooterPill recipeCount={entries.length} />}
       </div>

@@ -442,9 +442,16 @@ security findings — debt notes only):*
   `AddExtraItem` (admin-only, sole `zod`/`react-hook-form` user). Main
   chunk 742 → 289 kB, landing's eager JS ~852 → ~487 kB, no size warning.
 - **CFE-040** — Loading and error states for the Menu tab and shopping
-  list (both render blank today, the class `CFE-016` fixed for browse).
-  Absorbs `CFE-038`'s shared skeleton-wrapper item. Finding 2.
-  **Not started.**
+  list, built from existing components since no screenshot draws them:
+  delayed-fade skeletons (`RecipeCardSkeleton` on desktop, new
+  `MobileRecipeRowSkeleton`, skeleton category rows in the panel; shared
+  `DELAYED_FADE_IN_CLASSES` in `src/lib/styles.ts`, absorbing `CFE-038`'s
+  item). The error shows only on a first-load failure (`StatePanel` +
+  Retry for the menu, one line + Retry in the panel); a failed background
+  refresh keeps the data. The two surfaces fail independently. Finding 2.
+  **Done** (2026-09-27). To re-check: DevTools → Block request URL on
+  `GET …/menu` or `…/shopping-list`, Offline for background failures,
+  Slow 4G for skeletons.
 - **CFE-041** — Menu cache consistency: shared optimistic menu
   mutations with per-change revert, newest-first adds, and recipe deletes
   evicting from the menu. Findings 3, 5. **Done** (2026-09-27), see

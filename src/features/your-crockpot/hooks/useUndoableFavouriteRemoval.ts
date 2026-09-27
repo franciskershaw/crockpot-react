@@ -4,8 +4,9 @@ import { useUndoQueue } from "@/lib/useUndoQueue";
 
 export function useUndoableFavouriteRemoval() {
   const toggleFavourite = useToggleFavourite();
-  const { removals, start, settle, forget, markUndone } =
+  const { start, settle, forget, markUndone, ...queue } =
     useUndoQueue<RecipeCard>();
+  const { removals } = queue;
 
   // mutateAsync: per-call callbacks on mutate only fire for the latest call.
   const remove = (
@@ -37,5 +38,5 @@ export function useUndoableFavouriteRemoval() {
     markUndone(key);
   };
 
-  return { removals, remove, canUndo, undo };
+  return { ...queue, remove, canUndo, undo };
 }

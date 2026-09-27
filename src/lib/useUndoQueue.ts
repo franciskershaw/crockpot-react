@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Removal } from "./undoSlots";
 
@@ -11,12 +11,24 @@ type NewRemoval<T> = Pick<Removal<T>, "key" | "item" | "anchorKey" | "index">;
 export function useUndoQueue<T>() {
   const [removals, setRemovals] = useState<Removal<T>[]>([]);
   const [generation, setGeneration] = useState(0);
+  const [pauses, setPauses] = useState(0);
+  const remaining = useRef(UNDO_WINDOW_MS);
+  const restart = useRef(false);
+  const paused = pauses > 0;
 
   useEffect(() => {
-    if (generation === 0) return;
-    const timer = setTimeout(() => setRemovals([]), UNDO_WINDOW_MS);
-    return () => clearTimeout(timer);
-  }, [generation]);
+    if (restart.current) {
+      remaining.current = UNDO_WINDOW_MS;
+      restart.current = false;
+    }
+    if (generation === 0 || paused) return;
+    const startedAt = Date.now();
+    const timer = setTimeout(() => setRemovals([]), remaining.current);
+    return () => {
+      clearTimeout(timer);
+      remaining.current -= Date.now() - startedAt;
+    };
+  }, [generation, paused]);
 
   const update = useCallback(
     (key: string, change: Partial<Removal<T>>) =>
@@ -30,11 +42,19 @@ export function useUndoQueue<T>() {
 
   return {
     removals,
+    generation,
+    paused,
+    pause: useCallback(() => setPauses((current) => current + 1), []),
+    resume: useCallback(
+      () => setPauses((current) => Math.max(0, current - 1)),
+      [],
+    ),
     start: useCallback((removal: NewRemoval<T>) => {
       setRemovals((current) => [
         ...current.filter(({ key }) => key !== removal.key),
         { ...removal, settled: false, undone: false },
       ]);
+      restart.current = true;
       setGeneration((current) => current + 1);
     }, []),
     settle: useCallback(

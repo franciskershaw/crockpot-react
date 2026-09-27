@@ -14,6 +14,16 @@
   --shadow-tab: 0 1px 2px rgba(60, 48, 30, 0.1);
   --shadow-quantity: 0 1px 1px rgba(60, 48, 30, 0.06);
   --animate-row-flash: row-flash 2.2s ease-out forwards;
+  --animate-undo-countdown: undo-countdown 5s linear forwards;
+
+  @keyframes undo-countdown {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0);
+    }
+  }
 
   @keyframes row-flash {
     0%,

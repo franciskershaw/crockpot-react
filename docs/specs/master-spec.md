@@ -237,21 +237,15 @@ CFE-003.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive
-  shopping list, absorbed from the former `CFE-009` (retired, see below).
-  Grilled 2026-09-23, see `docs/handoffs/CFE-006.md` for the full decision
-  set. Introduces a mobile-only compact-row + cart-icon-badge + overlay-edit
-  + undo-banner pattern that `CFE-007`/`CFE-008` reuse for their own mobile
-  rows; desktop reuses the existing `RecipeCard` unchanged. Regenerate
-  calls `crockpot-go`'s `POST /shopping-list/regenerate` (`CROC-052`,
-  shipped — a full reset, so it sits behind a confirm dialog).
+  shopping list, absorbing the former `CFE-009`. See
+  `docs/handoffs/CFE-006.md`. **Done** (2026-09-27).
 - **CFE-007** — Favourites tab. `CFE-006` already lands the `/favourites`
   route (an empty stub page) under its shared "Your Crockpot" layout,
   along with the header/mobile-nav active state for the tab paths; this
   ticket fills the page. When `/planner` (`CFE-012`) is added, extend
-  that active-state match to include it. Reuses `CFE-006`'s mobile
-  compact-row + cart/heart + overlay-edit + undo-banner component (heart
-  is the only action needed here — un-favouriting) and its shared
-  empty-state panel pattern (`docs/handoffs/CFE-006.md` decisions 6, 9);
+  that active-state match to include it. Mobile reuses `CFE-006`'s
+  `MobileRecipeRow` (`recipes/components/`) and follows `EmptyMenuPanel`'s
+  empty-state pattern (`docs/handoffs/CFE-006.md` decisions 6, 9);
   desktop stays the existing `RecipeCard` grid, unchanged.
 - **CFE-008** — My recipes tab: create/edit/delete own recipes,
   create-recipe entry point. Desktop matches `yp4.png` **minus its inline
@@ -259,12 +253,13 @@ CFE-003.
   (2026-09-23) — the existing "+ New recipe" button is the only create
   entry point, and the empty state (0 recipes) uses the shared
   empty-state panel instead (`docs/handoffs/CFE-006.md` decisions 9-10).
-  Mobile reuses `CFE-006`'s compact-row + cart/heart + overlay-edit +
-  undo-banner component (own recipes can be favourited/added-to-menu from
-  here too); there is no edit/delete control on the mobile row itself —
-  tapping through to the recipe detail page (`CFE-005`) is where
-  edit/delete happens on mobile. Desktop keeps `yp4.png`'s dedicated
-  edit/delete icon pair, unchanged.
+  Mobile reuses `CFE-006`'s `MobileRecipeRow` (own recipes can be
+  favourited/added-to-menu from here too); there is no edit/delete
+  control on the mobile row itself — tapping through to the recipe detail
+  page (`CFE-005`) is where edit/delete happens on mobile. Desktop keeps
+  `yp4.png`'s dedicated edit/delete icon pair, unchanged. The shared
+  `Checkbox` toggles on Enter (added at `CFE-006`); if one lands inside
+  the recipe form, decide whether Enter should submit the form instead.
 - ~~**CFE-009**~~ — **Retired at `CFE-006`'s grill (2026-09-23)**: folded
   into `CFE-006` once `yp1.png`'s redesign showed the shopping list as
   fully interactive and inline on the Menu tab rather than a read-only

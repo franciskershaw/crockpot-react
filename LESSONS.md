@@ -296,3 +296,8 @@ decision as fully closed. No code written yet.
 - The agents' two low-confidence flags were resolved by reading the code (one caller of `listRecipes`; a failed page fetch surfaces as `isError`), not passed on as unverified. One of my own tests turned out to lock behaviour a queued ticket (`CFE-037`) will change.
 - **Pattern**: when writing a test that awaits a UI state produced by known-unwanted behaviour (here, the error panel), note it against the ticket that will change that behaviour at the time, not at review.
 
+
+## 2026-09-27 — CFE-006 — Menu tab + shopping list shipped (desktop + mobile). Visual work kept being handed over as "done" before the founder had seen it run.
+
+- Nearly every visual/animation piece went red → green → commit message with nothing to look at; the founder had to ask for a temporary mount each time, and the real problems (quantity editor feel, footer pill position, sheet with no close route, jumpy drawer, jarring removals) only surfaced then. Also: two backend gaps (CROC-052/053) blocked mid-build because the grill never tested add-extra against existing rows; the shadcn CLI added the `cn` package again (second time) plus OS-following `dark:` classes; the branch review found optimistic hooks cancelling a refetch with no refetch-on-settle, already copied into 7 hooks.
+- **Pattern**: for anything visual, get it on screen where the founder can see it and wait for their look before offering a commit message — green tests are not "done". An optimistic hook that cancels a query must refetch when it settles (guarded by `isMutating`). After any `shadcn add`, check `package.json` for `cn` and grep the new file for `dark:`.

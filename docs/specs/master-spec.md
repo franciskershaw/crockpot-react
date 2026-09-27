@@ -411,6 +411,35 @@ security findings — debt notes only):*
     `IngredientsSection` `pt-3` → `pt-0` and `RecipeHero` `mb-14` → `mb-2`.
     If deliberate, record them in a handoff/LESSONS line.
 
+*From the third whole-codebase tech-debt pass, 2026-09-27. Full detail:
+`docs/findings/2026-09-27-tech-debt.md`.*
+- **CFE-039** — Lazy-load the Your Crockpot routes: `CFE-006` pulled
+  `motion`/`zod`/`react-hook-form`/`cmdk` into the eager bundle via
+  `MenuPage` (742 kB main chunk, Vite size warning), reversing
+  `CFE-019`'s split. Finding 1. **Not started.**
+- **CFE-040** — Loading and error states for the Menu tab and shopping
+  list (both render blank today, the class `CFE-016` fixed for browse).
+  Absorbs `CFE-038`'s shared skeleton-wrapper item. Finding 2.
+  **Not started.**
+- **CFE-041** — Menu cache consistency: `useDeleteRecipe` leaves a
+  deleted recipe in the cached menu (the server cascades it off); the
+  four menu mutation hooks share copy-pasted optimistic code whose
+  whole-snapshot rollback can drop a concurrent change. Adopt
+  shopping-list's guarded refetch-on-settle. Findings 3, 5.
+  **Not started**, ideally before `CFE-008`.
+- **CFE-042** — Shopping-list UI duplication: two quantity editors with
+  different validation, the text-field class string copied four times,
+  and dead `components/ui/command.tsx`. Findings 6–8. **Not started.**
+- **CFE-043** — Housekeeping: migrate older hook tests onto
+  `setupQueryClient`; move recipe reference-data keys into `recipeKeys`;
+  move `stopEvent` to `utils/` and reuse it in `RecipeCard`; make
+  `ConfirmActionDialog`'s `pendingLabel` optional. Findings 9–12.
+  **Not started.**
+- **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
+  `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
+  Vercel deploy**, which itself waits on `crockpot-go` deploying.
+  Revisit the CSP allowlist at `CFE-010` for Cloudinary.
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a

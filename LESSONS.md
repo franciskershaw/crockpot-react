@@ -301,3 +301,9 @@ decision as fully closed. No code written yet.
 
 - Nearly every visual/animation piece went red → green → commit message with nothing to look at; the founder had to ask for a temporary mount each time, and the real problems (quantity editor feel, footer pill position, sheet with no close route, jumpy drawer, jarring removals) only surfaced then. Also: two backend gaps (CROC-052/053) blocked mid-build because the grill never tested add-extra against existing rows; the shadcn CLI added the `cn` package again (second time) plus OS-following `dark:` classes; the branch review found optimistic hooks cancelling a refetch with no refetch-on-settle, already copied into 7 hooks.
 - **Pattern**: for anything visual, get it on screen where the founder can see it and wait for their look before offering a commit message — green tests are not "done". An optimistic hook that cancels a query must refetch when it settles (guarded by `isMutating`). After any `shadcn add`, check `package.json` for `cn` and grep the new file for `dark:`.
+
+## 2026-09-27 — Tech-debt pass #3. 12 findings, 6 tickets. Clean pass.
+
+- Whole codebase, with a full read of `CFE-006`'s new features. 12 findings, 2 of them reopened: the eager bundle regained `motion`/`zod`/`react-hook-form` via `MenuPage`, and blank-on-failure query states came back on the two new surfaces. Grouped into `CFE-039`–`044` (`CFE-044`, security headers, is blocked on the first deploy). Full detail: `docs/findings/2026-09-27-tech-debt.md`.
+- Both reopened items are a decision made for one ticket's code (eager `MenuPage`, error states on browse) that the next big ticket quietly outgrew. The build's chunk warning was the only signal, and nothing reads it.
+- **Pattern**: when a ticket adds imports to a route an earlier ticket kept eager on purpose, re-run `npm run build` and check the chunk warning as part of verification.

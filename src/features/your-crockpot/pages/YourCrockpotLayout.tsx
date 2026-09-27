@@ -1,0 +1,37 @@
+import { useMenu } from "@/features/menu/hooks/useMenu";
+import { Outlet, useLocation } from "react-router-dom";
+
+import { YourCrockpotTabs } from "../components/YourCrockpotTabs";
+import {
+  findYourCrockpotTab,
+  YOUR_CROCKPOT_TABS,
+} from "../utils/yourCrockpotTabs";
+
+function menuSubtitle(recipeCount: number | undefined) {
+  if (recipeCount === undefined) return "Your Crockpot";
+  if (recipeCount === 0) return "Your Crockpot · nothing on the menu yet";
+  return `Your Crockpot · ${recipeCount} ${recipeCount === 1 ? "recipe" : "recipes"}`;
+}
+
+export function YourCrockpotLayout() {
+  const { pathname } = useLocation();
+  const { data: menu } = useMenu();
+  const tab = findYourCrockpotTab(pathname) ?? YOUR_CROCKPOT_TABS[0];
+  const subtitle =
+    tab.to === "/menu" ? menuSubtitle(menu?.entries.length) : "Your Crockpot";
+
+  return (
+    <div className="mx-auto w-full max-w-7xl px-6 py-10">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-slider-track pb-5">
+        <div>
+          <h1 className="mb-1.25 font-display text-[46px] leading-none font-medium tracking-[-0.015em] text-foreground">
+            {tab.label}
+          </h1>
+          <p className="text-[15px] text-muted-foreground">{subtitle}</p>
+        </div>
+        <YourCrockpotTabs />
+      </div>
+      <Outlet />
+    </div>
+  );
+}

@@ -64,4 +64,19 @@ describe("SiteHeader", () => {
     expect(screen.queryByText("How it works")).not.toBeInTheDocument();
     expect(screen.queryByText("Sign in")).not.toBeInTheDocument();
   });
+
+  it("marks Your Crockpot as current on any of its tabs", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<SiteHeader />, { route: "/favourites" });
+
+    expect(screen.getByRole("link", { name: /Your Crockpot/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
 });

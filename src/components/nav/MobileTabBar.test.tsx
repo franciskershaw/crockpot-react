@@ -60,4 +60,19 @@ describe("MobileTabBar", () => {
     const addRecipe = screen.getByText("Add Recipe");
     expect(addRecipe.closest("span")).toHaveAttribute("aria-disabled", "true");
   });
+
+  it("marks Your Crockpot as current on any of its tabs", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<MobileTabBar />, { route: "/favourites" });
+
+    expect(screen.getByRole("link", { name: /Your Crockpot/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
 });

@@ -4,13 +4,16 @@ import { UserMenu } from "@/components/nav/UserMenu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
-import { Link, NavLink } from "react-router-dom";
+import { isYourCrockpotPath } from "@/features/your-crockpot/utils/yourCrockpotTabs";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
   `hover:text-foreground ${isActive ? "text-foreground underline underline-offset-4" : ""}`;
 
 export function SiteHeader() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { pathname } = useLocation();
+  const inYourCrockpot = isYourCrockpotPath(pathname);
   const showAuthedNav = !isLoading && isAuthenticated;
   const showAnonNav = !isLoading && !isAuthenticated;
 
@@ -28,9 +31,13 @@ export function SiteHeader() {
             </NavLink>
             {showAuthedNav && (
               <>
-                <NavLink to="/menu" className={navLinkClassName}>
+                <Link
+                  to="/menu"
+                  aria-current={inYourCrockpot ? "page" : undefined}
+                  className={navLinkClassName({ isActive: inYourCrockpot })}
+                >
                   Your Crockpot
-                </NavLink>
+                </Link>
                 <AddRecipeLink />
               </>
             )}

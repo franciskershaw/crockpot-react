@@ -1,5 +1,7 @@
+import { ApiError } from "@/lib/http/client";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { renderHook, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createItem } from "../data/api";
@@ -41,5 +43,20 @@ describe("useCreateItem", () => {
     expect(queryClient.getQueryState(catalogKeys.items)?.isInvalidated).toBe(
       true,
     );
+  });
+
+  it("leaves a duplicate name for the form to show instead of toasting it", async () => {
+    const { wrapper } = setupQueryClient();
+    mockCreateItem.mockRejectedValue(new ApiError(409, "name_taken"));
+
+    const { result } = renderHook(() => useCreateItem(), { wrapper });
+    result.current.mutate({
+      name: "Onions",
+      categoryId: "c_1",
+      allowedUnitIds: [],
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).not.toHaveBeenCalled();
   });
 });

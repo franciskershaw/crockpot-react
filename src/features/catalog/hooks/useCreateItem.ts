@@ -10,6 +10,7 @@ export function useCreateItem() {
 
   return useApiMutation<Item, CreateItemInput>({
     mutationFn: (input) => createItem(input),
+    isHandledError: (error) => error.status === 409,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: catalogKeys.items }),
   });

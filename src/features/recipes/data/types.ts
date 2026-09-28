@@ -42,6 +42,7 @@ export interface RecipeListParams {
   page?: number;
   limit?: number;
   seed?: string;
+  mine?: boolean;
 }
 
 export interface RecipeCategory {

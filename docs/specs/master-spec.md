@@ -256,30 +256,62 @@ CFE-003.
   pausable 5s window with a countdown bar, and the add-to-menu overlay
   closing on confirm (fixing `CFE-023`). See `LESSONS.md`. Now a
   sub-tab of Library (`CFE-046`).
-- **CFE-008** — My recipes tab: create/edit/delete own recipes,
-  create-recipe entry point. Desktop matches `yp4.png` **minus its inline
-  "Create a recipe" placeholder tile**, dropped at `CFE-006`'s grill
-  (2026-09-23) — the existing "+ New recipe" button is the only create
-  entry point, and the empty state (0 recipes) uses the shared
-  empty-state panel instead (`docs/handoffs/CFE-006.md` decisions 9-10).
-  Mobile reuses `CFE-006`'s `MobileRecipeRow` (own recipes can be
-  favourited/added-to-menu from here too); there is no edit/delete
-  control on the mobile row itself — tapping through to the recipe detail
-  page (`CFE-005`) is where edit/delete happens on mobile. Desktop keeps
-  `yp4.png`'s dedicated edit/delete icon pair, unchanged. The shared
-  `Checkbox` toggles on Enter (added at `CFE-006`); if one lands inside
-  the recipe form, decide whether Enter should submit the form instead.
-  Must add the My recipes tab count and subtitle count (`CFE-007`'s tab
-  count pattern) — decided at `CFE-007`'s grill (2026-09-27). Since
-  `CFE-046` these are the `My recipes N` sub-tab count and the Library
-  subtitle's `· N of your own` suffix; also add
-  `"/library/my-recipes"` to `BACK_LABELS` in
-  `useRecipeBackDestination.ts`. Data source: `GET /recipes?mine=true`
-  (`crockpot-go` `internal/handler/recipe_requests.go:235`), not yet
-  wrapped client-side. Absorbs `CFE-046`'s branch-review debt: the
-  count badge markup is duplicated between `LibraryTabs` and
-  `YourCrockpotTabs` — extract it once this ticket adds the second
-  sub-tab count.
+- **CFE-008** — My recipes sub-tab (`/library/my-recipes`): a list of
+  the caller's own recipes, laid out exactly like Favourites. Grilled
+  2026-09-28, cheap-to-undo, AI-driven. Built alongside `crockpot-go`
+  `CROC-060` (newest-first order for `?mine=true`), not blocked on it —
+  until it ships the list arrives in the browse shuffle order.
+  Supersedes `yp4.png` and `CFE-006` decisions 9-10 for this tab: no
+  edit/delete icons on cards (both stay on the detail page, `CFE-005`), no
+  "+ New recipe" button, no placeholder tile.
+  - **Acceptance criteria**
+    - [ ] `RecipeListParams` gains `mine?: boolean`, serialised as
+      `mine=true` by `buildRecipeListSearchParams`.
+    - [ ] `useMyRecipes`: infinite query over `listRecipes({ mine: true,
+      limit: 12 })`, keyed `recipeKeys.list(...)` so `useToggleFavourite`
+      and `useDeleteRecipe` (both write every `recipeKeys.lists()` cache)
+      keep it in sync with no new cache code.
+    - [ ] `MyRecipesPage`: `RecipeCard` grid (desktop) and
+      `MobileRecipeRow` list (mobile) with the usual cart and heart,
+      `from="/library/my-recipes"`; first-load skeleton; error panel with
+      retry; infinite scroll. No undo tiles (nothing is removable here).
+    - [ ] Empty state: `EmptyTabPanel` headed "No recipes of your own yet"
+      with a "Create a recipe" CTA rendered through `AddRecipeLink`
+      (pill-styled, inert until `CFE-010`).
+    - [ ] Shared, not copied: `useLoadMoreOnSentinel` extracted from
+      `FavouritesPage` (sentinel + retry-after-scroll-away) and used by
+      both pages; `FavouritesSkeleton` → `LibraryListSkeleton` (label
+      prop); `FAVOURITES_GRID_CLASSES` → `LIBRARY_GRID_CLASSES`; a
+      `TabCount` used by both `YourCrockpotTabs` and `LibraryTabs`
+      (`CFE-046` review debt).
+    - [ ] Sub-tab reads `My recipes N` once loaded.
+    - [ ] Library subtitle: each count shown only once loaded and
+      non-zero — `Your Crockpot · 24 favourites · 3 of your own`, either
+      part alone, `1 favourite`/`1 of your own`; both zero → `Your
+      Crockpot · nothing saved yet`; loading → `Your Crockpot`. Replaces
+      "no saved recipes yet".
+    - [ ] `BACK_LABELS` maps `/library/my-recipes` to "Back to my
+      recipes".
+  - **Non-goals**: the create/edit form and its routes (`CFE-010`);
+    pending-approval UI on cards (stays detail-page only, `CFE-004`
+    decision 5); backend ordering (`CROC-060`).
+  - **Verification**
+    - Logic, test-first: `mine` serialisation and key; `useMyRecipes`
+      request and paging; `useLoadMoreOnSentinel` (paging/retry cases
+      moved from `FavouritesPage.test.tsx`); `MyRecipesPage` (list,
+      `from=`, empty CTA, error retry, skeleton); layout sub-tab count and
+      every subtitle state; back label; a `useDeleteRecipe` case proving
+      a cached `mine` list is evicted.
+    - Service boundary: real `GET /recipes?mine=true` through the running
+      app against local `crockpot-go` — only the caller's recipes,
+      including an unapproved one.
+    - Visual: founder compares desktop and mobile against the Favourites
+      tab (grid, rows, empty state, subtitle) before a commit message is
+      offered.
+    - Interactive: founder favourites an own recipe (Favourites count
+      updates), adds one to the menu (badge), deletes one from its detail
+      page and returns (gone from the list), checks the back label.
+    - Build: `tsc -b`, `npm run build` with no new chunk warning.
 - **CFE-045** — Menu cap handling, paired with `crockpot-go` `CROC-059`
   (blocked on it). Every add-to-menu surface (browse `RecipeCard`,
   detail-page CTA, `MobileRecipeRow`, and the Menu tab's undo re-add)
@@ -303,6 +335,10 @@ CFE-003.
 - **CFE-010** — Manual recipe form (name, photo via Cloudinary widget,
   time, serves, categories, ingredients, instructions, notes) — the
   "fill it in yourself" half of `screenshots/add recipe/`.
+  Every entry point to the form goes through two components: turn
+  `AddRecipeLink` (header, mobile tab bar, My recipes empty-state CTA) into a
+  real link to the create route, and give `RecipeEditButton`'s
+  `/recipes/:id/edit` a route — until then it falls through to `/menu`.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 

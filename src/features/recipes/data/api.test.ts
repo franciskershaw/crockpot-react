@@ -83,4 +83,16 @@ describe("buildRecipeListSearchParams", () => {
     const search = buildRecipeListSearchParams({});
     expect(search.has("seed")).toBe(false);
   });
+
+  it("sets mine=true when asked for the caller's own recipes", () => {
+    const search = buildRecipeListSearchParams({ mine: true });
+    expect(search.get("mine")).toBe("true");
+  });
+
+  it("omits mine otherwise", () => {
+    expect(buildRecipeListSearchParams({ mine: false }).has("mine")).toBe(
+      false,
+    );
+    expect(buildRecipeListSearchParams({}).has("mine")).toBe(false);
+  });
 });

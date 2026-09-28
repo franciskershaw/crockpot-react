@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 // No `/recipes/new` route yet — renders as an inert placeholder everywhere it appears.
 export function AddRecipeLink({
@@ -12,7 +13,7 @@ export function AddRecipeLink({
     <span
       aria-disabled="true"
       title="Coming soon"
-      className={`cursor-not-allowed text-muted-foreground/50 ${className}`}
+      className={cn("cursor-not-allowed text-muted-foreground/50", className)}
     >
       {children}
     </span>

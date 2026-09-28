@@ -72,6 +72,12 @@ rules here that would drift from it.
   reference projects). Forms: React Hook Form + Zod (matches the old
   Next.js app).
 - **Routing**: `react-router-dom` v7 (matches `packing-list-react`).
+  Mounted as a data router (`createBrowserRouter` with one splat route
+  wrapping `AppRoutes`' `<Routes>`), from `CFE-010`, solely so
+  `useBlocker` can guard unsaved forms against back/swipe-back. Rejected:
+  converting every route to route objects (no need yet); staying on
+  `<BrowserRouter>` (`useBlocker` doesn't work there). Revisit if loaders
+  or `<ScrollRestoration>` become worth adopting.
 - **Auth**: Google OAuth (redirect to the Go API's `/auth/google/login`)
   and email/password (register/confirm/login/forgot/reset), matching
   `crockpot-go`'s Epic 2. Access token held in memory (not
@@ -289,6 +295,10 @@ CFE-003.
   `AddRecipeLink` (header, mobile tab bar, My recipes empty-state CTA) into a
   real link to the create route, and give `RecipeEditButton`'s
   `/recipes/:id/edit` a route — until then it falls through to `/menu`.
+  **Grilled** (2026-09-28), see `docs/handoffs/CFE-010.md`: create +
+  edit, browser-only autosaved draft, leave prompt (data-router
+  migration first), no photo until `crockpot-go` `CROC-040`, no
+  reordering, catalog-only ingredients until `CROC-039`. Six pieces.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 

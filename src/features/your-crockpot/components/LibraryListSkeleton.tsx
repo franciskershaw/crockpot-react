@@ -2,10 +2,8 @@ import { MobileRecipeRowSkeleton } from "@/features/recipes/components/MobileRec
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
 
+import { LIBRARY_PAGE_SIZE } from "../utils/libraryPageSize";
 import { LIBRARY_GRID_CLASSES } from "../utils/styles";
-
-// One page's worth.
-const COUNT = 12;
 
 export function LibraryListSkeleton({ label }: { label: string }) {
   return (
@@ -14,12 +12,12 @@ export function LibraryListSkeleton({ label }: { label: string }) {
         {label}
       </output>
       <div className="flex flex-col gap-2.5 md:hidden">
-        {Array.from({ length: COUNT }).map((_, i) => (
+        {Array.from({ length: LIBRARY_PAGE_SIZE }).map((_, i) => (
           <MobileRecipeRowSkeleton key={i} />
         ))}
       </div>
       <div className={LIBRARY_GRID_CLASSES}>
-        {Array.from({ length: COUNT }).map((_, i) => (
+        {Array.from({ length: LIBRARY_PAGE_SIZE }).map((_, i) => (
           <RecipeCardSkeleton key={i} />
         ))}
       </div>

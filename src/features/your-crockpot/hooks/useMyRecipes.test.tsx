@@ -120,7 +120,7 @@ describe("useMyRecipes", () => {
     expect(mockListRecipes).not.toHaveBeenCalled();
   });
 
-  it("drops a recipe deleted elsewhere from the cached list", async () => {
+  it("refetches once a recipe is deleted elsewhere, since the server's pages have shifted", async () => {
     mockListRecipes.mockResolvedValue(page(1, 1, ["r_1", "r_2"]));
     mockDeleteRecipe.mockResolvedValue(undefined);
     const { wrapper, queryClient } = setupQueryClient();
@@ -129,11 +129,18 @@ describe("useMyRecipes", () => {
       { wrapper },
     );
     await waitFor(() => expect(result.current.mine.isSuccess).toBe(true));
+    mockListRecipes.mockClear();
+    mockListRecipes.mockResolvedValue(page(1, 1, ["r_2"]));
 
     await act(() => result.current.remove.mutateAsync("r_1"));
 
-    const data = queryClient.getQueryData<RecipeListData>(MY_RECIPES_KEY);
-    expect(data?.pages[0].recipes.map((recipe) => recipe.id)).toEqual(["r_2"]);
+    await waitFor(() => expect(mockListRecipes).toHaveBeenCalledTimes(1));
+    await waitFor(() => {
+      const data = queryClient.getQueryData<RecipeListData>(MY_RECIPES_KEY);
+      expect(data?.pages[0].recipes.map((recipe) => recipe.id)).toEqual([
+        "r_2",
+      ]);
+    });
   });
 });
 

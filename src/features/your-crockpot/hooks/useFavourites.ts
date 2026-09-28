@@ -4,8 +4,7 @@ import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import { useApiInfiniteQuery } from "@/lib/tanstack/useApiInfiniteQuery";
 import { useIsMutating, useQueryClient } from "@tanstack/react-query";
 
-// Divides evenly into the grid's 2-, 3- and 4-column layouts.
-const PAGE_SIZE = 12;
+import { LIBRARY_PAGE_SIZE } from "../utils/libraryPageSize";
 
 export function useFavourites() {
   const { isAuthenticated } = useAuth();
@@ -16,7 +15,7 @@ export function useFavourites() {
 
   const query = useApiInfiniteQuery({
     queryKey: recipeKeys.favourites(),
-    queryFn: (page) => getFavourites(page, PAGE_SIZE),
+    queryFn: (page) => getFavourites(page, LIBRARY_PAGE_SIZE),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,

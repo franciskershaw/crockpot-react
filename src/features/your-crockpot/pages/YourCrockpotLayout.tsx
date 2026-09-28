@@ -8,6 +8,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { LibraryTabs } from "../components/LibraryTabs";
 import { YourCrockpotTabs } from "../components/YourCrockpotTabs";
 import { useFavourites } from "../hooks/useFavourites";
+import { useMyRecipes } from "../hooks/useMyRecipes";
 import {
   findYourCrockpotTab,
   YOUR_CROCKPOT_TABS,
@@ -19,23 +20,36 @@ function menuSubtitle(recipeCount: number | undefined) {
   return `Your Crockpot · ${recipeCount} ${recipeCount === 1 ? "recipe" : "recipes"}`;
 }
 
-function librarySubtitle(favouriteCount: number | undefined) {
-  if (favouriteCount === undefined) return "Your Crockpot";
-  if (favouriteCount === 0) return "Your Crockpot · no saved recipes yet";
-  return `Your Crockpot · ${favouriteCount} ${favouriteCount === 1 ? "favourite" : "favourites"}`;
+function librarySubtitle(
+  favouriteCount: number | undefined,
+  ownCount: number | undefined,
+) {
+  if (favouriteCount === 0 && ownCount === 0) {
+    return "Your Crockpot · nothing saved yet";
+  }
+  const parts = ["Your Crockpot"];
+  if (favouriteCount) {
+    parts.push(
+      `${favouriteCount} ${favouriteCount === 1 ? "favourite" : "favourites"}`,
+    );
+  }
+  if (ownCount) parts.push(`${ownCount} of your own`);
+  return parts.join(" · ");
 }
 
 export function YourCrockpotLayout() {
   const { pathname } = useLocation();
   const { data: menu } = useMenu();
   const { data: favourites } = useFavourites();
+  const { data: myRecipes } = useMyRecipes();
   const menuCount = menu?.entries.length;
   const favouriteCount = favourites?.pages[0]?.total;
+  const ownCount = myRecipes?.pages[0]?.total;
   const tab = findYourCrockpotTab(pathname) ?? YOUR_CROCKPOT_TABS[0];
   const isLibrary = tab.path === "/library";
   const showMenuActions = tab.path === "/menu" && (menuCount ?? 0) > 0;
   const subtitle = isLibrary
-    ? librarySubtitle(favouriteCount)
+    ? librarySubtitle(favouriteCount, ownCount)
     : menuSubtitle(menuCount);
 
   return (
@@ -63,7 +77,12 @@ export function YourCrockpotLayout() {
           <YourCrockpotTabs counts={{ "/menu": menuCount }} />
         </div>
         {isLibrary && (
-          <LibraryTabs counts={{ "/library/favourites": favouriteCount }} />
+          <LibraryTabs
+            counts={{
+              "/library/favourites": favouriteCount,
+              "/library/my-recipes": ownCount,
+            }}
+          />
         )}
       </div>
       <div className="min-h-0 flex-1">

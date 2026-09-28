@@ -48,6 +48,13 @@ describe("resolveBackDestination", () => {
     });
   });
 
+  it("resolves the known /library/my-recipes label", () => {
+    expect(resolveBackDestination("/library/my-recipes")).toEqual({
+      to: "/library/my-recipes",
+      label: "Back to my recipes",
+    });
+  });
+
   it("trusts an unrecognized from for navigation but uses the generic label", () => {
     expect(resolveBackDestination("/somewhere-else")).toEqual({
       to: "/somewhere-else",

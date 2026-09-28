@@ -6,6 +6,7 @@ import {
   findYourCrockpotTab,
   YOUR_CROCKPOT_TABS,
 } from "../utils/yourCrockpotTabs";
+import { TabCount } from "./TabCount";
 
 export function YourCrockpotTabs({
   counts,
@@ -44,14 +45,7 @@ export function YourCrockpotTabs({
           )}
         >
           {tab.label}
-          {counts[tab.to] !== undefined && (
-            <>
-              {" "}
-              <span className="font-normal text-muted-foreground">
-                {counts[tab.to]}
-              </span>
-            </>
-          )}
+          <TabCount count={counts[tab.to]} />
         </Link>
       ))}
     </nav>

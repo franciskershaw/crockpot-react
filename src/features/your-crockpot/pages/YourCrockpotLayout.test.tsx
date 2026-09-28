@@ -5,10 +5,12 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { useFavourites } from "../hooks/useFavourites";
+import { useMyRecipes } from "../hooks/useMyRecipes";
 import { YourCrockpotLayout } from "./YourCrockpotLayout";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
 vi.mock("../hooks/useFavourites", () => ({ useFavourites: vi.fn() }));
+vi.mock("../hooks/useMyRecipes", () => ({ useMyRecipes: vi.fn() }));
 vi.mock("@/features/menu/components/MenuActionsMenu", () => ({
   MenuActionsMenu: () => <button type="button">More menu actions</button>,
 }));
@@ -21,7 +23,25 @@ function renderAt(
   path: string,
   recipeCount: number | null = 2,
   favouriteCount: number | null = null,
+  ownCount: number | null = null,
 ) {
+  vi.mocked(useMyRecipes).mockReturnValue({
+    data:
+      ownCount === null
+        ? undefined
+        : {
+            pages: [
+              {
+                recipes: [],
+                page: 1,
+                limit: 12,
+                total: ownCount,
+                totalPages: 1,
+              },
+            ],
+            pageParams: [1],
+          },
+  } as unknown as ReturnType<typeof useMyRecipes>);
   vi.mocked(useFavourites).mockReturnValue({
     data:
       favouriteCount === null
@@ -149,39 +169,32 @@ describe("YourCrockpotLayout", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("subtitles Library with how many recipes are favourited", () => {
-    renderAt("/library/favourites", 2, 24);
-    expect(
-      screen.getByText("Your Crockpot · 24 favourites"),
-    ).toBeInTheDocument();
-  });
+  it.each([
+    [24, null, "Your Crockpot · 24 favourites"],
+    [24, 3, "Your Crockpot · 24 favourites · 3 of your own"],
+    [0, 3, "Your Crockpot · 3 of your own"],
+    [24, 0, "Your Crockpot · 24 favourites"],
+    [1, 1, "Your Crockpot · 1 favourite · 1 of your own"],
+    [0, 0, "Your Crockpot · nothing saved yet"],
+    [null, null, "Your Crockpot"],
+    [0, null, "Your Crockpot"],
+  ])(
+    "subtitles Library from %s favourites and %s of your own",
+    (favourites, own, subtitle) => {
+      renderAt("/library/favourites", 2, favourites, own);
+      expect(screen.getByText(subtitle)).toBeInTheDocument();
+    },
+  );
 
   it("keeps the same subtitle on My recipes", () => {
-    renderAt("/library/my-recipes", 2, 24);
+    renderAt("/library/my-recipes", 2, 24, 3);
     expect(
-      screen.getByText("Your Crockpot · 24 favourites"),
+      screen.getByText("Your Crockpot · 24 favourites · 3 of your own"),
     ).toBeInTheDocument();
   });
 
-  it("uses the singular for one favourite", () => {
-    renderAt("/library/favourites", 2, 1);
-    expect(screen.getByText("Your Crockpot · 1 favourite")).toBeInTheDocument();
-  });
-
-  it("says when nothing is saved", () => {
-    renderAt("/library/favourites", 2, 0);
-    expect(
-      screen.getByText("Your Crockpot · no saved recipes yet"),
-    ).toBeInTheDocument();
-  });
-
-  it("subtitles Library plainly while the favourites count is loading", () => {
-    renderAt("/library/favourites", 2, null);
-    expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
-  });
-
-  it("counts Menu and Favourites, but not Library or My recipes", () => {
-    renderAt("/library/favourites", 6, 24);
+  it("counts Menu, Favourites and My recipes, but not Library", () => {
+    renderAt("/library/favourites", 6, 24, 3);
 
     expect(screen.getByRole("link", { name: "Menu 6" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Library" })).toBeInTheDocument();
@@ -189,16 +202,19 @@ describe("YourCrockpotLayout", () => {
       screen.getByRole("link", { name: "Favourites 24" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "My recipes" }),
+      screen.getByRole("link", { name: "My recipes 3" }),
     ).toBeInTheDocument();
   });
 
   it("shows no count until a tab's data loads, and 0 once it has", () => {
-    renderAt("/library/favourites", 0, null);
+    renderAt("/library/favourites", 0, null, 0);
 
     expect(screen.getByRole("link", { name: "Menu 0" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Favourites" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "My recipes 0" }),
     ).toBeInTheDocument();
   });
 

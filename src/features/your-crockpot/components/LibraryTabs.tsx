@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { NavLink } from "react-router-dom";
 
 import { LIBRARY_TABS } from "../utils/yourCrockpotTabs";
+import { TabCount } from "./TabCount";
 
 export function LibraryTabs({
   counts,
@@ -27,14 +28,7 @@ export function LibraryTabs({
           }
         >
           {tab.label}
-          {counts[tab.to] !== undefined && (
-            <>
-              {" "}
-              <span className="font-normal text-muted-foreground">
-                {counts[tab.to]}
-              </span>
-            </>
-          )}
+          <TabCount count={counts[tab.to]} />
         </NavLink>
       ))}
     </nav>

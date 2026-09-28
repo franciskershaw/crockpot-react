@@ -1,22 +1,44 @@
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
+import { StatePanel } from "@/components/StatePanel";
+import { Button } from "@/components/ui/button";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { PILL_CTA_CLASSES } from "@/lib/styles";
-import { ChefHat } from "lucide-react";
+import { AlertTriangle, ChefHat } from "lucide-react";
 
+import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
+import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
 import { useMyRecipes } from "../hooks/useMyRecipes";
-import { FAVOURITES_GRID_CLASSES } from "../utils/styles";
+import { LIBRARY_GRID_CLASSES } from "../utils/styles";
 
 const FROM = "/library/my-recipes";
 
 export function MyRecipesPage() {
-  const { data } = useMyRecipes();
+  const { data, isError, refetch, hasNextPage, isFetching, loadMore } =
+    useMyRecipes();
   const recipes = data?.pages.flatMap((page) => page.recipes);
+  const sentinelRef = useLoadMoreOnSentinel({
+    hasNextPage,
+    isFetching,
+    isError,
+    loadMore,
+  });
 
   return (
     <div className="lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-10">
-      {!recipes ? null : recipes.length === 0 ? (
+      {!recipes ? (
+        isError ? (
+          <StatePanel
+            icon={AlertTriangle}
+            heading="Something went wrong"
+            description="We couldn't load your recipes. Check your connection and try again."
+            actions={<Button onClick={() => refetch()}>Retry</Button>}
+          />
+        ) : (
+          <LibraryListSkeleton label="Loading your recipes…" />
+        )
+      ) : recipes.length === 0 ? (
         <EmptyTabPanel
           icon={ChefHat}
           heading="No recipes of your own yet"
@@ -34,11 +56,12 @@ export function MyRecipesPage() {
               <MobileRecipeRow key={recipe.id} recipe={recipe} from={FROM} />
             ))}
           </div>
-          <div className={FAVOURITES_GRID_CLASSES}>
+          <div className={LIBRARY_GRID_CLASSES}>
             {recipes.map((recipe) => (
               <RecipeCard key={recipe.id} recipe={recipe} from={FROM} />
             ))}
           </div>
+          {hasNextPage && <div ref={sentinelRef} className="h-1" />}
         </>
       )}
     </div>

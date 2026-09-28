@@ -102,7 +102,6 @@ function mockFavourites(
     isError?: boolean;
     hasNextPage?: boolean;
     isFetching?: boolean;
-    isFetchNextPageError?: boolean;
   } = {},
 ) {
   const total = pages?.flat().length ?? 0;
@@ -123,7 +122,6 @@ function mockFavourites(
     isError: false,
     hasNextPage: false,
     isFetching: false,
-    isFetchNextPageError: false,
     changesInFlight: 0,
     refetch,
     loadMore,
@@ -335,48 +333,6 @@ describe("FavouritesPage", () => {
       FakeIntersectionObserver.setSentinelInView(true);
 
       expect(loadMore).toHaveBeenCalled();
-    });
-
-    it("doesn't retry a failed page while the end stays in view, but does once it comes back", () => {
-      mockFavourites([["Beef Casserole"]], { hasNextPage: true });
-      const { rerender } = render(page());
-      FakeIntersectionObserver.setSentinelInView(true);
-      expect(loadMore).toHaveBeenCalledTimes(1);
-
-      mockFavourites([["Beef Casserole"]], {
-        hasNextPage: true,
-        isError: true,
-        isFetchNextPageError: true,
-      });
-      rerender(page());
-      expect(loadMore).toHaveBeenCalledTimes(1);
-
-      FakeIntersectionObserver.setSentinelInView(false);
-      FakeIntersectionObserver.setSentinelInView(true);
-      expect(loadMore).toHaveBeenCalledTimes(2);
-    });
-
-    it("doesn't retry a failed refresh of a stale list while the end stays in view", () => {
-      mockFavourites([["Beef Casserole"]], { hasNextPage: true });
-      const { rerender } = render(page());
-      FakeIntersectionObserver.setSentinelInView(true);
-      mockFavourites([["Beef Casserole"]], {
-        hasNextPage: true,
-        isFetching: true,
-      });
-      rerender(page());
-      const callsBeforeFailure = loadMore.mock.calls.length;
-
-      mockFavourites([["Beef Casserole"]], {
-        hasNextPage: true,
-        isError: true,
-      });
-      rerender(page());
-      expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure);
-
-      FakeIntersectionObserver.setSentinelInView(false);
-      FakeIntersectionObserver.setSentinelInView(true);
-      expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure + 1);
     });
   });
 });

@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { StatePanel } from "@/components/StatePanel";
@@ -9,15 +8,15 @@ import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { PILL_CTA_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
-import { useSentinelInView } from "@/lib/useSentinelInView";
 import { AlertTriangle, Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 
-import { FavouritesSkeleton } from "../components/FavouritesSkeleton";
+import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useFavourites } from "../hooks/useFavourites";
+import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
 import { useUndoableFavouriteRemoval } from "../hooks/useUndoableFavouriteRemoval";
-import { FAVOURITES_GRID_CLASSES } from "../utils/styles";
+import { LIBRARY_GRID_CLASSES } from "../utils/styles";
 
 export function FavouritesPage() {
   const {
@@ -35,20 +34,13 @@ export function FavouritesPage() {
   const slots = buildUndoSlots(recipes ?? [], (recipe) => recipe.id, removals);
   const showUndo = slots.some((slot) => slot.undo);
 
-  const { sentinelRef, inView } = useSentinelInView();
-  // After a failed fetch (a page, or refreshing a stale list), only scrolling away and back retries it.
-  const leftViewSinceLastLoad = useRef(false);
-
-  useEffect(() => {
-    if (!inView) leftViewSinceLastLoad.current = true;
-  }, [inView]);
-
-  useEffect(() => {
-    if (!inView || !hasNextPage) return;
-    if (isError && !leftViewSinceLastLoad.current) return;
-    leftViewSinceLastLoad.current = false;
-    loadMore();
-  }, [inView, hasNextPage, isFetching, isError, changesInFlight, loadMore]);
+  const sentinelRef = useLoadMoreOnSentinel({
+    hasNextPage,
+    isFetching,
+    isError,
+    changesInFlight,
+    loadMore,
+  });
 
   const renderUndo = (slot: UndoSlot<RecipeCardData>) => (
     <UndoTile
@@ -76,7 +68,7 @@ export function FavouritesPage() {
             actions={<Button onClick={() => refetch()}>Retry</Button>}
           />
         ) : (
-          <FavouritesSkeleton />
+          <LibraryListSkeleton label="Loading your favourites…" />
         )
       ) : recipes.length === 0 && !showUndo ? (
         <EmptyTabPanel
@@ -109,10 +101,7 @@ export function FavouritesPage() {
               )}
             />
           </div>
-          <div
-            data-testid="favourites-grid"
-            className={FAVOURITES_GRID_CLASSES}
-          >
+          <div data-testid="favourites-grid" className={LIBRARY_GRID_CLASSES}>
             <AnimatedSlots
               slots={slots}
               renderUndo={renderUndo}

@@ -6,7 +6,7 @@ import type {
   RecipeListResponse,
 } from "@/features/recipes/data/types";
 import { useDeleteRecipe } from "@/features/recipes/hooks/useDeleteRecipe";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
+import { deferred, setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -134,5 +134,39 @@ describe("useMyRecipes", () => {
 
     const data = queryClient.getQueryData<RecipeListData>(MY_RECIPES_KEY);
     expect(data?.pages[0].recipes.map((recipe) => recipe.id)).toEqual(["r_2"]);
+  });
+});
+
+describe("useMyRecipes loadMore", () => {
+  it("fetches the next page", async () => {
+    mockListRecipes.mockResolvedValue(page(1, 2));
+    const { result } = renderMyRecipes();
+    await waitFor(() => expect(result.current.hasNextPage).toBe(true));
+    mockListRecipes.mockResolvedValue(page(2, 2));
+
+    act(() => result.current.loadMore());
+
+    await waitFor(() =>
+      expect(mockListRecipes).toHaveBeenLastCalledWith({
+        mine: true,
+        limit: 12,
+        page: 2,
+      }),
+    );
+  });
+
+  it("does nothing while a fetch is already running", async () => {
+    mockListRecipes.mockResolvedValue(page(1, 2));
+    const { result } = renderMyRecipes();
+    await waitFor(() => expect(result.current.hasNextPage).toBe(true));
+    const pending = deferred<RecipeListResponse>();
+    mockListRecipes.mockReturnValue(pending.promise);
+    act(() => result.current.loadMore());
+    await waitFor(() => expect(result.current.isFetching).toBe(true));
+
+    act(() => result.current.loadMore());
+
+    expect(mockListRecipes).toHaveBeenCalledTimes(2);
+    await act(async () => pending.resolve(page(2, 2)));
   });
 });

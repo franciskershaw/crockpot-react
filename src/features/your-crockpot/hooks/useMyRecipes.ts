@@ -10,7 +10,7 @@ const PARAMS = { mine: true, limit: PAGE_SIZE };
 // Keyed under recipeKeys.lists() so favourite toggles and deletes patch it with every other list.
 export function useMyRecipes() {
   const { isAuthenticated } = useAuth();
-  return useApiInfiniteQuery({
+  const query = useApiInfiniteQuery({
     queryKey: recipeKeys.list(PARAMS),
     queryFn: (page) => listRecipes({ ...PARAMS, page }),
     initialPageParam: 1,
@@ -18,4 +18,11 @@ export function useMyRecipes() {
       lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
     enabled: isAuthenticated,
   });
+
+  const loadMore = () => {
+    if (query.isFetching || !query.hasNextPage) return;
+    query.fetchNextPage();
+  };
+
+  return { ...query, loadMore };
 }

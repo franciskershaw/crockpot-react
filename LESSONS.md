@@ -341,3 +341,9 @@ decision as fully closed. No code written yet.
 
 - Tests passed, but switching Menu → Library blanked the whole page: the `/library` redirect sat outside the layout route, so the layout unmounted and remounted. Fixed by linking the pill straight to the default sub-tab and moving the redirect inside the layout, with a test counting layout mounts. The pill's `transition-colors` also faded the background while the shadow and weight snapped.
 - **Pattern**: a redirect route belongs inside the layout it redirects within, and a nav link should target the final path rather than rely on a redirect hop.
+
+## 2026-09-28 — CFE-008 — My recipes. Clean build; review caught a stale-cache bug the grill missed.
+
+- Three pieces, no rework on screen. Keying the list under `recipeKeys.lists()` got favourite and delete sync for free, but the review found that delete only filtered cached pages: `total` stayed stale and later pages skipped a recipe. Favourites had the same gap since CFE-007 (a deleted favourite stayed listed). Fixed by counting it off `total` and marking the lists stale.
+- The grill's "the shared key keeps it in sync" held for which rows show, not for counts or paging. I also claimed a backend endpoint filtered before reading its SQL; the founder's pushback caught it before it went into the plan.
+- **Pattern**: when a paginated list relies on another hook's cache patch, check the patch keeps `total` and server page boundaries true, not just the rows. Read the query, not just the param parsing, before calling an endpoint's behaviour verified.

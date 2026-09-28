@@ -163,7 +163,7 @@ describe("FavouritesPage", () => {
     ]);
     expect(screen.getAllByTestId("recipe-card")[0]).toHaveAttribute(
       "data-from",
-      "/favourites",
+      "/library/favourites",
     );
   });
 
@@ -174,7 +174,7 @@ describe("FavouritesPage", () => {
     expect(names("mobile-row")).toEqual(["Beef Casserole", "Fajita Wraps"]);
     expect(screen.getAllByTestId("mobile-row")[0]).toHaveAttribute(
       "data-from",
-      "/favourites",
+      "/library/favourites",
     );
   });
 

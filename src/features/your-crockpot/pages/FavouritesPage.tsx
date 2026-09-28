@@ -101,7 +101,7 @@ export function FavouritesPage() {
               renderItem={(slot) => (
                 <MobileRecipeRow
                   recipe={slot.item}
-                  from="/favourites"
+                  from="/library/favourites"
                   onUnfavourite={() =>
                     remove(slot.item, slot.anchorKey, slot.index)
                   }
@@ -119,7 +119,7 @@ export function FavouritesPage() {
               renderItem={(slot) => (
                 <RecipeCard
                   recipe={slot.item}
-                  from="/favourites"
+                  from="/library/favourites"
                   onUnfavourite={() =>
                     remove(slot.item, slot.anchorKey, slot.index)
                   }

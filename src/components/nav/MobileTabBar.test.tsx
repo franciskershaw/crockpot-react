@@ -68,7 +68,7 @@ describe("MobileTabBar", () => {
       isLoading: false,
     });
 
-    renderWithProviders(<MobileTabBar />, { route: "/favourites" });
+    renderWithProviders(<MobileTabBar />, { route: "/library/favourites" });
 
     expect(screen.getByRole("link", { name: /Your Crockpot/ })).toHaveAttribute(
       "aria-current",

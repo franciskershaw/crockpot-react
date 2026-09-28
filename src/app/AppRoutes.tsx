@@ -67,9 +67,21 @@ export function AppRoutes() {
           }
         >
           <Route path="/menu" element={<MenuPage />} />
-          <Route path="/favourites" element={<FavouritesPage />} />
-          <Route path="/my-recipes" element={<MyRecipesPage />} />
+          <Route
+            path="/library"
+            element={<Navigate to="/library/favourites" replace />}
+          />
+          <Route path="/library/favourites" element={<FavouritesPage />} />
+          <Route path="/library/my-recipes" element={<MyRecipesPage />} />
         </Route>
+        <Route
+          path="/favourites"
+          element={<Navigate to="/library/favourites" replace />}
+        />
+        <Route
+          path="/my-recipes"
+          element={<Navigate to="/library/my-recipes" replace />}
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -20,6 +20,7 @@ const DEFAULT_TO = "/recipes";
 const BACK_LABELS: Record<string, string> = {
   [DEFAULT_TO]: "Back to recipes",
   "/menu": "Back to menu",
+  "/library/favourites": "Back to favourites",
 };
 
 // Single leading slash only — rejects `//`/`/\` (protocol-relative) and schemes like `https:`, which <Link> would follow as a real cross-origin href.

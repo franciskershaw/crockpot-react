@@ -1,6 +1,6 @@
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
@@ -56,8 +56,14 @@ function renderAt(
       <Routes>
         <Route element={<YourCrockpotLayout />}>
           <Route path="/menu" element={<p>menu content</p>} />
-          <Route path="/favourites" element={<p>favourites content</p>} />
-          <Route path="/my-recipes" element={<p>my recipes content</p>} />
+          <Route
+            path="/library/favourites"
+            element={<p>favourites content</p>}
+          />
+          <Route
+            path="/library/my-recipes"
+            element={<p>my recipes content</p>}
+          />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -87,67 +93,98 @@ describe("YourCrockpotLayout", () => {
     ).toBeInTheDocument();
   });
 
-  it("titles the other tabs by name", () => {
-    renderAt("/my-recipes");
+  it("titles both Library sub-tabs Library", () => {
+    renderAt("/library/my-recipes");
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "My recipes" }),
+      screen.getByRole("heading", { level: 1, name: "Library" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
     expect(screen.getByText("my recipes content")).toBeInTheDocument();
   });
 
-  it("shows the tabs, marking the current one", () => {
-    renderAt("/favourites");
+  it("shows the tabs and Library's sub-tabs, marking the current ones", () => {
+    renderAt("/library/favourites");
 
     const tabs = screen.getByRole("navigation", { name: "Your Crockpot" });
-    expect(screen.getAllByRole("link").map((link) => link.textContent)).toEqual(
-      ["Menu 2", "Favourites", "My recipes"],
-    );
-    expect(screen.getByRole("link", { name: "Favourites" })).toHaveAttribute(
+    const subTabs = screen.getByRole("navigation", { name: "Library" });
+    expect(
+      within(tabs)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Menu 2", "Library"]);
+    expect(
+      within(subTabs)
+        .getAllByRole("link")
+        .map((link) => link.textContent),
+    ).toEqual(["Favourites", "My recipes"]);
+    expect(within(tabs).getByRole("link", { name: "Library" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("link", { name: "Menu 2" })).not.toHaveAttribute(
-      "aria-current",
-    );
-    expect(tabs).toBeInTheDocument();
+    expect(
+      within(tabs).getByRole("link", { name: "Menu 2" }),
+    ).not.toHaveAttribute("aria-current");
+    expect(
+      within(subTabs).getByRole("link", { name: "Favourites" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      within(subTabs).getByRole("link", { name: "My recipes" }),
+    ).not.toHaveAttribute("aria-current");
   });
 
-  it("titles the Favourites tab with how many recipes are saved", () => {
-    renderAt("/favourites", 2, 24);
+  it("links Library straight to Favourites, marking it current on either sub-tab", () => {
+    renderAt("/library/my-recipes");
 
+    const library = within(
+      screen.getByRole("navigation", { name: "Your Crockpot" }),
+    ).getByRole("link", { name: "Library" });
+    expect(library).toHaveAttribute("href", "/library/favourites");
+    expect(library).toHaveAttribute("aria-current", "page");
+  });
+
+  it("has no sub-tabs on the Menu tab", () => {
+    renderAt("/menu");
     expect(
-      screen.getByRole("heading", { level: 1, name: "Favourites" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("navigation", { name: "Library" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("subtitles Library with how many recipes are favourited", () => {
+    renderAt("/library/favourites", 2, 24);
     expect(
-      screen.getByText("Your Crockpot · 24 saved recipes"),
+      screen.getByText("Your Crockpot · 24 favourites"),
     ).toBeInTheDocument();
   });
 
-  it("uses the singular for one saved recipe", () => {
-    renderAt("/favourites", 2, 1);
+  it("keeps the same subtitle on My recipes", () => {
+    renderAt("/library/my-recipes", 2, 24);
     expect(
-      screen.getByText("Your Crockpot · 1 saved recipe"),
+      screen.getByText("Your Crockpot · 24 favourites"),
     ).toBeInTheDocument();
+  });
+
+  it("uses the singular for one favourite", () => {
+    renderAt("/library/favourites", 2, 1);
+    expect(screen.getByText("Your Crockpot · 1 favourite")).toBeInTheDocument();
   });
 
   it("says when nothing is saved", () => {
-    renderAt("/favourites", 2, 0);
+    renderAt("/library/favourites", 2, 0);
     expect(
       screen.getByText("Your Crockpot · no saved recipes yet"),
     ).toBeInTheDocument();
   });
 
-  it("titles Favourites plainly while its count is loading", () => {
-    renderAt("/favourites", 2, null);
+  it("subtitles Library plainly while the favourites count is loading", () => {
+    renderAt("/library/favourites", 2, null);
     expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
   });
 
-  it("counts recipes on the Menu and Favourites tabs, but not My recipes", () => {
-    renderAt("/menu", 6, 24);
+  it("counts Menu and Favourites, but not Library or My recipes", () => {
+    renderAt("/library/favourites", 6, 24);
 
     expect(screen.getByRole("link", { name: "Menu 6" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Library" })).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Favourites 24" }),
     ).toBeInTheDocument();
@@ -157,7 +194,7 @@ describe("YourCrockpotLayout", () => {
   });
 
   it("shows no count until a tab's data loads, and 0 once it has", () => {
-    renderAt("/menu", 0, null);
+    renderAt("/library/favourites", 0, null);
 
     expect(screen.getByRole("link", { name: "Menu 0" })).toBeInTheDocument();
     expect(
@@ -176,7 +213,7 @@ describe("YourCrockpotLayout", () => {
   });
 
   it("hides the menu actions on the other tabs", () => {
-    renderAt("/favourites", 2);
+    renderAt("/library/favourites", 2);
     expect(actionsMenu()).not.toBeInTheDocument();
   });
 });

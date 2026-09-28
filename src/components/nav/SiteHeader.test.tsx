@@ -72,7 +72,7 @@ describe("SiteHeader", () => {
       isLoading: false,
     });
 
-    renderWithProviders(<SiteHeader />, { route: "/favourites" });
+    renderWithProviders(<SiteHeader />, { route: "/library/favourites" });
 
     expect(screen.getByRole("link", { name: /Your Crockpot/ })).toHaveAttribute(
       "aria-current",

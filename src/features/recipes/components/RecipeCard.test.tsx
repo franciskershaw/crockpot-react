@@ -178,7 +178,7 @@ describe("RecipeCard", () => {
     renderWithProviders(
       <RecipeCard
         recipe={recipe({ isFavourite: true })}
-        from="/favourites"
+        from="/library/favourites"
         onUnfavourite={onUnfavourite}
       />,
     );

@@ -41,6 +41,13 @@ describe("resolveBackDestination", () => {
     });
   });
 
+  it("resolves the known /library/favourites label", () => {
+    expect(resolveBackDestination("/library/favourites")).toEqual({
+      to: "/library/favourites",
+      label: "Back to favourites",
+    });
+  });
+
   it("trusts an unrecognized from for navigation but uses the generic label", () => {
     expect(resolveBackDestination("/somewhere-else")).toEqual({
       to: "/somewhere-else",

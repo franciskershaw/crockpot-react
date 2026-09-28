@@ -336,3 +336,8 @@ decision as fully closed. No code written yet.
 - Two grill decisions (undo restores the slot; refetch once the last change settles) contradicted each other and surfaced mid-build, because a "cheap" grill never composed them. Five visual rounds followed once Favourites showed off-menu recipes, exposing `CFE-006`'s mobile row; undo grew from one tile to a shared, pausable queue. The branch review found a pause leak, a misplaced tile, a refetch loop, and a red-phase guard test protecting a wrong count.
 - **Pattern**: for a new screen, build a thin visible slice first (list + empty state), then the logic layers, so there's something to look at by the first commit.
 - **Pattern**: a test that passes on red gets the same scrutiny as new code — ask whether the behaviour it guards is right, not just that it's guarded.
+
+## 2026-09-28 — CFE-046 — Library tab. One bug, found by the founder on screen.
+
+- Tests passed, but switching Menu → Library blanked the whole page: the `/library` redirect sat outside the layout route, so the layout unmounted and remounted. Fixed by linking the pill straight to the default sub-tab and moving the redirect inside the layout, with a test counting layout mounts. The pill's `transition-colors` also faded the background while the shadow and weight snapped.
+- **Pattern**: a redirect route belongs inside the layout it redirects within, and a nav link should target the final path rather than rely on a redirect hop.

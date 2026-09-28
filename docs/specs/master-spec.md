@@ -254,9 +254,8 @@ CFE-003.
   pieces Menu shares: the mobile row's cart and badge (replacing
   `CFE-006`'s serves pill), an undo tile per removal on one shared,
   pausable 5s window with a countdown bar, and the add-to-menu overlay
-  closing on confirm (fixing `CFE-023`). See `LESSONS.md`. When `/planner`
-  (`CFE-012`) is added, extend the Your Crockpot tab active-state match
-  to include it. Moves under Library at `CFE-046`.
+  closing on confirm (fixing `CFE-023`). See `LESSONS.md`. Now a
+  sub-tab of Library (`CFE-046`).
 - **CFE-008** — My recipes tab: create/edit/delete own recipes,
   create-recipe entry point. Desktop matches `yp4.png` **minus its inline
   "Create a recipe" placeholder tile**, dropped at `CFE-006`'s grill
@@ -271,12 +270,16 @@ CFE-003.
   `Checkbox` toggles on Enter (added at `CFE-006`); if one lands inside
   the recipe form, decide whether Enter should submit the form instead.
   Must add the My recipes tab count and subtitle count (`CFE-007`'s tab
-  count pattern) — decided at `CFE-007`'s grill (2026-09-27), deferred
-  here only because no own-recipes data source exists yet. After
+  count pattern) — decided at `CFE-007`'s grill (2026-09-27). Since
   `CFE-046` these are the `My recipes N` sub-tab count and the Library
   subtitle's `· N of your own` suffix; also add
   `"/library/my-recipes"` to `BACK_LABELS` in
-  `useRecipeBackDestination.ts`.
+  `useRecipeBackDestination.ts`. Data source: `GET /recipes?mine=true`
+  (`crockpot-go` `internal/handler/recipe_requests.go:235`), not yet
+  wrapped client-side. Absorbs `CFE-046`'s branch-review debt: the
+  count badge markup is duplicated between `LibraryTabs` and
+  `YourCrockpotTabs` — extract it once this ticket adds the second
+  sub-tab count.
 - **CFE-045** — Menu cap handling, paired with `crockpot-go` `CROC-059`
   (blocked on it). Every add-to-menu surface (browse `RecipeCard`,
   detail-page CTA, `MobileRecipeRow`, and the Menu tab's undo re-add)
@@ -284,56 +287,11 @@ CFE-003.
   and the optimistic add reverts. Whether to also disable adding before
   the request once the cached menu is at the cap is for this ticket's
   grill. Surfaced at `CFE-007`'s grill (2026-09-27), not grilled.
-- **CFE-046** — Library tab: merge Favourites and My recipes under one
-  top-level `Library` tab with its own sub-tabs, freeing room in the
-  top pill for Planner (`CFE-012`). Navigation only. Designs: the
-  desktop and mobile "Your Crockpot — Library" images from the founder,
-  shared in chat at the grill (2026-09-28), not saved to `../screenshots/`.
-  Grilled 2026-09-28, cheap-to-undo, AI-driven.
-  - **Acceptance criteria**
-    - [ ] The top pill reads `Menu N · Library`. The Library pill has
-      no count.
-    - [ ] Routes are `/library/favourites` and `/library/my-recipes`.
-      `/library`, `/favourites` and `/my-recipes` each redirect
-      (`replace`) to the matching new path, and `/library` goes to
-      `/library/favourites`.
-    - [ ] `isYourCrockpotPath` matches `/library/*`, so the "Your
-      Crockpot" item in `SiteHeader` and `MobileTabBar` stays active on
-      both sub-tabs.
-    - [ ] The heading reads `Library` on both sub-tabs. The subtitle,
-      shared by both sub-tabs, is `Your Crockpot · N favourites`, keeping
-      the existing zero wording (`no saved recipes yet`) and the
-      loading wording (plain `Your Crockpot`).
-    - [ ] A `LibraryTabs` underline strip (`Favourites N · My recipes`)
-      renders only under `/library`, as a second row inside the pinned
-      header block. It stays pinned on mobile (`sticky`) and sits above
-      the scrolling tab body on desktop. `My recipes` shows no count
-      until `CFE-008`.
-    - [ ] Mobile: the top pill is full width, with the tabs sharing it
-      equally. The scroll-into-view effect stays for Planner.
-    - [ ] Favourites' `from=` becomes `/library/favourites`, and
-      `BACK_LABELS` maps it to "Back to favourites". This also fixes the
-      existing "Back to recipes" mislabel for Favourites.
-  - **Non-goals**: recipe card/row layout (the images show a 2-col
-    mobile card grid and heart-only desktop cards; both stay as built);
-    the Planner tab and its PREMIUM badge (`CFE-012`); My recipes
-    content, its count and its back label (`CFE-008`).
-  - **Founder-approved exception**: no Claude-Design spec dump. The
-    strip is styled from existing tokens to match the images.
-  - **Verification**
-    - Logic, test-first: `yourCrockpotTabs.test.ts`,
-      `YourCrockpotLayout.test.tsx` (heading, subtitle states, strip
-      only under `/library`, Menu count unchanged),
-      `useRecipeBackDestination.test.ts`, a routing test for the three
-      redirects, and `from=`/route updates in `FavouritesPage.test.tsx`
-      and `MobileTabBar.test.tsx`.
-    - Visual: the founder checks the running app at desktop and mobile
-      widths against the images, before a commit message is offered.
-    - Interactive: the founder switches sub-tabs; opens a recipe from
-      Favourites and goes back (label and landing spot); visits
-      `/favourites` directly; checks the nav highlight on both sub-tabs.
-    - Build: `tsc -b` and `npm run build`, with no new chunk warning
-      (`YourCrockpotLayout` is eager, see `CFE-039`).
+- **CFE-046** — Library tab: Favourites and My recipes merged under one
+  top-level `Library` tab with underline sub-tabs, at
+  `/library/favourites` and `/library/my-recipes` (old paths and
+  `/library` redirect). Navigation only, from founder images shared in
+  chat, not saved to `../screenshots/`. **Done** (2026-09-28).
 - ~~**CFE-009**~~ — **Retired at `CFE-006`'s grill (2026-09-23)**: folded
   into `CFE-006` once `yp1.png`'s redesign showed the shopping list as
   fully interactive and inline on the Menu tab rather than a read-only
@@ -355,7 +313,8 @@ CFE-003.
   `crockpot-go` CROC-025; show an upgrade prompt for FREE users rather
   than hiding the tab entirely (confirm this UX choice — the design
   shows the Planner tab visible-but-locked with a PREMIUM badge, not
-  hidden).
+  hidden). Adding it to `YOUR_CROCKPOT_TABS` (`path` + `to`) is enough
+  for the pill and the Your Crockpot nav highlight (`CFE-046`).
 - **CFE-013** — Recipe import from a link, calling `crockpot-go`
   CROC-026. PREMIUM-gated per the design's badge.
 

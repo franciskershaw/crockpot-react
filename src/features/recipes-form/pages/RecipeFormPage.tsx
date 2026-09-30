@@ -1,3 +1,4 @@
+import { ChefNotesSection } from "../components/ChefNotesSection";
 import { FormSection } from "../components/FormSection";
 import { InstructionsSection } from "../components/InstructionsSection";
 import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
@@ -20,10 +21,14 @@ export function RecipeFormPage() {
         </header>
 
         <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[380px_1fr] lg:items-start lg:gap-7">
-          <div className="lg:sticky lg:top-22">
+          {/* Below lg the column wrappers dissolve into one stack so notes can sit last. */}
+          <div className="contents lg:sticky lg:top-22 lg:flex lg:flex-col lg:gap-4">
             <RecipeDetailsSection />
+            <div className="flex flex-col max-lg:order-last">
+              <ChefNotesSection />
+            </div>
           </div>
-          <div className="flex flex-col gap-3 lg:gap-6">
+          <div className="contents lg:flex lg:flex-col lg:gap-6">
             <FormSection title="Ingredients*" />
             <InstructionsSection />
           </div>

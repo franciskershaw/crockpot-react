@@ -1,16 +1,18 @@
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
+import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { cn } from "@/lib/utils";
 
 import { useAddShoppingListItem } from "../hooks/useAddShoppingListItem";
-import { AddItemEditor } from "./AddItemEditor";
-import { AddItemSearch } from "./AddItemSearch";
 
 // Admin-only, and the only user of zod/react-hook-form.
 const CreateItemDialog = lazy(() =>
-  import("./CreateItemDialog").then((m) => ({ default: m.CreateItemDialog })),
+  import("@/features/catalog/components/CreateItemDialog").then((m) => ({
+    default: m.CreateItemDialog,
+  })),
 );
 
 export interface RecentlyAdded {

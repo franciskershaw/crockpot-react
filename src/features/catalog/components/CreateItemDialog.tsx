@@ -19,6 +19,7 @@ import type { Item } from "@/features/catalog/data/types";
 import { useCreateItem } from "@/features/catalog/hooks/useCreateItem";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { focusAtEnd } from "@/lib/focusAtEnd";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,6 @@ import { Loader2 } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { focusAtEnd } from "../utils/focusAtEnd";
 import { UnitMultiSelect } from "./UnitMultiSelect";
 
 const createItemSchema = z.object({

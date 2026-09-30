@@ -492,7 +492,7 @@ security findings — debt notes only):*
   different validation, the text-field class string copied four times,
   and dead `components/ui/command.tsx`. Findings 6–8. **Done**
   (2026-09-27): both quantity editors filter typing to one shared rule,
-  positive, up to 6 digits and 2 decimals (`shopping-list/utils/quantity.ts`),
+  positive, up to 6 digits and 2 decimals (`src/lib/quantity.ts`),
   because recipe rows in g/ml can pass 9999 and the column is
   `NUMERIC(10, 2)`. `FIELD_CLASSES` lives in `src/lib/styles.ts`, shared
   ahead of a second feature caller at the founder's call (expected:

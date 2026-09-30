@@ -1,10 +1,9 @@
 import { useRef, useState } from "react";
+import { focusAtEnd } from "@/lib/focusAtEnd";
+import { isQuantityInput, parseQuantity } from "@/lib/quantity";
 import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-
-import { focusAtEnd } from "../utils/focusAtEnd";
-import { isQuantityInput, parseQuantity } from "../utils/quantity";
 
 const EDITING_SLOT_WIDTH = 30;
 const SLOT_SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;

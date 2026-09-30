@@ -7,12 +7,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Item, Unit } from "@/features/catalog/data/types";
+import { focusAtEnd } from "@/lib/focusAtEnd";
+import { isQuantityInput, parseQuantity } from "@/lib/quantity";
 import { cn } from "@/lib/utils";
 import { Check, Loader2, X } from "lucide-react";
 import { Select as SelectPrimitive } from "radix-ui";
-
-import { focusAtEnd } from "../utils/focusAtEnd";
-import { isQuantityInput, parseQuantity } from "../utils/quantity";
 
 const NO_UNIT = "none";
 

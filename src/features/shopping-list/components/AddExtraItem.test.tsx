@@ -20,7 +20,7 @@ vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("../hooks/useAddShoppingListItem", () => ({
   useAddShoppingListItem: vi.fn(),
 }));
-vi.mock("./AddItemSearch", () => ({
+vi.mock("@/features/catalog/components/AddItemSearch", () => ({
   AddItemSearch: ({
     onPick,
     onCreate,
@@ -50,7 +50,7 @@ vi.mock("./AddItemSearch", () => ({
     </>
   ),
 }));
-vi.mock("./CreateItemDialog", () => ({
+vi.mock("@/features/catalog/components/CreateItemDialog", () => ({
   CreateItemDialog: ({
     open,
     initialName,
@@ -84,7 +84,7 @@ vi.mock("./CreateItemDialog", () => ({
       </div>
     ) : null,
 }));
-vi.mock("./AddItemEditor", () => ({
+vi.mock("@/features/catalog/components/AddItemEditor", () => ({
   AddItemEditor: ({
     item,
     allowedUnits,

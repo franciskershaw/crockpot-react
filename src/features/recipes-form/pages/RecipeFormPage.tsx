@@ -1,4 +1,5 @@
 import { FormSection } from "../components/FormSection";
+import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
 import { RecipeFormFooter } from "../components/RecipeFormFooter";
 import { RecipeFormMobileHeader } from "../components/RecipeFormMobileHeader";
 
@@ -19,7 +20,7 @@ export function RecipeFormPage() {
 
         <div className="flex flex-col gap-3 lg:grid lg:grid-cols-[380px_1fr] lg:items-start lg:gap-7">
           <div className="lg:sticky lg:top-22">
-            <FormSection />
+            <RecipeDetailsSection />
           </div>
           <div className="flex flex-col gap-3 lg:gap-6">
             <FormSection title="Ingredients*" />

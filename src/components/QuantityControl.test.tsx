@@ -183,4 +183,21 @@ describe("QuantityControl", () => {
       screen.queryByRole("combobox", { name: "Unit" }),
     ).not.toBeInTheDocument();
   });
+
+  it("opens its editor when editSignal changes", () => {
+    const props = {
+      itemName: "Onions",
+      quantity: 3,
+      unitAbbreviation: null,
+      obtained: false,
+      onCommit: vi.fn(),
+    };
+    const { rerender } = render(<QuantityControl {...props} editSignal={0} />);
+    expect(screen.queryByLabelText("Quantity")).not.toBeInTheDocument();
+
+    rerender(<QuantityControl {...props} editSignal={1} />);
+
+    expect(screen.getByLabelText("Quantity")).toHaveValue("3");
+    expect(screen.getByLabelText("Quantity")).toHaveFocus();
+  });
 });

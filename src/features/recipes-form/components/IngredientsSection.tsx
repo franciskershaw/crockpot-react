@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
@@ -11,6 +12,12 @@ import type { IngredientRow } from "../data/types";
 import { FormSection } from "./FormSection";
 import { IngredientListRow } from "./IngredientListRow";
 
+const CreateItemDialog = lazy(() =>
+  import("@/features/catalog/components/CreateItemDialog").then((m) => ({
+    default: m.CreateItemDialog,
+  })),
+);
+
 export function IngredientsSection() {
   const { data: units } = useUnits();
   const { data: items } = useItems();
@@ -18,6 +25,11 @@ export function IngredientsSection() {
   const [rows, setRows] = useState<IngredientRow[]>([]);
   const [picked, setPicked] = useState<Item | null>(null);
   const [returnFocus, setReturnFocus] = useState(false);
+  const [editSignals, setEditSignals] = useState<Record<string, number>>({});
+  const [newItemName, setNewItemName] = useState<string | null>(null);
+  const [resumeKey, setResumeKey] = useState(0);
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
 
   const unitAbbreviations = useMemo(
     () => new Map(units?.map((unit) => [unit.id, unit.abbreviation])),
@@ -35,6 +47,17 @@ export function IngredientsSection() {
   const unitOptionsForRow = (row: IngredientRow) => {
     const item = itemsById.get(row.itemId);
     return item ? unitOptionsFor(item, units ?? []) : (units ?? []);
+  };
+
+  const pickItem = (item: Item) => {
+    if (rows.some((row) => row.itemId === item.id)) {
+      setEditSignals((signals) => ({
+        ...signals,
+        [item.id]: (signals[item.id] ?? 0) + 1,
+      }));
+      return;
+    }
+    setPicked(item);
   };
 
   const closeEditor = () => {
@@ -88,7 +111,9 @@ export function IngredientsSection() {
         <AddItemSearch
           variant="recipe"
           focusOnMount={returnFocus}
-          onPick={setPicked}
+          resumeKey={resumeKey}
+          onCreate={isAdmin ? setNewItemName : undefined}
+          onPick={pickItem}
         />
       )}
 
@@ -103,6 +128,7 @@ export function IngredientsSection() {
               key={row.itemId}
               row={row}
               unitOptions={unitOptionsForRow(row)}
+              editSignal={editSignals[row.itemId] ?? 0}
               unitAbbreviation={
                 row.unitId ? (unitAbbreviations.get(row.unitId) ?? null) : null
               }
@@ -117,6 +143,22 @@ export function IngredientsSection() {
             />
           ))}
         </ul>
+      )}
+      {isAdmin && (
+        <Suspense fallback={null}>
+          <CreateItemDialog
+            open={newItemName !== null}
+            initialName={newItemName ?? ""}
+            onCreated={(item) => {
+              setNewItemName(null);
+              setPicked(item);
+            }}
+            onCancel={() => {
+              setNewItemName(null);
+              setResumeKey((key) => key + 1);
+            }}
+          />
+        </Suspense>
       )}
     </FormSection>
   );

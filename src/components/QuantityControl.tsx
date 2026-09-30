@@ -29,6 +29,7 @@ export function QuantityControl({
   obtained,
   units,
   unitId = null,
+  editSignal = 0,
   onCommit,
 }: {
   itemName: string;
@@ -37,11 +38,13 @@ export function QuantityControl({
   obtained: boolean;
   units?: Unit[];
   unitId?: string | null;
+  editSignal?: number;
   onCommit: (quantity: number, unitId?: string | null) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState("");
   const [draftUnitId, setDraftUnitId] = useState<string | null>(null);
+  const [seenEditSignal, setSeenEditSignal] = useState(editSignal);
   const [restingWidth, setRestingWidth] = useState<number | null>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const parsed = parseQuantity(draft);
@@ -62,6 +65,12 @@ export function QuantityControl({
     setDraftUnitId(unitId);
     setIsEditing(true);
   };
+
+  // Lets a parent open the editor, e.g. when an already-listed item is picked again.
+  if (editSignal !== seenEditSignal) {
+    setSeenEditSignal(editSignal);
+    open();
+  }
   const cancel = () => setIsEditing(false);
   const confirm = () => {
     if (parsed === null) return;

@@ -9,12 +9,14 @@ export function IngredientListRow({
   row,
   unitAbbreviation,
   unitOptions,
+  editSignal,
   onChange,
   onRemove,
 }: {
   row: IngredientRow;
   unitAbbreviation: string | null;
   unitOptions: Unit[];
+  editSignal: number;
   onChange: (row: IngredientRow) => void;
   onRemove: () => void;
 }) {
@@ -27,6 +29,7 @@ export function IngredientListRow({
         obtained={false}
         units={unitOptions}
         unitId={row.unitId}
+        editSignal={editSignal}
         onCommit={(quantity, unitId = null) =>
           onChange({ ...row, quantity: String(quantity), unitId })
         }

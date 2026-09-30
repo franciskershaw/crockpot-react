@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
 import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
@@ -13,6 +14,55 @@ vi.mock("@/features/catalog/hooks/useItemCategories", () => ({
   useItemCategories: vi.fn(),
 }));
 vi.mock("@/features/catalog/hooks/useUnits", () => ({ useUnits: vi.fn() }));
+vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
+vi.mock("@/features/catalog/components/CreateItemDialog", () => ({
+  CreateItemDialog: ({
+    open,
+    initialName,
+    onCreated,
+    onCancel,
+  }: {
+    open: boolean;
+    initialName: string;
+    onCreated: (item: Item) => void;
+    onCancel: () => void;
+  }) =>
+    open ? (
+      <div data-testid="create-dialog">
+        {initialName}
+        <button
+          type="button"
+          onClick={() =>
+            onCreated({
+              id: "i_new",
+              name: "Gochujang",
+              categoryId: "c_veg",
+              allowedUnitIds: [],
+            })
+          }
+        >
+          created
+        </button>
+        <button type="button" onClick={onCancel}>
+          cancel dialog
+        </button>
+      </div>
+    ) : null,
+}));
+
+function signInAs(role: "ADMIN" | "FREE") {
+  vi.mocked(useAuth).mockReturnValue({
+    user: {
+      id: "u_1",
+      email: "cook@example.com",
+      name: "Cook",
+      image: null,
+      role,
+    },
+    isAuthenticated: true,
+    isLoading: false,
+  } as ReturnType<typeof useAuth>);
+}
 
 const catalog: Item[] = [
   { id: "i_onion", name: "Onions", categoryId: "c_veg", allowedUnitIds: [] },
@@ -20,6 +70,7 @@ const catalog: Item[] = [
 ];
 
 beforeEach(() => {
+  signInAs("FREE");
   vi.mocked(useItems).mockReturnValue({
     data: catalog,
   } as unknown as ReturnType<typeof useItems>);
@@ -143,5 +194,64 @@ describe("IngredientsSection", () => {
       ).not.toBeInTheDocument(),
     );
     expect(rows()[0]).toHaveTextContent(/1\s*g\s*Onions/);
+  });
+
+  it("opens the existing row's editor when a listed item is picked again", async () => {
+    const user = userEvent.setup();
+    render(<IngredientsSection />);
+
+    await pick(user, "Onions");
+    await user.click(screen.getByRole("button", { name: "Add ingredient" }));
+    await pick(user, "Onions");
+
+    expect(rows()).toHaveLength(1);
+    expect(
+      screen.queryByRole("button", { name: "Add ingredient" }),
+    ).not.toBeInTheDocument();
+    expect(within(rows()[0]).getByLabelText("Quantity")).toHaveFocus();
+  });
+
+  it("lets admins create a new item and add it", async () => {
+    signInAs("ADMIN");
+    const user = userEvent.setup();
+    render(<IngredientsSection />);
+
+    await user.type(screen.getByRole("combobox"), "Gochujang");
+    await user.click(
+      screen.getByRole("option", { name: /Add “Gochujang” as a new item/ }),
+    );
+    await user.click(await screen.findByRole("button", { name: "created" }));
+    await user.click(screen.getByRole("button", { name: "Add ingredient" }));
+
+    expect(rows()).toHaveLength(1);
+    expect(rows()[0]).toHaveTextContent("Gochujang");
+  });
+
+  it("returns to the search, with its query, when new-item creation is cancelled", async () => {
+    signInAs("ADMIN");
+    const user = userEvent.setup();
+    render(<IngredientsSection />);
+
+    await user.type(screen.getByRole("combobox"), "Gochujang");
+    await user.click(
+      screen.getByRole("option", { name: /Add “Gochujang” as a new item/ }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "cancel dialog" }),
+    );
+
+    expect(rows()).toHaveLength(0);
+    expect(screen.getByRole("combobox")).toHaveValue("Gochujang");
+  });
+
+  it("doesn't offer item creation to non-admins", async () => {
+    const user = userEvent.setup();
+    render(<IngredientsSection />);
+
+    await user.type(screen.getByRole("combobox"), "Gochujang");
+
+    expect(
+      screen.queryByRole("option", { name: /as a new item/ }),
+    ).not.toBeInTheDocument();
   });
 });

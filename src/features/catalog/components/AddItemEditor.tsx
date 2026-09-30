@@ -53,6 +53,7 @@ export function AddItemEditor({
   isError,
   onConfirm,
   onCancel,
+  confirmLabel = "Add to list",
 }: {
   item: Item;
   allowedUnits: Unit[];
@@ -60,6 +61,7 @@ export function AddItemEditor({
   isError: boolean;
   onConfirm: (quantity: number, unitId: string | null) => void;
   onCancel: () => void;
+  confirmLabel?: string;
 }) {
   const [quantity, setQuantity] = useState("1");
   const [unitId, setUnitId] = useState(NO_UNIT);
@@ -154,7 +156,7 @@ export function AddItemEditor({
         ) : (
           <button
             type="button"
-            aria-label="Add to list"
+            aria-label={confirmLabel}
             onClick={confirm}
             disabled={!canConfirm}
             className="flex h-full w-7 cursor-pointer items-center justify-center text-green disabled:cursor-not-allowed disabled:text-faint-border"

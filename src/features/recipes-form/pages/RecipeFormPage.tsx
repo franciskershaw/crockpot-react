@@ -1,5 +1,5 @@
 import { ChefNotesSection } from "../components/ChefNotesSection";
-import { FormSection } from "../components/FormSection";
+import { IngredientsSection } from "../components/IngredientsSection";
 import { InstructionsSection } from "../components/InstructionsSection";
 import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
 import { RecipeFormFooter } from "../components/RecipeFormFooter";
@@ -29,7 +29,7 @@ export function RecipeFormPage() {
             </div>
           </div>
           <div className="contents lg:flex lg:flex-col lg:gap-6">
-            <FormSection title="Ingredients*" />
+            <IngredientsSection />
             <InstructionsSection />
           </div>
         </div>

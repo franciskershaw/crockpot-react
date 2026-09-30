@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Clock, Users } from "lucide-react";
 
+import { CategoryPicker } from "./CategoryPicker";
 import { FormSection } from "./FormSection";
 import { NumberStepper } from "./NumberStepper";
 
@@ -14,6 +16,8 @@ export function RecipeDetailsSection() {
   const [name, setName] = useState("");
   const [timeInMinutes, setTimeInMinutes] = useState(30);
   const [serves, setServes] = useState(4);
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const { data: categories } = useRecipeCategories();
 
   return (
     <FormSection>
@@ -63,6 +67,18 @@ export function RecipeDetailsSection() {
               step={1}
             />
           </div>
+        </div>
+
+        <div>
+          <span className={LABEL_CLASSES}>
+            Categories*{" "}
+            <span className="font-normal text-icon-muted">(pick 1–3)</span>
+          </span>
+          <CategoryPicker
+            categories={categories ?? []}
+            selectedIds={categoryIds}
+            onChange={setCategoryIds}
+          />
         </div>
       </div>
     </FormSection>

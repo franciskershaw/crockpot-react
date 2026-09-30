@@ -510,6 +510,14 @@ security findings — debt notes only):*
   Vercel deploy**, which itself waits on `crockpot-go` deploying.
   Revisit the CSP allowlist at `CFE-010` for Cloudinary.
 
+*Noted for the next tech-debt pass (not yet triaged into tickets):*
+- Catalogue by-id maps are rebuilt by hand in 7 places — units in
+  `unitOptions`, `UnitMultiSelect` and `IngredientsSection`; categories in
+  `AddItemSearch`, `CategoryPicker` and `IngredientsSection`; items in
+  `IngredientsSection`. Consider the catalogue/recipe reference hooks
+  returning them (e.g. a `select`-derived `useItemsById`) so each map is
+  built once per fetch. Surfaced at `CFE-010` piece 9 (2026-09-30).
+
 ### Deferred: Default Items
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a

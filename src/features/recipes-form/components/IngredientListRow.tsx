@@ -1,5 +1,6 @@
 import { QuantityControl } from "@/components/QuantityControl";
 import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
+import type { Unit } from "@/features/catalog/data/types";
 import { Trash2 } from "lucide-react";
 
 import type { IngredientRow } from "../data/types";
@@ -7,11 +8,13 @@ import type { IngredientRow } from "../data/types";
 export function IngredientListRow({
   row,
   unitAbbreviation,
+  unitOptions,
   onChange,
   onRemove,
 }: {
   row: IngredientRow;
   unitAbbreviation: string | null;
+  unitOptions: Unit[];
   onChange: (row: IngredientRow) => void;
   onRemove: () => void;
 }) {
@@ -22,8 +25,10 @@ export function IngredientListRow({
         quantity={Number(row.quantity)}
         unitAbbreviation={unitAbbreviation}
         obtained={false}
-        onCommit={(quantity) =>
-          onChange({ ...row, quantity: String(quantity) })
+        units={unitOptions}
+        unitId={row.unitId}
+        onCommit={(quantity, unitId = null) =>
+          onChange({ ...row, quantity: String(quantity), unitId })
         }
       />
       <span className="min-w-0 flex-1 truncate text-[15px]">

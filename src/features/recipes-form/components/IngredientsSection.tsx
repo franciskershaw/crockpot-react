@@ -3,6 +3,7 @@ import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
+import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
 
@@ -12,6 +13,7 @@ import { IngredientListRow } from "./IngredientListRow";
 
 export function IngredientsSection() {
   const { data: units } = useUnits();
+  const { data: items } = useItems();
   const { data: categories } = useItemCategories();
   const [rows, setRows] = useState<IngredientRow[]>([]);
   const [picked, setPicked] = useState<Item | null>(null);
@@ -21,10 +23,19 @@ export function IngredientsSection() {
     () => new Map(units?.map((unit) => [unit.id, unit.abbreviation])),
     [units],
   );
+  const itemsById = useMemo(
+    () => new Map(items?.map((item) => [item.id, item])),
+    [items],
+  );
   const categoryNames = useMemo(
     () => new Map(categories?.map((category) => [category.id, category.name])),
     [categories],
   );
+
+  const unitOptionsForRow = (row: IngredientRow) => {
+    const item = itemsById.get(row.itemId);
+    return item ? unitOptionsFor(item, units ?? []) : (units ?? []);
+  };
 
   const closeEditor = () => {
     setPicked(null);
@@ -91,6 +102,7 @@ export function IngredientsSection() {
             <IngredientListRow
               key={row.itemId}
               row={row}
+              unitOptions={unitOptionsForRow(row)}
               unitAbbreviation={
                 row.unitId ? (unitAbbreviations.get(row.unitId) ?? null) : null
               }

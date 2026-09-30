@@ -90,4 +90,97 @@ describe("QuantityControl", () => {
       expect(onCommit).not.toHaveBeenCalled();
     },
   );
+
+  describe("with units", () => {
+    const units = [
+      { id: "u_g", name: "Gram", abbreviation: "g" },
+      { id: "u_kg", name: "Kilogram", abbreviation: "kg" },
+    ];
+
+    async function openUnitEditor() {
+      const onCommit = vi.fn();
+      render(
+        <QuantityControl
+          itemName="Beef shin"
+          quantity={800}
+          unitAbbreviation="g"
+          obtained={false}
+          units={units}
+          unitId="u_g"
+          onCommit={onCommit}
+        />,
+      );
+      await userEvent.click(
+        screen.getByRole("button", { name: "Edit quantity of Beef shin" }),
+      );
+      return { onCommit };
+    }
+
+    async function chooseUnit(name: string) {
+      await userEvent.click(screen.getByRole("combobox", { name: "Unit" }));
+      await userEvent.click(screen.getByRole("option", { name: name }));
+    }
+
+    it("offers No unit then the given units, starting on the current one", async () => {
+      await openUnitEditor();
+
+      const unit = screen.getByRole("combobox", { name: "Unit" });
+      expect(unit).toHaveTextContent("g");
+      await userEvent.click(unit);
+      expect(
+        screen.getAllByRole("option").map((option) => option.textContent),
+      ).toEqual(["No unit", "Gramg", "Kilogramkg"]);
+    });
+
+    it("commits a changed unit, even with the quantity unchanged", async () => {
+      const { onCommit } = await openUnitEditor();
+
+      await chooseUnit("Kilogram");
+      await userEvent.click(
+        screen.getByRole("button", { name: "Confirm quantity" }),
+      );
+
+      expect(onCommit).toHaveBeenCalledWith(800, "u_kg");
+    });
+
+    it("commits the quantity and unit together", async () => {
+      const { onCommit } = await openUnitEditor();
+
+      await userEvent.keyboard("{Backspace>3}1");
+      await chooseUnit("Kilogram");
+      await userEvent.click(
+        screen.getByRole("button", { name: "Confirm quantity" }),
+      );
+
+      expect(onCommit).toHaveBeenCalledWith(1, "u_kg");
+    });
+
+    it("reverts the unit on cancel", async () => {
+      const { onCommit } = await openUnitEditor();
+
+      await chooseUnit("No unit");
+      // The open select hides the rest of the page until it finishes closing.
+      await userEvent.click(
+        await screen.findByRole("button", { name: "Cancel" }),
+      );
+      await userEvent.click(
+        await screen.findByRole("button", {
+          name: "Edit quantity of Beef shin",
+        }),
+      );
+
+      expect(onCommit).not.toHaveBeenCalled();
+      expect(screen.getByRole("combobox", { name: "Unit" })).toHaveTextContent(
+        "g",
+      );
+    });
+  });
+
+  it("has no unit select without units, as on the shopping list", async () => {
+    await openEditor(2);
+
+    expect(
+      screen.queryByRole("combobox", { name: "Unit" }),
+    ).not.toBeInTheDocument();
+  });
 });

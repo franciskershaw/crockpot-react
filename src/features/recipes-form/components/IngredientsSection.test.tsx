@@ -2,7 +2,7 @@ import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -120,5 +120,28 @@ describe("IngredientsSection", () => {
     expect(
       screen.getByText("No ingredients yet — search our list above."),
     ).toBeInTheDocument();
+  });
+
+  it("changes a row's unit from its quantity editor", async () => {
+    const user = userEvent.setup();
+    render(<IngredientsSection />);
+
+    await pick(user, "Onions");
+    await user.click(screen.getByRole("button", { name: "Add ingredient" }));
+    await user.click(
+      screen.getByRole("button", { name: "Edit quantity of Onions" }),
+    );
+    await user.click(screen.getByRole("combobox", { name: "Unit" }));
+    await user.click(screen.getByRole("option", { name: /Grams/ }));
+    await user.click(
+      await screen.findByRole("button", { name: "Confirm quantity" }),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("combobox", { name: "Unit" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(rows()[0]).toHaveTextContent(/1\s*g\s*Onions/);
   });
 });

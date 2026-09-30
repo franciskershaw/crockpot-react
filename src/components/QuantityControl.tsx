@@ -1,4 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { UnitSelect } from "@/features/catalog/components/UnitSelect";
+import type { Unit } from "@/features/catalog/data/types";
 import { focusAtEnd } from "@/lib/focusAtEnd";
 import { isQuantityInput, parseQuantity } from "@/lib/quantity";
 import { cn } from "@/lib/utils";
@@ -8,21 +10,38 @@ import { AnimatePresence, motion } from "motion/react";
 const EDITING_SLOT_WIDTH = 30;
 const SLOT_SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
 
+function SlotDivider() {
+  return (
+    <motion.div
+      initial={{ scaleY: 0 }}
+      animate={{ scaleY: 1 }}
+      exit={{ scaleY: 0 }}
+      transition={{ duration: 0.15, delay: 0.1 }}
+      className="h-3.5 w-px bg-border"
+    />
+  );
+}
+
 export function QuantityControl({
   itemName,
   quantity,
   unitAbbreviation,
   obtained,
+  units,
+  unitId = null,
   onCommit,
 }: {
   itemName: string;
   quantity: number;
   unitAbbreviation: string | null;
   obtained: boolean;
-  onCommit: (quantity: number) => void;
+  units?: Unit[];
+  unitId?: string | null;
+  onCommit: (quantity: number, unitId?: string | null) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [draftUnitId, setDraftUnitId] = useState<string | null>(null);
   const [restingWidth, setRestingWidth] = useState<number | null>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
   const parsed = parseQuantity(draft);
@@ -40,13 +59,18 @@ export function QuantityControl({
 
   const open = () => {
     setDraft(String(quantity));
+    setDraftUnitId(unitId);
     setIsEditing(true);
   };
   const cancel = () => setIsEditing(false);
   const confirm = () => {
     if (parsed === null) return;
     setIsEditing(false);
-    if (parsed !== quantity) onCommit(parsed);
+    if (!units) {
+      if (parsed !== quantity) onCommit(parsed);
+    } else if (parsed !== quantity || draftUnitId !== unitId) {
+      onCommit(parsed, draftUnitId);
+    }
   };
 
   return (
@@ -122,13 +146,7 @@ export function QuantityControl({
               }}
               className="flex items-center overflow-hidden"
             >
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                exit={{ scaleY: 0 }}
-                transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-3.5 w-px bg-border"
-              />
+              <SlotDivider />
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -158,13 +176,25 @@ export function QuantityControl({
                   className="w-10 bg-transparent text-center text-sm font-semibold tabular-nums caret-green outline-none"
                 />
               </motion.div>
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                exit={{ scaleY: 0 }}
-                transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-3.5 w-px bg-border"
-              />
+              {units && (
+                <>
+                  <SlotDivider />
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, delay: 0.1 }}
+                    className="flex items-center"
+                  >
+                    <UnitSelect
+                      units={units}
+                      unitId={draftUnitId}
+                      onChange={setDraftUnitId}
+                    />
+                  </motion.div>
+                </>
+              )}
+              <SlotDivider />
               <motion.button
                 type="button"
                 aria-label="Confirm quantity"

@@ -10,9 +10,10 @@ import { useItems } from "@/features/catalog/hooks/useItems";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
-import { Plus, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 
 import { searchItems, type ItemMatch } from "../utils/searchItems";
+import { CategoryIcon } from "./CategoryIcon";
 
 const CREATE_ITEM_VALUE = "__create_item__";
 
@@ -34,12 +35,16 @@ export function AddItemSearch({
   onCreate,
   focusOnMount = false,
   resumeKey = 0,
+  variant = "shopping",
 }: {
   onPick: (item: Item) => void;
   onCreate?: (name: string) => void;
   focusOnMount?: boolean;
   resumeKey?: number;
+  variant?: "shopping" | "recipe";
 }) {
+  const isRecipe = variant === "recipe";
+  const label = isRecipe ? "Search ingredients" : "Add something extra";
   const { data: items } = useItems();
   const { data: categories } = useItemCategories();
   const [query, setQuery] = useState("");
@@ -96,7 +101,7 @@ export function AddItemSearch({
 
   return (
     <div>
-      <Command shouldFilter={false} loop label="Add something extra">
+      <Command shouldFilter={false} loop label={label}>
         <Popover
           open={isOpen}
           onOpenChange={(open) => {
@@ -106,13 +111,25 @@ export function AddItemSearch({
           <PopoverAnchor asChild>
             <div
               ref={anchorRef}
-              className={cn(FIELD_CLASSES, "flex h-10 items-center gap-2 px-3")}
+              className={cn(
+                FIELD_CLASSES,
+                "flex items-center",
+                isRecipe ? "h-12 gap-2.5 px-4" : "h-10 gap-2 px-3",
+              )}
             >
-              <Plus
-                size={17}
-                strokeWidth={2}
-                className="shrink-0 text-icon-muted"
-              />
+              {isRecipe ? (
+                <Search
+                  size={17}
+                  strokeWidth={2}
+                  className="shrink-0 text-icon-muted"
+                />
+              ) : (
+                <Plus
+                  size={17}
+                  strokeWidth={2}
+                  className="shrink-0 text-icon-muted"
+                />
+              )}
               <Command.Input
                 ref={inputRef}
                 value={query}
@@ -123,9 +140,14 @@ export function AddItemSearch({
                   if (isOpen) setIsOpen(false);
                   else setQuery("");
                 }}
-                aria-label="Add something extra"
-                placeholder="Add something extra"
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-icon-muted"
+                aria-label={label}
+                placeholder={
+                  isRecipe ? 'Search ingredients — e.g. "onions"' : label
+                }
+                className={cn(
+                  "min-w-0 flex-1 bg-transparent outline-none placeholder:text-icon-muted",
+                  isRecipe ? "text-[15px]" : "text-sm",
+                )}
               />
               {query && (
                 <button
@@ -168,10 +190,34 @@ export function AddItemSearch({
                       onSelect={() => pick(match.item)}
                       className="group flex h-9.5 cursor-pointer items-center gap-3 rounded-[5px] px-2.5 text-[15px] data-[selected=true]:bg-chip"
                     >
-                      <HighlightedName match={match} />
-                      <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
-                        {categoryNames.get(match.item.categoryId)}
-                      </span>
+                      {isRecipe ? (
+                        <>
+                          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-chip text-ink-body">
+                            <CategoryIcon
+                              categoryName={
+                                categoryNames.get(match.item.categoryId) ?? ""
+                              }
+                              size={14}
+                              strokeWidth={2}
+                              aria-hidden
+                            />
+                          </span>
+                          <HighlightedName match={match} />
+                          <Plus
+                            size={16}
+                            strokeWidth={2.2}
+                            aria-hidden
+                            className="shrink-0 text-green"
+                          />
+                        </>
+                      ) : (
+                        <>
+                          <HighlightedName match={match} />
+                          <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
+                            {categoryNames.get(match.item.categoryId)}
+                          </span>
+                        </>
+                      )}
                     </Command.Item>
                   ))}
                 </Command.Group>

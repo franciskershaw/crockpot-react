@@ -257,4 +257,15 @@ describe("AddItemSearch", () => {
     expect(await screen.findByRole("listbox")).toBeInTheDocument();
     expect(input).toHaveValue("gochujang");
   });
+
+  it("in the recipe variant, searches ingredients and shows category icons, not names", async () => {
+    render(<AddItemSearch variant="recipe" onPick={vi.fn()} />);
+    const input = screen.getByRole("combobox", { name: "Search ingredients" });
+
+    await userEvent.type(input, "chi");
+
+    const option = screen.getAllByRole("option")[0];
+    expect(option).toHaveTextContent(/^Chicken thighs$/);
+    expect(option.querySelector("svg")).not.toBeNull();
+  });
 });

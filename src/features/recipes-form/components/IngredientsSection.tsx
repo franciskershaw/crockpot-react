@@ -74,7 +74,11 @@ export function IngredientsSection() {
           />
         </div>
       ) : (
-        <AddItemSearch focusOnMount={returnFocus} onPick={setPicked} />
+        <AddItemSearch
+          variant="recipe"
+          focusOnMount={returnFocus}
+          onPick={setPicked}
+        />
       )}
 
       {rows.length === 0 ? (

@@ -1,4 +1,5 @@
 import { FormSection } from "../components/FormSection";
+import { InstructionsSection } from "../components/InstructionsSection";
 import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
 import { RecipeFormFooter } from "../components/RecipeFormFooter";
 import { RecipeFormMobileHeader } from "../components/RecipeFormMobileHeader";
@@ -24,7 +25,7 @@ export function RecipeFormPage() {
           </div>
           <div className="flex flex-col gap-3 lg:gap-6">
             <FormSection title="Ingredients*" />
-            <FormSection title="Instructions*" />
+            <InstructionsSection />
           </div>
         </div>
       </div>

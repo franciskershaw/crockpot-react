@@ -347,3 +347,8 @@ decision as fully closed. No code written yet.
 - Three pieces, no rework on screen. Keying the list under `recipeKeys.lists()` got favourite and delete sync for free, but the review found that delete only filtered cached pages: `total` stayed stale and later pages skipped a recipe. Favourites had the same gap since CFE-007 (a deleted favourite stayed listed). Fixed by counting it off `total` and marking the lists stale.
 - The grill's "the shared key keeps it in sync" held for which rows show, not for counts or paging. I also claimed a backend endpoint filtered before reading its SQL; the founder's pushback caught it before it went into the plan.
 - **Pattern**: when a paginated list relies on another hook's cache patch, check the patch keeps `total` and server page boundaries true, not just the rows. Read the query, not just the param parsing, before calling an endpoint's behaviour verified.
+
+## 2026-09-30 — CFE-010 — Grill amended after a discarded first pass.
+
+- The first build pass reached 22 changed files before a stop, and its ingredients section had no design behind it: the grill had cut the paste box, the design's main entry point, without asking whether the remaining layout still made sense. The founder redesigned ingredients, instructions and categories; re-grilling also found that the new search dropdown implied a default unit the data doesn't have (335 of 387 items have 2+ allowed units, returned in UUID order).
+- **Pattern**: when a grill cuts part of a design, re-check that what's left still works as a layout, not just each cut on its own. Cut pieces so every new visual component gets its own on-screen approval before it's wired; a piece sized by behaviour alone grows too big to review.

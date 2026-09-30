@@ -251,6 +251,12 @@ CFE-003.
   category-distribution data that this case otherwise makes dozens of
   recipes "Best Match" simultaneously. See `LESSONS.md` (2026-09-08) for
   the retro. **Done** (2026-09-08).
+- **CFE-047** — Browse's `IngredientFilter` excludes household items
+  (toilet paper, bin bags…) using the non-ingredient item-category flag
+  from `crockpot-go` `CROC-061` (blocked on it), filtering the shared
+  `useItems` list the same way as `CFE-010`'s ingredient search (handoff
+  decision 18). The shopping list keeps the full catalogue. Surfaced at
+  `CFE-010`'s re-grill (2026-09-30), not grilled.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive
@@ -295,10 +301,18 @@ CFE-003.
   `AddRecipeLink` (header, mobile tab bar, My recipes empty-state CTA) into a
   real link to the create route, and give `RecipeEditButton`'s
   `/recipes/:id/edit` a route — until then it falls through to `/menu`.
-  **Grilled** (2026-09-28), see `docs/handoffs/CFE-010.md`: create +
+  **Grilled** (2026-09-28, amended 2026-09-30 for the redesigned
+  `add1`–`add9` screenshots), see `docs/handoffs/CFE-010.md`: create +
   edit, browser-only autosaved draft, leave prompt (data-router
-  migration first), no photo until `crockpot-go` `CROC-040`, no
-  reordering, catalog-only ingredients until `CROC-039`. Six pieces.
+  migration done), no photo until `crockpot-go` `CROC-040`, no
+  reordering, catalog-only ingredients until `CROC-039`, no default unit
+  per item, ingredient quantity edited with the shopping list's
+  `AddItemEditor`/`QuantityControl` (no ± buttons), household items
+  excluded from search, instructions as one line per step with a
+  preview. Each new
+  component is its own piece, approved on screen before it's wired.
+  Fifteen pieces, the first done. Ingredient search needs `crockpot-go`
+  `CROC-061` (non-ingredient item categories) by piece 10.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 

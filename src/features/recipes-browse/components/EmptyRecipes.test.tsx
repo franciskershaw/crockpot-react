@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { renderWithProviders } from "@/test/renderWithProviders";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -6,7 +7,9 @@ import { EmptyRecipes } from "./EmptyRecipes";
 
 describe("EmptyRecipes", () => {
   it("shows the unfiltered empty-catalog copy when no filters are active", () => {
-    render(<EmptyRecipes activeFilterCount={0} onClearFilters={vi.fn()} />);
+    renderWithProviders(
+      <EmptyRecipes activeFilterCount={0} onClearFilters={vi.fn()} />,
+    );
 
     expect(screen.getByText("No recipes yet")).toBeInTheDocument();
     expect(
@@ -16,7 +19,7 @@ describe("EmptyRecipes", () => {
 
   it("shows the filtered no-results copy and a working clear-all when filters are active", async () => {
     const onClearFilters = vi.fn();
-    render(
+    renderWithProviders(
       <EmptyRecipes activeFilterCount={2} onClearFilters={onClearFilters} />,
     );
 
@@ -31,7 +34,9 @@ describe("EmptyRecipes", () => {
   });
 
   it("uses singular filter copy for exactly one active filter", () => {
-    render(<EmptyRecipes activeFilterCount={1} onClearFilters={vi.fn()} />);
+    renderWithProviders(
+      <EmptyRecipes activeFilterCount={1} onClearFilters={vi.fn()} />,
+    );
 
     expect(screen.getByText(/1 active filter\b/i)).toBeInTheDocument();
   });

@@ -38,7 +38,7 @@ describe("MobileTabBar", () => {
     expect(goToGoogleLogin).toHaveBeenCalled();
   });
 
-  it("shows the app tabs, with Add Recipe disabled, when logged in", () => {
+  it("shows the app tabs when logged in", () => {
     mockUseAuth.mockReturnValue({
       user: {
         id: "u_1",
@@ -57,8 +57,25 @@ describe("MobileTabBar", () => {
     expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
     expect(screen.queryByText("Login")).not.toBeInTheDocument();
 
-    const addRecipe = screen.getByText("Add Recipe");
-    expect(addRecipe.closest("span")).toHaveAttribute("aria-disabled", "true");
+    expect(screen.getByRole("link", { name: /Add Recipe/ })).toHaveAttribute(
+      "href",
+      "/recipes/new",
+    );
+  });
+
+  it("marks Add Recipe as current on the add-recipe page", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<MobileTabBar />, { route: "/recipes/new" });
+
+    expect(screen.getByRole("link", { name: /Add Recipe/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
   });
 
   it("marks Your Crockpot as current on any of its tabs", () => {

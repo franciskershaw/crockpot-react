@@ -38,7 +38,7 @@ export function SiteHeader() {
                 >
                   Your Crockpot
                 </Link>
-                <AddRecipeLink />
+                <AddRecipeLink className={navLinkClassName} />
               </>
             )}
             {showAnonNav && (

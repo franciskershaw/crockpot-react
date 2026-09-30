@@ -311,7 +311,7 @@ CFE-003.
   excluded from search, instructions as one line per step with a
   preview. Each new
   component is its own piece, approved on screen before it's wired.
-  Fifteen pieces, the first done. Ingredient search needs `crockpot-go`
+  Sixteen pieces, the first done. Ingredient search needs `crockpot-go`
   `CROC-061` (non-ingredient item categories) by piece 10.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).

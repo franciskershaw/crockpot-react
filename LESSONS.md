@@ -352,3 +352,9 @@ decision as fully closed. No code written yet.
 
 - The first build pass reached 22 changed files before a stop, and its ingredients section had no design behind it: the grill had cut the paste box, the design's main entry point, without asking whether the remaining layout still made sense. The founder redesigned ingredients, instructions and categories; re-grilling also found that the new search dropdown implied a default unit the data doesn't have (335 of 387 items have 2+ allowed units, returned in UUID order).
 - **Pattern**: when a grill cuts part of a design, re-check that what's left still works as a layout, not just each cut on its own. Cut pieces so every new visual component gets its own on-screen approval before it's wired; a piece sized by behaviour alone grows too big to review.
+
+## 2026-10-02 — CFE-010 — Manual recipe form done. Bottom-up pieces held; one self-inflicted near miss.
+
+- Scope moved mid-build at the founder's call: a step cap, a description field and a House-category guard were added, and drafts went to `CFE-048`. The description had been cut as "not in the design", but the detail page already rendered one and nothing could write it. A scripted multi-file edit failed partway and left the edit page navigating past `done`, which would prompt after every save. It type-checked and the suite was green; rereading the failed script caught it, and each page now has a save-without-prompt test.
+- **Pattern**: when a batch edit fails partway, check which files changed before re-running; a half-applied change that still type-checks won't fail the suite.
+- **Pattern**: when a grill cuts a field because the design doesn't show it, check whether another screen already reads that field.

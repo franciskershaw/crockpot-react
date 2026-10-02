@@ -253,9 +253,9 @@ CFE-003.
   the retro. **Done** (2026-09-08).
 - **CFE-047** — Browse's `IngredientFilter` excludes household items
   (toilet paper, bin bags…) using the non-ingredient item-category flag
-  from `crockpot-go` `CROC-061` (blocked on it), filtering the shared
-  `useItems` list the same way as `CFE-010`'s ingredient search (handoff
-  decision 18). The shopping list keeps the full catalogue. Surfaced at
+  from `crockpot-go` `CROC-061` (merged), filtering the shared
+  `useItems` list with `catalog/utils/ingredientItems`, as `CFE-010`'s
+  ingredient search does. The shopping list keeps the full catalogue. Surfaced at
   `CFE-010`'s re-grill (2026-09-30), not grilled.
 
 ### Epic 3: Your Crockpot — Core
@@ -294,25 +294,13 @@ CFE-003.
   editor, progress bar, add-extra, clear-list, mobile) was resolved.
 
 ### Epic 4: Add/Edit Recipe
-- **CFE-010** — Manual recipe form (name, photo via Cloudinary widget,
-  time, serves, categories, ingredients, instructions, notes) — the
-  "fill it in yourself" half of `screenshots/add recipe/`.
-  Every entry point to the form goes through two components: turn
-  `AddRecipeLink` (header, mobile tab bar, My recipes empty-state CTA) into a
-  real link to the create route, and give `RecipeEditButton`'s
-  `/recipes/:id/edit` a route — until then it falls through to `/menu`.
-  **Grilled** (2026-09-28, amended 2026-09-30 for the redesigned
-  `add1`–`add9` screenshots), see `docs/handoffs/CFE-010.md`: create +
-  edit, leave prompt (data-router migration done), no drafts (descoped
-  2026-10-02 to `CFE-048`), no photo until `crockpot-go` `CROC-040`, no
-  reordering, catalog-only ingredients until `CROC-039`, no default unit
-  per item, ingredient quantity edited with the shopping list's
-  `AddItemEditor`/`QuantityControl` (no ± buttons), household items
-  excluded from search, instructions as one line per step with a
-  preview. Each new
-  component is its own piece, approved on screen before it's wired.
-  Eighteen pieces, the first done. Ingredient search needs `crockpot-go`
-  `CROC-061` (non-ingredient item categories) by piece 10.
+- **CFE-010** — Manual recipe form: create at `/recipes/new`, edit at
+  `/recipes/:id/edit`. **Done** (2026-10-02), see
+  `docs/handoffs/CFE-010.md`. Left to other tickets: photo upload
+  (`crockpot-go` `CROC-040`; edit shows an existing photo read-only),
+  unmatched "New" ingredient rows (`CROC-039`), drafts (`CFE-048`).
+  `CFE-011` (paste) and `CFE-013` (import) fill the same
+  `RecipeFormValues`.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 
@@ -508,7 +496,8 @@ security findings — debt notes only):*
 - **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
   `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
   Vercel deploy**, which itself waits on `crockpot-go` deploying.
-  Revisit the CSP allowlist at `CFE-010` for Cloudinary.
+  The CSP must allow `res.cloudinary.com` images (cards, detail, the
+  edit form's photo), plus the upload widget once photo upload lands.
 
 *Noted for the next tech-debt pass (not yet triaged into tickets):*
 - Catalogue by-id maps are rebuilt by hand in 7 places — units in

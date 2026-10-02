@@ -10,7 +10,7 @@ import { canManageRecipe } from "@/features/recipes/hooks/useRecipePermissions";
 import { ApiError } from "@/lib/http/client";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
 import { AlertTriangle } from "lucide-react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 import { RecipeForm } from "../components/RecipeForm";
 import { useUpdateRecipe } from "../hooks/useUpdateRecipe";
@@ -24,7 +24,6 @@ function EditRecipeForm({
   recipe: RecipeDetail;
   user: User | null;
 }) {
-  const navigate = useNavigate();
   const updateRecipe = useUpdateRecipe(recipe.id);
   const losesApproval = recipe.approved && user?.role !== "ADMIN";
 
@@ -40,9 +39,9 @@ function EditRecipeForm({
       }
       isPending={updateRecipe.isPending}
       error={updateRecipe.error}
-      onSubmit={(values) =>
+      onSubmit={(values, done) =>
         updateRecipe.mutate(toRequest(values), {
-          onSuccess: () => navigate(`/recipes/${recipe.id}`, { replace: true }),
+          onSuccess: () => done(recipe.id),
         })
       }
     />

@@ -1,5 +1,4 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { RecipeForm } from "../components/RecipeForm";
@@ -8,7 +7,6 @@ import { defaultRecipeFormValues } from "../utils/recipeFormSchema";
 import { toRequest } from "../utils/toRequest";
 
 export function CreateRecipePage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const createRecipe = useCreateRecipe();
 
@@ -22,7 +20,7 @@ export function CreateRecipePage() {
       pendingLabel="Publishing…"
       isPending={createRecipe.isPending}
       error={createRecipe.error}
-      onSubmit={(values) =>
+      onSubmit={(values, done) =>
         createRecipe.mutate(toRequest(values), {
           onSuccess: (recipe) => {
             if (user?.role !== "ADMIN") {
@@ -30,7 +28,7 @@ export function CreateRecipePage() {
                 "Submitted — only you can see it until it's approved.",
               );
             }
-            navigate(`/recipes/${recipe.id}`, { replace: true });
+            done(recipe.id);
           },
         })
       }

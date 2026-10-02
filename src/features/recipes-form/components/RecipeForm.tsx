@@ -1,8 +1,11 @@
+import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import type { ApiError } from "@/lib/http/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 import type { RecipeFormValues } from "../data/types";
+import { useLeavePrompt } from "../hooks/useLeavePrompt";
 import { recipeFormSchema } from "../utils/recipeFormSchema";
 import { ChefNotesSection } from "./ChefNotesSection";
 import { DescriptionSection } from "./DescriptionSection";
@@ -45,13 +48,23 @@ export function RecipeForm({
   footerNote?: string;
   isPending: boolean;
   error: ApiError | null;
-  onSubmit: (values: RecipeFormValues) => void;
+  onSubmit: (
+    values: RecipeFormValues,
+    done: (recipeId: string) => void,
+  ) => void;
 }) {
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeFormSchema),
     defaultValues,
   });
   const errorMessage = footerError(error);
+  const navigate = useNavigate();
+  const { blocker, allowLeaving } = useLeavePrompt(form.formState.isDirty);
+
+  const done = (recipeId: string) => {
+    allowLeaving();
+    navigate(`/recipes/${recipeId}`, { replace: true });
+  };
 
   return (
     // No <form>: React bubbles the new-item dialog's submit through its portal, and Enter in any field would publish.
@@ -107,7 +120,18 @@ export function RecipeForm({
           submitLabel={submitLabel}
           pendingLabel={pendingLabel}
           isPending={isPending}
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit((values) => onSubmit(values, done))}
+        />
+        <ConfirmActionDialog
+          open={blocker.state === "blocked"}
+          onOpenChange={(open) => {
+            if (!open) blocker.reset?.();
+          }}
+          title="Leave without saving?"
+          description="Your changes to this recipe will be lost."
+          confirmLabel="Leave"
+          destructive
+          onConfirm={() => blocker.proceed?.()}
         />
       </div>
     </FormProvider>

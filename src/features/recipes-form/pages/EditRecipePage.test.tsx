@@ -2,12 +2,13 @@ import { useAuth } from "@/features/auth/components/AuthContext";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
-import { getRecipe } from "@/features/recipes/data/api";
+import { getRecipe, updateRecipe } from "@/features/recipes/data/api";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { renderWithProviders } from "@/test/renderWithProviders";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EditRecipeRoute } from "./EditRecipePage";
@@ -24,6 +25,7 @@ vi.mock("@/features/recipes/hooks/useRecipeCategories", () => ({
 vi.mock("@/features/recipes/data/api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/features/recipes/data/api")>()),
   getRecipe: vi.fn(),
+  updateRecipe: vi.fn(),
 }));
 
 const recipe = buildRecipeDetail({
@@ -34,6 +36,18 @@ const recipe = buildRecipeDetail({
   imageUrl: "https://res.cloudinary.com/crockpot/stew.jpg",
   imageFilename: "crockpot/stew",
   instructions: ["Brown the beef."],
+  categories: [{ id: "c_dinner", name: "Dinner" }],
+  ingredients: [
+    {
+      itemId: "i_beef",
+      itemName: "Beef",
+      itemCategoryId: "ic_meat",
+      itemCategoryName: "Meat",
+      unitId: null,
+      unitAbbreviation: null,
+      quantity: 1,
+    },
+  ],
 });
 
 function signInAs(id: string, role: "ADMIN" | "FREE") {
@@ -55,18 +69,12 @@ beforeEach(() => {
 });
 
 function renderEdit() {
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/recipes/r_stew/edit"]}>
-        <Routes>
-          <Route path="/recipes/:id/edit" element={<EditRecipeRoute />} />
-          <Route path="/recipes/:id" element={<p>recipe detail page</p>} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+  renderWithProviders(
+    <Routes>
+      <Route path="/recipes/:id/edit" element={<EditRecipeRoute />} />
+      <Route path="/recipes/:id" element={<p>recipe detail page</p>} />
+    </Routes>,
+    { route: "/recipes/r_stew/edit" },
   );
 }
 
@@ -115,6 +123,23 @@ describe("EditRecipePage", () => {
     expect(
       screen.queryByText("Saving sends this back for approval."),
     ).not.toBeInTheDocument();
+  });
+
+  it("lands on the recipe after saving, without the leave prompt", async () => {
+    signInAs("u_owner", "FREE");
+    vi.mocked(updateRecipe).mockResolvedValue(recipe);
+    renderEdit();
+    const user = userEvent.setup();
+
+    await user.type(await screen.findByLabelText("Recipe name*"), " pie");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(await screen.findByText("recipe detail page")).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(updateRecipe).toHaveBeenCalledWith(
+      "r_stew",
+      expect.objectContaining({ name: "Beef stew pie" }),
+    );
   });
 
   it("sends anyone who can't manage the recipe to its page", async () => {

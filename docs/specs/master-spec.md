@@ -303,8 +303,8 @@ CFE-003.
   `/recipes/:id/edit` a route — until then it falls through to `/menu`.
   **Grilled** (2026-09-28, amended 2026-09-30 for the redesigned
   `add1`–`add9` screenshots), see `docs/handoffs/CFE-010.md`: create +
-  edit, browser-only autosaved draft, leave prompt (data-router
-  migration done), no photo until `crockpot-go` `CROC-040`, no
+  edit, leave prompt (data-router migration done), no drafts (descoped
+  2026-10-02 to `CFE-048`), no photo until `crockpot-go` `CROC-040`, no
   reordering, catalog-only ingredients until `CROC-039`, no default unit
   per item, ingredient quantity edited with the shopping list's
   `AddItemEditor`/`QuantityControl` (no ± buttons), household items
@@ -518,7 +518,7 @@ security findings — debt notes only):*
   returning them (e.g. a `select`-derived `useItemsById`) so each map is
   built once per fetch. Surfaced at `CFE-010` piece 9 (2026-09-30).
 
-### Deferred: Default Items
+### Deferred: future features
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a
 priority epic yet. Numbered out of physical order deliberately: this
@@ -534,6 +534,16 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   section on the shopping list screen, something else) is undecided —
   open for the grill, alongside `crockpot-go` `CROC-038`'s data-shape
   questions.
+
+*Descoped from `CFE-010` 2026-10-02 — not sequenced; grill before
+starting.*
+- **CFE-048** — Recipe drafts: save a half-written recipe and come back
+  to it, the "Draft saved" indicator and "Save as draft" button the
+  `add` screenshots draw. Open:
+  browser-only autosave (`localStorage`, one device, create only) versus
+  server drafts that follow you across devices — the latter wants
+  `crockpot-go` work (draft storage with relaxed validation, and how
+  drafts interact with the recipe cap, `mine` listings and approval).
 
 ### Bugs
 - **CFE-022** — Logging out didn't update the UI until a manual refresh.

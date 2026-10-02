@@ -77,6 +77,17 @@ export function createRecipe(input: RecipeWriteInput): Promise<RecipeDetail> {
   });
 }
 
+export function updateRecipe(
+  id: string,
+  input: RecipeWriteInput,
+): Promise<RecipeDetail> {
+  return apiFetch<RecipeDetail>(`/recipes/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
 export function deleteRecipe(id: string): Promise<void> {
   return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
 }

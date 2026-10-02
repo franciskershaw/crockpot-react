@@ -9,7 +9,7 @@ export interface IngredientRow {
 export interface RecipeFormValues {
   name: string;
   image: { url: string; filename: string } | null;
-  description: string | null;
+  description: string;
   timeInMinutes: number;
   serves: number;
   categoryIds: string[];

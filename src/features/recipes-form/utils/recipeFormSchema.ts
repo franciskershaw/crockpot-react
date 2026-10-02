@@ -8,7 +8,7 @@ import { parseSteps } from "./parseSteps";
 export const MAX_STEPS = 50;
 export const MAX_NOTES = 10;
 
-// The server checks name length with Go's len(), which counts bytes.
+// The server checks name and description length with Go's len(), which counts bytes.
 const byteLength = (value: string) => new TextEncoder().encode(value).length;
 
 const hasNoDuplicates = (values: string[]) =>
@@ -43,7 +43,12 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
       }
     }),
     image: z.object({ url: z.string(), filename: z.string() }).nullable(),
-    description: z.string().nullable(),
+    description: z
+      .string()
+      .refine(
+        (value) => byteLength(value.trim()) <= 500,
+        "Keep the description to 500 characters.",
+      ),
     timeInMinutes: z
       .number()
       .int()
@@ -89,7 +94,7 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
 export const defaultRecipeFormValues: RecipeFormValues = {
   name: "",
   image: null,
-  description: null,
+  description: "",
   timeInMinutes: 30,
   serves: 4,
   categoryIds: [],

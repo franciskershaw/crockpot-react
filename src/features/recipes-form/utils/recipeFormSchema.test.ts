@@ -40,7 +40,7 @@ describe("defaultRecipeFormValues", () => {
     expect(defaultRecipeFormValues).toEqual({
       name: "",
       image: null,
-      description: null,
+      description: "",
       timeInMinutes: 30,
       serves: 4,
       categoryIds: [],
@@ -152,6 +152,19 @@ describe("recipeFormSchema", () => {
       expect(errors(validValues({ instructions: lines(52) }))).toEqual({
         instructions: "Up to 50 steps — this has 52.",
       });
+    });
+  });
+
+  it("allows a description up to 500 bytes once trimmed, as the server counts", () => {
+    expect(errors(validValues({ description: "" }))).toEqual({});
+    expect(
+      errors(validValues({ description: ` ${"a".repeat(500)} ` })),
+    ).toEqual({});
+    expect(errors(validValues({ description: "a".repeat(501) }))).toEqual({
+      description: "Keep the description to 500 characters.",
+    });
+    expect(errors(validValues({ description: "é".repeat(251) }))).toEqual({
+      description: "Keep the description to 500 characters.",
     });
   });
 

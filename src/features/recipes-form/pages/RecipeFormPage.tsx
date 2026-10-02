@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { ChefNotesSection } from "../components/ChefNotesSection";
+import { DescriptionSection } from "../components/DescriptionSection";
 import { IngredientsSection } from "../components/IngredientsSection";
 import { InstructionsSection } from "../components/InstructionsSection";
 import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
@@ -39,6 +40,9 @@ export function RecipeFormPage() {
             {/* Below lg the column wrappers dissolve into one stack so notes can sit last. */}
             <div className="contents lg:sticky lg:top-22 lg:flex lg:flex-col lg:gap-4">
               <RecipeDetailsSection />
+              <div className="flex flex-col">
+                <DescriptionSection />
+              </div>
               <div className="flex flex-col max-lg:order-last">
                 <ChefNotesSection />
               </div>

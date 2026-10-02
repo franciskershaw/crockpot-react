@@ -2,7 +2,12 @@ import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategorie
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Clock, Users } from "lucide-react";
-import { useController, useFormContext, useFormState } from "react-hook-form";
+import {
+  useController,
+  useFormContext,
+  useFormState,
+  useWatch,
+} from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { CategoryPicker } from "./CategoryPicker";
@@ -31,6 +36,7 @@ export function RecipeDetailsSection() {
   const { field: categoryIds } = useController<RecipeFormValues, "categoryIds">(
     { name: "categoryIds" },
   );
+  const image = useWatch<RecipeFormValues, "image">({ name: "image" });
   const { data: categories } = useRecipeCategories();
 
   return (
@@ -52,6 +58,17 @@ export function RecipeDetailsSection() {
           />
           <FieldError message={errors.name?.message} />
         </div>
+
+        {image && (
+          <div>
+            <span className={LABEL_CLASSES}>Photo</span>
+            <img
+              src={image.url}
+              alt=""
+              className="h-41 w-full rounded-[7px] object-cover"
+            />
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>

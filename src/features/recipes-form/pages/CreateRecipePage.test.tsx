@@ -8,7 +8,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { RecipeFormPage } from "./RecipeFormPage";
+import { CreateRecipePage } from "./CreateRecipePage";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("@/features/catalog/hooks/useItems", () => ({ useItems: vi.fn() }));
@@ -43,13 +43,13 @@ beforeEach(() => {
 
 function setup() {
   const user = userEvent.setup();
-  renderWithProviders(<RecipeFormPage />);
+  renderWithProviders(<CreateRecipePage />);
   const publish = () =>
     user.click(screen.getByRole("button", { name: "Publish recipe" }));
   return { user, publish };
 }
 
-describe("RecipeFormPage", () => {
+describe("CreateRecipePage", () => {
   it("shows no errors before the first publish", async () => {
     const { user } = setup();
 

@@ -41,8 +41,11 @@ vi.mock("@/features/your-crockpot/pages/MyRecipesPage", () => ({
 vi.mock("@/features/recipes-detail/pages/RecipeDetailPage", () => ({
   RecipeDetailRoute: () => <p>recipe detail page</p>,
 }));
-vi.mock("@/features/recipes-form/pages/RecipeFormPage", () => ({
-  RecipeFormPage: () => <p>recipe form page</p>,
+vi.mock("@/features/recipes-form/pages/CreateRecipePage", () => ({
+  CreateRecipePage: () => <p>recipe form page</p>,
+}));
+vi.mock("@/features/recipes-form/pages/EditRecipePage", () => ({
+  EditRecipeRoute: () => <p>edit recipe page</p>,
 }));
 
 function CurrentPath() {
@@ -75,6 +78,12 @@ describe("AppRoutes", () => {
 
     expect(await screen.findByText("recipe form page")).toBeInTheDocument();
     expect(screen.queryByText("recipe detail page")).not.toBeInTheDocument();
+  });
+
+  it("routes /recipes/:id/edit to the edit form", async () => {
+    renderAt("/recipes/r_1/edit");
+
+    expect(await screen.findByText("edit recipe page")).toBeInTheDocument();
   });
 
   it("keeps the Your Crockpot layout mounted through the /library redirect", async () => {

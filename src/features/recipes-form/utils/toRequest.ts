@@ -4,9 +4,12 @@ import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "./parseNotes";
 import { parseSteps } from "./parseSteps";
 
-export function toRequest(values: RecipeFormValues): RecipeWriteInput {
+export function toRequest(
+  values: RecipeFormValues,
+  { hadImage }: { hadImage: boolean } = { hadImage: false },
+): FormData {
   const description = values.description.trim();
-  return {
+  const recipe: RecipeWriteInput = {
     name: values.name.trim(),
     description: description === "" ? null : description,
     timeInMinutes: values.timeInMinutes,
@@ -19,9 +22,11 @@ export function toRequest(values: RecipeFormValues): RecipeWriteInput {
       unitId: row.unitId,
       quantity: Number(row.quantity),
     })),
-    image:
-      values.image?.kind === "existing"
-        ? { url: values.image.url, filename: values.image.filename }
-        : null,
   };
+  if (hadImage && values.image === null) recipe.removeImage = true;
+
+  const form = new FormData();
+  form.set("recipe", JSON.stringify(recipe));
+  if (values.image?.kind === "new") form.set("photo", values.image.file);
+  return form;
 }

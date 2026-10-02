@@ -5,12 +5,19 @@ if (!API_URL) throw new Error("VITE_API_URL is not set");
 
 export class ApiError extends Error {
   status: number;
+  retryAfterSeconds?: number;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, retryAfterSeconds?: number) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
+}
+
+function retryAfterSeconds(res: Response): number | undefined {
+  const seconds = Number.parseInt(res.headers.get("Retry-After") ?? "", 10);
+  return Number.isNaN(seconds) ? undefined : seconds;
 }
 
 export function apiErrorMessage(error: unknown): string {
@@ -73,7 +80,7 @@ export async function apiFetch<T>(
     } catch {
       // non-JSON body — keep the generic fallback
     }
-    throw new ApiError(res.status, message);
+    throw new ApiError(res.status, message, retryAfterSeconds(res));
   }
 
   if (res.status === 204) {

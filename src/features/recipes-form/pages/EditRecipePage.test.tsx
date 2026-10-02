@@ -5,6 +5,7 @@ import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { getRecipe, updateRecipe } from "@/features/recipes/data/api";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
+import { recipePart } from "@/test/recipeRequest";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -68,6 +69,12 @@ beforeEach(() => {
   vi.mocked(getRecipe).mockResolvedValue(recipe);
 });
 
+const lastSave = () => {
+  const call = vi.mocked(updateRecipe).mock.lastCall;
+  if (!call) throw new Error("updateRecipe wasn't called");
+  return call;
+};
+
 function renderEdit() {
   renderWithProviders(
     <Routes>
@@ -95,7 +102,7 @@ describe("EditRecipePage", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the existing photo, read-only", async () => {
+  it("shows the existing photo", async () => {
     signInAs("u_owner", "FREE");
     renderEdit();
 
@@ -136,10 +143,27 @@ describe("EditRecipePage", () => {
 
     expect(await screen.findByText("recipe detail page")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(updateRecipe).toHaveBeenCalledWith(
-      "r_stew",
-      expect.objectContaining({ name: "Beef stew pie" }),
+    const [id, body] = lastSave();
+    expect(id).toBe("r_stew");
+    expect(recipePart(body)).toMatchObject({ name: "Beef stew pie" });
+    expect(recipePart(body)).not.toHaveProperty("removeImage");
+    expect(body.get("photo")).toBeNull();
+  });
+
+  it("asks for the photo to be removed when it's cleared", async () => {
+    signInAs("u_owner", "FREE");
+    vi.mocked(updateRecipe).mockResolvedValue(recipe);
+    renderEdit();
+    const user = userEvent.setup();
+
+    await user.click(
+      await screen.findByRole("button", { name: "Remove photo" }),
     );
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(await screen.findByText("recipe detail page")).toBeInTheDocument();
+    const [, body] = lastSave();
+    expect(recipePart(body).removeImage).toBe(true);
   });
 
   it("sends anyone who can't manage the recipe to its page", async () => {

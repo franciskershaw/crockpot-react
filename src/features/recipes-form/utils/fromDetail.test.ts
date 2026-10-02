@@ -1,4 +1,5 @@
 import { buildRecipeDetail } from "@/test/recipeFixtures";
+import { recipePart } from "@/test/recipeRequest";
 import { describe, expect, it } from "vitest";
 
 import { fromDetail } from "./fromDetail";
@@ -54,7 +55,6 @@ describe("fromDetail", () => {
       image: {
         kind: "existing",
         url: "https://res.cloudinary.com/crockpot/image/upload/stew.jpg",
-        filename: "crockpot/stew",
       },
       description: "A freezer-stash regular in our house.",
       timeInMinutes: 360,
@@ -84,7 +84,7 @@ describe("fromDetail", () => {
   });
 
   it("round-trips a recipe through toRequest without losing anything", () => {
-    expect(toRequest(fromDetail(migrated))).toEqual({
+    expect(recipePart(toRequest(fromDetail(migrated)))).toEqual({
       name: migrated.name,
       description: migrated.description,
       timeInMinutes: migrated.timeInMinutes,
@@ -96,10 +96,6 @@ describe("fromDetail", () => {
       ],
       instructions: migrated.instructions,
       notes: migrated.notes,
-      image: {
-        url: migrated.imageUrl,
-        filename: migrated.imageFilename,
-      },
     });
   });
 
@@ -109,10 +105,9 @@ describe("fromDetail", () => {
       instructions: ["Heat the beans."],
     });
 
-    expect(toRequest(fromDetail(plain))).toMatchObject({
+    expect(recipePart(toRequest(fromDetail(plain)))).toMatchObject({
       name: "Beans on toast",
       description: null,
-      image: null,
       notes: [],
       instructions: ["Heat the beans."],
     });

@@ -7,7 +7,7 @@ export interface IngredientRow {
 }
 
 export type RecipeFormImage =
-  | { kind: "existing"; url: string; filename: string }
+  | { kind: "existing"; url: string }
   | { kind: "new"; file: File; previewUrl: string };
 
 export interface RecipeFormValues {

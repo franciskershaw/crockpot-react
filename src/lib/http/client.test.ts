@@ -3,10 +3,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError, apiErrorMessage, apiFetch } from "./client";
 import { setAccessToken } from "./tokenStore";
 
-function mockFetchOnce(status: number, jsonImpl: () => Promise<unknown>) {
+function mockFetchOnce(
+  status: number,
+  jsonImpl: () => Promise<unknown>,
+  headers: HeadersInit = {},
+) {
   vi.spyOn(globalThis, "fetch").mockResolvedValueOnce({
     ok: false,
     status,
+    headers: new Headers(headers),
     json: jsonImpl,
   } as Response);
 }
@@ -67,6 +72,30 @@ describe("apiFetch error parsing", () => {
       status: 400,
     } satisfies Partial<ApiError>);
   });
+
+  it("carries a 429's Retry-After seconds", async () => {
+    mockFetchOnce(
+      429,
+      () => Promise.resolve({ error: "rate_limit_exceeded" }),
+      { "Retry-After": "600" },
+    );
+
+    await expect(
+      apiFetch("/recipes", { method: "POST" }),
+    ).rejects.toMatchObject({
+      status: 429,
+      retryAfterSeconds: 600,
+    } satisfies Partial<ApiError>);
+  });
+
+  it("leaves Retry-After unset when the header can't be read", async () => {
+    mockFetchOnce(429, () => Promise.resolve({ error: "rate_limit_exceeded" }));
+
+    const error = await apiFetch("/recipes").catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).retryAfterSeconds).toBeUndefined();
+  });
 });
 
 describe("apiFetch 401 refresh/retry", () => {
@@ -76,7 +105,12 @@ describe("apiFetch 401 refresh/retry", () => {
   });
 
   function respond(ok: boolean, status: number, body: unknown = {}) {
-    return { ok, status, json: () => Promise.resolve(body) } as Response;
+    return {
+      ok,
+      status,
+      headers: new Headers(),
+      json: () => Promise.resolve(body),
+    } as Response;
   }
 
   it("collapses concurrent 401s from separate in-flight requests into one refresh call", async () => {
@@ -103,6 +137,25 @@ describe("apiFetch 401 refresh/retry", () => {
     ).resolves.toEqual([{}, {}]);
 
     expect(refreshCalls).toBe(1);
+  });
+
+  it("resends a multipart body after refreshing", async () => {
+    const body = new FormData();
+    body.set("recipe", "{}");
+    const sentBodies: unknown[] = [];
+    vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+      if (String(input).endsWith("/auth/refresh")) {
+        return Promise.resolve(respond(true, 200, { accessToken: "fresh" }));
+      }
+      sentBodies.push(init?.body);
+      return Promise.resolve(
+        sentBodies.length === 1 ? respond(false, 401) : respond(true, 200),
+      );
+    });
+
+    await apiFetch("/recipes", { method: "POST", body });
+
+    expect(sentBodies).toEqual([body, body]);
   });
 
   it("retries a 401 exactly once, then surfaces the second failure instead of looping", async () => {

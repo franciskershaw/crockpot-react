@@ -1,18 +1,17 @@
 import { createRecipe } from "@/features/recipes/data/api";
 import { recipeKeys } from "@/features/recipes/data/queryKeys";
-import type {
-  RecipeDetail,
-  RecipeWriteInput,
-} from "@/features/recipes/data/types";
+import type { RecipeDetail } from "@/features/recipes/data/types";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
+
+import { isShownOnForm } from "../utils/saveErrors";
 
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<RecipeDetail, RecipeWriteInput>({
+  return useApiMutation<RecipeDetail, FormData>({
     mutationFn: (input) => createRecipe(input),
-    isHandledError: (error) => error.status === 400 || error.status === 409,
+    isHandledError: isShownOnForm,
     onSuccess: (recipe) => {
       queryClient.setQueryData(recipeKeys.detail(recipe.id), recipe);
       queryClient.invalidateQueries({ queryKey: recipeKeys.lists() });

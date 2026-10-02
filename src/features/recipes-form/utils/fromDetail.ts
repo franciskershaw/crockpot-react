@@ -5,14 +5,7 @@ import type { RecipeFormValues } from "../data/types";
 export function fromDetail(recipe: RecipeDetail): RecipeFormValues {
   return {
     name: recipe.name,
-    image:
-      recipe.imageUrl && recipe.imageFilename
-        ? {
-            kind: "existing",
-            url: recipe.imageUrl,
-            filename: recipe.imageFilename,
-          }
-        : null,
+    image: recipe.imageUrl ? { kind: "existing", url: recipe.imageUrl } : null,
     description: recipe.description ?? "",
     timeInMinutes: recipe.timeInMinutes,
     serves: recipe.serves,

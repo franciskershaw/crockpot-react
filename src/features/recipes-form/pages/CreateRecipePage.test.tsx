@@ -5,7 +5,9 @@ import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { createRecipe } from "@/features/recipes/data/api";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { ApiError } from "@/lib/http/client";
+import { shrinkPhoto } from "@/lib/shrinkPhoto";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
+import { recipePart } from "@/test/recipeRequest";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -29,6 +31,12 @@ vi.mock("@/features/recipes/data/api", async (importOriginal) => ({
   createRecipe: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("@/lib/shrinkPhoto", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/shrinkPhoto")>()),
+  shrinkPhoto: vi.fn(),
+}));
+
+const shrunk = new File(["jpeg"], "stew.jpg", { type: "image/jpeg" });
 
 const GAPS = [
   "Give the recipe a name.",
@@ -144,7 +152,7 @@ describe("CreateRecipePage saving", () => {
     } as unknown as ReturnType<typeof useItemCategories>);
   });
 
-  async function fillAndPublish() {
+  async function fillAndPublish({ withPhoto = false } = {}) {
     const user = userEvent.setup();
     renderWithProviders(
       <Routes>
@@ -167,8 +175,27 @@ describe("CreateRecipePage saving", () => {
       screen.getByLabelText("Instructions, one step per line"),
       "Brown the beef.",
     );
+    if (withPhoto) {
+      await user.upload(
+        screen.getByLabelText("Photo"),
+        new File(["raw"], "IMG_0001.jpg", { type: "image/jpeg" }),
+      );
+    }
     await user.click(screen.getByRole("button", { name: "Publish recipe" }));
   }
+
+  const lastSave = () => {
+    const call = vi.mocked(createRecipe).mock.lastCall;
+    if (!call) throw new Error("createRecipe wasn't called");
+    return call[0];
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    URL.createObjectURL = vi.fn(() => "blob:preview");
+    URL.revokeObjectURL = vi.fn();
+    vi.mocked(shrinkPhoto).mockResolvedValue(shrunk);
+  });
 
   it("lands on the new recipe without the leave prompt, telling a non-admin it awaits approval", async () => {
     vi.mocked(createRecipe).mockResolvedValue(
@@ -179,7 +206,7 @@ describe("CreateRecipePage saving", () => {
 
     expect(await screen.findByText("recipe page")).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(createRecipe).toHaveBeenCalledWith(
+    expect(recipePart(lastSave())).toEqual(
       expect.objectContaining({
         name: "Beef stew",
         categoryIds: ["c_dinner"],
@@ -190,6 +217,54 @@ describe("CreateRecipePage saving", () => {
     expect(toast.success).toHaveBeenCalledWith(
       "Submitted — only you can see it until it's approved.",
     );
+  });
+
+  it("sends the picked photo with the recipe", async () => {
+    vi.mocked(createRecipe).mockResolvedValue(
+      buildRecipeDetail({ id: "r_new", name: "Beef stew" }),
+    );
+
+    await fillAndPublish({ withPhoto: true });
+
+    expect(await screen.findByText("recipe page")).toBeInTheDocument();
+    expect(lastSave().get("photo")).toBe(shrunk);
+    expect(recipePart(lastSave())).not.toHaveProperty("removeImage");
+  });
+
+  it.each([
+    [400, "image_too_large", "That photo is too large — try a smaller one"],
+    [400, "invalid_image", "Couldn't read that photo — use a JPG, PNG or WebP"],
+    [502, "image_upload_failed", "Couldn't upload the photo — try again"],
+  ])("explains a %i %s and keeps the photo", async (status, code, message) => {
+    vi.mocked(createRecipe).mockRejectedValue(new ApiError(status, code));
+
+    await fillAndPublish({ withPhoto: true });
+
+    expect(await screen.findByText(message)).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Change photo" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        "The server couldn't accept this recipe — check it over and try again.",
+      ),
+    ).not.toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("says when to try again after too many photo uploads", async () => {
+    vi.mocked(createRecipe).mockRejectedValue(
+      new ApiError(429, "rate_limit_exceeded", 600),
+    );
+
+    await fillAndPublish({ withPhoto: true });
+
+    expect(
+      await screen.findByText(
+        "Too many photo uploads — try again in 10 minutes",
+      ),
+    ).toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalled();
   });
 
   it.each([

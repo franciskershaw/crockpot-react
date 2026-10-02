@@ -1,12 +1,14 @@
+import { useEffect } from "react";
 import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import type { ApiError } from "@/lib/http/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import type { RecipeFormValues } from "../data/types";
 import { useLeavePrompt } from "../hooks/useLeavePrompt";
 import { recipeFormSchema } from "../utils/recipeFormSchema";
+import { footerError, photoFieldError } from "../utils/saveErrors";
 import { ChefNotesSection } from "./ChefNotesSection";
 import { DescriptionSection } from "./DescriptionSection";
 import { IngredientsSection } from "./IngredientsSection";
@@ -15,17 +17,6 @@ import { PublishStatus } from "./PublishStatus";
 import { RecipeDetailsSection } from "./RecipeDetailsSection";
 import { RecipeFormFooter } from "./RecipeFormFooter";
 import { RecipeFormMobileHeader } from "./RecipeFormMobileHeader";
-
-// Other failures are toasted by useApiMutation.
-function footerError(error: ApiError | null): string | null {
-  if (error?.status === 409) {
-    return "You've hit your recipe limit, so this can't be published yet.";
-  }
-  if (error?.status === 400) {
-    return "The server couldn't accept this recipe — check it over and try again.";
-  }
-  return null;
-}
 
 export function RecipeForm({
   title,
@@ -57,9 +48,17 @@ export function RecipeForm({
     resolver: zodResolver(recipeFormSchema),
     defaultValues,
   });
-  const errorMessage = footerError(error);
+  const image = useWatch({ control: form.control, name: "image" });
+  const errorMessage = footerError(error, {
+    sentPhoto: image?.kind === "new",
+  });
   const navigate = useNavigate();
   const { blocker, allowLeaving } = useLeavePrompt(form.formState.isDirty);
+
+  useEffect(() => {
+    const message = photoFieldError(error);
+    if (message) form.setError("image", { type: "server", message });
+  }, [error, form]);
 
   const done = (recipeId: string) => {
     allowLeaving();

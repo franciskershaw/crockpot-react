@@ -76,7 +76,7 @@ export interface RecipeDetail extends RecipeCard {
   updatedAt: string;
 }
 
-// Body of POST /recipes and PATCH /recipes/:id (a full replace).
+// The `recipe` part of POST /recipes and PATCH /recipes/:id (a full replace; the photo travels separately).
 export interface RecipeWriteInput {
   name: string;
   description: string | null;
@@ -86,5 +86,5 @@ export interface RecipeWriteInput {
   notes: string[];
   categoryIds: string[];
   ingredients: { itemId: string; unitId: string | null; quantity: number }[];
-  image: { url: string; filename: string } | null;
+  removeImage?: boolean;
 }

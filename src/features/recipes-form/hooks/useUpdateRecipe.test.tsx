@@ -1,7 +1,6 @@
 import { menuKeys } from "@/features/menu/data/queryKeys";
 import { updateRecipe } from "@/features/recipes/data/api";
 import { recipeKeys } from "@/features/recipes/data/queryKeys";
-import type { RecipeWriteInput } from "@/features/recipes/data/types";
 import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { ApiError } from "@/lib/http/client";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
@@ -20,17 +19,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 const mockUpdateRecipe = vi.mocked(updateRecipe);
 
-const input: RecipeWriteInput = {
-  name: "Beef stew",
-  description: null,
-  timeInMinutes: 30,
-  serves: 4,
-  instructions: ["Brown the beef."],
-  notes: [],
-  categoryIds: ["c_dinner"],
-  ingredients: [{ itemId: "i_beef", unitId: null, quantity: 1 }],
-  image: null,
-};
+const input = new FormData();
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -62,14 +51,22 @@ describe("useUpdateRecipe", () => {
     }
   });
 
-  it("leaves a 400 for the form's footer instead of toasting it", async () => {
-    const { wrapper } = setupQueryClient();
-    mockUpdateRecipe.mockRejectedValue(new ApiError(400, "invalid_item_id"));
+  it.each([
+    [400, "invalid_item_id"],
+    [400, "invalid_image"],
+    [429, "rate_limit_exceeded"],
+    [502, "image_upload_failed"],
+  ])(
+    "leaves a %i %s for the form instead of toasting it",
+    async (status, code) => {
+      const { wrapper } = setupQueryClient();
+      mockUpdateRecipe.mockRejectedValue(new ApiError(status, code));
 
-    const { result } = renderHook(() => useUpdateRecipe("r_1"), { wrapper });
-    result.current.mutate(input);
+      const { result } = renderHook(() => useUpdateRecipe("r_1"), { wrapper });
+      result.current.mutate(input);
 
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(toast.error).not.toHaveBeenCalled();
-  });
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(toast.error).not.toHaveBeenCalled();
+    },
+  );
 });

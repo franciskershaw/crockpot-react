@@ -17,7 +17,6 @@ vi.mock("@/lib/shrinkPhoto", async (importOriginal) => ({
 const EXISTING: RecipeFormImage = {
   kind: "existing",
   url: "https://res.cloudinary.com/dqdjr1d4f/image/upload/v1/recipes/stew.jpg",
-  filename: "recipes/stew",
 };
 
 function Harness({ image = null }: { image?: RecipeFormImage | null }) {

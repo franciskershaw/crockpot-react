@@ -40,9 +40,12 @@ function EditRecipeForm({
       isPending={updateRecipe.isPending}
       error={updateRecipe.error}
       onSubmit={(values, done) =>
-        updateRecipe.mutate(toRequest(values), {
-          onSuccess: () => done(recipe.id),
-        })
+        updateRecipe.mutate(
+          toRequest(values, { hadImage: recipe.imageUrl !== null }),
+          {
+            onSuccess: () => done(recipe.id),
+          },
+        )
       }
     />
   );

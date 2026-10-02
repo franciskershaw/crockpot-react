@@ -1,6 +1,5 @@
 import { createRecipe } from "@/features/recipes/data/api";
 import { recipeKeys } from "@/features/recipes/data/queryKeys";
-import type { RecipeWriteInput } from "@/features/recipes/data/types";
 import { ApiError } from "@/lib/http/client";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
@@ -18,17 +17,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 
 const mockCreateRecipe = vi.mocked(createRecipe);
 
-const input: RecipeWriteInput = {
-  name: "Beef stew",
-  description: null,
-  timeInMinutes: 30,
-  serves: 4,
-  instructions: ["Brown the beef."],
-  notes: [],
-  categoryIds: ["c_dinner"],
-  ingredients: [{ itemId: "i_beef", unitId: null, quantity: 1 }],
-  image: null,
-};
+const input = new FormData();
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -57,9 +46,12 @@ describe("useCreateRecipe", () => {
 
   it.each([
     [400, "invalid_item_id"],
+    [400, "invalid_image"],
     [409, "recipe_limit_reached"],
+    [429, "rate_limit_exceeded"],
+    [502, "image_upload_failed"],
   ])(
-    "leaves a %i for the form's footer instead of toasting it",
+    "leaves a %i %s for the form instead of toasting it",
     async (status, code) => {
       const { wrapper } = setupQueryClient();
       mockCreateRecipe.mockRejectedValue(new ApiError(status, code));

@@ -44,11 +44,7 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
     }),
     image: z
       .discriminatedUnion("kind", [
-        z.object({
-          kind: z.literal("existing"),
-          url: z.string(),
-          filename: z.string(),
-        }),
+        z.object({ kind: z.literal("existing"), url: z.string() }),
         z.object({
           kind: z.literal("new"),
           file: z.instanceof(File),

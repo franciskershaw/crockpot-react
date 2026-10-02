@@ -1,5 +1,9 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
+import type { ApiError } from "@/lib/http/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import { ChefNotesSection } from "../components/ChefNotesSection";
 import { DescriptionSection } from "../components/DescriptionSection";
@@ -10,16 +14,44 @@ import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
 import { RecipeFormFooter } from "../components/RecipeFormFooter";
 import { RecipeFormMobileHeader } from "../components/RecipeFormMobileHeader";
 import type { RecipeFormValues } from "../data/types";
+import { useCreateRecipe } from "../hooks/useCreateRecipe";
 import {
   defaultRecipeFormValues,
   recipeFormSchema,
 } from "../utils/recipeFormSchema";
+import { toRequest } from "../utils/toRequest";
+
+// Other failures are toasted by useApiMutation.
+function footerError(error: ApiError | null): string | null {
+  if (error?.status === 409) {
+    return "You've hit your recipe limit, so this can't be published yet.";
+  }
+  if (error?.status === 400) {
+    return "The server couldn't accept this recipe — check it over and try again.";
+  }
+  return null;
+}
 
 export function RecipeFormPage() {
   const form = useForm<RecipeFormValues>({
     resolver: zodResolver(recipeFormSchema),
     defaultValues: defaultRecipeFormValues,
   });
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const createRecipe = useCreateRecipe();
+  const errorMessage = footerError(createRecipe.error);
+
+  const publish = form.handleSubmit((values) =>
+    createRecipe.mutate(toRequest(values), {
+      onSuccess: (recipe) => {
+        if (user?.role !== "ADMIN") {
+          toast.success("Submitted — only you can see it until it's approved.");
+        }
+        navigate(`/recipes/${recipe.id}`, { replace: true });
+      },
+    }),
+  );
 
   return (
     // No <form>: React bubbles the new-item dialog's submit through its portal, and Enter in any field would publish.
@@ -56,9 +88,19 @@ export function RecipeFormPage() {
         </div>
 
         <RecipeFormFooter
-          status={<PublishStatus />}
+          status={
+            errorMessage ? (
+              <p className="text-[13px] font-semibold text-rust-text">
+                {errorMessage}
+              </p>
+            ) : (
+              <PublishStatus />
+            )
+          }
           submitLabel="Publish recipe"
-          onSubmit={form.handleSubmit(() => {})}
+          pendingLabel="Publishing…"
+          isPending={createRecipe.isPending}
+          onSubmit={publish}
         />
       </div>
     </FormProvider>

@@ -75,3 +75,16 @@ export interface RecipeDetail extends RecipeCard {
   createdByName: string | null;
   updatedAt: string;
 }
+
+// Body of POST /recipes and PATCH /recipes/:id (a full replace).
+export interface RecipeWriteInput {
+  name: string;
+  description: string | null;
+  timeInMinutes: number;
+  serves: number;
+  instructions: string[];
+  notes: string[];
+  categoryIds: string[];
+  ingredients: { itemId: string; unitId: string | null; quantity: number }[];
+  image: { url: string; filename: string } | null;
+}

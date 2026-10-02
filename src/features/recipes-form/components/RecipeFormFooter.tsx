@@ -1,13 +1,18 @@
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export function RecipeFormFooter({
   status,
   submitLabel,
+  pendingLabel,
+  isPending,
   onSubmit,
 }: {
   status: ReactNode;
   submitLabel: string;
+  pendingLabel: string;
+  isPending: boolean;
   onSubmit: () => void;
 }) {
   return (
@@ -17,9 +22,11 @@ export function RecipeFormFooter({
         <Button
           type="button"
           onClick={onSubmit}
+          disabled={isPending}
           className="h-11 w-full rounded-lg px-7 text-[15px] font-bold md:h-11.5 md:w-auto"
         >
-          {submitLabel}
+          {isPending && <Loader2 className="size-4 animate-spin" />}
+          {isPending ? pendingLabel : submitLabel}
         </Button>
       </div>
     </footer>

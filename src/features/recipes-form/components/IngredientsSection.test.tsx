@@ -5,8 +5,11 @@ import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { FormProvider, useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { RecipeFormValues } from "../data/types";
+import { defaultRecipeFormValues } from "../utils/recipeFormSchema";
 import { IngredientsSection } from "./IngredientsSection";
 
 vi.mock("@/features/catalog/hooks/useItems", () => ({ useItems: vi.fn() }));
@@ -49,6 +52,21 @@ vi.mock("@/features/catalog/components/CreateItemDialog", () => ({
       </div>
     ) : null,
 }));
+
+function Harness() {
+  const form = useForm<RecipeFormValues>({
+    defaultValues: defaultRecipeFormValues,
+  });
+  return (
+    <FormProvider {...form}>
+      <IngredientsSection />
+    </FormProvider>
+  );
+}
+
+function renderSection() {
+  render(<Harness />);
+}
 
 function signInAs(role: "ADMIN" | "FREE") {
   vi.mocked(useAuth).mockReturnValue({
@@ -98,7 +116,7 @@ function rows() {
 
 describe("IngredientsSection", () => {
   it("starts empty, with no count", () => {
-    render(<IngredientsSection />);
+    renderSection();
 
     expect(
       screen.getByText("No ingredients yet — search our list above."),
@@ -110,7 +128,7 @@ describe("IngredientsSection", () => {
 
   it("adds a picked item as a row once its quantity is confirmed", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     const quantity = screen.getByRole("textbox", { name: "Quantity" });
@@ -135,7 +153,7 @@ describe("IngredientsSection", () => {
 
   it("appends later ingredients below earlier ones", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     await user.click(screen.getByRole("button", { name: "Add ingredient" }));
@@ -150,7 +168,7 @@ describe("IngredientsSection", () => {
 
   it("adds nothing when the editor is cancelled", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     await user.click(screen.getByRole("button", { name: "Cancel" }));
@@ -161,7 +179,7 @@ describe("IngredientsSection", () => {
 
   it("removes a row from its trash button", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     await user.click(screen.getByRole("button", { name: "Add ingredient" }));
@@ -175,7 +193,7 @@ describe("IngredientsSection", () => {
 
   it("changes a row's unit from its quantity editor", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     await user.click(screen.getByRole("button", { name: "Add ingredient" }));
@@ -198,7 +216,7 @@ describe("IngredientsSection", () => {
 
   it("opens the existing row's editor when a listed item is picked again", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await pick(user, "Onions");
     await user.click(screen.getByRole("button", { name: "Add ingredient" }));
@@ -214,7 +232,7 @@ describe("IngredientsSection", () => {
   it("lets admins create a new item and add it", async () => {
     signInAs("ADMIN");
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await user.type(screen.getByRole("combobox"), "Gochujang");
     await user.click(
@@ -230,7 +248,7 @@ describe("IngredientsSection", () => {
   it("returns to the search, with its query, when new-item creation is cancelled", async () => {
     signInAs("ADMIN");
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await user.type(screen.getByRole("combobox"), "Gochujang");
     await user.click(
@@ -246,7 +264,7 @@ describe("IngredientsSection", () => {
 
   it("doesn't offer item creation to non-admins", async () => {
     const user = userEvent.setup();
-    render(<IngredientsSection />);
+    renderSection();
 
     await user.type(screen.getByRole("combobox"), "Gochujang");
 

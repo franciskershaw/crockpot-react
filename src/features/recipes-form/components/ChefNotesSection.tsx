@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Plus, Trash2 } from "lucide-react";
+import { useController } from "react-hook-form";
 
+import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "../utils/parseNotes";
 import { FormSection } from "./FormSection";
 
@@ -18,19 +20,32 @@ const PLACEHOLDER = `One note per line, e.g.
 Even better the next day.
 Freezes well for up to 3 months.`;
 
-// Module-level so the ref callback is stable and focuses only on mount.
-const focusOnMount = (textarea: HTMLTextAreaElement | null) =>
-  textarea?.focus();
-
 export function ChefNotesSection() {
-  const [open, setOpen] = useState(false);
-  const [notes, setNotes] = useState("");
+  const { field } = useController<RecipeFormValues, "notes">({
+    name: "notes",
+  });
+  const [open, setOpen] = useState(field.value !== "");
+  const focusWhenShown = useRef(false);
+  const { ref: fieldRef } = field;
+  const textareaRef = useCallback(
+    (textarea: HTMLTextAreaElement | null) => {
+      if (textarea && focusWhenShown.current) {
+        focusWhenShown.current = false;
+        textarea.focus();
+      }
+      fieldRef(textarea);
+    },
+    [fieldRef],
+  );
 
   if (!open) {
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          focusWhenShown.current = true;
+          setOpen(true);
+        }}
         className="flex h-11 cursor-pointer items-center gap-2 self-start rounded-lg border-[1.5px] border-foreground bg-card px-4 text-[15px] font-bold"
       >
         <Plus size={16} strokeWidth={2.2} />
@@ -39,10 +54,10 @@ export function ChefNotesSection() {
     );
   }
 
-  const noteCount = parseNotes(notes).length;
+  const noteCount = parseNotes(field.value).length;
 
   const remove = () => {
-    setNotes("");
+    field.onChange("");
     setOpen(false);
   };
 
@@ -61,10 +76,11 @@ export function ChefNotesSection() {
       }
     >
       <textarea
-        ref={focusOnMount}
+        ref={textareaRef}
         aria-label="Chef's notes, one per line"
-        value={notes}
-        onChange={(event) => setNotes(event.target.value)}
+        value={field.value}
+        onChange={field.onChange}
+        onBlur={field.onBlur}
         placeholder={PLACEHOLDER}
         rows={4}
         className={cn(

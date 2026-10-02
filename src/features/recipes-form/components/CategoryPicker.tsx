@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Ref } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Popover,
@@ -16,10 +16,12 @@ export function CategoryPicker({
   categories,
   selectedIds,
   onChange,
+  triggerRef,
 }: {
   categories: RecipeCategory[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  triggerRef?: Ref<HTMLButtonElement>;
 }) {
   const [open, setOpen] = useState(false);
   const atCap = selectedIds.length >= MAX_CATEGORIES;
@@ -54,6 +56,7 @@ export function CategoryPicker({
           ))}
           <PopoverTrigger asChild>
             <button
+              ref={triggerRef}
               type="button"
               className="flex h-8.5 cursor-pointer items-center gap-1.5 rounded-full border-[1.5px] border-dashed border-faint-border px-3.5 text-sm font-semibold text-ink-body"
             >

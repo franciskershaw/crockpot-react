@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Popover,
   PopoverAnchor,
@@ -37,12 +37,14 @@ export function AddItemSearch({
   focusOnMount = false,
   resumeKey = 0,
   variant = "shopping",
+  inputRef: externalInputRef,
 }: {
   onPick: (item: Item) => void;
   onCreate?: (name: string) => void;
   focusOnMount?: boolean;
   resumeKey?: number;
   variant?: "shopping" | "recipe";
+  inputRef?: (input: HTMLInputElement | null) => void;
 }) {
   const isRecipe = variant === "recipe";
   const label = isRecipe ? "Search ingredients" : "Add something extra";
@@ -57,6 +59,13 @@ export function AddItemSearch({
     if (query.trim() !== "") setIsOpen(true);
   }
   const inputRef = useRef<HTMLInputElement>(null);
+  const setInputRef = useCallback(
+    (input: HTMLInputElement | null) => {
+      inputRef.current = input;
+      externalInputRef?.(input);
+    },
+    [externalInputRef],
+  );
   const anchorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -137,7 +146,7 @@ export function AddItemSearch({
                 />
               )}
               <Command.Input
-                ref={inputRef}
+                ref={setInputRef}
                 value={query}
                 onValueChange={handleQueryChange}
                 onKeyDown={(event) => {

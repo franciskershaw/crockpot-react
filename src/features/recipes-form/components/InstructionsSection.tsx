@@ -3,8 +3,11 @@ import { InstructionSteps } from "@/features/recipes/components/InstructionSteps
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Eye, Pencil } from "lucide-react";
+import { useController } from "react-hook-form";
 
+import type { RecipeFormValues } from "../data/types";
 import { parseSteps } from "../utils/parseSteps";
+import { FieldError } from "./FieldError";
 import { FormSection } from "./FormSection";
 
 const PLACEHOLDER = `One step per line, e.g.
@@ -12,11 +15,16 @@ Toss the beef in flour and season well.
 Brown it in batches, then transfer to the slow cooker.`;
 
 export function InstructionsSection() {
-  const [text, setText] = useState("");
+  const {
+    field: { value, onChange, onBlur, ref },
+    fieldState: { error },
+  } = useController<RecipeFormValues, "instructions">({
+    name: "instructions",
+  });
   const [previewing, setPreviewing] = useState(
-    () => parseSteps(text).length > 0,
+    () => parseSteps(value).length > 0,
   );
-  const steps = parseSteps(text);
+  const steps = parseSteps(value);
 
   const toggle = (
     <button
@@ -45,9 +53,11 @@ export function InstructionsSection() {
         <InstructionSteps steps={steps} />
       ) : (
         <textarea
+          ref={ref}
           aria-label="Instructions, one step per line"
-          value={text}
-          onChange={(event) => setText(event.target.value)}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
           placeholder={PLACEHOLDER}
           rows={8}
           className={cn(
@@ -56,6 +66,7 @@ export function InstructionsSection() {
           )}
         />
       )}
+      <FieldError message={error?.message} />
       <p className="mt-3 text-[13px] text-placeholder">
         One line, one step — switch to Preview any time to sanity-check before
         you publish.

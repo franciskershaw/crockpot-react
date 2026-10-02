@@ -3,9 +3,11 @@ import { Button } from "@/components/ui/button";
 export function RecipeFormFooter({
   status,
   submitLabel,
+  onSubmit,
 }: {
   status: string;
   submitLabel: string;
+  onSubmit: () => void;
 }) {
   return (
     <footer className="sticky bottom-0 z-30 border-t border-slider-track bg-card shadow-[0_-8px_24px_rgba(35,32,27,0.06)]">
@@ -15,6 +17,7 @@ export function RecipeFormFooter({
         </p>
         <Button
           type="button"
+          onClick={onSubmit}
           className="h-11 w-full rounded-lg px-7 text-[15px] font-bold md:h-11.5 md:w-auto"
         >
           {submitLabel}

@@ -7,8 +7,10 @@ import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
+import { useController } from "react-hook-form";
 
-import type { IngredientRow } from "../data/types";
+import type { IngredientRow, RecipeFormValues } from "../data/types";
+import { FieldError } from "./FieldError";
 import { FormSection } from "./FormSection";
 import { IngredientListRow } from "./IngredientListRow";
 
@@ -22,7 +24,10 @@ export function IngredientsSection() {
   const { data: units } = useUnits();
   const { data: items } = useItems();
   const { data: categories } = useItemCategories();
-  const [rows, setRows] = useState<IngredientRow[]>([]);
+  const {
+    field: { value: rows, onChange: setRows, ref: searchRef },
+    fieldState: { error },
+  } = useController<RecipeFormValues, "ingredients">({ name: "ingredients" });
   const [picked, setPicked] = useState<Item | null>(null);
   const [returnFocus, setReturnFocus] = useState(false);
   const [editSignals, setEditSignals] = useState<Record<string, number>>({});
@@ -114,8 +119,10 @@ export function IngredientsSection() {
           resumeKey={resumeKey}
           onCreate={isAdmin ? setNewItemName : undefined}
           onPick={pickItem}
+          inputRef={searchRef}
         />
       )}
+      <FieldError message={error?.message} />
 
       {rows.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">

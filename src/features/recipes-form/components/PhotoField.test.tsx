@@ -133,6 +133,24 @@ describe("PhotoField", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview-1");
   });
 
+  it("ignores another pick while a photo is still being read", async () => {
+    let finishFirst: (file: File) => void = () => {};
+    vi.mocked(shrinkPhoto).mockImplementationOnce(
+      () => new Promise((resolve) => (finishFirst = resolve)),
+    );
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.upload(photoInput(), phonePhoto("first.jpg"));
+
+    await user.upload(photoInput(), phonePhoto("second.jpg"));
+    finishFirst(new File(["shrunk"], "shrunk-first.jpg"));
+
+    expect(await screen.findByLabelText("file")).toHaveTextContent(
+      "shrunk-first.jpg",
+    );
+    expect(shrinkPhoto).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps the current photo and explains when a photo can't be read", async () => {
     vi.mocked(shrinkPhoto).mockRejectedValue(new PhotoDecodeError());
     const user = userEvent.setup();

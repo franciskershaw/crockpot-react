@@ -65,6 +65,7 @@ export function PhotoField() {
         type="file"
         accept="image/*"
         tabIndex={-1}
+        disabled={isReading}
         className="sr-only"
         onChange={(event) => void handlePick(event)}
       />

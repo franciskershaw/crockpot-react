@@ -7,7 +7,11 @@ export function fromDetail(recipe: RecipeDetail): RecipeFormValues {
     name: recipe.name,
     image:
       recipe.imageUrl && recipe.imageFilename
-        ? { url: recipe.imageUrl, filename: recipe.imageFilename }
+        ? {
+            kind: "existing",
+            url: recipe.imageUrl,
+            filename: recipe.imageFilename,
+          }
         : null,
     description: recipe.description ?? "",
     timeInMinutes: recipe.timeInMinutes,

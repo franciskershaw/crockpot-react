@@ -42,7 +42,20 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
         });
       }
     }),
-    image: z.object({ url: z.string(), filename: z.string() }).nullable(),
+    image: z
+      .discriminatedUnion("kind", [
+        z.object({
+          kind: z.literal("existing"),
+          url: z.string(),
+          filename: z.string(),
+        }),
+        z.object({
+          kind: z.literal("new"),
+          file: z.instanceof(File),
+          previewUrl: z.string(),
+        }),
+      ])
+      .nullable(),
     description: z
       .string()
       .refine(

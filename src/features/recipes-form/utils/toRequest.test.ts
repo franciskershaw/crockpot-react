@@ -31,7 +31,11 @@ describe("toRequest", () => {
         ],
         instructions: "1. Brown the beef.\n\n2) Add the onions.\n",
         notes: "Freezes well.\n\n  Even better the next day.  \n",
-        image: { url: "https://res.cloudinary.com/x.jpg", filename: "x" },
+        image: {
+          kind: "existing",
+          url: "https://res.cloudinary.com/x.jpg",
+          filename: "x",
+        },
       }),
     ).toEqual({
       name: "Beef stew",

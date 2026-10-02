@@ -19,6 +19,9 @@ export function toRequest(values: RecipeFormValues): RecipeWriteInput {
       unitId: row.unitId,
       quantity: Number(row.quantity),
     })),
-    image: values.image,
+    image:
+      values.image?.kind === "existing"
+        ? { url: values.image.url, filename: values.image.filename }
+        : null,
   };
 }

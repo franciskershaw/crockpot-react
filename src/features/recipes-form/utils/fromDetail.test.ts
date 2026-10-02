@@ -52,6 +52,7 @@ describe("fromDetail", () => {
     expect(fromDetail(migrated)).toEqual({
       name: "Slow Cooker Beef Casserole",
       image: {
+        kind: "existing",
         url: "https://res.cloudinary.com/crockpot/image/upload/stew.jpg",
         filename: "crockpot/stew",
       },

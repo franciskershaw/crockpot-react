@@ -6,9 +6,13 @@ export interface IngredientRow {
   quantity: string;
 }
 
+export type RecipeFormImage =
+  | { kind: "existing"; url: string; filename: string }
+  | { kind: "new"; file: File; previewUrl: string };
+
 export interface RecipeFormValues {
   name: string;
-  image: { url: string; filename: string } | null;
+  image: RecipeFormImage | null;
   description: string;
   timeInMinutes: number;
   serves: number;

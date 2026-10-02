@@ -7,12 +7,21 @@ import { useController } from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { parseSteps } from "../utils/parseSteps";
+import { MAX_STEPS } from "../utils/recipeFormSchema";
 import { FieldError } from "./FieldError";
 import { FormSection } from "./FormSection";
 
 const PLACEHOLDER = `One step per line, e.g.
 Toss the beef in flour and season well.
 Brown it in batches, then transfer to the slow cooker.`;
+
+function stepsHint(count: number): string {
+  if (count === 0) {
+    return "One line, one step — switch to Preview any time to sanity-check before you publish.";
+  }
+  if (count <= MAX_STEPS) return `${count} of ${MAX_STEPS} steps`;
+  return `${count} steps — remove ${count - MAX_STEPS} to publish`;
+}
 
 export function InstructionsSection() {
   const {
@@ -25,6 +34,7 @@ export function InstructionsSection() {
     () => parseSteps(value).length > 0,
   );
   const steps = parseSteps(value);
+  const overLimit = steps.length > MAX_STEPS;
 
   const toggle = (
     <button
@@ -50,7 +60,14 @@ export function InstructionsSection() {
   return (
     <FormSection title="Instructions*" action={toggle}>
       {previewing ? (
-        <InstructionSteps steps={steps} />
+        <>
+          <InstructionSteps steps={steps.slice(0, MAX_STEPS)} />
+          {overLimit && (
+            <p className="mt-5 text-[13px] font-semibold text-rust-text">
+              +{steps.length - MAX_STEPS} more steps — remove them to publish
+            </p>
+          )}
+        </>
       ) : (
         <textarea
           ref={ref}
@@ -66,10 +83,16 @@ export function InstructionsSection() {
           )}
         />
       )}
-      <FieldError message={error?.message} />
-      <p className="mt-3 text-[13px] text-placeholder">
-        One line, one step — switch to Preview any time to sanity-check before
-        you publish.
+      {/* Over the limit, the hint below already says so. */}
+      {!overLimit && <FieldError message={error?.message} />}
+      <p
+        aria-live="polite"
+        className={cn(
+          "mt-3 text-[13px]",
+          overLimit ? "font-semibold text-rust-text" : "text-placeholder",
+        )}
+      >
+        {stepsHint(steps.length)}
       </p>
     </FormSection>
   );

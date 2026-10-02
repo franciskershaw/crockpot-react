@@ -6,9 +6,8 @@ import { useController } from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "../utils/parseNotes";
+import { MAX_NOTES } from "../utils/recipeFormSchema";
 import { FormSection } from "./FormSection";
-
-const MAX_NOTES = 10;
 
 function notesHint(count: number): string {
   if (count === 0) return `One line, one note — up to ${MAX_NOTES}.`;

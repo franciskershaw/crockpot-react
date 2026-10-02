@@ -5,7 +5,8 @@ import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "./parseNotes";
 import { parseSteps } from "./parseSteps";
 
-const MAX_STEPS = 50;
+export const MAX_STEPS = 50;
+export const MAX_NOTES = 10;
 
 // The server checks name length with Go's len(), which counts bytes.
 const byteLength = (value: string) => new TextEncoder().encode(value).length;
@@ -79,7 +80,10 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
     }),
     notes: z
       .string()
-      .refine((value) => parseNotes(value).length <= 10, "Up to 10 notes."),
+      .refine(
+        (value) => parseNotes(value).length <= MAX_NOTES,
+        `Up to ${MAX_NOTES} notes.`,
+      ),
   });
 
 export const defaultRecipeFormValues: RecipeFormValues = {

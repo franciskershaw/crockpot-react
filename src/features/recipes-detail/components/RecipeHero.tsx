@@ -3,6 +3,7 @@ import { useAuth } from "@/features/auth/components/AuthContext";
 import { RecipeFavouriteButton } from "@/features/recipes/components/RecipeFavouriteButton";
 import type { RecipeDetail } from "@/features/recipes/data/types";
 import { useRecipePermissions } from "@/features/recipes/hooks/useRecipePermissions";
+import { limitImage } from "@/lib/cloudinary";
 import { cn } from "@/lib/utils";
 import { ChefHat, Clock, Users } from "lucide-react";
 
@@ -62,7 +63,8 @@ export function RecipeHero({
       <div className="relative h-105 w-full bg-muted md:h-120">
         {recipe.imageUrl && (
           <img
-            src={recipe.imageUrl}
+            {...limitImage(recipe.imageUrl, [800, 1200, 1600])}
+            sizes="100vw"
             alt=""
             className="absolute inset-0 size-full object-cover"
           />

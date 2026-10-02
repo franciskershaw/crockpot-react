@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { fillImage } from "@/lib/cloudinary";
 import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -52,7 +53,7 @@ export function RecipeCard({
       <div className="relative h-45 w-full bg-muted">
         {recipe.imageUrl && (
           <img
-            src={recipe.imageUrl}
+            {...fillImage(recipe.imageUrl, 400, 180)}
             alt=""
             loading={priority ? "eager" : "lazy"}
             className="block size-full object-cover"

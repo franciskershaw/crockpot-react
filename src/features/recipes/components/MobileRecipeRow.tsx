@@ -1,3 +1,4 @@
+import { fillImage } from "@/lib/cloudinary";
 import { cn } from "@/lib/utils";
 import { ShoppingCart, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -56,7 +57,7 @@ export function MobileRecipeRow({
         <div className="size-14 shrink-0 overflow-hidden rounded-md bg-muted">
           {recipe.imageUrl && (
             <img
-              src={recipe.imageUrl}
+              {...fillImage(recipe.imageUrl, 56, 56)}
               alt=""
               loading="lazy"
               className="block size-full object-cover"

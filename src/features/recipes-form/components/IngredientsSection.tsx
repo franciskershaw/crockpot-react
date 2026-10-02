@@ -149,6 +149,7 @@ export function IngredientsSection() {
           <CreateItemDialog
             open={newItemName !== null}
             initialName={newItemName ?? ""}
+            ingredientsOnly
             onCreated={(item) => {
               setNewItemName(null);
               setPicked(item);

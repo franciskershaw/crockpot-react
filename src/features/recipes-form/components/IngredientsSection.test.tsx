@@ -76,8 +76,8 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useItems>);
   vi.mocked(useItemCategories).mockReturnValue({
     data: [
-      { id: "c_veg", name: "Veg" },
-      { id: "c_meat", name: "Meat" },
+      { id: "c_veg", name: "Veg", isIngredient: true },
+      { id: "c_meat", name: "Meat", isIngredient: true },
     ],
   } as unknown as ReturnType<typeof useItemCategories>);
   vi.mocked(useUnits).mockReturnValue({

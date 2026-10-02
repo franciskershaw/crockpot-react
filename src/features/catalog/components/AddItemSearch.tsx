@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
 import { Plus, Search, X } from "lucide-react";
 
+import { ingredientItems } from "../utils/ingredientItems";
 import { searchItems, type ItemMatch } from "../utils/searchItems";
 import { CategoryIcon } from "./CategoryIcon";
 
@@ -62,9 +63,14 @@ export function AddItemSearch({
     if (focusOnMount) inputRef.current?.focus();
   }, [focusOnMount]);
 
+  const searchable = useMemo(
+    () =>
+      isRecipe ? ingredientItems(items ?? [], categories ?? []) : (items ?? []),
+    [isRecipe, items, categories],
+  );
   const results = useMemo(
-    () => searchItems(items ?? [], query),
-    [items, query],
+    () => searchItems(searchable, query),
+    [searchable, query],
   );
   const categoryNames = useMemo(
     () => new Map(categories?.map((category) => [category.id, category.name])),

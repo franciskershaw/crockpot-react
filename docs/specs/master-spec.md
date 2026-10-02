@@ -369,7 +369,12 @@ CFE-003.
 ### Epic 6: Admin
 - **CFE-014** — Recipe approval action, admin-only (no full admin panel —
   matches backend non-goal; likely just an affordance on the recipe
-  detail/my-recipes views, not a separate dashboard).
+  detail/my-recipes views, not a separate dashboard). Show the recipe's
+  photo prominently beside Approve: approval is the only check on
+  uploaded images (unapproved recipes are visible to their creator
+  only; approved ones are admin-edit-only). If public signup opens wide,
+  consider a Cloudinary moderation add-on on `crockpot-go`'s server-side
+  upload (`CROC-040`); check its pricing first.
 
 ### Tech Debt & Production Readiness
 *From the first whole-codebase tech-debt pass, 2026-09-05. Full detail:

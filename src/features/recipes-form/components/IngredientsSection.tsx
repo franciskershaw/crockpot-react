@@ -7,7 +7,7 @@ import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
-import { useController } from "react-hook-form";
+import { useController, useFormState } from "react-hook-form";
 
 import type { IngredientRow, RecipeFormValues } from "../data/types";
 import { FieldError } from "./FieldError";
@@ -28,6 +28,7 @@ export function IngredientsSection() {
     field: { value: rows, onChange: setRows, ref: searchRef },
     fieldState: { error },
   } = useController<RecipeFormValues, "ingredients">({ name: "ingredients" });
+  const { errors } = useFormState<RecipeFormValues>({ name: "ingredients" });
   const [picked, setPicked] = useState<Item | null>(null);
   const [returnFocus, setReturnFocus] = useState(false);
   const [editSignals, setEditSignals] = useState<Record<string, number>>({});
@@ -130,10 +131,11 @@ export function IngredientsSection() {
         </p>
       ) : (
         <ul className="mt-2">
-          {rows.map((row) => (
+          {rows.map((row, index) => (
             <IngredientListRow
               key={row.itemId}
               row={row}
+              error={errors.ingredients?.[index]?.quantity?.message}
               unitOptions={unitOptionsForRow(row)}
               editSignal={editSignals[row.itemId] ?? 0}
               unitAbbreviation={

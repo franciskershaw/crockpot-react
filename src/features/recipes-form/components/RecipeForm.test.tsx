@@ -58,6 +58,7 @@ function setup(
     values: RecipeFormValues,
     done: (recipeId: string) => void,
   ) => void = vi.fn(),
+  defaultValues: RecipeFormValues = complete,
 ) {
   const router = createMemoryRouter(
     [
@@ -69,7 +70,7 @@ function setup(
             <RecipeForm
               title="Add a recipe"
               backTo="/recipes"
-              defaultValues={complete}
+              defaultValues={defaultValues}
               submitLabel="Publish recipe"
               pendingLabel="Publishing…"
               isPending={false}
@@ -151,5 +152,21 @@ describe("RecipeForm leave prompt", () => {
 
     expect(await screen.findByText("recipe page")).toBeInTheDocument();
     expect(leaveDialog()).not.toBeInTheDocument();
+  });
+});
+
+describe("RecipeForm ingredient row errors", () => {
+  it("shows a bad quantity under its row on publish, without submitting", async () => {
+    const onSubmit = vi.fn();
+    const { user } = setup(onSubmit, {
+      ...complete,
+      ingredients: [{ ...complete.ingredients[0], quantity: "0" }],
+    });
+
+    await user.click(screen.getByRole("button", { name: "Publish recipe" }));
+
+    const message = await screen.findByText("Enter a quantity above 0.");
+    expect(message.closest("li")).toHaveTextContent("Beef");
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

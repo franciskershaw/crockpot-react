@@ -5,6 +5,7 @@ import { ChefNotesSection } from "../components/ChefNotesSection";
 import { DescriptionSection } from "../components/DescriptionSection";
 import { IngredientsSection } from "../components/IngredientsSection";
 import { InstructionsSection } from "../components/InstructionsSection";
+import { PublishStatus } from "../components/PublishStatus";
 import { RecipeDetailsSection } from "../components/RecipeDetailsSection";
 import { RecipeFormFooter } from "../components/RecipeFormFooter";
 import { RecipeFormMobileHeader } from "../components/RecipeFormMobileHeader";
@@ -55,7 +56,7 @@ export function RecipeFormPage() {
         </div>
 
         <RecipeFormFooter
-          status="Name, categories, ingredients and one step needed to publish"
+          status={<PublishStatus />}
           submitLabel="Publish recipe"
           onSubmit={form.handleSubmit(() => {})}
         />

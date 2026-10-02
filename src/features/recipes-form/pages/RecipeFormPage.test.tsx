@@ -61,6 +61,23 @@ describe("RecipeFormPage", () => {
     }
   });
 
+  it("keeps the footer's publish status live as the form fills in", async () => {
+    const { user } = setup();
+    expect(
+      screen.getByText(
+        "Name, categories, ingredients and one step needed to publish",
+      ),
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText("Recipe name*"), "Stew");
+
+    expect(
+      screen.getByText(
+        "Categories, ingredients and one step needed to publish",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("publishing an empty form shows every gap and focuses the name", async () => {
     const { publish } = setup();
 

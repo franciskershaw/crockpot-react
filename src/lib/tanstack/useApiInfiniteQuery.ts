@@ -5,9 +5,9 @@ import {
   type UseInfiniteQueryOptions,
   type UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-import { ApiError, apiErrorMessage } from "../http/client";
+import type { ApiError } from "../http/client";
+import { toastApiError } from "./toastApiError";
 
 interface ApiInfiniteQueryOptions<
   TQueryFnData,
@@ -45,7 +45,7 @@ export function useApiInfiniteQuery<
       try {
         return await options.queryFn(pageParam as TPageParam);
       } catch (error) {
-        toast.error(apiErrorMessage(error));
+        toastApiError(error);
         throw error;
       }
     },

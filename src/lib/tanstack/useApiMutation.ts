@@ -3,9 +3,9 @@ import {
   type UseMutationOptions,
   type UseMutationResult,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-import { ApiError, apiErrorMessage } from "../http/client";
+import type { ApiError } from "../http/client";
+import { toastApiError } from "./toastApiError";
 
 export function useApiMutation<TData, TVariables, TOnMutateResult = unknown>(
   options: UseMutationOptions<TData, ApiError, TVariables, TOnMutateResult> & {
@@ -17,7 +17,7 @@ export function useApiMutation<TData, TVariables, TOnMutateResult = unknown>(
   return useMutation({
     ...mutationOptions,
     onError: (error, variables, onMutateResult, context) => {
-      if (!isHandledError?.(error)) toast.error(apiErrorMessage(error));
+      if (!isHandledError?.(error)) toastApiError(error);
       return mutationOptions.onError?.(
         error,
         variables,

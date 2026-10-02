@@ -3,9 +3,9 @@ import {
   type UseQueryOptions,
   type UseQueryResult,
 } from "@tanstack/react-query";
-import { toast } from "sonner";
 
-import { ApiError, apiErrorMessage } from "../http/client";
+import type { ApiError } from "../http/client";
+import { toastApiError } from "./toastApiError";
 
 interface ApiQueryOptions<TData> extends Omit<
   UseQueryOptions<TData, ApiError>,
@@ -23,7 +23,7 @@ export function useApiQuery<TData>(
       try {
         return await options.queryFn();
       } catch (error) {
-        toast.error(apiErrorMessage(error));
+        toastApiError(error);
         throw error;
       }
     },

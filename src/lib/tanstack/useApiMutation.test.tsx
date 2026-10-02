@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError } from "../http/client";
+import { ApiError, SessionExpiredError } from "../http/client";
 import { useApiMutation } from "./useApiMutation";
 
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
@@ -52,5 +52,17 @@ describe("useApiMutation", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(toast.error).toHaveBeenCalledWith("boom");
+  });
+
+  it("doesn't toast an expired session, but still calls onError so rollbacks run", async () => {
+    const onError = vi.fn();
+    const result = run({
+      mutationFn: () => Promise.reject(new SessionExpiredError()),
+      onError,
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalled();
   });
 });

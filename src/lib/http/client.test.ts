@@ -1,7 +1,22 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError, apiErrorMessage, apiFetch } from "./client";
-import { setAccessToken } from "./tokenStore";
+import {
+  ApiError,
+  apiErrorMessage,
+  apiFetch,
+  onSessionExpired,
+  SessionExpiredError,
+} from "./client";
+import { getAccessToken, setAccessToken } from "./tokenStore";
+
+function respond(ok: boolean, status: number, body: unknown = {}) {
+  return {
+    ok,
+    status,
+    headers: new Headers(),
+    json: () => Promise.resolve(body),
+  } as Response;
+}
 
 function mockFetchOnce(
   status: number,
@@ -104,15 +119,6 @@ describe("apiFetch 401 refresh/retry", () => {
     setAccessToken(null);
   });
 
-  function respond(ok: boolean, status: number, body: unknown = {}) {
-    return {
-      ok,
-      status,
-      headers: new Headers(),
-      json: () => Promise.resolve(body),
-    } as Response;
-  }
-
   it("collapses concurrent 401s from separate in-flight requests into one refresh call", async () => {
     let refreshCalls = 0;
     const attemptsByUrl: Record<string, number> = {};
@@ -192,9 +198,124 @@ describe("apiFetch 401 refresh/retry", () => {
 
     await expect(apiFetch("/whatever")).rejects.toMatchObject({
       status: 401,
-      message: "failed to refresh session",
     } satisfies Partial<ApiError>);
     expect(dataCalls).toBe(1);
+  });
+});
+
+describe("session expiry", () => {
+  let stopListening = () => {};
+
+  afterEach(() => {
+    stopListening();
+    vi.restoreAllMocks();
+    setAccessToken(null);
+  });
+
+  function listen() {
+    const listener = vi.fn();
+    stopListening = onSessionExpired(listener);
+    return listener;
+  }
+
+  function refreshAnswers(answer: () => Promise<Response>) {
+    let refreshCalls = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      if (String(input).endsWith("/auth/refresh")) {
+        refreshCalls++;
+        return answer();
+      }
+      return Promise.resolve(respond(false, 401));
+    });
+    return () => refreshCalls;
+  }
+
+  it("ends the session when the refresh is rejected with 401", async () => {
+    setAccessToken("expired-token");
+    const listener = listen();
+    refreshAnswers(() => Promise.resolve(respond(false, 401)));
+
+    const error = await apiFetch("/menu").catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(SessionExpiredError);
+    expect(error).toBeInstanceOf(ApiError);
+    expect((error as ApiError).status).toBe(401);
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(getAccessToken()).toBeNull();
+  });
+
+  it("ends the session once when concurrent requests share the rejected refresh", async () => {
+    setAccessToken("expired-token");
+    const listener = listen();
+    const refreshCalls = refreshAnswers(() =>
+      Promise.resolve(respond(false, 401)),
+    );
+
+    const results = await Promise.allSettled([
+      apiFetch("/menu"),
+      apiFetch("/shopping-list"),
+      apiFetch("/recipes/favourites"),
+    ]);
+
+    expect(refreshCalls()).toBe(1);
+    expect(listener).toHaveBeenCalledTimes(1);
+    for (const result of results) {
+      expect(result.status).toBe("rejected");
+      expect((result as PromiseRejectedResult).reason).toBeInstanceOf(
+        SessionExpiredError,
+      );
+    }
+  });
+
+  it.each([429, 500])(
+    "keeps the session when the refresh fails with %i",
+    async (status) => {
+      setAccessToken("still-valid-token");
+      const listener = listen();
+      refreshAnswers(() => Promise.resolve(respond(false, status)));
+
+      const error = await apiFetch("/menu").catch((e: unknown) => e);
+
+      expect(error).not.toBeInstanceOf(SessionExpiredError);
+      expect((error as ApiError).status).toBe(status);
+      expect(listener).not.toHaveBeenCalled();
+      expect(getAccessToken()).toBe("still-valid-token");
+    },
+  );
+
+  it("keeps the session when the refresh can't reach the server", async () => {
+    setAccessToken("still-valid-token");
+    const listener = listen();
+    refreshAnswers(() => Promise.reject(new TypeError("Failed to fetch")));
+
+    const error = await apiFetch("/menu").catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(TypeError);
+    expect(listener).not.toHaveBeenCalled();
+    expect(getAccessToken()).toBe("still-valid-token");
+  });
+
+  it("doesn't treat a 401 after a successful refresh as an expired session", async () => {
+    const listener = listen();
+    refreshAnswers(() =>
+      Promise.resolve(respond(true, 200, { accessToken: "fresh-token" })),
+    );
+
+    const error = await apiFetch("/menu").catch((e: unknown) => e);
+
+    expect(error).not.toBeInstanceOf(SessionExpiredError);
+    expect((error as ApiError).status).toBe(401);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("stops calling a listener once it unsubscribes", async () => {
+    const listener = listen();
+    stopListening();
+    refreshAnswers(() => Promise.resolve(respond(false, 401)));
+
+    await apiFetch("/menu").catch(() => {});
+
+    expect(listener).not.toHaveBeenCalled();
   });
 });
 

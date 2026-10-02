@@ -15,6 +15,23 @@ export class ApiError extends Error {
   }
 }
 
+// The refresh was rejected: this session is over and won't come back by retrying.
+export class SessionExpiredError extends ApiError {
+  constructor() {
+    super(401, "session expired");
+    this.name = "SessionExpiredError";
+  }
+}
+
+const sessionExpiredListeners = new Set<() => void>();
+
+export function onSessionExpired(listener: () => void): () => void {
+  sessionExpiredListeners.add(listener);
+  return () => {
+    sessionExpiredListeners.delete(listener);
+  };
+}
+
 function retryAfterSeconds(res: Response): number | undefined {
   const seconds = Number.parseInt(res.headers.get("Retry-After") ?? "", 10);
   return Number.isNaN(seconds) ? undefined : seconds;
@@ -31,8 +48,13 @@ async function performRefresh(): Promise<string> {
     method: "POST",
     credentials: "include",
   });
-  if (!res.ok) {
+  // Only a 401 means the session is gone; a 429, 5xx or dropped connection keeps it.
+  if (res.status === 401) {
     setAccessToken(null);
+    for (const listener of sessionExpiredListeners) listener();
+    throw new SessionExpiredError();
+  }
+  if (!res.ok) {
     throw new ApiError(res.status, "failed to refresh session");
   }
   const data = (await res.json()) as { accessToken: string };

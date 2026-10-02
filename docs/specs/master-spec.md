@@ -510,13 +510,30 @@ security findings — debt notes only):*
   edit form's photo), and `blob:` images for `CFE-049`'s local preview;
   uploads go to the API, so no Cloudinary upload origin.
 
-*Noted for the next tech-debt pass (not yet triaged into tickets):*
-- Catalogue by-id maps are rebuilt by hand in 7 places — units in
-  `unitOptions`, `UnitMultiSelect` and `IngredientsSection`; categories in
-  `AddItemSearch`, `CategoryPicker` and `IngredientsSection`; items in
-  `IngredientsSection`. Consider the catalogue/recipe reference hooks
-  returning them (e.g. a `select`-derived `useItemsById`) so each map is
-  built once per fetch. Surfaced at `CFE-010` piece 9 (2026-09-30).
+*From the fourth whole-codebase tech-debt pass, 2026-10-02. Full detail:
+`docs/findings/2026-10-02-tech-debt.md`.*
+- **CFE-050** — Session expiry: when a refresh fails mid-session (revoked,
+  reused or expired token → 401), the app stays logged in and every
+  request toasts "failed to refresh session". End the session the way
+  logout does (shared cache wipe, one clear toast, `RequireAuth`
+  redirects). Grill how the recipe form behaves, which overlaps `CFE-048`.
+  Finding 1. Not started.
+- **CFE-051** — Your Crockpot page duplication: Menu/Favourites/My recipes
+  repeat the load-error/skeleton/empty/list shell; the "Something went
+  wrong" panel is copied 6 times; the two `useUndoable*Removal` hooks are
+  one hook twice. Do before `CFE-012` (Planner) adds a fourth copy.
+  Findings 2–3. Not started.
+- **CFE-052** — Recipe-layer drift: `favouritesCache.ts` helpers are
+  generic list ops (`useDeleteRecipe` re-implements one); `EditRecipePage`
+  copies the detail query (`useRecipe(id)`); `canGoBackInApp` and the
+  history-back click are shared across features from a `recipes-detail`
+  hook file. Findings 4–6. Not started.
+- **CFE-053** — Recipe-form housekeeping: single-source the recipe limits
+  (serves, categories, time); catalogue by-id maps built once per fetch
+  (seeded at `CFE-010`); shared textarea classes and count hint; delete the
+  unreferenced Vite scaffold assets; `renderWithProviders` returns the
+  router so `RecipeForm.test` drops its retrying client; rename
+  `useReferenceData.ts`. Findings 7–12, all mechanical. Not started.
 
 ### Deferred: future features
 

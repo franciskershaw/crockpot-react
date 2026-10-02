@@ -363,3 +363,9 @@ decision as fully closed. No code written yet.
 
 - Checking the multipart contract against crockpot-go's committed code before piece 4 found that CORS hid `Retry-After`; the backend session fixed it. A page test caught a real bug: the React Compiler memoised `form.getValues("image")` from the first render, so a photo 429 said "requests". Review found one race (the label reopened the picker mid-shrink).
 - **Pattern**: in components the React Compiler optimises, read form values that affect rendering with `useWatch`, never `getValues`.
+
+## 2026-10-02 — Tech-debt pass #4. 12 findings, 4 tickets. One real gap, the rest duplication.
+
+- Whole codebase, with a full read of everything since pass #3 (`CFE-007`/`008`/`010`/`046`/`049`, 208 files). 12 findings, including the seeded catalogue-map note, grouped into `CFE-050`–`053`. Full detail: `docs/findings/2026-10-02-tech-debt.md`. Build, lint and tests were clean. Also flagged for `crockpot-go`, not filed: its flat 10s `ReadTimeout` covers multipart photo uploads.
+- The one medium finding (a dead session leaves the app logged in) sat in auth code untouched since pass #1. Earlier passes checked that refresh failure *throws* and that logout revokes, but never what the UI does afterwards. Most of the rest is the same shell, panel or hook being re-typed by the next page instead of reused.
+- **Pattern**: when auditing an error path, follow it through to what the user sees, not just to where it throws.

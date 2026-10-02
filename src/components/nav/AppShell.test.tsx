@@ -39,16 +39,16 @@ function makeLazyChild() {
   };
 }
 
-function renderShell(LazyChild: ReactElement["type"]) {
+function renderShell(LazyChild: ReactElement["type"], path = "/") {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/"]}>
+      <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route element={<AppShell />}>
-            <Route path="/" element={<LazyChild />} />
+            <Route path="*" element={<LazyChild />} />
           </Route>
         </Routes>
       </MemoryRouter>
@@ -136,5 +136,21 @@ describe("AppShell", () => {
 
     await screen.findByText("loaded content");
     expect(mockGetMenu).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["/menu", true],
+    ["/recipes/new", false],
+  ])("on %s, renders the mobile tab bar: %s", (path, rendered) => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+    const { LazyChild } = makeLazyChild();
+
+    renderShell(LazyChild, path);
+
+    expect(Boolean(screen.queryByText("Browse Recipes"))).toBe(rendered);
   });
 });

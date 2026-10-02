@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
 
-// Plain BrowserRouter has no built-in scroll restoration; skips POP (native
+// No <ScrollRestoration> is mounted; skips POP (native
 // back/forward restoration already works) and hash links (owned by useScrollToHash).
 export function ScrollToTop() {
   const { pathname, hash } = useLocation();

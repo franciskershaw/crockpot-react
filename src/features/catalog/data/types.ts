@@ -14,6 +14,7 @@ export interface Unit {
 export interface ItemCategory {
   id: string;
   name: string;
+  isIngredient: boolean;
 }
 
 export interface CreateItemInput {

@@ -72,6 +72,12 @@ rules here that would drift from it.
   reference projects). Forms: React Hook Form + Zod (matches the old
   Next.js app).
 - **Routing**: `react-router-dom` v7 (matches `packing-list-react`).
+  Mounted as a data router (`createBrowserRouter` with one splat route
+  wrapping `AppRoutes`' `<Routes>`), from `CFE-010`, solely so
+  `useBlocker` can guard unsaved forms against back/swipe-back. Rejected:
+  converting every route to route objects (no need yet); staying on
+  `<BrowserRouter>` (`useBlocker` doesn't work there). Revisit if loaders
+  or `<ScrollRestoration>` become worth adopting.
 - **Auth**: Google OAuth (redirect to the Go API's `/auth/google/login`)
   and email/password (register/confirm/login/forgot/reset), matching
   `crockpot-go`'s Epic 2. Access token held in memory (not
@@ -245,6 +251,12 @@ CFE-003.
   category-distribution data that this case otherwise makes dozens of
   recipes "Best Match" simultaneously. See `LESSONS.md` (2026-09-08) for
   the retro. **Done** (2026-09-08).
+- **CFE-047** — Browse's `IngredientFilter` excludes household items
+  (toilet paper, bin bags…) using the non-ingredient item-category flag
+  from `crockpot-go` `CROC-061` (merged), filtering the shared
+  `useItems` list with `catalog/utils/ingredientItems`, as `CFE-010`'s
+  ingredient search does. The shopping list keeps the full catalogue. Surfaced at
+  `CFE-010`'s re-grill (2026-09-30), not grilled.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive
@@ -282,13 +294,13 @@ CFE-003.
   editor, progress bar, add-extra, clear-list, mobile) was resolved.
 
 ### Epic 4: Add/Edit Recipe
-- **CFE-010** — Manual recipe form (name, photo via Cloudinary widget,
-  time, serves, categories, ingredients, instructions, notes) — the
-  "fill it in yourself" half of `screenshots/add recipe/`.
-  Every entry point to the form goes through two components: turn
-  `AddRecipeLink` (header, mobile tab bar, My recipes empty-state CTA) into a
-  real link to the create route, and give `RecipeEditButton`'s
-  `/recipes/:id/edit` a route — until then it falls through to `/menu`.
+- **CFE-010** — Manual recipe form: create at `/recipes/new`, edit at
+  `/recipes/:id/edit`. **Done** (2026-10-02), see
+  `docs/handoffs/CFE-010.md`. Left to other tickets: photo upload
+  (`crockpot-go` `CROC-040`; edit shows an existing photo read-only),
+  unmatched "New" ingredient rows (`CROC-039`), drafts (`CFE-048`).
+  `CFE-011` (paste) and `CFE-013` (import) fill the same
+  `RecipeFormValues`.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 
@@ -468,7 +480,7 @@ security findings — debt notes only):*
   different validation, the text-field class string copied four times,
   and dead `components/ui/command.tsx`. Findings 6–8. **Done**
   (2026-09-27): both quantity editors filter typing to one shared rule,
-  positive, up to 6 digits and 2 decimals (`shopping-list/utils/quantity.ts`),
+  positive, up to 6 digits and 2 decimals (`src/lib/quantity.ts`),
   because recipe rows in g/ml can pass 9999 and the column is
   `NUMERIC(10, 2)`. `FIELD_CLASSES` lives in `src/lib/styles.ts`, shared
   ahead of a second feature caller at the founder's call (expected:
@@ -484,9 +496,18 @@ security findings — debt notes only):*
 - **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
   `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
   Vercel deploy**, which itself waits on `crockpot-go` deploying.
-  Revisit the CSP allowlist at `CFE-010` for Cloudinary.
+  The CSP must allow `res.cloudinary.com` images (cards, detail, the
+  edit form's photo), plus the upload widget once photo upload lands.
 
-### Deferred: Default Items
+*Noted for the next tech-debt pass (not yet triaged into tickets):*
+- Catalogue by-id maps are rebuilt by hand in 7 places — units in
+  `unitOptions`, `UnitMultiSelect` and `IngredientsSection`; categories in
+  `AddItemSearch`, `CategoryPicker` and `IngredientsSection`; items in
+  `IngredientsSection`. Consider the catalogue/recipe reference hooks
+  returning them (e.g. a `select`-derived `useItemsById`) so each map is
+  built once per fetch. Surfaced at `CFE-010` piece 9 (2026-09-30).
+
+### Deferred: future features
 
 *Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a
 priority epic yet. Numbered out of physical order deliberately: this
@@ -502,6 +523,16 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
   section on the shopping list screen, something else) is undecided —
   open for the grill, alongside `crockpot-go` `CROC-038`'s data-shape
   questions.
+
+*Descoped from `CFE-010` 2026-10-02 — not sequenced; grill before
+starting.*
+- **CFE-048** — Recipe drafts: save a half-written recipe and come back
+  to it, the "Draft saved" indicator and "Save as draft" button the
+  `add` screenshots draw. Open:
+  browser-only autosave (`localStorage`, one device, create only) versus
+  server drafts that follow you across devices — the latter wants
+  `crockpot-go` work (draft storage with relaxed validation, and how
+  drafts interact with the recipe cap, `mine` listings and approval).
 
 ### Bugs
 - **CFE-022** — Logging out didn't update the UI until a manual refresh.

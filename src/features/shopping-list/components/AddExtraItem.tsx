@@ -1,16 +1,19 @@
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
+import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
 import { cn } from "@/lib/utils";
 
 import { useAddShoppingListItem } from "../hooks/useAddShoppingListItem";
-import { AddItemEditor } from "./AddItemEditor";
-import { AddItemSearch } from "./AddItemSearch";
 
 // Admin-only, and the only user of zod/react-hook-form.
 const CreateItemDialog = lazy(() =>
-  import("./CreateItemDialog").then((m) => ({ default: m.CreateItemDialog })),
+  import("@/features/catalog/components/CreateItemDialog").then((m) => ({
+    default: m.CreateItemDialog,
+  })),
 );
 
 export interface RecentlyAdded {
@@ -34,15 +37,10 @@ export function AddExtraItem({
   const isAdmin = user?.role === "ADMIN";
   const addCount = useRef(0);
 
-  const allowedUnits = useMemo(() => {
-    if (!picked) return [];
-    if (picked.allowedUnitIds.length === 0) return units ?? [];
-    const unitsById = new Map(units?.map((unit) => [unit.id, unit]));
-    return picked.allowedUnitIds.flatMap((id) => {
-      const unit = unitsById.get(id);
-      return unit ? [unit] : [];
-    });
-  }, [picked, units]);
+  const allowedUnits = useMemo(
+    () => (picked ? unitOptionsFor(picked, units ?? []) : []),
+    [picked, units],
+  );
 
   const close = () => {
     setPicked(null);

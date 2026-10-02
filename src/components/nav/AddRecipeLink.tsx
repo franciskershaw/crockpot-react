@@ -1,21 +1,16 @@
 import type { ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { NavLink, type NavLinkProps } from "react-router-dom";
 
-// No `/recipes/new` route yet — renders as an inert placeholder everywhere it appears.
 export function AddRecipeLink({
-  className = "",
+  className = "text-muted-foreground hover:text-foreground",
   children = "Add a recipe",
 }: {
-  className?: string;
+  className?: NavLinkProps["className"];
   children?: ReactNode;
 }) {
   return (
-    <span
-      aria-disabled="true"
-      title="Coming soon"
-      className={cn("cursor-not-allowed text-muted-foreground/50", className)}
-    >
+    <NavLink to="/recipes/new" className={className}>
       {children}
-    </span>
+    </NavLink>
   );
 }

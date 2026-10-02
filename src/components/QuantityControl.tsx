@@ -1,66 +1,114 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
+import { UnitSelect } from "@/features/catalog/components/UnitSelect";
+import type { Unit } from "@/features/catalog/data/types";
+import { focusAtEnd } from "@/lib/focusAtEnd";
+import { isQuantityInput, parseQuantity } from "@/lib/quantity";
 import { cn } from "@/lib/utils";
 import { Check, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
-import { focusAtEnd } from "../utils/focusAtEnd";
-import { isQuantityInput, parseQuantity } from "../utils/quantity";
-
 const EDITING_SLOT_WIDTH = 30;
 const SLOT_SPRING = { type: "spring", stiffness: 300, damping: 30 } as const;
+
+function SlotDivider() {
+  return (
+    <motion.div
+      initial={{ scaleY: 0 }}
+      animate={{ scaleY: 1 }}
+      exit={{ scaleY: 0 }}
+      transition={{ duration: 0.15, delay: 0.1 }}
+      className="h-3.5 w-px bg-border"
+    />
+  );
+}
 
 export function QuantityControl({
   itemName,
   quantity,
   unitAbbreviation,
   obtained,
+  units,
+  unitId = null,
+  editSignal = 0,
   onCommit,
 }: {
   itemName: string;
   quantity: number;
   unitAbbreviation: string | null;
   obtained: boolean;
-  onCommit: (quantity: number) => void;
+  units?: Unit[];
+  unitId?: string | null;
+  editSignal?: number;
+  onCommit: (quantity: number, unitId?: string | null) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState("");
+  const [draftUnitId, setDraftUnitId] = useState<string | null>(null);
+  const [seenEditSignal, setSeenEditSignal] = useState(editSignal);
   const [restingWidth, setRestingWidth] = useState<number | null>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
   const parsed = parseQuantity(draft);
+
+  // Measure the resting number off-screen so closing springs straight to its width.
+  useLayoutEffect(() => {
+    setRestingWidth(measureRef.current?.offsetWidth ?? null);
+  }, [quantity, obtained]);
+
+  const triggerClasses = cn(
+    "flex h-6.5 min-w-7.5 items-center justify-center rounded-full px-2.25 text-sm tabular-nums",
+    obtained ? "text-ink-done" : "font-semibold",
+  );
   const isValid = parsed !== null;
 
   const open = () => {
-    setRestingWidth(triggerRef.current?.offsetWidth ?? null);
     setDraft(String(quantity));
+    setDraftUnitId(unitId);
     setIsEditing(true);
   };
+
+  // Lets a parent open the editor, e.g. when an already-listed item is picked again.
+  if (editSignal !== seenEditSignal) {
+    setSeenEditSignal(editSignal);
+    open();
+  }
   const cancel = () => setIsEditing(false);
   const confirm = () => {
     if (parsed === null) return;
     setIsEditing(false);
-    if (parsed !== quantity) onCommit(parsed);
+    if (!units) {
+      if (parsed !== quantity) onCommit(parsed);
+    } else if (parsed !== quantity || draftUnitId !== unitId) {
+      onCommit(parsed, draftUnitId);
+    }
   };
 
   return (
     <div className="flex shrink-0 items-center gap-1.75">
       <div
         className={cn(
-          "flex h-7 items-center rounded-full border",
+          "relative flex h-7 items-center rounded-full border",
           obtained
             ? "border-slider-track"
             : "border-border bg-card shadow-quantity",
         )}
       >
+        <span
+          ref={measureRef}
+          aria-hidden
+          className={cn(
+            triggerClasses,
+            "pointer-events-none invisible absolute",
+          )}
+        >
+          {quantity}
+        </span>
         <motion.div
           initial={false}
           animate={{
             width: isEditing ? EDITING_SLOT_WIDTH : (restingWidth ?? "auto"),
           }}
           transition={SLOT_SPRING}
-          onAnimationComplete={() => {
-            if (!isEditing) setRestingWidth(null);
-          }}
-          className="flex h-7 items-center justify-center"
+          className="flex h-7 items-center justify-center overflow-hidden"
         >
           <AnimatePresence mode="wait">
             {isEditing ? (
@@ -80,7 +128,6 @@ export function QuantityControl({
             ) : (
               <motion.button
                 key="trigger"
-                ref={triggerRef}
                 type="button"
                 aria-label={`Edit quantity of ${itemName}`}
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -88,10 +135,7 @@ export function QuantityControl({
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.2 }}
                 onClick={open}
-                className={cn(
-                  "flex h-6.5 min-w-7.5 cursor-pointer items-center justify-center rounded-full px-2.25 text-sm tabular-nums",
-                  obtained ? "text-ink-done" : "font-semibold",
-                )}
+                className={cn(triggerClasses, "cursor-pointer")}
               >
                 {quantity}
               </motion.button>
@@ -111,13 +155,7 @@ export function QuantityControl({
               }}
               className="flex items-center overflow-hidden"
             >
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                exit={{ scaleY: 0 }}
-                transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-3.5 w-px bg-border"
-              />
+              <SlotDivider />
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
@@ -147,13 +185,25 @@ export function QuantityControl({
                   className="w-10 bg-transparent text-center text-sm font-semibold tabular-nums caret-green outline-none"
                 />
               </motion.div>
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
-                exit={{ scaleY: 0 }}
-                transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-3.5 w-px bg-border"
-              />
+              {units && (
+                <>
+                  <SlotDivider />
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15, delay: 0.1 }}
+                    className="flex items-center"
+                  >
+                    <UnitSelect
+                      units={units}
+                      unitId={draftUnitId}
+                      onChange={setDraftUnitId}
+                    />
+                  </motion.div>
+                </>
+              )}
+              <SlotDivider />
               <motion.button
                 type="button"
                 aria-label="Confirm quantity"

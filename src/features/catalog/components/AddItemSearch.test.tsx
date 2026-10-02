@@ -21,6 +21,7 @@ const catalog = [
   item("i_2", "Chicken thighs"),
   item("i_3", "Chickpeas", "c_cupboard"),
   item("i_4", "Onions", "c_veg"),
+  item("i_5", "Wick candles", "c_house"),
 ];
 
 beforeEach(() => {
@@ -29,9 +30,10 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useItems>);
   vi.mocked(useItemCategories).mockReturnValue({
     data: [
-      { id: "c_meat", name: "Meat" },
-      { id: "c_veg", name: "Veg" },
-      { id: "c_cupboard", name: "Cupboard" },
+      { id: "c_meat", name: "Meat", isIngredient: true },
+      { id: "c_veg", name: "Veg", isIngredient: true },
+      { id: "c_cupboard", name: "Cupboard", isIngredient: true },
+      { id: "c_house", name: "House", isIngredient: false },
     ],
   } as unknown as ReturnType<typeof useItemCategories>);
 });
@@ -256,5 +258,37 @@ describe("AddItemSearch", () => {
 
     expect(await screen.findByRole("listbox")).toBeInTheDocument();
     expect(input).toHaveValue("gochujang");
+  });
+
+  it("in the recipe variant, searches ingredients and shows category icons, not names", async () => {
+    render(<AddItemSearch variant="recipe" onPick={vi.fn()} />);
+    const input = screen.getByRole("combobox", { name: "Search ingredients" });
+
+    await userEvent.type(input, "chi");
+
+    const option = screen.getAllByRole("option")[0];
+    expect(option).toHaveTextContent(/^Chicken thighs$/);
+    expect(option.querySelector("svg")).not.toBeNull();
+  });
+
+  it("in the recipe variant, leaves out items that aren't ingredients", async () => {
+    render(<AddItemSearch variant="recipe" onPick={vi.fn()} />);
+
+    await userEvent.type(
+      screen.getByRole("combobox", { name: "Search ingredients" }),
+      "ick",
+    );
+
+    await screen.findByRole("listbox");
+    expect(optionNames()).toEqual(["i_2", "i_3"]);
+  });
+
+  it("in the shopping variant, still offers items that aren't ingredients", async () => {
+    const { input } = setup();
+
+    await userEvent.type(input, "ick");
+
+    await screen.findByRole("listbox");
+    expect(optionNames()).toEqual(["i_2", "i_3", "i_5"]);
   });
 });

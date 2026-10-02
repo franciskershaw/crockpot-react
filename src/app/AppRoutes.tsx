@@ -28,6 +28,14 @@ const RecipeDetailRoute = lazyNamed(
   () => import("@/features/recipes-detail/pages/RecipeDetailPage"),
   "RecipeDetailRoute",
 );
+const CreateRecipePage = lazyNamed(
+  () => import("@/features/recipes-form/pages/CreateRecipePage"),
+  "CreateRecipePage",
+);
+const EditRecipeRoute = lazyNamed(
+  () => import("@/features/recipes-form/pages/EditRecipePage"),
+  "EditRecipeRoute",
+);
 const MenuPage = lazyNamed(
   () => import("@/features/menu/pages/MenuPage"),
   "MenuPage",
@@ -58,7 +66,23 @@ export function AppRoutes() {
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/recipes" element={<BrowseRecipesPage />} />
+        <Route
+          path="/recipes/new"
+          element={
+            <RequireAuth>
+              <CreateRecipePage />
+            </RequireAuth>
+          }
+        />
         <Route path="/recipes/:id" element={<RecipeDetailRoute />} />
+        <Route
+          path="/recipes/:id/edit"
+          element={
+            <RequireAuth>
+              <EditRecipeRoute />
+            </RequireAuth>
+          }
+        />
         <Route
           element={
             <RequireAuth>

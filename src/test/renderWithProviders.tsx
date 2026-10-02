@@ -1,8 +1,9 @@
 import { type ReactElement } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 
+// A data router with one splat route, as App mounts the real one, so useBlocker works.
 export function renderWithProviders(
   ui: ReactElement,
   { route = "/" }: { route?: string } = {},
@@ -13,9 +14,12 @@ export function renderWithProviders(
       mutations: { retry: false },
     },
   });
+  const router = createMemoryRouter([{ path: "*", element: ui }], {
+    initialEntries: [route],
+  });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+      <RouterProvider router={router} />
     </QueryClientProvider>,
   );
 }

@@ -29,8 +29,9 @@ beforeEach(() => {
   );
   vi.mocked(useItemCategories).mockReturnValue({
     data: [
-      { id: "c_condiments", name: "Condiments" },
-      { id: "c_veg", name: "Veg" },
+      { id: "c_condiments", name: "Condiments", isIngredient: true },
+      { id: "c_veg", name: "Veg", isIngredient: true },
+      { id: "c_house", name: "House", isIngredient: false },
     ],
   } as unknown as ReturnType<typeof useItemCategories>);
   vi.mocked(useUnits).mockReturnValue({
@@ -41,13 +42,14 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useUnits>);
 });
 
-function setup(initialName = "gochujang") {
+function setup(initialName = "gochujang", ingredientsOnly = false) {
   const onCreated = vi.fn();
   const onCancel = vi.fn();
   render(
     <CreateItemDialog
       open
       initialName={initialName}
+      ingredientsOnly={ingredientsOnly}
       onCreated={onCreated}
       onCancel={onCancel}
     />,
@@ -74,6 +76,30 @@ describe("CreateItemDialog", () => {
     expect(name).toHaveFocus();
     expect(name.selectionStart).toBe(9);
     expect(name.selectionEnd).toBe(9);
+  });
+
+  it("offers every category by default", async () => {
+    const { dialog } = setup();
+
+    await userEvent.click(
+      within(dialog).getByRole("combobox", { name: "Category" }),
+    );
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent),
+    ).toEqual(["Condiments", "Veg", "House"]);
+  });
+
+  it("offers only ingredient categories when asked to", async () => {
+    const { dialog } = setup("gochujang", true);
+
+    await userEvent.click(
+      within(dialog).getByRole("combobox", { name: "Category" }),
+    );
+
+    expect(
+      screen.getAllByRole("option").map((option) => option.textContent),
+    ).toEqual(["Condiments", "Veg"]);
   });
 
   it("keeps Create disabled until a category is chosen", async () => {

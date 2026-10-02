@@ -59,7 +59,10 @@ describe("SiteHeader", () => {
 
     expect(screen.getByText("Browse recipes")).toBeInTheDocument();
     expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
-    expect(screen.getByText("Add a recipe")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Add a recipe" })).toHaveAttribute(
+      "href",
+      "/recipes/new",
+    );
     expect(screen.getByLabelText("Account menu")).toBeInTheDocument();
     expect(screen.queryByText("How it works")).not.toBeInTheDocument();
     expect(screen.queryByText("Sign in")).not.toBeInTheDocument();
@@ -75,6 +78,21 @@ describe("SiteHeader", () => {
     renderWithProviders(<SiteHeader />, { route: "/library/favourites" });
 
     expect(screen.getByRole("link", { name: /Your Crockpot/ })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("marks Add a recipe as current on the add-recipe page", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<SiteHeader />, { route: "/recipes/new" });
+
+    expect(screen.getByRole("link", { name: "Add a recipe" })).toHaveAttribute(
       "aria-current",
       "page",
     );

@@ -1,4 +1,5 @@
 import type { Ref } from "react";
+import { QuantityControl } from "@/components/QuantityControl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
@@ -6,7 +7,6 @@ import { Trash2 } from "lucide-react";
 import type { ShoppingListItem } from "../data/types";
 import { useDeleteShoppingListItem } from "../hooks/useDeleteShoppingListItem";
 import { useUpdateShoppingListItem } from "../hooks/useUpdateShoppingListItem";
-import { QuantityControl } from "./QuantityControl";
 
 export function ShoppingListRow({
   item,

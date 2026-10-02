@@ -6,6 +6,7 @@ import type {
   RecipeListParams,
   RecipeListResponse,
   RecipeTimeRange,
+  RecipeWriteInput,
 } from "./types";
 
 // categoryId/ingredientId are repeated params; categoryMode only makes sense alongside categoryIds.
@@ -66,6 +67,25 @@ export function getRecipeTimeRange(): Promise<RecipeTimeRange> {
 
 export function getRecipe(id: string): Promise<RecipeDetail> {
   return apiFetch<RecipeDetail>(`/recipes/${id}`);
+}
+
+export function createRecipe(input: RecipeWriteInput): Promise<RecipeDetail> {
+  return apiFetch<RecipeDetail>("/recipes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateRecipe(
+  id: string,
+  input: RecipeWriteInput,
+): Promise<RecipeDetail> {
+  return apiFetch<RecipeDetail>(`/recipes/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
 export function deleteRecipe(id: string): Promise<void> {

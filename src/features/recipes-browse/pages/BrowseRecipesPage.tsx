@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { useItems } from "@/features/catalog/hooks/useItems";
+import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { SlidersHorizontal } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
@@ -12,10 +13,7 @@ import { RecipeGrid } from "../components/RecipeGrid";
 import { SearchBar } from "../components/SearchBar";
 import { useRecipeFilters } from "../hooks/useRecipeFilters";
 import { useRecipeList } from "../hooks/useRecipeList";
-import {
-  useRecipeCategories,
-  useRecipeTimeRange,
-} from "../hooks/useReferenceData";
+import { useRecipeTimeRange } from "../hooks/useReferenceData";
 import { useSessionSeed } from "../hooks/useSessionSeed";
 
 export function BrowseRecipesPage() {

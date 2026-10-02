@@ -38,6 +38,15 @@ vi.mock("@/features/your-crockpot/pages/FavouritesPage", () => ({
 vi.mock("@/features/your-crockpot/pages/MyRecipesPage", () => ({
   MyRecipesPage: () => <p>my recipes page</p>,
 }));
+vi.mock("@/features/recipes-detail/pages/RecipeDetailPage", () => ({
+  RecipeDetailRoute: () => <p>recipe detail page</p>,
+}));
+vi.mock("@/features/recipes-form/pages/CreateRecipePage", () => ({
+  CreateRecipePage: () => <p>recipe form page</p>,
+}));
+vi.mock("@/features/recipes-form/pages/EditRecipePage", () => ({
+  EditRecipeRoute: () => <p>edit recipe page</p>,
+}));
 
 function CurrentPath() {
   return <output aria-label="path">{useLocation().pathname}</output>;
@@ -62,6 +71,19 @@ describe("AppRoutes", () => {
 
     expect(await screen.findByText(content)).toBeInTheDocument();
     expect(screen.getByLabelText("path")).toHaveTextContent(to);
+  });
+
+  it("routes /recipes/new to the recipe form, not a recipe called 'new'", async () => {
+    renderAt("/recipes/new");
+
+    expect(await screen.findByText("recipe form page")).toBeInTheDocument();
+    expect(screen.queryByText("recipe detail page")).not.toBeInTheDocument();
+  });
+
+  it("routes /recipes/:id/edit to the edit form", async () => {
+    renderAt("/recipes/r_1/edit");
+
+    expect(await screen.findByText("edit recipe page")).toBeInTheDocument();
   });
 
   it("keeps the Your Crockpot layout mounted through the /library redirect", async () => {

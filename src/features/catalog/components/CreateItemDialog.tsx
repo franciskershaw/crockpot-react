@@ -19,6 +19,7 @@ import type { Item } from "@/features/catalog/data/types";
 import { useCreateItem } from "@/features/catalog/hooks/useCreateItem";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { focusAtEnd } from "@/lib/focusAtEnd";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +27,6 @@ import { Loader2 } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { focusAtEnd } from "../utils/focusAtEnd";
 import { UnitMultiSelect } from "./UnitMultiSelect";
 
 const createItemSchema = z.object({
@@ -47,14 +47,19 @@ function capitalise(value: string) {
 
 function CreateItemForm({
   initialName,
+  ingredientsOnly,
   onCreated,
   onCancel,
 }: {
   initialName: string;
+  ingredientsOnly: boolean;
   onCreated: (item: Item) => void;
   onCancel: () => void;
 }) {
   const { data: categories } = useItemCategories();
+  const offeredCategories = ingredientsOnly
+    ? categories?.filter((category) => category.isIngredient)
+    : categories;
   const { data: units } = useUnits();
   const createItem = useCreateItem();
   const nameInput = useRef<HTMLInputElement | null>(null);
@@ -141,7 +146,7 @@ function CreateItemForm({
                   position="popper"
                   className="rounded-lg border-border bg-card shadow-popover"
                 >
-                  {categories?.map((category) => (
+                  {offeredCategories?.map((category) => (
                     <SelectItem
                       key={category.id}
                       value={category.id}
@@ -212,11 +217,13 @@ function CreateItemForm({
 export function CreateItemDialog({
   open,
   initialName,
+  ingredientsOnly = false,
   onCreated,
   onCancel,
 }: {
   open: boolean;
   initialName: string;
+  ingredientsOnly?: boolean;
   onCreated: (item: Item) => void;
   onCancel: () => void;
 }) {
@@ -242,6 +249,7 @@ export function CreateItemDialog({
         </DialogHeader>
         <CreateItemForm
           initialName={initialName}
+          ingredientsOnly={ingredientsOnly}
           onCreated={onCreated}
           onCancel={onCancel}
         />

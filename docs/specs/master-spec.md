@@ -144,6 +144,19 @@ rules here that would drift from it.
   localStorage — shareable/bookmarkable, and the query string doubles as
   the TanStack Query cache key.
 
+- **Ending a session** (from `CFE-050`, 2026-10-02): one
+  `endSession(queryClient, reason)` is the only code that ends a session
+  (logout, a refresh rejected with 401, later account deletion). It clears
+  the token, writes the session query to `null`, then removes other
+  queries. `client.ts` reports a rejected refresh through
+  `onSessionExpired`, which `AuthProvider` registers; only a 401 counts,
+  not a 429/5xx/network failure. Requests failing that way throw
+  `SessionExpiredError`, which the toast wrappers skip. The user stays in
+  the session query (server state) and the token in `tokenStore`.
+  Rejected: an external session store replacing the query, and the
+  transport clearing caches itself. Revisit if a second kind of
+  client-only auth state appears that the query model can't hold.
+
 - **Optimistic menu mutations** (from `CFE-041`, 2026-09-27): every menu
   mutation goes through `useOptimisticMenuMutation`, with a pure
   `apply`/`revert` pair per operation, where the revert undoes only its
@@ -195,7 +208,9 @@ CFE-003.
   resend, login, forgot, reset-from-`?token=`). Deferred out of Round 1,
   needs its own grill and its own screenshots. Must also: add the
   login/register/forgot exclusion to `apiFetch`'s 401-retry (flagged at
-  `crockpot-go` `CROC-006.md:104`); fill `getAuthErrorMessage`'s
+  `crockpot-go` `CROC-006.md:104`). Required, not optional, since
+  `CFE-050`: without it, a wrong-password 401 triggers a refresh whose 401
+  becomes `SessionExpiredError`, hiding the real error and its toast; fill `getAuthErrorMessage`'s
   per-code map, including a real `email_registered_with_password`
   message — its "unreachable in Round 1" assumption ends once password
   registration ships, so weigh account-enumeration disclosure then.
@@ -516,8 +531,8 @@ security findings — debt notes only):*
   reused or expired token → 401), the app stays logged in and every
   request toasts "failed to refresh session". End the session the way
   logout does (shared cache wipe, one clear toast, `RequireAuth`
-  redirects). Grill how the recipe form behaves, which overlaps `CFE-048`.
-  Finding 1. Not started.
+  redirects). Finding 1. Grilled 2026-10-02, see `docs/handoffs/CFE-050.md`.
+  Not started.
 - **CFE-051** — Your Crockpot page duplication: Menu/Favourites/My recipes
   repeat the load-error/skeleton/empty/list shell; the "Something went
   wrong" panel is copied 6 times; the two `useUndoable*Removal` hooks are
@@ -556,7 +571,10 @@ properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
 starting.*
 - **CFE-048** — Recipe drafts: save a half-written recipe and come back
   to it, the "Draft saved" indicator and "Save as draft" button the
-  `add` screenshots draw. Open:
+  `add` screenshots draw. Must also cover a session ending mid-form:
+  since `CFE-050`, `RequireAuth` unmounts the form and its contents are
+  lost, and a server draft can't be saved once the session is dead, which
+  argues for at least browser autosave. Open:
   browser-only autosave (`localStorage`, one device, create only) versus
   server drafts that follow you across devices — the latter wants
   `crockpot-go` work (draft storage with relaxed validation, and how

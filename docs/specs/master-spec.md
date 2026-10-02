@@ -305,29 +305,52 @@ CFE-003.
   `CFE-011` (paste) and `CFE-013` (import) fill the same
   `RecipeFormValues`.
 - **CFE-049** — Recipe photos, end to end. Consumes `crockpot-go`
-  `CROC-040` (`docs/handoffs/CROC-040.md` there). **First piece: every
-  save sends `FormData`** (`recipe` JSON part, optional `photo`) — once
-  `CROC-040` merges, `CFE-010`'s JSON saves get 400 `invalid_request`
-  until this lands. Reworks `CFE-010`'s photo plumbing:
-  `RecipeFormValues.image` becomes existing-url / new-file / none
-  (`recipeFormSchema.ts`, `fromDetail.ts` drops `filename`), `toRequest`
-  builds `FormData`, `createRecipe`/`updateRecipe` stop setting the JSON
-  `Content-Type`; check `apiFetch`'s refresh-retry resends the body.
-  PATCH: `photo` replaces, `removeImage: true` removes, neither keeps.
-  Photo field per `add1` (filled state, "Change" overlay); empty,
-  remove and error states are undesigned. Preview from the local file,
-  **upload on Save**; shrink in the browser first (~1600 px, jpg/png/webp,
-  ≤5 MB); Save shows "Saving…" (a progress bar needs `XMLHttpRequest`,
-  `fetch` can't report upload progress). 502 `image_upload_failed`,
-  400 `invalid_image`/`image_too_large` and 429 surface as form errors
-  with input kept. Also owns **sized delivery**: `RecipeCard`,
-  `MobileRecipeRow`, `RecipeHero` render the raw `imageUrl` today, i.e.
-  full originals (measured 2026-10-02: 479 KB / 1.42 MB / 88 KB vs 48 /
-  19 / 39 KB at `f_auto,q_auto,c_fill,w_600,h_400`). Build per-slot URLs
-  by inserting the transformation after `/image/upload/`, with a 2×
-  `srcset`; fixes migrated images too. Glance at Cloudinary
-  transformation usage once live. **Blocked on `CROC-040`.** Last piece
-  of recipe create/edit/delete feature-completeness.
+  `CROC-040` (contract: `docs/handoffs/CROC-040.md` there). **Grilled**
+  (2026-10-02), AI-driven, cheap to undo (the contract was settled in
+  `CROC-040`'s grill).
+  - **Shrink** (`src/lib`, no library): `createImageBitmap` (applies EXIF
+    orientation) → longest side ≤1600 px → JPEG q0.85 on white. Decode
+    failure (e.g. HEIC on desktop Chrome) → "Couldn't read that photo —
+    use a JPG, PNG or WebP". Input `accept="image/*"`.
+  - **Sized delivery** (`src/lib` helper; inserts after `/image/upload/`,
+    non-Cloudinary URLs unchanged): card + form preview `c_fill,g_auto`
+    400×180 / 800×360; `MobileRecipeRow` `c_fill,g_auto` 56 / 112
+    square; `RecipeHero` `c_limit` 800/1200/1600 `srcset`, `sizes="100vw"`,
+    CSS crops. All `f_auto,q_auto`. Today all three render full
+    originals (measured: 479 KB / 1.42 MB / 88 KB vs 48 / 19 / 39 KB).
+  - **Photo field** (only the filled state is designed — `add1`/`add8`:
+    "Photo" label, rounded full-width image, "Change" pill bottom-right).
+    Undesigned states built from existing patterns, approved on screen:
+    empty = photo-sized dashed box "+ Add photo" (the "+ Add category"
+    chip's style); filled adds a matching "Remove" pill; errors via
+    `FieldError`; saving = the footer's existing state.
+  - **Form state**: `image` is `{existing url}` | `{new file, previewUrl}`
+    | `null`; object URLs revoked on change/unmount. `toRequest` builds
+    `FormData` (`recipe` JSON part; `photo` when new; `removeImage: true`
+    when an existing image was cleared). `createRecipe`/`updateRecipe`
+    drop the JSON `Content-Type`; check `apiFetch`'s refresh-retry
+    resends the body. Retry = resend; no separate upload state.
+  - **Errors**: 400 `invalid_image`/`image_too_large` under the field;
+    502 `image_upload_failed` → form error "Couldn't upload the photo —
+    try again", input kept; 429 → "Too many photo uploads — try again in
+    N minutes" from `Retry-After`. Save hooks treat 429/502 as handled.
+  - **Acceptance**: browse/detail/mobile load sized images (network panel
+    shows KB); a phone photo uploads ≤1600 px; create with photo, change,
+    remove and recipe delete all work against real Cloudinary; errors
+    above render with input kept; leave prompt fires after picking a
+    photo.
+  - **Pieces** (stop at each): 1. delivery helper + three render sites —
+    tests first, then on-screen + network check (merge any time);
+    2. shrink — tests on the size maths (jsdom has no canvas), real
+    decode checked by hand with phone photos (merge any time); 3. photo
+    field UI with local preview — on-screen approval (merge any time);
+    4. `FormData` + error mapping — tests first for keep/remove/replace
+    and each error; **merges together with `CROC-040`**; 5. hands-on end
+    to end against local `crockpot-go` + Cloudinary, desktop and phone.
+  - **Non-goals**: cropping/editing UI, multiple photos, an upload
+    progress bar (`fetch` can't report upload progress; revisit with
+    `XMLHttpRequest` if saves feel slow).
+  Last piece of recipe create/edit/delete feature-completeness.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 

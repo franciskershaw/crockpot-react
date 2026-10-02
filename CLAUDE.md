@@ -23,7 +23,8 @@ Follows the global development process — see `~/.claude/CLAUDE.md`.
 - State/data: TanStack Query
 - Forms: React Hook Form + Zod
 - Icons: lucide-react
-- Images: Cloudinary upload widget, client-side direct upload
+- Images: Cloudinary, uploaded via `crockpot-go` in the multipart
+  recipe save (`CROC-040`); render sized `f_auto,q_auto` delivery URLs
 - Auth: Google OAuth + email/password against `crockpot-go`'s JWT
   access/refresh model — access token in memory, refresh via httponly
   cookie on `api.crockpot.app`

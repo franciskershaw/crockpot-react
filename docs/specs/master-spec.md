@@ -89,9 +89,12 @@ rules here that would drift from it.
   refresh-token cookie same-site (`Lax`/`Strict`) rather than needing
   `SameSite=None` cross-site cookies, which is both simpler and safer.
 - **Icons**: lucide-react (matches both reference projects).
-- **Images**: Cloudinary upload widget, client-side direct upload
-  (matches the old app and `crockpot-go`'s "API never proxies image
-  bytes" decision).
+- **Images**: the photo travels with the recipe save — create/update
+  send `multipart/form-data` (`recipe` JSON part + optional `photo`),
+  and `crockpot-go` uploads it to Cloudinary (`CROC-040`). The browser
+  never talks to Cloudinary for uploads and never sends an image URL;
+  it renders sized delivery URLs (`f_auto,q_auto,w_…`) built from the
+  stored original. No upload widget.
 - **Palette + fonts land in CFE-003** (`docs/handoffs/CFE-003.md`),
   consumed by every screen after. Palette: Claude Design's own output
   for the reskin, mapped onto the existing shadcn `--color-*` tokens in
@@ -301,6 +304,30 @@ CFE-003.
   unmatched "New" ingredient rows (`CROC-039`), drafts (`CFE-048`).
   `CFE-011` (paste) and `CFE-013` (import) fill the same
   `RecipeFormValues`.
+- **CFE-049** — Recipe photos, end to end. Consumes `crockpot-go`
+  `CROC-040` (`docs/handoffs/CROC-040.md` there). **First piece: every
+  save sends `FormData`** (`recipe` JSON part, optional `photo`) — once
+  `CROC-040` merges, `CFE-010`'s JSON saves get 400 `invalid_request`
+  until this lands. Reworks `CFE-010`'s photo plumbing:
+  `RecipeFormValues.image` becomes existing-url / new-file / none
+  (`recipeFormSchema.ts`, `fromDetail.ts` drops `filename`), `toRequest`
+  builds `FormData`, `createRecipe`/`updateRecipe` stop setting the JSON
+  `Content-Type`; check `apiFetch`'s refresh-retry resends the body.
+  PATCH: `photo` replaces, `removeImage: true` removes, neither keeps.
+  Photo field per `add1` (filled state, "Change" overlay); empty,
+  remove and error states are undesigned. Preview from the local file,
+  **upload on Save**; shrink in the browser first (~1600 px, jpg/png/webp,
+  ≤5 MB); Save shows "Saving…" (a progress bar needs `XMLHttpRequest`,
+  `fetch` can't report upload progress). 502 `image_upload_failed`,
+  400 `invalid_image`/`image_too_large` and 429 surface as form errors
+  with input kept. Also owns **sized delivery**: `RecipeCard`,
+  `MobileRecipeRow`, `RecipeHero` render the raw `imageUrl` today, i.e.
+  full originals (measured 2026-10-02: 479 KB / 1.42 MB / 88 KB vs 48 /
+  19 / 39 KB at `f_auto,q_auto,c_fill,w_600,h_400`). Build per-slot URLs
+  by inserting the transformation after `/image/upload/`, with a 2×
+  `srcset`; fixes migrated images too. Glance at Cloudinary
+  transformation usage once live. **Blocked on `CROC-040`.** Last piece
+  of recipe create/edit/delete feature-completeness.
 - **CFE-011** — Freeform ingredient-paste parsing UI, calling
   `crockpot-go`'s parser endpoint (added to backend Epic 10 at kickoff).
 
@@ -497,7 +524,8 @@ security findings — debt notes only):*
   `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
   Vercel deploy**, which itself waits on `crockpot-go` deploying.
   The CSP must allow `res.cloudinary.com` images (cards, detail, the
-  edit form's photo), plus the upload widget once photo upload lands.
+  edit form's photo), and `blob:` images for `CFE-049`'s local preview;
+  uploads go to the API, so no Cloudinary upload origin.
 
 *Noted for the next tech-debt pass (not yet triaged into tickets):*
 - Catalogue by-id maps are rebuilt by hand in 7 places — units in

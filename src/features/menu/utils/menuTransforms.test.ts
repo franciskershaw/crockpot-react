@@ -194,3 +194,35 @@ describe("clearEntries", () => {
     ]);
   });
 });
+
+// e.g. the session ended mid-request and endSession removed every cache.
+describe("reverting after the menu cache has been wiped", () => {
+  it("addEntry leaves it wiped", () => {
+    const recipe = buildRecipeCard({ id: "r_a" });
+    expect(addEntry.revert(undefined, { recipe, serves: 4 }, undefined)).toBe(
+      undefined,
+    );
+  });
+
+  it("removeEntry leaves it wiped", () => {
+    expect(
+      removeEntry.revert(
+        undefined,
+        { recipeId: "r_a" },
+        { entry: entry("r_a"), index: 0 },
+      ),
+    ).toBe(undefined);
+  });
+
+  it("setServes leaves it wiped", () => {
+    expect(setServes.revert(undefined, { recipeId: "r_a", serves: 6 }, 4)).toBe(
+      undefined,
+    );
+  });
+
+  it("clearEntries leaves it wiped", () => {
+    expect(clearEntries.revert(undefined, undefined, [entry("r_a")])).toBe(
+      undefined,
+    );
+  });
+});

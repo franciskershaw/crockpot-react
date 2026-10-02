@@ -145,10 +145,12 @@ rules here that would drift from it.
   the TanStack Query cache key.
 
 - **Ending a session** (from `CFE-050`, 2026-10-02): one
-  `endSession(queryClient, reason)` is the only code that ends a session
-  (logout, a refresh rejected with 401, later account deletion). It clears
-  the token, writes the session query to `null`, then removes other
-  queries. `client.ts` reports a rejected refresh through
+  `endSession(queryClient)` is the only code that ends a session (logout,
+  a refresh rejected with 401, later account deletion). It clears the
+  token, writes the session query to `null`, then removes other queries,
+  and returns whether there was a session to end, so callers pick their
+  own toast. Optimistic rollbacks must do nothing once their cache has
+  been removed, or they write a signed-out user's data back. `client.ts` reports a rejected refresh through
   `onSessionExpired`, which `AuthProvider` registers; only a 401 counts,
   not a 429/5xx/network failure. Requests failing that way throw
   `SessionExpiredError`, which the toast wrappers skip. The user stays in

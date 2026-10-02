@@ -148,4 +148,21 @@ describe("useUpdateShoppingListItem", () => {
     second.resolve({ message: "ok" });
     await waitFor(() => expect(invalidate).toHaveBeenCalledTimes(1));
   });
+
+  // e.g. the session ended mid-request and endSession removed every cache.
+  it("doesn't bring the list back if it was wiped while the request was in flight", async () => {
+    const { queryClient, wrapper } = setup();
+    mockUpdate.mockImplementation(() => {
+      queryClient.removeQueries({ queryKey: shoppingListKeys.list() });
+      return Promise.reject(new Error("session expired"));
+    });
+
+    const { result } = renderHook(() => useUpdateShoppingListItem(), {
+      wrapper,
+    });
+    result.current.mutate({ id: "sli_1", obtained: true });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData(shoppingListKeys.list())).toBeUndefined();
+  });
 });

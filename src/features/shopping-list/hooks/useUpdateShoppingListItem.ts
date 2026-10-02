@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { updateShoppingListItem } from "../data/api";
 import { shoppingListKeys } from "../data/queryKeys";
 import type { ShoppingList } from "../data/types";
+import { restoreShoppingList } from "../utils/restoreShoppingList";
 
 interface UpdateShoppingListItemVariables {
   id: string;
@@ -39,7 +40,7 @@ export function useUpdateShoppingListItem() {
       return { previous };
     },
     onError: (_error, _variables, context) => {
-      queryClient.setQueryData(shoppingListKeys.list(), context?.previous);
+      restoreShoppingList(queryClient, context?.previous);
     },
     onSettled: () =>
       refetchAfterLastMutation(

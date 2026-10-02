@@ -1,10 +1,17 @@
-import { createContext, useContext, type ReactNode } from "react";
-import { ApiError, refreshAccessToken } from "@/lib/http/client";
+import { createContext, useContext, useEffect, type ReactNode } from "react";
+import {
+  ApiError,
+  onSessionExpired,
+  refreshAccessToken,
+} from "@/lib/http/client";
 import { setAccessToken } from "@/lib/http/tokenStore";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { fetchMe } from "../data/api";
+import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
 import type { User } from "../data/types";
+import { endSession } from "../utils/endSession";
 
 export async function fetchSession(): Promise<User | null> {
   try {
@@ -27,9 +34,21 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export const AUTH_SESSION_QUERY_KEY = ["auth", "session"] as const;
-
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+
+  useEffect(
+    () =>
+      onSessionExpired(() => {
+        if (endSession(queryClient)) {
+          toast.info("Your session has ended. Please sign in again.", {
+            id: "session-expired",
+          });
+        }
+      }),
+    [queryClient],
+  );
+
   const { data: user, isPending } = useQuery({
     queryKey: AUTH_SESSION_QUERY_KEY,
     queryFn: fetchSession,

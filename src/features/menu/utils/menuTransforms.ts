@@ -102,9 +102,10 @@ export const clearEntries: MenuTransform<void, MenuEntry[]> = {
   capture: (data) => data?.entries ?? [],
   apply: () => withEntries([]),
   revert: (data, _variables, cleared) => {
-    const present = new Set(data?.entries.map((e) => e.recipeId));
+    if (!data) return data;
+    const present = new Set(data.entries.map((e) => e.recipeId));
     return withEntries([
-      ...(data?.entries ?? []),
+      ...data.entries,
       ...cleared.filter((e) => !present.has(e.recipeId)),
     ]);
   },

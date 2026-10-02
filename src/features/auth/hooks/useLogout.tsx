@@ -1,10 +1,9 @@
-import { setAccessToken } from "@/lib/http/tokenStore";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { AUTH_SESSION_QUERY_KEY } from "../components/AuthContext";
 import { logout } from "../data/api";
+import { endSession } from "../utils/endSession";
 
 export function useLogout() {
   const queryClient = useQueryClient();
@@ -15,12 +14,7 @@ export function useLogout() {
       toast.success("Logged out");
     },
     onSettled: () => {
-      setAccessToken(null);
-      // Order matters: clear() first would rebuild this query with no observer attached, so the write below would go unseen until something unrelated forced a re-render.
-      queryClient.setQueryData(AUTH_SESSION_QUERY_KEY, null);
-      queryClient.removeQueries({
-        predicate: (query) => query.queryKey[0] !== AUTH_SESSION_QUERY_KEY[0],
-      });
+      endSession(queryClient);
     },
   });
 }

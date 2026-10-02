@@ -6,12 +6,9 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import {
-  AUTH_SESSION_QUERY_KEY,
-  AuthProvider,
-  useAuth,
-} from "../components/AuthContext";
+import { AuthProvider, useAuth } from "../components/AuthContext";
 import { logout } from "../data/api";
+import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
 import type { User } from "../data/types";
 import { useLogout } from "./useLogout";
 

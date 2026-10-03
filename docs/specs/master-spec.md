@@ -275,8 +275,14 @@ CFE-003.
   (toilet paper, bin bags…) using the non-ingredient item-category flag
   from `crockpot-go` `CROC-061` (merged), filtering the shared
   `useItems` list with `catalog/utils/ingredientItems`, as `CFE-010`'s
-  ingredient search does. The shopping list keeps the full catalogue. Surfaced at
-  `CFE-010`'s re-grill (2026-09-30), not grilled.
+  ingredient search does. The shopping list keeps the full catalogue.
+  `GET /items` stays unfiltered: a server-side variant would cache the
+  catalogue twice to save 29 rows. Also absorbs the filters' pending
+  states: per-section skeletons in place of "0 results", and placeholder
+  pills for unresolved `ingredientIds`, built from existing skeleton and
+  pill styling with no new design. Recipes keep loading independently.
+  Load time itself is `crockpot-go` `CROC-045` (gzip). Grilled
+  2026-10-03, see `docs/handoffs/CFE-047.md`.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive

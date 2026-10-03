@@ -159,6 +159,22 @@ rules here that would drift from it.
   transport clearing caches itself. Revisit if a second kind of
   client-only auth state appears that the query model can't hold.
 
+- **Starting a session, and requests made before one** (from
+  `CFE-002b`, 2026-10-03): a call made before any session exists opts out
+  of `apiFetch`'s 401 → refresh retry with `{ refreshOn401: false }`. All
+  the password endpoints pass it, so a wrong password surfaces as itself
+  rather than as a silent `SessionExpiredError`. Every in-app sign-in
+  (password login, the automatic login after confirming, password reset)
+  goes through `startSession(queryClient, accessToken)`: set the token,
+  `fetchMe`, remove every non-session query (data cached while signed out,
+  such as `isFavourite`, is wrong once signed in), then write the session.
+  Only the signed-out-only route guard navigates afterwards. Rejected: a
+  path list in `client.ts` (renames silently undo it), "only refresh when
+  a token was sent" (changes every request's timing), invalidating the
+  session query (rotates the cookie just issued) and a full page reload
+  (discards the token just issued). Revisit if a second kind of
+  pre-session call appears that does need a refresh.
+
 - **Optimistic menu mutations** (from `CFE-041`, 2026-09-27): every menu
   mutation goes through `useOptimisticMenuMutation`, with a pure
   `apply`/`revert` pair per operation, where the revert undoes only its
@@ -206,16 +222,12 @@ CFE-003.
   `tokenStore.ts`) shipped in CFE-001.
 - **CFE-002a** — Auth session, guard, Google login. **Done**
   (2026-08-28). See `docs/handoffs/CFE-002a.md`.
-- **CFE-002b** — Email/password suite (register + 6-digit OTP confirm +
-  resend, login, forgot, reset-from-`?token=`). Deferred out of Round 1,
-  needs its own grill and its own screenshots. Must also: add the
-  login/register/forgot exclusion to `apiFetch`'s 401-retry (flagged at
-  `crockpot-go` `CROC-006.md:104`). Required, not optional, since
-  `CFE-050`: without it, a wrong-password 401 triggers a refresh whose 401
-  becomes `SessionExpiredError`, hiding the real error and its toast; fill `getAuthErrorMessage`'s
-  per-code map, including a real `email_registered_with_password`
-  message — its "unreachable in Round 1" assumption ends once password
-  registration ships, so weigh account-enumeration disclosure then.
+- **CFE-002b** — Email/password suite (register + 6-digit code confirm +
+  resend, login, forgot, reset-from-`?token=`). Grilled 2026-10-03, see
+  `docs/handoffs/CFE-002b.md`. Pieces 1–3 (transport option, auth data
+  layer, `startSession`) can start now. Screen pieces are blocked on
+  Claude-Design screens from the handoff's design brief, and the code
+  step is also blocked on `crockpot-go` `CROC-067`.
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page, plus the colour palette and Newsreader +

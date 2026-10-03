@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import type { Item } from "@/features/catalog/data/types";
+import type { Item, ItemCategory } from "@/features/catalog/data/types";
+import { ingredientItems } from "@/features/catalog/utils/ingredientItems";
 import type {
   CategoryMode,
   RecipeCategory,
@@ -41,6 +42,7 @@ export function FilterPanel({
   onSetTimeRange,
   categoriesQuery,
   itemsQuery,
+  itemCategoriesQuery,
   timeRangeQuery,
 }: {
   categoryIds: string[];
@@ -54,6 +56,7 @@ export function FilterPanel({
   onSetTimeRange: (minTime: number, maxTime: number) => void;
   categoriesQuery: UseQueryResult<RecipeCategory[], ApiError>;
   itemsQuery: UseQueryResult<Item[], ApiError>;
+  itemCategoriesQuery: UseQueryResult<ItemCategory[], ApiError>;
   timeRangeQuery: UseQueryResult<RecipeTimeRange, ApiError>;
 }) {
   return (
@@ -102,7 +105,10 @@ export function FilterPanel({
         <InlineRetry label="ingredients" onRetry={() => itemsQuery.refetch()} />
       ) : (
         <IngredientFilter
-          items={itemsQuery.data ?? []}
+          items={ingredientItems(
+            itemsQuery.data ?? [],
+            itemCategoriesQuery.data ?? [],
+          )}
           selectedIds={ingredientIds}
           onToggle={onToggleIngredient}
         />

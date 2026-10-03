@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
 import { SlidersHorizontal } from "lucide-react";
@@ -39,6 +40,7 @@ export function BrowseRecipesPage() {
 
   const categoriesQuery = useRecipeCategories();
   const itemsQuery = useItems();
+  const itemCategoriesQuery = useItemCategories();
   const timeRangeQuery = useRecipeTimeRange();
   const { data } = useRecipeList(requestParams);
   const total = data?.pages[0]?.total;
@@ -77,6 +79,7 @@ export function BrowseRecipesPage() {
     onSetTimeRange: setTimeRange,
     categoriesQuery,
     itemsQuery,
+    itemCategoriesQuery,
     timeRangeQuery,
   };
 

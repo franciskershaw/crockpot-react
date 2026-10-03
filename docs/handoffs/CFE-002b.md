@@ -450,3 +450,5 @@ One commit per piece, lowest layer first.
 7. `/forgot-password` + sent state.
 8. `/reset-password` states.
 9. Entry points rewired + Google-callback copy.
+
+Completed 2026-10-03.

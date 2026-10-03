@@ -122,12 +122,6 @@ rules here that would drift from it.
   above), and `crockpot-go` gets a real CORS middleware (CROC-009a)
   either way. Revisit the whole pattern only if the Astro migration
   happens (SSR changes where the session is resolved).
-- **Google sign-in ships before email/password** — decided at CFE-002's
-  grill. Google alone satisfies the end-to-end log-in milestone; the
-  password suite is 5 screens with ~12 API error codes and no design
-  screenshots, so it earns its own ticket (CFE-002b) and grill. Not a
-  statement that password auth is lower priority — just that it is a
-  separable unit.
 - **One shared `AppShell`, mounted on every route** — lands at CFE-004
   (`docs/handoffs/CFE-004.md`), not CFE-006 as CFE-003 originally
   flagged. `SiteHeader`/`MobileTabBar` branch internally on
@@ -222,11 +216,8 @@ CFE-003.
   `tokenStore.ts`) shipped in CFE-001.
 - **CFE-002a** — Auth session, guard, Google login. **Done**
   (2026-08-28). See `docs/handoffs/CFE-002a.md`.
-- **CFE-002b** — Email/password suite (register + 6-digit code confirm +
-  resend, login, forgot, reset-from-`?token=`). Grilled 2026-10-03, see
-  `docs/handoffs/CFE-002b.md`. Designs landed and reviewed 2026-10-03
-  (`../screenshots/auth/`), and `crockpot-go` `CROC-067` is done, so
-  nothing blocks it.
+- **CFE-002b** — Email/password suite. **Done** (2026-10-03), see
+  `docs/handoffs/CFE-002b.md`.
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page, plus the colour palette and Newsreader +

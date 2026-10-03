@@ -379,3 +379,9 @@ decision as fully closed. No code written yet.
 
 - The grill first rejected the list/grid helper on three differences; the founder pushed back, and reading the props showed two weren't real and My recipes was a third caller I'd missed. Building found the skeletons shared the grid classes too, and the review found browse's grid had the same sidebar problem. Container queries replaced per-page breakpoints across all four grids.
 - **Pattern**: before rejecting an extraction as "too many differences", diff the actual props and grep every caller, skeletons included; a count from memory undercounts.
+
+## 2026-10-03 — CFE-002b — Email/password auth. Built clean; rework came from things nobody re-read.
+
+- Reading crockpot-go's handlers at the grill caught a contract gap (CROC-067). But the shadcn CLI quietly installed an unrelated `cn` npm package while I only fixed the file it generated. A toggle choice slipped into a revision unagreed and reached the mockups. The hero's "continue with email" link, cut at CFE-003 before password auth existed, was only restored when the founder asked.
+- **Pattern**: after a CLI or generator adds code, review its whole diff, `package.json` included, not just the generated file.
+- **Pattern**: when a ticket adds a new way into something, check every existing entry point and the original design for elements earlier tickets cut because the feature didn't exist yet.

@@ -1,9 +1,7 @@
-import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { UndoTile } from "@/components/UndoTile";
-import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
-import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
@@ -16,7 +14,6 @@ import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useFavourites } from "../hooks/useFavourites";
 import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
 import { useUndoableFavouriteRemoval } from "../hooks/useUndoableFavouriteRemoval";
-import { LIBRARY_GRID_CLASSES } from "../utils/styles";
 
 export function FavouritesPage() {
   const {
@@ -75,39 +72,17 @@ export function FavouritesPage() {
         />
       ) : (
         <>
-          <div
-            data-testid="favourites-list"
-            className="flex flex-col gap-2.5 md:hidden"
-          >
-            <AnimatedSlots
-              slots={slots}
-              renderUndo={renderUndo}
-              renderItem={(slot) => (
-                <MobileRecipeRow
-                  recipe={slot.item}
-                  from="/library/favourites"
-                  onUnfavourite={() =>
-                    remove(slot.item, slot.anchorKey, slot.index)
-                  }
-                />
-              )}
-            />
-          </div>
-          <div data-testid="favourites-grid" className={LIBRARY_GRID_CLASSES}>
-            <AnimatedSlots
-              slots={slots}
-              renderUndo={renderUndo}
-              renderItem={(slot) => (
-                <RecipeCard
-                  recipe={slot.item}
-                  from="/library/favourites"
-                  onUnfavourite={() =>
-                    remove(slot.item, slot.anchorKey, slot.index)
-                  }
-                />
-              )}
-            />
-          </div>
+          <RecipeListGrid
+            slots={slots}
+            renderUndo={renderUndo}
+            testId="favourites"
+            itemProps={(slot) => ({
+              recipe: slot.item,
+              from: "/library/favourites",
+              onUnfavourite: () =>
+                remove(slot.item, slot.anchorKey, slot.index),
+            })}
+          />
           {hasNextPage && <div ref={sentinelRef} className="h-1" />}
         </>
       )}

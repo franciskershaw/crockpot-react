@@ -1,9 +1,7 @@
-import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { UndoTile } from "@/components/UndoTile";
-import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
-import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
 import { SCROLL_PANE_CLASSES } from "@/lib/styles";
@@ -62,44 +60,19 @@ export function MenuPage() {
               description="Tap the basket on any recipe you fancy and it lands here. Your shopping list builds itself from whatever you add."
             />
           ) : (
-            <>
-              <div
-                data-testid="menu-list"
-                className="flex flex-col gap-2.5 pb-16 md:hidden"
-              >
-                <AnimatedSlots
-                  slots={slots}
-                  renderUndo={renderUndo}
-                  renderItem={(slot) => (
-                    <MobileRecipeRow
-                      recipe={slot.item.recipe}
-                      from="/menu"
-                      onRemoveFromMenu={() =>
-                        remove(slot.item, slot.anchorKey, slot.index)
-                      }
-                    />
-                  )}
-                />
-              </div>
-              <div
-                data-testid="menu-grid"
-                className="hidden grid-cols-2 gap-4 md:grid xl:grid-cols-3"
-              >
-                <AnimatedSlots
-                  slots={slots}
-                  renderUndo={renderUndo}
-                  renderItem={(slot) => (
-                    <RecipeCard
-                      recipe={slot.item.recipe}
-                      from="/menu"
-                      onRemoveFromMenu={() =>
-                        remove(slot.item, slot.anchorKey, slot.index)
-                      }
-                    />
-                  )}
-                />
-              </div>
-            </>
+            <div className="pb-16 md:pb-0">
+              <RecipeListGrid
+                slots={slots}
+                renderUndo={renderUndo}
+                testId="menu"
+                itemProps={(slot) => ({
+                  recipe: slot.item.recipe,
+                  from: "/menu",
+                  onRemoveFromMenu: () =>
+                    remove(slot.item, slot.anchorKey, slot.index),
+                })}
+              />
+            </div>
           )}
         </motion.div>
         {entries && <MenuFooterPill recipeCount={entries.length} />}

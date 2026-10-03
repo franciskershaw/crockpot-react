@@ -1,16 +1,15 @@
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
-import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
-import { RecipeCard } from "@/features/recipes/components/RecipeCard";
+import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
+import { buildUndoSlots } from "@/lib/undoSlots";
 import { cn } from "@/lib/utils";
 import { ChefHat } from "lucide-react";
 
 import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
 import { useMyRecipes } from "../hooks/useMyRecipes";
-import { LIBRARY_GRID_CLASSES } from "../utils/styles";
 
 const FROM = "/library/my-recipes";
 
@@ -46,16 +45,10 @@ export function MyRecipesPage() {
         />
       ) : (
         <>
-          <div className="flex flex-col gap-2.5 md:hidden">
-            {recipes.map((recipe) => (
-              <MobileRecipeRow key={recipe.id} recipe={recipe} from={FROM} />
-            ))}
-          </div>
-          <div className={LIBRARY_GRID_CLASSES}>
-            {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} from={FROM} />
-            ))}
-          </div>
+          <RecipeListGrid
+            slots={buildUndoSlots(recipes, (recipe) => recipe.id, [])}
+            itemProps={(slot) => ({ recipe: slot.item, from: FROM })}
+          />
           {hasNextPage && <div ref={sentinelRef} className="h-1" />}
         </>
       )}

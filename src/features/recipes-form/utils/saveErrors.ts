@@ -1,4 +1,5 @@
 import type { ApiError } from "@/lib/http/client";
+import { retryWait } from "@/lib/http/retryWait";
 import { PHOTO_DECODE_MESSAGE } from "@/lib/shrinkPhoto";
 
 const PHOTO_FIELD_MESSAGES: Record<string, string> = {
@@ -9,12 +10,6 @@ const PHOTO_FIELD_MESSAGES: Record<string, string> = {
 export function photoFieldError(error: ApiError | null): string | null {
   if (error?.status !== 400) return null;
   return PHOTO_FIELD_MESSAGES[error.message] ?? null;
-}
-
-function tryAgainIn(seconds: number | undefined): string {
-  if (seconds === undefined) return "try again later";
-  const minutes = Math.max(1, Math.ceil(seconds / 60));
-  return `try again in ${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
 }
 
 // Errors this returns null for (bar the photo field's) are toasted by useApiMutation.
@@ -28,7 +23,7 @@ export function footerError(
   }
   if (error.status === 429) {
     const what = sentPhoto ? "Too many photo uploads" : "Too many requests";
-    return `${what} — ${tryAgainIn(error.retryAfterSeconds)}`;
+    return `${what} — try again ${retryWait(error.retryAfterSeconds)}`;
   }
   if (error.status === 502 && error.message === "image_upload_failed") {
     return "Couldn't upload the photo — try again";

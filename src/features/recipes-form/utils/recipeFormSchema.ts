@@ -1,3 +1,4 @@
+import { byteLength } from "@/lib/byteLength";
 import { parseQuantity } from "@/lib/quantity";
 import { z } from "zod";
 
@@ -7,9 +8,6 @@ import { parseSteps } from "./parseSteps";
 
 export const MAX_STEPS = 50;
 export const MAX_NOTES = 10;
-
-// The server checks name and description length with Go's len(), which counts bytes.
-const byteLength = (value: string) => new TextEncoder().encode(value).length;
 
 const hasNoDuplicates = (values: string[]) =>
   new Set(values).size === values.length;

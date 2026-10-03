@@ -1,6 +1,5 @@
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { RouteFallback } from "@/components/RouteFallback";
-import { StatePanel } from "@/components/StatePanel";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { User } from "@/features/auth/data/types";
 import { getRecipe } from "@/features/recipes/data/api";
@@ -9,7 +8,6 @@ import type { RecipeDetail } from "@/features/recipes/data/types";
 import { canManageRecipe } from "@/features/recipes/hooks/useRecipePermissions";
 import { ApiError } from "@/lib/http/client";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
-import { AlertTriangle } from "lucide-react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { RecipeForm } from "../components/RecipeForm";
@@ -70,14 +68,7 @@ export function EditRecipePage({ recipeId }: { recipeId: string }) {
   }
 
   if (error) {
-    return (
-      <StatePanel
-        icon={AlertTriangle}
-        heading="Something went wrong"
-        description="We couldn't load this recipe. Check your connection and try again."
-        actions={<Button onClick={() => refetch()}>Retry</Button>}
-      />
-    );
+    return <LoadErrorPanel what="this recipe" onRetry={() => refetch()} />;
   }
 
   if (!canManageRecipe(recipe, user)) {

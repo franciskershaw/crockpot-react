@@ -1,3 +1,4 @@
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
@@ -6,7 +7,7 @@ import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import { isOwnPendingRecipe } from "@/features/recipes/hooks/useRecipePermissions";
 import { ApiError } from "@/lib/http/client";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
-import { AlertTriangle, ChefHat } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
 import { RecipeContent } from "../components/RecipeContent";
@@ -46,14 +47,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
   }
 
   if (error) {
-    return (
-      <StatePanel
-        icon={AlertTriangle}
-        heading="Something went wrong"
-        description="We couldn't load this recipe. Check your connection and try again."
-        actions={<Button onClick={() => refetch()}>Retry</Button>}
-      />
-    );
+    return <LoadErrorPanel what="this recipe" onRetry={() => refetch()} />;
   }
 
   return (

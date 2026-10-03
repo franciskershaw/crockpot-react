@@ -1,14 +1,14 @@
 import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
-import { StatePanel } from "@/components/StatePanel";
-import { Button } from "@/components/ui/button";
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { UndoTile } from "@/components/UndoTile";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
-import { PILL_CTA_CLASSES } from "@/lib/styles";
+import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
-import { AlertTriangle, Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 
@@ -55,18 +55,10 @@ export function FavouritesPage() {
   );
 
   return (
-    <motion.div
-      layoutScroll
-      className="lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-10"
-    >
+    <motion.div layoutScroll className={cn(SCROLL_PANE_CLASSES, "lg:pb-10")}>
       {!recipes ? (
         isError ? (
-          <StatePanel
-            icon={AlertTriangle}
-            heading="Something went wrong"
-            description="We couldn't load your favourites. Check your connection and try again."
-            actions={<Button onClick={() => refetch()}>Retry</Button>}
-          />
+          <LoadErrorPanel what="your favourites" onRetry={() => refetch()} />
         ) : (
           <LibraryListSkeleton label="Loading your favourites…" />
         )

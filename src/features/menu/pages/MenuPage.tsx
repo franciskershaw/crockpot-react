@@ -1,14 +1,15 @@
 import { AnimatedSlots } from "@/components/AnimatedSlots";
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
-import { StatePanel } from "@/components/StatePanel";
-import { Button } from "@/components/ui/button";
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { UndoTile } from "@/components/UndoTile";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
+import { SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
-import { AlertTriangle, ChefHat } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { ChefHat } from "lucide-react";
 import { motion } from "motion/react";
 
 import { MenuFooterPill } from "../components/MenuFooterPill";
@@ -46,16 +47,11 @@ export function MenuPage() {
       <div className="relative min-w-0 lg:h-full">
         <motion.div
           layoutScroll
-          className="lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-28"
+          className={cn(SCROLL_PANE_CLASSES, "lg:pb-28")}
         >
           {!entries ? (
             isError ? (
-              <StatePanel
-                icon={AlertTriangle}
-                heading="Something went wrong"
-                description="We couldn't load your menu. Check your connection and try again."
-                actions={<Button onClick={() => refetch()}>Retry</Button>}
-              />
+              <LoadErrorPanel what="your menu" onRetry={() => refetch()} />
             ) : (
               <MenuSkeleton />
             )

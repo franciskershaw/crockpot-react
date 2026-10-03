@@ -1,11 +1,11 @@
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
-import { StatePanel } from "@/components/StatePanel";
-import { Button } from "@/components/ui/button";
 import { MobileRecipeRow } from "@/features/recipes/components/MobileRecipeRow";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
-import { PILL_CTA_CLASSES } from "@/lib/styles";
-import { AlertTriangle, ChefHat } from "lucide-react";
+import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
+import { cn } from "@/lib/utils";
+import { ChefHat } from "lucide-react";
 
 import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
@@ -26,15 +26,10 @@ export function MyRecipesPage() {
   });
 
   return (
-    <div className="lg:-mx-1 lg:h-full lg:overflow-y-auto lg:px-1 lg:pt-1 lg:pb-10">
+    <div className={cn(SCROLL_PANE_CLASSES, "lg:pb-10")}>
       {!recipes ? (
         isError ? (
-          <StatePanel
-            icon={AlertTriangle}
-            heading="Something went wrong"
-            description="We couldn't load your recipes. Check your connection and try again."
-            actions={<Button onClick={() => refetch()}>Retry</Button>}
-          />
+          <LoadErrorPanel what="your recipes" onRetry={() => refetch()} />
         ) : (
           <LibraryListSkeleton label="Loading your recipes…" />
         )

@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { StatePanel } from "@/components/StatePanel";
-import { Button } from "@/components/ui/button";
+import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
 import { useSentinelInView } from "@/lib/useSentinelInView";
-import { AlertTriangle } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useRecipeList } from "../hooks/useRecipeList";
@@ -67,14 +65,7 @@ export function RecipeGrid({
   }
 
   if (isError) {
-    return (
-      <StatePanel
-        icon={AlertTriangle}
-        heading="Something went wrong"
-        description="We couldn't load recipes. Check your connection and try again."
-        actions={<Button onClick={() => refetch()}>Retry</Button>}
-      />
-    );
+    return <LoadErrorPanel what="recipes" onRetry={() => refetch()} />;
   }
 
   if (!data) return null;

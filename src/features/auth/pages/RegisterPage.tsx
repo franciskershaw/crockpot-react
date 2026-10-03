@@ -40,6 +40,7 @@ export function RegisterPage() {
       <AuthCard>
         <ConfirmCodeStep
           email={registered.email}
+          password={registered.password}
           onUseDifferentEmail={() => {
             registration.reset();
             setRegistered(null);

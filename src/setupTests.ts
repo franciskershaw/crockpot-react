@@ -24,6 +24,10 @@ if (!globalThis.IntersectionObserver) {
     }
   } as unknown as typeof IntersectionObserver;
 }
+// jsdom lacks this; input-otp calls it to detect password-manager badges.
+if (!document.elementFromPoint) {
+  document.elementFromPoint = () => null;
+}
 // jsdom doesn't implement these; Radix (dropdown-menu, select, etc.) calls
 // them when positioning/opening a popover.
 if (!Element.prototype.hasPointerCapture) {

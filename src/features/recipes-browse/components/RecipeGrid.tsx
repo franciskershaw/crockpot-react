@@ -13,7 +13,7 @@ import { ResponsiveRecipeGrid } from "./ResponsiveRecipeGrid";
 
 const INITIAL_SKELETON_COUNT = 6;
 const NEXT_PAGE_SKELETON_COUNT = 3;
-// Matches ResponsiveRecipeGrid's widest breakpoint (xl:grid-cols-3) — these
+// Matches ResponsiveRecipeGrid's most columns (3) — these
 // are above the fold on first paint, so they shouldn't wait on loading="lazy".
 const PRIORITY_CARD_COUNT = 3;
 

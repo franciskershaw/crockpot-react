@@ -6,6 +6,7 @@ import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots } from "@/lib/undoSlots";
 import { cn } from "@/lib/utils";
 import { ChefHat } from "lucide-react";
+import { motion } from "motion/react";
 
 import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
@@ -25,7 +26,7 @@ export function MyRecipesPage() {
   });
 
   return (
-    <div className={cn(SCROLL_PANE_CLASSES, "lg:pb-10")}>
+    <motion.div layoutScroll className={cn(SCROLL_PANE_CLASSES, "lg:pb-10")}>
       {!recipes ? (
         isError ? (
           <LoadErrorPanel what="your recipes" onRetry={() => refetch()} />
@@ -52,6 +53,6 @@ export function MyRecipesPage() {
           {hasNextPage && <div ref={sentinelRef} className="h-1" />}
         </>
       )}
-    </div>
+    </motion.div>
   );
 }

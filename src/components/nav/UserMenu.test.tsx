@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { buildUser } from "@/test/authFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -17,13 +18,7 @@ vi.mock("@/features/auth/hooks/useLogout", () => ({
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseLogout = vi.mocked(useLogout);
 
-const USER = {
-  id: "u_1",
-  email: "jamie@example.com",
-  name: "Jamie M.",
-  image: null,
-  role: "FREE" as const,
-};
+const USER = buildUser({ name: "Jamie M." });
 
 afterEach(() => {
   vi.clearAllMocks();

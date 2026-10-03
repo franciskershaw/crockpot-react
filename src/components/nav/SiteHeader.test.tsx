@@ -1,4 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { buildUser } from "@/test/authFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -41,13 +42,7 @@ describe("SiteHeader", () => {
 
   it("shows the app nav and account menu when logged in", () => {
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie M.",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });

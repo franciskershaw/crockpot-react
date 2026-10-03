@@ -1,6 +1,7 @@
 import { lazy, type ReactElement } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { getMenu } from "@/features/menu/data/api";
+import { buildUser } from "@/test/authFixtures";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -79,13 +80,7 @@ describe("AppShell", () => {
 
   it("keeps the account menu up while the outlet's lazy chunk loads, when logged in", async () => {
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });
@@ -105,13 +100,7 @@ describe("AppShell", () => {
 
   it("prefetches the menu when logged in", async () => {
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });

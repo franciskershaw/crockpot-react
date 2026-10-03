@@ -1,4 +1,5 @@
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/app/routes";
+import { buildUser } from "@/test/authFixtures";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { toast } from "sonner";
@@ -32,13 +33,7 @@ const unauthed: AuthState = {
   isLoading: false,
 };
 const authed: AuthState = {
-  user: {
-    id: "u_1",
-    email: "founder@example.com",
-    name: "Founder",
-    image: null,
-    role: "FREE",
-  },
+  user: buildUser(),
   isAuthenticated: true,
   isLoading: false,
 };

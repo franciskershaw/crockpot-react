@@ -1,3 +1,4 @@
+import { buildUser } from "@/test/authFixtures";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -53,13 +54,7 @@ describe("RequireAuth", () => {
 
   it("renders its children when the user is authenticated", () => {
     renderGuarded({
-      user: {
-        id: "u_1",
-        email: "founder@example.com",
-        name: "Founder",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });

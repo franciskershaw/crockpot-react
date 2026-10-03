@@ -374,3 +374,8 @@ decision as fully closed. No code written yet.
 
 - The grill said every optimistic rollback was already safe once its cache was wiped. I had only read the ones I expected to be safe. Building the test found 4 of 7 recreated the signed-out user's menu or shopping list. The grill also first ruled out the external-store option because "CFE-002a decided otherwise". The founder pushed back, and judging it on its merits still picked option 1.
 - **Pattern**: when a design leans on "all X already handle Y", list every X with a grep and check each one, not a sample. Never cite an earlier ticket's decision as the reason; give the reason it was made.
+
+## 2026-10-03 — CFE-051 — Your Crockpot duplication. Mostly clean; the grill undercounted callers.
+
+- The grill first rejected the list/grid helper on three differences; the founder pushed back, and reading the props showed two weren't real and My recipes was a third caller I'd missed. Building found the skeletons shared the grid classes too, and the review found browse's grid had the same sidebar problem. Container queries replaced per-page breakpoints across all four grids.
+- **Pattern**: before rejecting an extraction as "too many differences", diff the actual props and grep every caller, skeletons included; a count from memory undercounts.

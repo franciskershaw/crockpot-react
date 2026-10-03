@@ -19,6 +19,7 @@ import { AUTH_PRIMARY_BUTTON, AUTH_QUIET_LINK } from "../utils/styles";
 import { AuthErrorBanner } from "./AuthErrorBanner";
 import { LoginForm } from "./LoginForm";
 import { ResendLine } from "./ResendLine";
+import { StatusHeader } from "./StatusHeader";
 
 const SLOT_CLASSES =
   "h-12 w-10.5 rounded-lg border-[1.5px] border-input bg-card text-xl font-bold text-foreground shadow-none first:rounded-l-lg first:border-l-[1.5px] last:rounded-r-lg md:h-13 md:w-12 md:text-[22px]";
@@ -67,21 +68,11 @@ export function ConfirmCodeStep({
 
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="flex size-12 items-center justify-center rounded-full bg-chip text-green md:size-13">
-        <Mail
-          aria-hidden="true"
-          className="size-5.5 md:size-6"
-          strokeWidth={2}
-        />
-      </span>
-      <h1 className="mt-4 font-display text-[26px] leading-tight font-medium md:text-[30px]">
-        Check your email
-      </h1>
-      <p className="mt-1.5 text-[15px] text-ink-body">
+      <StatusHeader icon={Mail} title="Check your email">
         We sent a 6-digit code to
         <br />
         <strong className="font-bold text-foreground">{email}</strong>
-      </p>
+      </StatusHeader>
       {banner && (
         <div className="mt-5 w-full text-left">
           <AuthErrorBanner display={banner} />

@@ -8,9 +8,11 @@ failing silently through `apiFetch`'s 401 → refresh retry. Grilled
 
 **Implementation mode**: AI-driven, in pieces (roadmap below).
 
-**Status**: pieces 1–3 can start now. Pieces 4–8 are blocked on
-Claude-Design screens built from the design brief below, and piece 5 is
-also blocked on `crockpot-go` `CROC-067`.
+**Status**: unblocked. Designs landed 2026-10-03 (25 screenshots in
+`../screenshots/auth/`, indexed under "Designs" below) and were reviewed
+the same day; decisions 10–12 and 14–17 reflect that review.
+`crockpot-go` `CROC-067` is done: all three `resend_too_soon` 429s carry a
+rounded-up `Retry-After`.
 
 ## Facts this rests on (checked 2026-10-03)
 
@@ -47,8 +49,9 @@ All in `crockpot-go/internal/handler/auth_handler.go` unless noted.
   every other session (`:672-690`). Errors: 400 `token_invalid`,
   `token_expired`, `password_too_short`/`_too_long`. There is no endpoint
   to check a token without submitting.
-- `resend_too_soon` sends `retryAfterSeconds` in the JSON body only, with
-  no header (`:297-300`, `:445-448`, `:547-550`). The cooldown is 60s per
+- `resend_too_soon` sends `retryAfterSeconds` in the body and, since
+  `CROC-067`, a matching `Retry-After` header, both rounded up
+  (`internal/handler/errors.go` `resendTooSoon`). The cooldown is 60s per
   email (`:25`). `ApiError.retryAfterSeconds` reads only the header
   (`client.ts:37-40`).
 - Today a wrong password is silent. The 401 calls `refreshAccessToken()`
@@ -155,30 +158,43 @@ All in `crockpot-go/internal/handler/auth_handler.go` unless noted.
       register, code is 6 digits.
     - **Field errors:** password-length codes on the password field;
       `code_invalid`/`code_expired`/`too_many_attempts` on the code
-      field.
+      field. `code_invalid` reads "That code isn't right." with **no
+      attempts-left count**: the API doesn't return one
+      (`auth_handler.go:395-398`), and a client-side count is wrong after
+      a reload or resend.
     - **An inline message above submit** that stays visible and can hold
-      a link or button: `email_already_registered`,
-      `email_registered_with_google`, `google_account_no_password`,
-      `email_not_found`, `invalid_credentials`,
-      `token_invalid`/`token_expired`, and both 429s ("try again in N
-      minutes").
+      a link: `email_already_registered`, `email_registered_with_google`,
+      `google_account_no_password`, `email_not_found`,
+      `invalid_credentials`, and both 429s ("Try again in N minutes.").
+      The Google-account codes all read "This email signs in with
+      Google. **Continue with Google**", with the link inside the banner
+      on login, register and forgot alike, the same pattern as "This
+      email's already registered. **Sign in instead**". Never "above" or
+      "below".
+    - **Not an inline message:** `token_invalid`/`token_expired` switch
+      the reset page to its invalid-link state (decision 12).
     - **Toast:** everything else, through `useApiMutation`'s
       `isHandledError`.
     - Google-callback codes stay as toasts on `/auth/callback`.
       `getAuthErrorMessage` gets a real `email_registered_with_password`
       message ("This email has a password — sign in with email instead").
 11. **Password fields: a new password field plus a confirm field on
-    register and reset, and a show/hide toggle on every password field.**
-    Confirming signs you in automatically (decision 3), so a typo would
-    otherwise only surface weeks later on a new device. The mismatch
-    check happens in the browser and costs nothing. `autocomplete`:
+    register and reset. No show/hide toggle anywhere** (founder's call
+    at design review, 2026-10-03; the grill's revised Q11 had kept
+    toggles alongside the confirm field without that being agreed, so
+    the mockups' eye icons are not built). Confirming signs you in
+    automatically (decision 3), so a typo would otherwise only surface
+    weeks later on a new device. The mismatch check happens in the
+    browser and costs nothing. `autocomplete`:
     `email`, `current-password` (login), `new-password` (register,
     reset), `one-time-code` (code input).
 12. **Reset page states.**
     - **No `?token=`:** "This link isn't valid" with "Request a new link"
       (to `/forgot-password`), and no form.
     - **Token present:** the form. `token_invalid`/`token_expired` on
-      submit shows the inline message with the same action.
+      submit switch the whole card to the same invalid-link state
+      (`auth25.png`'s label). A dead token can't be fixed by retrying, so
+      leaving the form up would only invite a pointless resubmit.
     - **Success:** `startSession`, the guard redirects, and a toast:
       "Password updated. You've been signed out on other devices."
 
@@ -189,35 +205,129 @@ All in `crockpot-go/internal/handler/auth_handler.go` unless noted.
     sent a reset link to {email}. It expires in 1 hour.", with Resend
     (countdown per decision 5) and "Back to sign in". A reload brings the
     form back.
+14. **Auth pages sit inside `AppShell`** with the normal header and
+    mobile tab bar. The mockups' logo-only header was the design tool
+    saving effort, not a layout decision; only the card content follows
+    the screenshots.
+15. **The code input is shadcn's `InputOTP`** (`input-otp` package): six
+    boxes, with paste, backspace across boxes and `one-time-code`
+    autofill handled by the library rather than hand-rolled.
+16. **"Use a different email" on the code step** returns to step 1 with
+    the fields still filled: the register form, or the login form when
+    the code step came from login's 403.
+17. **Fallback B is the login form** with the email prefilled and a green
+    success banner ("Email confirmed — please sign in.") in place of the
+    title.
 
-## Design brief (for Claude Design, before pieces 4–8)
+## Designs
 
-Every state below needs a mockup, plus the spec dump `CLAUDE.md`
-requires (fonts, sizes, hex values, spacing, borders and shadows). Every
-form state also needs an **inline-error** variant (the message above
-submit, holding an action) and a **field-error** variant.
+Screenshots in `../screenshots/auth/` (mobile `auth1`–`12`, desktop
+`auth13`–`25`). **Ignore in every mockup:** the logo-only header
+(decision 14) and the eye icons on password fields (decision 11).
 
-- **Login**: email, password (toggle), submit, Continue with Google,
-  "Forgot password?", "Create an account".
-- **Register, form**: name, email, password + confirm (both with
-  toggles), submit, Continue with Google, "Already have an account? Sign
-  in".
-- **Code step** (shared by register and login): "We sent a code to
-  {email}", a 6-digit input, submit, and Resend in both its ready and
-  counting-down states.
-- **Confirmed, please sign in** (fallback B): a success message and a
-  sign-in form with the email prefilled.
-- **Forgot, form**: email, submit, "Back to sign in".
-- **Forgot, sent**: the confirmation copy, Resend (ready and counting
-  down), "Back to sign in".
-- **Reset, form**: new password + confirm (toggles), submit.
-- **Reset, invalid link**: message plus "Request a new link".
-- Desktop plus the one mobile breakpoint, as for every other screen.
+| State | Mobile | Desktop |
+|---|---|---|
+| Login | `auth1` | `auth13` |
+| Login, inline error | `auth2` | `auth14` |
+| Register | `auth3` | `auth15` |
+| Register, field + inline error | `auth4` | `auth16` |
+| Code step, Resend ready / counting down | `auth5`, `auth6` (top) | `auth17` |
+| Code step, field error | — | `auth18` |
+| Fallback B | `auth6` (bottom) | `auth19` |
+| Forgot, form | `auth7` | `auth20` |
+| Forgot, inline error | `auth8` | `auth21` |
+| Forgot, sent / counting down | `auth9` | `auth22` |
+| Reset, form | `auth10` | `auth23` |
+| Reset, field errors | `auth11` | `auth24` |
+| Reset, invalid link | `auth12` | `auth25` |
+
+**Spec dump** (Claude Design, 2026-10-03), desktop / mobile:
+
+- Card: 440px wide / full width, bg `#FFFCF6`, border 1px `#E0D4BB`,
+  radius 12px, shadow `0 2px 0 #EDE4D2`. Title Newsreader 500, 30px /
+  26px.
+- Inputs: 48px tall, border 1.5px `#E0D4BB`, radius 8px, padding 0 14px.
+  Labels 13px/700 `#4A443A`.
+- Primary button: bg `#3E5A33`, text `#FBF7EF`, shadow `0 2px 0 #2B4524`.
+- Field error: border and text `#B4472A`.
+- Error banner: bg `#FAE6DD`, border `#E8BCA0`, text `#7A3317`; its
+  inline link `#7A3317`, underlined, 700.
+- Success banner: bg `#EFF3EC`, border 1px `#CFE0C3`, text `#2F4A27`,
+  icon `#3E5A33`, radius 8px, padding 12px 14px / 11px 13px, 14px / 13px.
+- Code boxes: 48×52 / 42×48, border 1.5px `#E0D4BB` (`#B4472A` on error),
+  radius 8px, 22px / 20px 700 `#23201B`, gap 10px / 7px.
+- Round badges: 52px / 48px. Envelope bg `#EFE7D6`, icon `#3E5A33`;
+  invalid-link bg `#FAE6DD`, icon `#B4472A`. Icon 24px / 22px, stroke 2.
+- OR divider: 1px `#E0D4BB` rules, label 11px/600 uppercase, letter
+  spacing 0.06em, `#A79E8C`, gap 10px / 8px.
+- Links: primary `#7A7263`, underline, offset 3px, 600. Quiet ("Use a
+  different email") `#9C9484`, underline, offset 3px, 400, 13px / 12px.
+
+**Tokens**: reuse what exists in `src/index.css`. `#3E5A33` is `--green`,
+`#4A443A` `--ink-secondary`, `#EDE4D2` `--card-shadow`, `#EFE7D6`
+`--chip`, `#A79E8C` `--icon-muted`, `#9C9484` `--placeholder`. Check
+`#FFFCF6`/`#E0D4BB` against `--card`/`--border` at piece 4. Add new tokens
+for the red error set (`#B4472A`, `#FAE6DD`, `#E8BCA0`, `#7A3317`) and
+the green success set (`#EFF3EC`, `#CFE0C3`, `#2F4A27`). `input.tsx:12`
+styles `aria-invalid` with `--destructive`, a much brighter red than
+`#B4472A`, so the auth fields need the new red instead.
+
+**Copy** (from the mockups, adjusted by decisions 10 and 12):
+
+- Login: "Sign in" / "Welcome back — pick up your menu where you left
+  it." "Forgot password?" (mobile "Forgot?"). "Don't have an account?
+  Create one". `invalid_credentials`: "Incorrect email or password."
+- Register: "Create your account" / "Free forever. Takes about a
+  minute." Button "Create account". "Already have an account? Sign in".
+  `email_already_registered`: "This email's already registered. Sign in
+  instead". Too short: "Password must be at least 8 characters." Too
+  long: "Password must be 72 bytes or fewer." Mismatch: "Passwords don't
+  match."
+- Google-account codes, everywhere: "This email signs in with Google.
+  Continue with Google".
+- 429s: "Try again in N minutes."
+- Code step: "Check your email" / "We sent a 6-digit code to {email}".
+  "Confirm". "Didn't get it? Resend code" / "Resend code in 0:47". "Use a
+  different email". `code_invalid` "That code isn't right." ·
+  `code_expired` "This code has expired. Resend to get a new one." ·
+  `too_many_attempts` "Too many attempts. Resend to get a new code."
+- Fallback B: "Email confirmed — please sign in."
+- Forgot: "Reset your password" / "Enter the email on your account and
+  we'll send you a link to reset your password." "Send reset link".
+  "Back to sign in". `email_not_found` "We couldn't find an account with
+  that email."
+- Forgot, sent: "Check your email" / "We've sent a reset link to
+  {email}. It expires in 1 hour." "Didn't get it? Resend link" / "Resend
+  link in 0:47". "Back to sign in".
+- Reset: "Set a new password" / "Choose a new password for your
+  account." "New password", "Confirm new password". "Reset password".
+- Invalid link: "This link isn't valid" / "It may have expired or
+  already been used." "Request a new link".
 
 ## Acceptance criteria
 
-Visual acceptance criteria per screen get added here once the
-screenshots exist.
+Visual (each compared on screen with the screenshot in "Designs",
+desktop and mobile, ignoring the logo-only header and eye icons):
+
+- [ ] Every auth page renders inside the normal `AppShell`, with one
+      centred card per the spec dump.
+- [ ] Login: title + subtitle, email, password with "Forgot password?"
+      right-aligned on its label row, primary button, OR divider, outlined
+      Continue-with-Google button, "Create one" link.
+- [ ] Register: name, email, password, confirm password, primary button,
+      OR divider, Google button, "Sign in" link.
+- [ ] Error banner sits between subtitle and first field, with icon and
+      any inline link; field errors turn the border red with the message
+      below the field.
+- [ ] Code step: envelope badge, title, email in bold, six code boxes,
+      Confirm, Resend line (ready / counting down), quiet "Use a different
+      email" link. Error turns all six boxes red with the message below.
+- [ ] Fallback B: green success banner at the top of the login form.
+- [ ] Forgot form, forgot sent (envelope badge, Resend line, "Back to
+      sign in"), reset form, invalid link (red badge, primary button).
+- [ ] No show/hide toggle on any password field.
+
+Behaviour:
 
 - [ ] `apiFetch` takes an options object `{ refreshOn401?: boolean }`
       (default `true`) and `hasRetried` has moved into it. Every existing
@@ -251,8 +361,11 @@ screenshots exist.
 - [ ] Forgot → "sent" state → link → reset → `/menu` with the
       signed-out-elsewhere toast.
 - [ ] `/reset-password` with no token shows the invalid-link state; a
-      used or expired token shows the inline message with "Request a new
-      link".
+      used or expired token on submit switches the page to the same
+      state.
+- [ ] "Use a different email" returns to step 1 with the fields kept.
+- [ ] Google-account banners carry a working "Continue with Google" link
+      on login, register and forgot.
 - [ ] Header/mobile sign-in go to `/login`; pricing goes to `/register`;
       Hero's Google button is unchanged.
 - [ ] `autocomplete` attributes per decision 11.
@@ -290,11 +403,12 @@ screenshots exist.
 - **Interactive (you, at close-out)**:
   1. Register → email code → `/menu`.
   2. Log out, then wrong password → inline error.
-  3. A Google account through the email login → "uses Google sign-in"
-     with a Google button.
+  3. A Google account through the email login → "This email signs in
+     with Google. Continue with Google", and the link starts Google
+     sign-in.
   4. Register without confirming, reload, log in → code step → `/menu`.
   5. Forgot → email link → reset → `/menu` + toast; open the same link
-     again → `token_invalid` state.
+     again, submit → invalid-link state.
   6. `/reset-password` with no token → invalid-link state.
   7. Signed in, visit `/login` → redirected to `/menu`.
   8. Browse recipes signed out, sign in by email, back to browse → the
@@ -308,18 +422,18 @@ screenshots exist.
 
 One commit per piece, lowest layer first.
 
-0. **`crockpot-go` `CROC-067`** (you, alongside the designs): `Retry-After`
-   on the three `resend_too_soon` responses.
+0. ~~`crockpot-go` `CROC-067`~~ — done 2026-10-03.
 1. `apiFetch` options object + tests.
 2. Auth data layer: six `api.ts` calls, `authErrors.ts`,
    `getAuthErrorMessage` entries, Zod schemas + tests.
 3. `startSession` + tests.
-4. `/login`, a thin visible slice (form, Google, links, the signed-out
-   guard): on-screen approval, then wire submit and errors through
-   `startSession`. *Needs designs.*
-5. `/register` + `ConfirmCodeStep` + countdown + automatic login with
-   fallback B. *Needs designs and CROC-067.*
+4. Auth tokens + shared pieces (card, error/success banner, field
+   error, OR divider), then `/login` as a thin visible slice (form,
+   Google, links, the signed-out guard): on-screen approval, then wire
+   submit and errors through `startSession`.
+5. `/register` + `ConfirmCodeStep` (`InputOTP`, Resend countdown, "Use a
+   different email") + automatic login with fallback B.
 6. Login's 403 → code step.
-7. `/forgot-password` + sent state. *Needs designs.*
-8. `/reset-password` states. *Needs designs.*
+7. `/forgot-password` + sent state.
+8. `/reset-password` states.
 9. Entry points rewired + Google-callback copy.

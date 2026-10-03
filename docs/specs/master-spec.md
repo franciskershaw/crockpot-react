@@ -224,10 +224,9 @@ CFE-003.
   (2026-08-28). See `docs/handoffs/CFE-002a.md`.
 - **CFE-002b** — Email/password suite (register + 6-digit code confirm +
   resend, login, forgot, reset-from-`?token=`). Grilled 2026-10-03, see
-  `docs/handoffs/CFE-002b.md`. Pieces 1–3 (transport option, auth data
-  layer, `startSession`) can start now. Screen pieces are blocked on
-  Claude-Design screens from the handoff's design brief, and the code
-  step is also blocked on `crockpot-go` `CROC-067`.
+  `docs/handoffs/CFE-002b.md`. Designs landed and reviewed 2026-10-03
+  (`../screenshots/auth/`), and `crockpot-go` `CROC-067` is done, so
+  nothing blocks it.
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page, plus the colour palette and Newsreader +

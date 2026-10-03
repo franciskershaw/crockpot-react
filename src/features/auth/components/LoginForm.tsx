@@ -15,9 +15,14 @@ import { FormBanner } from "./FormBanner";
 export function LoginForm({
   defaultEmail = "",
   notice,
+  onUnconfirmed,
 }: {
   defaultEmail?: string;
   notice?: string;
+  onUnconfirmed?: (
+    credentials: { email: string; password: string },
+    resendCooldownSeconds: number,
+  ) => void;
 }) {
   const login = useLogin();
   const {
@@ -33,7 +38,15 @@ export function LoginForm({
   return (
     <form
       noValidate
-      onSubmit={handleSubmit((credentials) => login.mutate(credentials))}
+      onSubmit={handleSubmit((credentials) =>
+        login.mutate(credentials, {
+          onSuccess: (outcome) => {
+            if (outcome.kind === "unconfirmed") {
+              onUnconfirmed?.(credentials, outcome.resendCooldownSeconds);
+            }
+          },
+        }),
+      )}
       className="flex flex-col gap-5"
     >
       {notice && <FormBanner tone="success">{notice}</FormBanner>}

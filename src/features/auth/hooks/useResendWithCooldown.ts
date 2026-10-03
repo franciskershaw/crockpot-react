@@ -3,18 +3,21 @@ import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { authErrorDisplay, isShownOnAuthForm } from "../utils/authErrors";
 import { useResendCountdown } from "./useResendCountdown";
 
-// The server's per-email cooldown. Every caller has just sent something when it mounts.
-const COOLDOWN_SECONDS = 60;
+// The server's per-email cooldown, started right after anything is sent.
+export const RESEND_COOLDOWN_SECONDS = 60;
 
-export function useResendWithCooldown(send: () => Promise<unknown>) {
-  const countdown = useResendCountdown(COOLDOWN_SECONDS);
+export function useResendWithCooldown(
+  send: () => Promise<unknown>,
+  initialSeconds = RESEND_COOLDOWN_SECONDS,
+) {
+  const countdown = useResendCountdown(initialSeconds);
   const mutation = useApiMutation({
     mutationFn: send,
     isHandledError: isShownOnAuthForm,
-    onSuccess: () => countdown.start(COOLDOWN_SECONDS),
+    onSuccess: () => countdown.start(RESEND_COOLDOWN_SECONDS),
     onError: (error) => {
       if (error.status === 429) {
-        countdown.start(error.retryAfterSeconds ?? COOLDOWN_SECONDS);
+        countdown.start(error.retryAfterSeconds ?? RESEND_COOLDOWN_SECONDS);
       }
     },
   });

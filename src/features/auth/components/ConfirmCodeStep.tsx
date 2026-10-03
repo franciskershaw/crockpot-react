@@ -26,14 +26,19 @@ const SLOT_CLASSES =
 export function ConfirmCodeStep({
   email,
   password,
+  initialCooldownSeconds,
   onUseDifferentEmail,
 }: {
   email: string;
   password?: string;
+  initialCooldownSeconds?: number;
   onUseDifferentEmail: () => void;
 }) {
   const confirm = useConfirmAndSignIn(email, password);
-  const resend = useResendWithCooldown(() => resendConfirmation({ email }));
+  const resend = useResendWithCooldown(
+    () => resendConfirmation({ email }),
+    initialCooldownSeconds,
+  );
   const {
     control,
     handleSubmit,

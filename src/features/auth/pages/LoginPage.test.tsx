@@ -108,6 +108,72 @@ describe("LoginPage", () => {
     ).toBeInTheDocument();
   });
 
+  it("sends an unconfirmed account to the code step with a fresh code", async () => {
+    const fetchSpy = serverAnswers({
+      "/auth/login": () =>
+        fakeResponse(false, 403, { error: "email_not_confirmed" }),
+      "/auth/resend-confirmation": () =>
+        fakeResponse(true, 200, { message: "resent" }),
+    });
+    renderLogin();
+
+    await signIn("jamie@example.com", "correcthorse");
+
+    expect(
+      await screen.findByRole("heading", { name: "Check your email" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Didn't get it\?/).textContent).toBe(
+      "Didn't get it? Resend code in 1:00",
+    );
+    expect(
+      fetchSpy.mock.calls.map(([input]) => new URL(String(input)).pathname),
+    ).toEqual(["/auth/login", "/auth/resend-confirmation"]);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("treats a too-soon automatic resend as a code already on its way", async () => {
+    serverAnswers({
+      "/auth/login": () =>
+        fakeResponse(false, 403, { error: "email_not_confirmed" }),
+      "/auth/resend-confirmation": () =>
+        new Response(
+          JSON.stringify({ error: "resend_too_soon", retryAfterSeconds: 30 }),
+          { status: 429, headers: { "Retry-After": "30" } },
+        ),
+    });
+    renderLogin();
+
+    await signIn("jamie@example.com", "correcthorse");
+
+    await screen.findByRole("heading", { name: "Check your email" });
+    expect(screen.getByText(/Didn't get it\?/).textContent).toBe(
+      "Didn't get it? Resend code in 0:30",
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("goes back to sign in, email kept, to use a different email", async () => {
+    serverAnswers({
+      "/auth/login": () =>
+        fakeResponse(false, 403, { error: "email_not_confirmed" }),
+      "/auth/resend-confirmation": () =>
+        fakeResponse(true, 200, { message: "resent" }),
+    });
+    renderLogin();
+    await signIn("jamie@example.com", "correcthorse");
+    await screen.findByRole("heading", { name: "Check your email" });
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Use a different email" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Sign in" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toHaveValue("jamie@example.com");
+  });
+
   it("signs the user in", async () => {
     serverAnswers({
       "/auth/login": () =>

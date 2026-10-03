@@ -1,9 +1,9 @@
 import { ApiError, refreshAccessToken } from "@/lib/http/client";
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fetchMe } from "../data/api";
-import type { User } from "../data/types";
 // `fetchSession` is module-private in the packing-list reference; the
 // crockpot port must `export` it as the seam these tests drive.
 import { fetchSession } from "./AuthContext";
@@ -21,13 +21,7 @@ vi.mock("../data/api", () => ({
 const mockRefresh = vi.mocked(refreshAccessToken);
 const mockFetchMe = vi.mocked(fetchMe);
 
-const user: User = {
-  id: "u_1",
-  email: "founder@example.com",
-  name: "Founder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 beforeEach(() => {
   setAccessToken("stale-token");

@@ -1,4 +1,5 @@
 import { DEFAULT_AUTHENTICATED_ROUTE } from "@/app/routes";
+import { buildUser } from "@/test/authFixtures";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -50,13 +51,7 @@ describe("RequireSignedOut", () => {
 
   it("sends a signed-in user to the signed-in home", () => {
     renderGuarded({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie Alder",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });

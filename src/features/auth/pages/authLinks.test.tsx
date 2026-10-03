@@ -1,9 +1,9 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { fakeResponse } from "@/test/fakeResponse";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
-import { render, screen } from "@testing-library/react";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ForgotPasswordPage } from "./ForgotPasswordPage";
@@ -21,17 +21,13 @@ afterEach(() => {
 });
 
 function renderAuthPages(start: string) {
-  const { wrapper: Wrapper } = setupQueryClient();
-  render(
-    <Wrapper>
-      <MemoryRouter initialEntries={[start]}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Routes>
-      </MemoryRouter>
-    </Wrapper>,
+  renderWithQueryClient(
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    </Routes>,
+    { route: start },
   );
   return userEvent.setup();
 }

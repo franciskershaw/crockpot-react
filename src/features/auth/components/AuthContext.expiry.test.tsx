@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { apiFetch } from "@/lib/http/client";
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
+import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { renderWithProviders } from "@/test/renderWithProviders";
@@ -10,7 +11,6 @@ import { Route, Routes } from "react-router-dom";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { User } from "../data/types";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { RequireAuth } from "./RequireAuth";
 
@@ -18,13 +18,7 @@ vi.mock("sonner", () => ({
   toast: { error: vi.fn(), info: vi.fn(), success: vi.fn() },
 }));
 
-const user: User = {
-  id: "u_1",
-  email: "founder@example.com",
-  name: "Founder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 // Boot signs the user in; every later refresh is rejected, as after a revocation.
 function serverThatRevokes({ signedIn = true } = {}) {

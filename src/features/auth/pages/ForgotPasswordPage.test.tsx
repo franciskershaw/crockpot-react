@@ -1,9 +1,9 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { fakeResponse } from "@/test/fakeResponse";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
-import { render, screen } from "@testing-library/react";
+import { serverAnswers } from "@/test/fakeServer";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ForgotPasswordPage } from "./ForgotPasswordPage";
@@ -17,23 +17,8 @@ afterEach(() => {
 });
 
 function renderForgot() {
-  const { wrapper: Wrapper } = setupQueryClient();
-  render(
-    <Wrapper>
-      <MemoryRouter initialEntries={["/forgot-password"]}>
-        <ForgotPasswordPage />
-      </MemoryRouter>
-    </Wrapper>,
-  );
-}
-
-function serverAnswers(answers: Record<string, () => Response>) {
-  return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-    const path = new URL(String(input)).pathname;
-    const answer = answers[path];
-    return answer
-      ? Promise.resolve(answer())
-      : Promise.reject(new Error(`unexpected request to ${path}`));
+  return renderWithQueryClient(<ForgotPasswordPage />, {
+    route: "/forgot-password",
   });
 }
 

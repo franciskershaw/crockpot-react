@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { render } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
 export function setupQueryClient(seed: [readonly unknown[], unknown][] = []) {
   const queryClient = new QueryClient({
@@ -25,4 +27,21 @@ export function deferred<T>() {
     reject = rej;
   });
   return { promise, resolve, reject };
+}
+
+// Unlike renderWithProviders, hands back the client and keeps cache nothing observes, for tests that read what a mutation wrote.
+export function renderWithQueryClient(
+  ui: ReactElement,
+  {
+    route = "/",
+    seed = [],
+  }: { route?: string; seed?: [readonly unknown[], unknown][] } = {},
+) {
+  const { queryClient, wrapper: Wrapper } = setupQueryClient(seed);
+  render(
+    <Wrapper>
+      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+    </Wrapper>,
+  );
+  return { queryClient };
 }

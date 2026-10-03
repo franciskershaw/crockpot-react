@@ -1,25 +1,19 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { serverAnswers } from "@/test/fakeServer";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { LoginPage } from "./LoginPage";
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const user: User = {
-  id: "u_1",
-  email: "jamie@example.com",
-  name: "Jamie Alder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -28,26 +22,9 @@ afterEach(() => {
 });
 
 function renderLogin() {
-  const { queryClient, wrapper: Wrapper } = setupQueryClient([
-    [AUTH_SESSION_QUERY_KEY, null],
-  ]);
-  render(
-    <Wrapper>
-      <MemoryRouter initialEntries={["/login"]}>
-        <LoginPage />
-      </MemoryRouter>
-    </Wrapper>,
-  );
-  return { queryClient };
-}
-
-function serverAnswers(answers: Record<string, () => Response>) {
-  return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-    const path = new URL(String(input)).pathname;
-    const answer = answers[path];
-    return answer
-      ? Promise.resolve(answer())
-      : Promise.reject(new Error(`unexpected request to ${path}`));
+  return renderWithQueryClient(<LoginPage />, {
+    route: "/login",
+    seed: [[AUTH_SESSION_QUERY_KEY, null]],
   });
 }
 
@@ -170,6 +147,30 @@ describe("LoginPage", () => {
 
     expect(
       screen.getByRole("heading", { name: "Sign in" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toHaveValue("jamie@example.com");
+  });
+
+  it("returns to the sign-in form from the code step's already-confirmed banner", async () => {
+    serverAnswers({
+      "/auth/login": () =>
+        fakeResponse(false, 403, { error: "email_not_confirmed" }),
+      "/auth/resend-confirmation": () =>
+        fakeResponse(true, 200, { message: "resent" }),
+      "/auth/confirm": () =>
+        fakeResponse(false, 400, { error: "already_confirmed" }),
+    });
+    renderLogin();
+    await signIn("jamie@example.com", "correcthorse");
+    await screen.findByRole("heading", { name: "Check your email" });
+    const ui = userEvent.setup();
+    await ui.type(screen.getByLabelText("6-digit code"), "429107");
+    await ui.click(screen.getByRole("button", { name: "Confirm" }));
+
+    await ui.click(await screen.findByRole("link", { name: "Sign in" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Sign in" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toHaveValue("jamie@example.com");
   });

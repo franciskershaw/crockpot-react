@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
 import { ConfirmCodeStep } from "../components/ConfirmCodeStep";
@@ -14,7 +14,12 @@ type View =
   | { step: "form"; email: string }
   | { step: "code"; email: string; password: string; cooldownSeconds: number };
 
+// Keyed on the location so a link back to /login (e.g. from the code step's banner) starts over at the form.
 export function LoginPage() {
+  return <LoginFlow key={useLocation().key} />;
+}
+
+function LoginFlow() {
   const carriedEmail = useCarriedEmail();
   const [view, setView] = useState<View>({ step: "form", email: carriedEmail });
 

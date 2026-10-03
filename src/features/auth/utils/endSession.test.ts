@@ -1,18 +1,12 @@
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { endSession } from "./endSession";
 
-const user: User = {
-  id: "u_1",
-  email: "founder@example.com",
-  name: "Founder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 const MENU_KEY = ["menu"];
 

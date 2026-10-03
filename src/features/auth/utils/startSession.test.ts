@@ -1,19 +1,13 @@
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { startSession } from "./startSession";
 
-const user: User = {
-  id: "u_1",
-  email: "jamie@example.com",
-  name: "Jamie Alder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 const RECIPES_KEY = ["recipes", "list", ""];
 

@@ -1,25 +1,19 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { requestedPaths, serverAnswers } from "@/test/fakeServer";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { ConfirmCodeStep } from "./ConfirmCodeStep";
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const email = "jamie@example.com";
-const user: User = {
-  id: "u_1",
-  email,
-  name: "Jamie Alder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -33,38 +27,18 @@ afterEach(() => {
 });
 
 function renderStep(password?: string) {
-  const { queryClient, wrapper: Wrapper } = setupQueryClient([
-    [AUTH_SESSION_QUERY_KEY, null],
-  ]);
-  render(
-    <Wrapper>
-      <MemoryRouter>
-        <ConfirmCodeStep
-          email={email}
-          password={password}
-          onUseDifferentEmail={vi.fn()}
-        />
-      </MemoryRouter>
-    </Wrapper>,
+  const { queryClient } = renderWithQueryClient(
+    <ConfirmCodeStep
+      email={email}
+      password={password}
+      onUseDifferentEmail={vi.fn()}
+    />,
+    { seed: [[AUTH_SESSION_QUERY_KEY, null]] },
   );
   return {
     queryClient,
     ui: userEvent.setup({ advanceTimers: vi.advanceTimersByTime }),
   };
-}
-
-function serverAnswers(answers: Record<string, () => Response>) {
-  return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-    const path = new URL(String(input)).pathname;
-    const answer = answers[path];
-    return answer
-      ? Promise.resolve(answer())
-      : Promise.reject(new Error(`unexpected request to ${path}`));
-  });
-}
-
-function requestedPaths(fetchSpy: ReturnType<typeof serverAnswers>) {
-  return fetchSpy.mock.calls.map(([input]) => new URL(String(input)).pathname);
 }
 
 async function enterCode(ui: ReturnType<typeof userEvent.setup>, code: string) {

@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { getAccessToken, setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
@@ -9,7 +10,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider, useAuth } from "../components/AuthContext";
 import { logout } from "../data/api";
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { useLogout } from "./useLogout";
 
 vi.mock("../data/api", () => ({
@@ -22,13 +22,7 @@ const mockLogout = vi.mocked(logout);
 const mockToastError = vi.mocked(toast.error);
 const mockToastSuccess = vi.mocked(toast.success);
 
-const user: User = {
-  id: "u_1",
-  email: "founder@example.com",
-  name: "Founder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 function makeWrapper() {
   return setupQueryClient([[AUTH_SESSION_QUERY_KEY, user]]);

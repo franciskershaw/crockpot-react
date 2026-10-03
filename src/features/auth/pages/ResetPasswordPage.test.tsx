@@ -1,25 +1,19 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
+import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
-import { setupQueryClient } from "@/test/queryClientTestUtils";
-import { render, screen, waitFor } from "@testing-library/react";
+import { serverAnswers } from "@/test/fakeServer";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AUTH_SESSION_QUERY_KEY } from "../data/queryKeys";
-import type { User } from "../data/types";
 import { ResetPasswordPage } from "./ResetPasswordPage";
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const user: User = {
-  id: "u_1",
-  email: "jamie@example.com",
-  name: "Jamie Alder",
-  image: null,
-  role: "FREE",
-};
+const user = buildUser();
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -28,26 +22,9 @@ afterEach(() => {
 });
 
 function renderReset(route = "/reset-password?token=reset-token") {
-  const { queryClient, wrapper: Wrapper } = setupQueryClient([
-    [AUTH_SESSION_QUERY_KEY, null],
-  ]);
-  render(
-    <Wrapper>
-      <MemoryRouter initialEntries={[route]}>
-        <ResetPasswordPage />
-      </MemoryRouter>
-    </Wrapper>,
-  );
-  return { queryClient };
-}
-
-function serverAnswers(answers: Record<string, () => Response>) {
-  return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-    const path = new URL(String(input)).pathname;
-    const answer = answers[path];
-    return answer
-      ? Promise.resolve(answer())
-      : Promise.reject(new Error(`unexpected request to ${path}`));
+  return renderWithQueryClient(<ResetPasswordPage />, {
+    route: route,
+    seed: [[AUTH_SESSION_QUERY_KEY, null]],
   });
 }
 

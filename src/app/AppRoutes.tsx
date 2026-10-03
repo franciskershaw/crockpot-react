@@ -30,6 +30,10 @@ const ForgotPasswordPage = lazyNamed(
   () => import("@/features/auth/pages/ForgotPasswordPage"),
   "ForgotPasswordPage",
 );
+const ResetPasswordPage = lazyNamed(
+  () => import("@/features/auth/pages/ResetPasswordPage"),
+  "ResetPasswordPage",
+);
 const BrowseRecipesPage = lazyNamed(
   () => import("@/features/recipes-browse/pages/BrowseRecipesPage"),
   "BrowseRecipesPage",
@@ -93,6 +97,14 @@ export function AppRoutes() {
           element={
             <RequireSignedOut>
               <ForgotPasswordPage />
+            </RequireSignedOut>
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            <RequireSignedOut>
+              <ResetPasswordPage />
             </RequireSignedOut>
           }
         />

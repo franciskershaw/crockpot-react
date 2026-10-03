@@ -25,5 +25,9 @@ const MESSAGES: Partial<Record<AuthCallbackErrorCode, string>> = {
 const FALLBACK = "We couldn't sign you in. Please try again.";
 
 export function getAuthErrorMessage(code: string): string {
-  return MESSAGES[code as AuthCallbackErrorCode] ?? FALLBACK;
+  return (
+    (Object.hasOwn(MESSAGES, code) &&
+      MESSAGES[code as AuthCallbackErrorCode]) ||
+    FALLBACK
+  );
 }

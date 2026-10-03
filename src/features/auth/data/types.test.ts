@@ -9,6 +9,12 @@ describe("getAuthErrorMessage", () => {
     );
   });
 
+  it("falls back for a code that names an Object.prototype property", () => {
+    expect(getAuthErrorMessage("toString")).toBe(
+      "We couldn't sign you in. Please try again.",
+    );
+  });
+
   it("falls back to a generic message for other codes", () => {
     expect(getAuthErrorMessage("server_error")).toBe(
       "We couldn't sign you in. Please try again.",

@@ -7,12 +7,15 @@ export function AuthField({
   id,
   label,
   action,
+  error,
   ...inputProps
 }: ComponentProps<"input"> & {
   id: string;
   label: string;
   action?: ReactNode;
+  error?: string;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between gap-3">
@@ -24,7 +27,21 @@ export function AuthField({
         </label>
         {action}
       </div>
-      <Input id={id} className={AUTH_INPUT} {...inputProps} />
+      <Input
+        id={id}
+        className={AUTH_INPUT}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        {...inputProps}
+      />
+      {error && (
+        <p
+          id={errorId}
+          className="mt-1.5 text-[13px] font-semibold text-field-error"
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 }

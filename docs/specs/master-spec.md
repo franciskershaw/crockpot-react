@@ -537,7 +537,49 @@ security findings — debt notes only):*
   repeat the load-error/skeleton/empty/list shell; the "Something went
   wrong" panel is copied 6 times; the two `useUndoable*Removal` hooks are
   one hook twice. Do before `CFE-012` (Planner) adds a fourth copy.
-  Findings 2–3. Not started.
+  Findings 2–3. Grilled 2026-10-03 (cheap to undo, AI-driven). Not started.
+  - **Piece 1 (one commit with piece 2)**: `LoadErrorPanel({ what, onRetry })`
+    in `src/components/`, replacing all six "Something went wrong" panels
+    (Menu, Favourites, My recipes, `RecipeGrid`, `RecipeDetailPage`,
+    `EditRecipePage`). `what` is the whole phrase ("your menu", "recipes",
+    "this recipe"), since `RecipeGrid` has no "your". `ErrorBoundary`'s
+    panel stays separate (different copy, Reload not Retry).
+    `SCROLL_PANE_CLASSES` in `src/lib/styles.ts` without the bottom
+    padding: Menu keeps `lg:pb-28` (footer pill), Library tabs `lg:pb-10`.
+  - **Piece 2**: `useUndoableRemoval({ keyOf, remove, restore })` in
+    `src/lib/` beside `useUndoQueue`, owning start → `mutateAsync` →
+    settle/forget and claimUndo → restore. `useUndoableMenuRemoval` and
+    `useUndoableFavouriteRemoval` stay as thin wrappers choosing the
+    mutations.
+  - **Piece 3 (own commit, stop for the founder's look first)**: a list/grid
+    helper in `recipes/components/` rendering `MobileRecipeRow` (mobile)
+    and `RecipeCard` (desktop grid) from one `itemProps(slot)`, since both
+    take the same `recipe`/`from`/`onRemoveFromMenu`/`onUnfavourite`.
+    Undo optional; a `testId` prefix keeps the `menu-*`/`favourites-*`
+    ids. Used by Menu, Favourites and My recipes (My recipes newly goes
+    through `AnimatedSlots`, so paged-in cards fade in as Favourites'
+    already do). Menu's mobile `pb-16` (clears the cart FAB, Menu-only)
+    moves to a `MenuPage` wrapper. Columns come from **container queries**
+    on the grid's own width, not viewport breakpoints, replacing Menu's
+    `md:2 xl:3` and `LIBRARY_GRID_CLASSES`' `md:2 lg:3 xl:4`. Rollback if
+    it doesn't look right: a `gridClassName` prop each page fills,
+    keeping today's breakpoints exactly.
+  - **AC**: all six load-error sites render the same panel and copy as
+    today; Menu and Favourites remove/undo behaves as today; Menu,
+    Favourites and My recipes show the same rows/cards; Menu shows 3
+    columns at `xl` beside the shopping list and Library 4 at `xl`, or
+    whatever the founder approves on screen.
+  - **Non-goals**: a generic query-page wrapper (empty states differ:
+    Favourites keeps the list while an undo tile shows); `ErrorBoundary`;
+    anything for the Planner's day grid (`yp2`/`yp6` have no list/grid
+    pair).
+  - **Verification**: pieces 1–2 are a behaviour-preserving refactor, gated
+    by the existing suites with no new tests (`npm test`, lint, build);
+    the undo hook suites, the six sites' page tests and the page tests'
+    list/grid test ids already cover it, with selectors updated only where
+    a refactor breaks one. Piece 3 is visual and interactive: the founder
+    checks Menu and Favourites at about 800/1024/1280/1536px against
+    today's column counts, and removes/undoes on both pages.
 - **CFE-052** — Recipe-layer drift: `favouritesCache.ts` helpers are
   generic list ops (`useDeleteRecipe` re-implements one); `EditRecipePage`
   copies the detail query (`useRecipe(id)`); `canGoBackInApp` and the

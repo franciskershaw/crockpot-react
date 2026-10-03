@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { apiFetch } from "@/lib/http/client";
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
+import { fakeResponse } from "@/test/fakeResponse";
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { renderHook, screen, waitFor } from "@testing-library/react";
@@ -25,15 +26,6 @@ const user: User = {
   role: "FREE",
 };
 
-function respond(ok: boolean, status: number, body: unknown = {}) {
-  return {
-    ok,
-    status,
-    headers: new Headers(),
-    json: () => Promise.resolve(body),
-  } as Response;
-}
-
 // Boot signs the user in; every later refresh is rejected, as after a revocation.
 function serverThatRevokes({ signedIn = true } = {}) {
   let refreshes = 0;
@@ -43,12 +35,13 @@ function serverThatRevokes({ signedIn = true } = {}) {
       refreshes++;
       return Promise.resolve(
         signedIn && refreshes === 1
-          ? respond(true, 200, { accessToken: "boot-token" })
-          : respond(false, 401, { error: "invalid_refresh_token" }),
+          ? fakeResponse(true, 200, { accessToken: "boot-token" })
+          : fakeResponse(false, 401, { error: "invalid_refresh_token" }),
       );
     }
-    if (url.endsWith("/me")) return Promise.resolve(respond(true, 200, user));
-    return Promise.resolve(respond(false, 401, { error: "unauthorized" }));
+    if (url.endsWith("/me"))
+      return Promise.resolve(fakeResponse(true, 200, user));
+    return Promise.resolve(fakeResponse(false, 401, { error: "unauthorized" }));
   });
 }
 

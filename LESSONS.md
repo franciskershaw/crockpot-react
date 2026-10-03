@@ -369,3 +369,8 @@ decision as fully closed. No code written yet.
 - Whole codebase, with a full read of everything since pass #3 (`CFE-007`/`008`/`010`/`046`/`049`, 208 files). 12 findings, including the seeded catalogue-map note, grouped into `CFE-050`–`053`. Full detail: `docs/findings/2026-10-02-tech-debt.md`. Build, lint and tests were clean. Also flagged for `crockpot-go`, not filed: its flat 10s `ReadTimeout` covers multipart photo uploads.
 - The one medium finding (a dead session leaves the app logged in) sat in auth code untouched since pass #1. Earlier passes checked that refresh failure *throws* and that logout revokes, but never what the UI does afterwards. Most of the rest is the same shell, panel or hook being re-typed by the next page instead of reused.
 - **Pattern**: when auditing an error path, follow it through to what the user sees, not just to where it throws.
+
+## 2026-10-03 — CFE-050 — Session expiry ends the session cleanly. One grill claim was wrong.
+
+- The grill said every optimistic rollback was already safe once its cache was wiped. I had only read the ones I expected to be safe. Building the test found 4 of 7 recreated the signed-out user's menu or shopping list. The grill also first ruled out the external-store option because "CFE-002a decided otherwise". The founder pushed back, and judging it on its merits still picked option 1.
+- **Pattern**: when a design leans on "all X already handle Y", list every X with a grep and check each one, not a sample. Never cite an earlier ticket's decision as the reason; give the reason it was made.

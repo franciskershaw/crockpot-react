@@ -529,12 +529,10 @@ security findings — debt notes only):*
 
 *From the fourth whole-codebase tech-debt pass, 2026-10-02. Full detail:
 `docs/findings/2026-10-02-tech-debt.md`.*
-- **CFE-050** — Session expiry: when a refresh fails mid-session (revoked,
-  reused or expired token → 401), the app stays logged in and every
-  request toasts "failed to refresh session". End the session the way
-  logout does (shared cache wipe, one clear toast, `RequireAuth`
-  redirects). Finding 1. Grilled 2026-10-02, see `docs/handoffs/CFE-050.md`.
-  Not started.
+- **CFE-050** — Session expiry: a refresh rejected with 401 now ends the
+  session through one `endSession` (one toast, `RequireAuth` redirects);
+  optimistic rollbacks no longer restore a wiped cache. Finding 1. **Done**
+  (2026-10-03), see `docs/handoffs/CFE-050.md`.
 - **CFE-051** — Your Crockpot page duplication: Menu/Favourites/My recipes
   repeat the load-error/skeleton/empty/list shell; the "Something went
   wrong" panel is copied 6 times; the two `useUndoable*Removal` hooks are

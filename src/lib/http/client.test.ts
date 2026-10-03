@@ -1,3 +1,4 @@
+import { fakeResponse } from "@/test/fakeResponse";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -8,15 +9,6 @@ import {
   SessionExpiredError,
 } from "./client";
 import { getAccessToken, setAccessToken } from "./tokenStore";
-
-function respond(ok: boolean, status: number, body: unknown = {}) {
-  return {
-    ok,
-    status,
-    headers: new Headers(),
-    json: () => Promise.resolve(body),
-  } as Response;
-}
 
 function mockFetchOnce(
   status: number,
@@ -128,13 +120,13 @@ describe("apiFetch 401 refresh/retry", () => {
       if (url.endsWith("/auth/refresh")) {
         refreshCalls++;
         return Promise.resolve(
-          respond(true, 200, { accessToken: "refreshed-token" }),
+          fakeResponse(true, 200, { accessToken: "refreshed-token" }),
         );
       }
       attemptsByUrl[url] = (attemptsByUrl[url] ?? 0) + 1;
       const isFirstAttempt = attemptsByUrl[url] === 1;
       return Promise.resolve(
-        respond(!isFirstAttempt, isFirstAttempt ? 401 : 200),
+        fakeResponse(!isFirstAttempt, isFirstAttempt ? 401 : 200),
       );
     });
 
@@ -151,11 +143,15 @@ describe("apiFetch 401 refresh/retry", () => {
     const sentBodies: unknown[] = [];
     vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
       if (String(input).endsWith("/auth/refresh")) {
-        return Promise.resolve(respond(true, 200, { accessToken: "fresh" }));
+        return Promise.resolve(
+          fakeResponse(true, 200, { accessToken: "fresh" }),
+        );
       }
       sentBodies.push(init?.body);
       return Promise.resolve(
-        sentBodies.length === 1 ? respond(false, 401) : respond(true, 200),
+        sentBodies.length === 1
+          ? fakeResponse(false, 401)
+          : fakeResponse(true, 200),
       );
     });
 
@@ -171,11 +167,11 @@ describe("apiFetch 401 refresh/retry", () => {
       const url = String(input);
       if (url.endsWith("/auth/refresh")) {
         return Promise.resolve(
-          respond(true, 200, { accessToken: "refreshed-token" }),
+          fakeResponse(true, 200, { accessToken: "refreshed-token" }),
         );
       }
       dataCalls++;
-      return Promise.resolve(respond(false, 401));
+      return Promise.resolve(fakeResponse(false, 401));
     });
 
     await expect(apiFetch("/still-unauthorized")).rejects.toMatchObject({
@@ -190,10 +186,10 @@ describe("apiFetch 401 refresh/retry", () => {
     vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("/auth/refresh")) {
-        return Promise.resolve(respond(false, 401));
+        return Promise.resolve(fakeResponse(false, 401));
       }
       dataCalls++;
-      return Promise.resolve(respond(false, 401));
+      return Promise.resolve(fakeResponse(false, 401));
     });
 
     await expect(apiFetch("/whatever")).rejects.toMatchObject({
@@ -225,7 +221,7 @@ describe("session expiry", () => {
         refreshCalls++;
         return answer();
       }
-      return Promise.resolve(respond(false, 401));
+      return Promise.resolve(fakeResponse(false, 401));
     });
     return () => refreshCalls;
   }
@@ -233,7 +229,7 @@ describe("session expiry", () => {
   it("ends the session when the refresh is rejected with 401", async () => {
     setAccessToken("expired-token");
     const listener = listen();
-    refreshAnswers(() => Promise.resolve(respond(false, 401)));
+    refreshAnswers(() => Promise.resolve(fakeResponse(false, 401)));
 
     const error = await apiFetch("/menu").catch((e: unknown) => e);
 
@@ -248,7 +244,7 @@ describe("session expiry", () => {
     setAccessToken("expired-token");
     const listener = listen();
     const refreshCalls = refreshAnswers(() =>
-      Promise.resolve(respond(false, 401)),
+      Promise.resolve(fakeResponse(false, 401)),
     );
 
     const results = await Promise.allSettled([
@@ -272,7 +268,7 @@ describe("session expiry", () => {
     async (status) => {
       setAccessToken("still-valid-token");
       const listener = listen();
-      refreshAnswers(() => Promise.resolve(respond(false, status)));
+      refreshAnswers(() => Promise.resolve(fakeResponse(false, status)));
 
       const error = await apiFetch("/menu").catch((e: unknown) => e);
 
@@ -298,7 +294,7 @@ describe("session expiry", () => {
   it("doesn't treat a 401 after a successful refresh as an expired session", async () => {
     const listener = listen();
     refreshAnswers(() =>
-      Promise.resolve(respond(true, 200, { accessToken: "fresh-token" })),
+      Promise.resolve(fakeResponse(true, 200, { accessToken: "fresh-token" })),
     );
 
     const error = await apiFetch("/menu").catch((e: unknown) => e);
@@ -311,7 +307,7 @@ describe("session expiry", () => {
   it("stops calling a listener once it unsubscribes", async () => {
     const listener = listen();
     stopListening();
-    refreshAnswers(() => Promise.resolve(respond(false, 401)));
+    refreshAnswers(() => Promise.resolve(fakeResponse(false, 401)));
 
     await apiFetch("/menu").catch(() => {});
 

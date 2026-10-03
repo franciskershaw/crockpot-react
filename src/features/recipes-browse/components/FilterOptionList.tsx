@@ -9,7 +9,7 @@ export interface FilterOption {
   name: string;
 }
 
-const INITIAL_VISIBLE_COUNT = 6;
+export const INITIAL_VISIBLE_COUNT = 6;
 const SCROLL_BOTTOM_TOLERANCE_PX = 5;
 const EXPAND_SCROLL_DELAY_MS = 100;
 

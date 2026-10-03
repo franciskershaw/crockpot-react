@@ -3,16 +3,21 @@ import type {
   CategoryMode,
   RecipeCategory,
 } from "@/features/recipes/data/types";
+import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 
 type PillKind = "time" | "category" | "ingredient";
 
-interface Pill {
-  key: string;
-  kind: PillKind;
-  label: string;
-  onRemove: () => void;
-}
+type Pill =
+  | {
+      key: string;
+      kind: PillKind;
+      label: string;
+      onRemove: () => void;
+      placeholder?: false;
+    }
+  | { key: string; kind: PillKind; placeholder: true };
 
 const PILL_KIND_CLASSES: Record<PillKind, string> = {
   time: "bg-time-chip-bg border-time-chip-border text-time-chip-text",
@@ -28,6 +33,8 @@ export function FilterPills({
   categories,
   ingredientIds,
   ingredients,
+  categoriesPending,
+  ingredientsPending,
   minTime,
   maxTime,
   onRemoveCategory,
@@ -39,6 +46,8 @@ export function FilterPills({
   categories: RecipeCategory[];
   ingredientIds: string[];
   ingredients: Item[];
+  categoriesPending: boolean;
+  ingredientsPending: boolean;
   minTime: number | undefined;
   maxTime: number | undefined;
   onRemoveCategory: (id: string) => void;
@@ -57,6 +66,14 @@ export function FilterPills({
   }
 
   for (const id of categoryIds) {
+    if (categoriesPending) {
+      pills.push({
+        key: `category-${id}`,
+        kind: "category",
+        placeholder: true,
+      });
+      continue;
+    }
     const category = categories.find((c) => c.id === id);
     if (!category) continue;
     pills.push({
@@ -69,6 +86,14 @@ export function FilterPills({
   }
 
   for (const id of ingredientIds) {
+    if (ingredientsPending) {
+      pills.push({
+        key: `ingredient-${id}`,
+        kind: "ingredient",
+        placeholder: true,
+      });
+      continue;
+    }
     const item = ingredients.find((i) => i.id === id);
     if (!item) continue;
     pills.push({
@@ -83,17 +108,35 @@ export function FilterPills({
 
   return (
     <>
-      {pills.map((pill) => (
-        <button
-          key={pill.key}
-          type="button"
-          onClick={pill.onRemove}
-          className={`inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border py-1.75 pr-2 pl-3.5 text-[13px] leading-none font-semibold ${PILL_KIND_CLASSES[pill.kind]}`}
-        >
-          {pill.label}
-          <X strokeWidth={2.4} className="size-3 shrink-0" />
-        </button>
-      ))}
+      {pills.map((pill) =>
+        pill.placeholder ? (
+          <span
+            key={pill.key}
+            data-testid={`${pill.kind}-pill-placeholder`}
+            aria-hidden="true"
+            className={cn(
+              "h-7.25 w-20 shrink-0 animate-pulse rounded-full bg-muted",
+              DELAYED_FADE_IN_CLASSES,
+            )}
+          />
+        ) : (
+          <button
+            key={pill.key}
+            type="button"
+            onClick={pill.onRemove}
+            className={`inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border py-1.75 pr-2 pl-3.5 text-[13px] leading-none font-semibold ${PILL_KIND_CLASSES[pill.kind]}`}
+          >
+            {pill.label}
+            <X strokeWidth={2.4} className="size-3 shrink-0" />
+          </button>
+        ),
+      )}
+      {categoriesPending && categoryIds.length > 0 && (
+        <output className="sr-only">Loading category filters…</output>
+      )}
+      {ingredientsPending && ingredientIds.length > 0 && (
+        <output className="sr-only">Loading ingredient filters…</output>
+      )}
     </>
   );
 }

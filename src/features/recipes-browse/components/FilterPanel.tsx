@@ -10,8 +10,10 @@ import type { ApiError } from "@/lib/http/client";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 import { CategoryFilter } from "./CategoryFilter";
+import { FilterOptionListSkeleton } from "./FilterOptionListSkeleton";
 import { IngredientFilter } from "./IngredientFilter";
 import { TimeRangeSlider } from "./TimeRangeSlider";
+import { TimeRangeSliderSkeleton } from "./TimeRangeSliderSkeleton";
 
 function InlineRetry({
   label,
@@ -69,6 +71,11 @@ export function FilterPanel({
           />
           <div className="h-px bg-card-shadow" />
         </>
+      ) : timeRangeQuery.isPending ? (
+        <>
+          <TimeRangeSliderSkeleton />
+          <div className="h-px bg-card-shadow" />
+        </>
       ) : (
         timeRangeQuery.data && (
           <>
@@ -89,6 +96,8 @@ export function FilterPanel({
           label="categories"
           onRetry={() => categoriesQuery.refetch()}
         />
+      ) : categoriesQuery.isPending ? (
+        <FilterOptionListSkeleton label="Categories" />
       ) : (
         <CategoryFilter
           categories={categoriesQuery.data ?? []}
@@ -103,6 +112,8 @@ export function FilterPanel({
 
       {itemsQuery.isError ? (
         <InlineRetry label="ingredients" onRetry={() => itemsQuery.refetch()} />
+      ) : itemsQuery.isPending || itemCategoriesQuery.isPending ? (
+        <FilterOptionListSkeleton label="Ingredients" />
       ) : (
         <IngredientFilter
           items={ingredientItems(

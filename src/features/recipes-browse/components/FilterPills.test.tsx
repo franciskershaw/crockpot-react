@@ -19,6 +19,8 @@ function baseProps() {
     categories: CATEGORIES,
     ingredientIds: [],
     ingredients: INGREDIENTS,
+    categoriesPending: false,
+    ingredientsPending: false,
     minTime: undefined,
     maxTime: undefined,
     onRemoveCategory: vi.fn(),
@@ -89,5 +91,43 @@ describe("FilterPills", () => {
       .setup()
       .click(screen.getByRole("button", { name: /Veggie/i }));
     expect(onRemoveCategory).toHaveBeenCalledWith("c1");
+  });
+
+  it("shows a placeholder pill per ingredient id while ingredients are pending", () => {
+    render(
+      <FilterPills
+        {...baseProps()}
+        ingredientIds={["i1", "i2"]}
+        ingredients={[]}
+        ingredientsPending
+      />,
+    );
+
+    expect(screen.getAllByTestId("ingredient-pill-placeholder")).toHaveLength(
+      2,
+    );
+    expect(screen.getByText("Loading ingredient filters…")).toBeInTheDocument();
+  });
+
+  it("skips an ingredient id that still doesn't resolve once ingredients have loaded", () => {
+    const { container } = render(
+      <FilterPills {...baseProps()} ingredientIds={["i_unknown"]} />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows a placeholder pill per category id while categories are pending", () => {
+    render(
+      <FilterPills
+        {...baseProps()}
+        categoryIds={["c1", "c2"]}
+        categories={[]}
+        categoriesPending
+      />,
+    );
+
+    expect(screen.getAllByTestId("category-pill-placeholder")).toHaveLength(2);
+    expect(screen.getByText("Loading category filters…")).toBeInTheDocument();
   });
 });

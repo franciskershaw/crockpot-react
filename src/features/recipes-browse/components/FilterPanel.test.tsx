@@ -14,6 +14,7 @@ import { FilterPanel } from "./FilterPanel";
 function query<T>(overrides: Partial<UseQueryResult<T, ApiError>> = {}) {
   return {
     data: undefined,
+    isPending: false,
     isError: false,
     refetch: vi.fn(),
     ...overrides,
@@ -99,5 +100,66 @@ describe("FilterPanel", () => {
     expect(
       screen.queryByRole("checkbox", { name: "Bin bags" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows a loading state for categories while they're pending, not 0 results", () => {
+    render(
+      <FilterPanel
+        {...baseProps()}
+        categoriesQuery={query<RecipeCategory[]>({ isPending: true })}
+        itemsQuery={query<Item[]>({
+          data: [item("i_onion", "Onion", "c_veg")],
+        })}
+      />,
+    );
+
+    expect(screen.getByText("Loading categories…")).toBeInTheDocument();
+    expect(screen.queryByText("0 results")).not.toBeInTheDocument();
+  });
+
+  it("shows a loading state for ingredients while items are pending, not 0 results", () => {
+    render(
+      <FilterPanel
+        {...baseProps()}
+        categoriesQuery={query<RecipeCategory[]>({
+          data: [{ id: "c1", name: "Veggie" }],
+        })}
+        itemsQuery={query<Item[]>({ isPending: true })}
+      />,
+    );
+
+    expect(screen.getByText("Loading ingredients…")).toBeInTheDocument();
+    expect(screen.queryByText("0 results")).not.toBeInTheDocument();
+  });
+
+  it("keeps ingredients loading until item categories arrive, so household items never flash", () => {
+    render(
+      <FilterPanel
+        {...baseProps()}
+        itemsQuery={query<Item[]>({
+          data: [
+            item("i_onion", "Onion", "c_veg"),
+            item("i_bin_bags", "Bin bags", "c_house"),
+          ],
+        })}
+        itemCategoriesQuery={query<ItemCategory[]>({ isPending: true })}
+      />,
+    );
+
+    expect(screen.getByText("Loading ingredients…")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: "Bin bags" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a loading state for time range while it's pending", () => {
+    render(
+      <FilterPanel
+        {...baseProps()}
+        timeRangeQuery={query<RecipeTimeRange>({ isPending: true })}
+      />,
+    );
+
+    expect(screen.getByText("Loading time range…")).toBeInTheDocument();
   });
 });

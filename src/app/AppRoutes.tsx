@@ -22,6 +22,10 @@ const LoginPage = lazyNamed(
   () => import("@/features/auth/pages/LoginPage"),
   "LoginPage",
 );
+const RegisterPage = lazyNamed(
+  () => import("@/features/auth/pages/RegisterPage"),
+  "RegisterPage",
+);
 const BrowseRecipesPage = lazyNamed(
   () => import("@/features/recipes-browse/pages/BrowseRecipesPage"),
   "BrowseRecipesPage",
@@ -69,6 +73,14 @@ export function AppRoutes() {
           element={
             <RequireSignedOut>
               <LoginPage />
+            </RequireSignedOut>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <RequireSignedOut>
+              <RegisterPage />
             </RequireSignedOut>
           }
         />

@@ -310,7 +310,7 @@ CFE-003.
   the request once the cached menu is at the cap is for this ticket's
   grill. Surfaced at `CFE-007`'s grill (2026-09-27), not grilled.
 - **CFE-054** — Quantity rule and error codes in sync with `crockpot-go`
-  `CROC-064` (blocked on it). Low priority. (1) `parseQuantity`
+  `CROC-064` (Done 2026-10-03, so unblocked). Low priority. (1) `parseQuantity`
   (`src/lib/quantity.ts`) also rejects anything over 100,000, the
   server's new ceiling. The current 6-digit pattern allows up to
   999,999.99. The 0.01 floor already matches. (2) Any error UI that
@@ -585,14 +585,11 @@ sits conceptually in Epic 3 (Your Crockpot — Core, alongside `CFE-009`'s
 shopping list), but the founder wants it addressed only once the core
 epics have shipped, not inserted into the current build order. Grill
 properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
-- **CFE-015** — UI for "default items": some way to save/manage a
-  personal set of items (e.g. toilet paper, eggs, milk) not tied to any
-  recipe, and a "restock" gesture that adds some or all of them to the
-  current shopping list in bulk — distinct from `CFE-009`'s existing
-  one-off `add-extra`. Exact surface (a settings page, an inline
-  section on the shopping list screen, something else) is undecided —
-  open for the grill, alongside `crockpot-go` `CROC-038`'s data-shape
-  questions.
+- **CFE-015** — Regulars (was "default items"): restock and manage a
+  personal set of catalog items from the shopping list panel. Grilled
+  2026-10-03, AI-driven, `docs/handoffs/CFE-015.md`. Designed
+  (`../screenshots/regular items/`) and spec dump mapped; ready to build
+  once `crockpot-go` `CROC-038` is done.
 
 *Descoped from `CFE-010` 2026-10-02 — not sequenced; grill before
 starting.*

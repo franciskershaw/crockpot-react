@@ -71,10 +71,15 @@ export function refreshAccessToken(): Promise<string> {
   return refreshPromise;
 }
 
+interface ApiFetchOptions {
+  refreshOn401?: boolean;
+  hasRetried?: boolean;
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
-  hasRetried = false,
+  { refreshOn401 = true, hasRetried = false }: ApiFetchOptions = {},
 ): Promise<T> {
   const token = getAccessToken();
   const headers = new Headers(options.headers);
@@ -87,9 +92,9 @@ export async function apiFetch<T>(
     headers,
   });
 
-  if (res.status === 401 && !hasRetried) {
+  if (res.status === 401 && refreshOn401 && !hasRetried) {
     await refreshAccessToken();
-    return apiFetch<T>(path, options, true);
+    return apiFetch<T>(path, options, { hasRetried: true });
   }
 
   if (!res.ok) {

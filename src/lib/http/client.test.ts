@@ -199,6 +199,42 @@ describe("apiFetch 401 refresh/retry", () => {
   });
 });
 
+describe("apiFetch with refreshOn401 off", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("surfaces a 401 as its own error without refreshing or ending a session", async () => {
+    const listener = vi.fn();
+    const stopListening = onSessionExpired(listener);
+    let refreshCalls = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      if (String(input).endsWith("/auth/refresh")) {
+        refreshCalls++;
+        return Promise.resolve(fakeResponse(false, 401));
+      }
+      return Promise.resolve(
+        fakeResponse(false, 401, { error: "invalid_credentials" }),
+      );
+    });
+
+    const error = await apiFetch(
+      "/auth/login",
+      { method: "POST" },
+      { refreshOn401: false },
+    ).catch((e: unknown) => e);
+    stopListening();
+
+    expect(error).not.toBeInstanceOf(SessionExpiredError);
+    expect(error).toMatchObject({
+      status: 401,
+      message: "invalid_credentials",
+    } satisfies Partial<ApiError>);
+    expect(refreshCalls).toBe(0);
+    expect(listener).not.toHaveBeenCalled();
+  });
+});
+
 describe("session expiry", () => {
   let stopListening = () => {};
 

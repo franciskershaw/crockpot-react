@@ -6,6 +6,7 @@ import { ConfirmCodeStep } from "../components/ConfirmCodeStep";
 import { ContinueWithGoogleButton } from "../components/ContinueWithGoogleButton";
 import { LoginForm } from "../components/LoginForm";
 import { OrDivider } from "../components/OrDivider";
+import { useCarriedEmail } from "../hooks/useCarriedEmail";
 import { AUTH_LINK } from "../utils/styles";
 
 // React state only: the password must never reach the URL, history state or storage.
@@ -14,7 +15,8 @@ type View =
   | { step: "code"; email: string; password: string; cooldownSeconds: number };
 
 export function LoginPage() {
-  const [view, setView] = useState<View>({ step: "form", email: "" });
+  const carriedEmail = useCarriedEmail();
+  const [view, setView] = useState<View>({ step: "form", email: carriedEmail });
 
   if (view.step === "code") {
     return (
@@ -41,15 +43,20 @@ export function LoginPage() {
         onUnconfirmed={({ email, password }, cooldownSeconds) =>
           setView({ step: "code", email, password, cooldownSeconds })
         }
-      />
-      <OrDivider />
-      <ContinueWithGoogleButton />
-      <p className="mt-6 text-center text-[15px] text-ink-body">
-        Don't have an account?{" "}
-        <Link to="/register" className={AUTH_LINK}>
-          Create one
-        </Link>
-      </p>
+      >
+        {(email) => (
+          <>
+            <OrDivider />
+            <ContinueWithGoogleButton />
+            <p className="mt-6 text-center text-[15px] text-ink-body">
+              Don't have an account?{" "}
+              <Link to="/register" state={{ email }} className={AUTH_LINK}>
+                Create one
+              </Link>
+            </p>
+          </>
+        )}
+      </LoginForm>
     </AuthCard>
   );
 }

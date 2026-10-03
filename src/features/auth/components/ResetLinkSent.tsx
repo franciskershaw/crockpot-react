@@ -25,7 +25,11 @@ export function ResetLinkSent({ email }: { email: string }) {
         </div>
       )}
       <ResendLine noun="link" resend={resend} />
-      <Link to="/login" className={cn(AUTH_QUIET_LINK, "mt-2")}>
+      <Link
+        to="/login"
+        state={{ email }}
+        className={cn(AUTH_QUIET_LINK, "mt-2")}
+      >
         Back to sign in
       </Link>
     </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
@@ -11,6 +11,7 @@ import { AuthField } from "../components/AuthField";
 import { ConfirmCodeStep } from "../components/ConfirmCodeStep";
 import { ContinueWithGoogleButton } from "../components/ContinueWithGoogleButton";
 import { OrDivider } from "../components/OrDivider";
+import { useCarriedEmail } from "../hooks/useCarriedEmail";
 import { useRegister } from "../hooks/useRegister";
 import { authErrorDisplay } from "../utils/authErrors";
 import { registerSchema } from "../utils/authSchemas";
@@ -23,14 +24,22 @@ export function RegisterPage() {
     email: string;
     password: string;
   } | null>(null);
+  const carriedEmail = useCarriedEmail();
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+    defaultValues: {
+      name: "",
+      email: carriedEmail,
+      password: "",
+      confirmPassword: "",
+    },
   });
+  const email = useWatch({ control, name: "email" });
   const display = registration.error
     ? authErrorDisplay(registration.error)
     : null;
@@ -65,7 +74,9 @@ export function RegisterPage() {
         )}
         className="flex flex-col gap-5"
       >
-        {display?.target === "banner" && <AuthErrorBanner display={display} />}
+        {display?.target === "banner" && (
+          <AuthErrorBanner display={display} email={email} />
+        )}
         <AuthField
           id="register-name"
           label="Name"
@@ -112,7 +123,7 @@ export function RegisterPage() {
       <ContinueWithGoogleButton />
       <p className="mt-6 text-center text-[15px] text-ink-body">
         Already have an account?{" "}
-        <Link to="/login" className={AUTH_LINK}>
+        <Link to="/login" state={{ email }} className={AUTH_LINK}>
           Sign in
         </Link>
       </p>

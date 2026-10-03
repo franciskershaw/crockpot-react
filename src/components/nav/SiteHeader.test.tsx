@@ -1,8 +1,6 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteHeader } from "./SiteHeader";
@@ -12,9 +10,6 @@ vi.mock("@/features/auth/components/AuthContext", () => ({
 }));
 vi.mock("@/features/auth/hooks/useLogout", () => ({
   useLogout: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
-}));
-vi.mock("@/features/auth/utils/googleLogin", () => ({
-  goToGoogleLogin: vi.fn(),
 }));
 
 const mockUseAuth = vi.mocked(useAuth);
@@ -38,8 +33,10 @@ describe("SiteHeader", () => {
     expect(screen.getByText("Pricing")).toBeInTheDocument();
     expect(screen.queryByText("Your Crockpot")).not.toBeInTheDocument();
 
-    await userEvent.setup().click(screen.getByText("Sign in"));
-    expect(goToGoogleLogin).toHaveBeenCalled();
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
   });
 
   it("shows the app nav and account menu when logged in", () => {

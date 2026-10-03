@@ -52,6 +52,13 @@ export function Hero() {
             <GoogleIcon />
             Continue with Google
           </Button>
+
+          <Link
+            to="/register"
+            className="block text-center text-[13px] text-placeholder underline underline-offset-3 hover:text-foreground"
+          >
+            continue with email instead
+          </Link>
         </div>
       </div>
 

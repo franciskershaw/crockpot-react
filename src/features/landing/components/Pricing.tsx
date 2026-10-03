@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
+import { Link } from "react-router-dom";
 
 import { HARD_SHADOW, SECTION_GAP } from "../utils/styles";
 import { PricingCard, type Plan } from "./PricingCard";
@@ -57,10 +57,10 @@ export function Pricing() {
         <div className="grid gap-6 sm:grid-cols-2">
           <PricingCard plan={FREE}>
             <Button
-              onClick={goToGoogleLogin}
+              asChild
               className={`h-11 w-full font-semibold ${HARD_SHADOW}`}
             >
-              Get started free
+              <Link to="/register">Get started free</Link>
             </Button>
           </PricingCard>
 

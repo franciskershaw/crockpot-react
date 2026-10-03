@@ -132,8 +132,12 @@ All in `crockpot-go/internal/handler/auth_handler.go` unless noted.
    `navigate()`, so there's no second redirect racing the first.
 8. **Entry points.** Header "Sign in" and mobile "Login" go to `/login`.
    Pricing "Get started free" goes to `/register`. Hero "Continue with
-   Google" stays Google, because its label says so. `/login` and
-   `/register` each show the email form and a Continue-with-Google button.
+   Google" stays Google, because its label says so, and stays the obvious
+   option; beneath it, the landing design's own quiet "continue with email
+   instead" link (`lp1.0.png`, left out at CFE-003 because password auth
+   didn't exist) goes to `/register`, since landing visitors are almost
+   always new. `/login` and `/register` each show the email form and a
+   Continue-with-Google button.
 9. **`startSession(queryClient, accessToken)`** in `auth/utils/`, the
    counterpart to `endSession`. It sets the token, then `await fetchMe()`
    (on failure it clears the token and rethrows), then removes every
@@ -218,6 +222,12 @@ All in `crockpot-go/internal/handler/auth_handler.go` unless noted.
 17. **Fallback B is the login form** with the email prefilled and a green
     success banner ("Email confirmed — please sign in.") in place of the
     title.
+18. **Links between the auth pages carry the typed email** (added at the
+    founder's review of the finished screens, 2026-10-03): login ↔
+    register, login → forgot, forgot (form and sent state) → login, and
+    the "Sign in instead" banner link. The email travels in router link
+    state and the receiving page reads it with `useCarriedEmail`, never a
+    query string, which would put it in browser history and server logs.
 
 ## Designs
 
@@ -367,7 +377,10 @@ Behaviour:
 - [ ] Google-account banners carry a working "Continue with Google" link
       on login, register and forgot.
 - [ ] Header/mobile sign-in go to `/login`; pricing goes to `/register`;
-      Hero's Google button is unchanged.
+      Hero's Google button is unchanged, with "continue with email
+      instead" beneath it going to `/register`.
+- [ ] The typed email carries across every link between the auth pages
+      (decision 18).
 - [ ] `autocomplete` attributes per decision 11.
 - [ ] `npm test`, `npm run build`, `npm run lint`, `npm run format:check`
       clean.

@@ -9,8 +9,10 @@ const ACTION_CLASSES =
 
 export function AuthErrorBanner({
   display,
+  email,
 }: {
   display: Extract<AuthErrorDisplay, { target: "banner" }>;
+  email?: string;
 }) {
   const { message, action } = display;
   return (
@@ -18,7 +20,7 @@ export function AuthErrorBanner({
       {message}
       {action && " "}
       {action?.to === "signIn" && (
-        <Link to="/login" className={ACTION_CLASSES}>
+        <Link to="/login" state={{ email }} className={ACTION_CLASSES}>
           {action.label}
         </Link>
       )}

@@ -3,7 +3,6 @@ import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { isYourCrockpotPath } from "@/features/your-crockpot/utils/yourCrockpotTabs";
 import { cn } from "@/lib/utils";
 import { Link, NavLink, useLocation } from "react-router-dom";
@@ -62,11 +61,11 @@ export function SiteHeader({ className }: { className?: string }) {
           {showAuthedNav && <UserMenu />}
           {showAnonNav && (
             <Button
+              asChild
               variant="outline"
               className="rounded-full border-foreground"
-              onClick={goToGoogleLogin}
             >
-              Sign in
+              <Link to="/login">Sign in</Link>
             </Button>
           )}
         </div>

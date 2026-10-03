@@ -1,6 +1,5 @@
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { isYourCrockpotPath } from "@/features/your-crockpot/utils/yourCrockpotTabs";
 import { LogIn, Plus, Search, UtensilsCrossed } from "lucide-react";
 import { Link, NavLink, useLocation } from "react-router-dom";
@@ -40,14 +39,13 @@ export function MobileTabBar() {
           </>
         )}
         {!isLoading && !isAuthenticated && (
-          <button
-            type="button"
-            onClick={goToGoogleLogin}
+          <Link
+            to="/login"
             className="flex flex-1 flex-col items-center gap-1 py-3 text-sm text-muted-foreground"
           >
             <LogIn className="size-5" />
             Login
-          </button>
+          </Link>
         )}
       </div>
     </nav>

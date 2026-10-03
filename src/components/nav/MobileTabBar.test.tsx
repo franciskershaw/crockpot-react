@@ -1,16 +1,12 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { renderWithProviders } from "@/test/renderWithProviders";
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { MobileTabBar } from "./MobileTabBar";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
   useAuth: vi.fn(),
-}));
-vi.mock("@/features/auth/utils/googleLogin", () => ({
-  goToGoogleLogin: vi.fn(),
 }));
 
 const mockUseAuth = vi.mocked(useAuth);
@@ -30,12 +26,11 @@ describe("MobileTabBar", () => {
     renderWithProviders(<MobileTabBar />);
 
     expect(screen.getByText("Browse Recipes")).toBeInTheDocument();
-    const login = screen.getByText("Login");
-    expect(login).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Login" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
     expect(screen.queryByText("Your Crockpot")).not.toBeInTheDocument();
-
-    fireEvent.click(login);
-    expect(goToGoogleLogin).toHaveBeenCalled();
   });
 
   it("shows the app tabs when logged in", () => {

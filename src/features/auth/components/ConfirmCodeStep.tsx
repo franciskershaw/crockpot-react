@@ -75,7 +75,7 @@ export function ConfirmCodeStep({
       </StatusHeader>
       {banner && (
         <div className="mt-5 w-full text-left">
-          <AuthErrorBanner display={banner} />
+          <AuthErrorBanner display={banner} email={email} />
         </div>
       )}
       <form

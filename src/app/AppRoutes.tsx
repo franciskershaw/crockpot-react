@@ -1,12 +1,10 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 import { AppShell } from "@/components/nav/AppShell";
-import { useAuth } from "@/features/auth/components/AuthContext";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { RequireSignedOut } from "@/features/auth/components/RequireSignedOut";
 import { LandingPage } from "@/features/landing/pages/LandingPage";
 import { YourCrockpotLayout } from "@/features/your-crockpot/pages/YourCrockpotLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
-
-import { DEFAULT_AUTHENTICATED_ROUTE } from "./routes";
 
 // LandingPage stays eager as the anonymous first view; everything else is lazy so it never carries motion/zod/cmdk. YourCrockpotLayout stays eager and suspends its own tab body, keeping the header up.
 function lazyNamed<
@@ -19,6 +17,10 @@ function lazyNamed<
 const AuthCallback = lazyNamed(
   () => import("@/features/auth/pages/AuthCallback"),
   "AuthCallback",
+);
+const LoginPage = lazyNamed(
+  () => import("@/features/auth/pages/LoginPage"),
+  "LoginPage",
 );
 const BrowseRecipesPage = lazyNamed(
   () => import("@/features/recipes-browse/pages/BrowseRecipesPage"),
@@ -50,21 +52,26 @@ const MyRecipesPage = lazyNamed(
 );
 
 export function AppRoutes() {
-  const { isAuthenticated, isLoading } = useAuth();
   return (
     <Routes>
       <Route element={<AppShell />}>
         <Route
           path="/"
           element={
-            isLoading ? null : isAuthenticated ? (
-              <Navigate to={DEFAULT_AUTHENTICATED_ROUTE} replace />
-            ) : (
+            <RequireSignedOut>
               <LandingPage />
-            )
+            </RequireSignedOut>
           }
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route
+          path="/login"
+          element={
+            <RequireSignedOut>
+              <LoginPage />
+            </RequireSignedOut>
+          }
+        />
         <Route path="/recipes" element={<BrowseRecipesPage />} />
         <Route
           path="/recipes/new"

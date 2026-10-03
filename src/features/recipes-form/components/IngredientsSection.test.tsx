@@ -3,6 +3,7 @@ import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { buildUser } from "@/test/authFixtures";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FormProvider, useForm } from "react-hook-form";
@@ -70,13 +71,7 @@ function renderSection() {
 
 function signInAs(role: "ADMIN" | "FREE") {
   vi.mocked(useAuth).mockReturnValue({
-    user: {
-      id: "u_1",
-      email: "cook@example.com",
-      name: "Cook",
-      image: null,
-      role,
-    },
+    user: buildUser({ role }),
     isAuthenticated: true,
     isLoading: false,
   } as ReturnType<typeof useAuth>);

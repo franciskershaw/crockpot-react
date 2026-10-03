@@ -1,4 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { buildUser } from "@/test/authFixtures";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
@@ -76,13 +77,7 @@ describe("RecipeCard", () => {
 
   it("shows the add-to-menu button when logged in", () => {
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });
@@ -130,13 +125,7 @@ describe("RecipeCard", () => {
   it("shows the heart and toggles favourite when logged in", async () => {
     const mutate = vi.fn();
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });
@@ -161,13 +150,7 @@ describe("RecipeCard", () => {
     const mutate = vi.fn();
     const onUnfavourite = vi.fn();
     mockUseAuth.mockReturnValue({
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
       isAuthenticated: true,
       isLoading: false,
     });

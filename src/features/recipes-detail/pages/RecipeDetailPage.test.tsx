@@ -5,6 +5,7 @@ import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import { getRecipe } from "@/features/recipes/data/api";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { buildUser } from "@/test/authFixtures";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen, waitFor } from "@testing-library/react";
@@ -120,13 +121,7 @@ describe("RecipeDetailPage", () => {
   it("shows the pending-approval banner to the recipe's own creator when unapproved", async () => {
     setupMenuAndAuth({
       isAuthenticated: true,
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
     });
     mockGetRecipe.mockResolvedValue(
       buildRecipeDetail({ createdById: "u_1", approved: false }),
@@ -140,13 +135,7 @@ describe("RecipeDetailPage", () => {
   it("hides the pending-approval banner once the recipe is approved", async () => {
     setupMenuAndAuth({
       isAuthenticated: true,
-      user: {
-        id: "u_1",
-        email: "jamie@example.com",
-        name: "Jamie",
-        image: null,
-        role: "FREE",
-      },
+      user: buildUser(),
     });
     mockGetRecipe.mockResolvedValue(
       buildRecipeDetail({ createdById: "u_1", approved: true }),

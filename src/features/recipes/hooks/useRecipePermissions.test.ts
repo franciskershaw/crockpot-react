@@ -1,19 +1,8 @@
-import type { User } from "@/features/auth/data/types";
+import { buildUser } from "@/test/authFixtures";
 import { describe, expect, it } from "vitest";
 
 import type { RecipeDetail } from "../data/types";
 import { canManageRecipe, isOwnPendingRecipe } from "./useRecipePermissions";
-
-function user(overrides: Partial<User> = {}): User {
-  return {
-    id: "u_1",
-    email: "jamie@example.com",
-    name: "Jamie",
-    image: null,
-    role: "FREE",
-    ...overrides,
-  };
-}
 
 function recipe(
   overrides: Partial<Pick<RecipeDetail, "createdById" | "approved">> = {},
@@ -27,14 +16,16 @@ describe("canManageRecipe", () => {
   });
 
   it("is true for the recipe's own creator", () => {
-    expect(canManageRecipe(recipe({ createdById: "u_1" }), user())).toBe(true);
+    expect(canManageRecipe(recipe({ createdById: "u_1" }), buildUser())).toBe(
+      true,
+    );
   });
 
   it("is true for an admin who isn't the creator", () => {
     expect(
       canManageRecipe(
         recipe({ createdById: "someone_else" }),
-        user({ id: "admin_1", role: "ADMIN" }),
+        buildUser({ id: "admin_1", role: "ADMIN" }),
       ),
     ).toBe(true);
   });
@@ -43,7 +34,7 @@ describe("canManageRecipe", () => {
     expect(
       canManageRecipe(
         recipe({ createdById: "someone_else" }),
-        user({ id: "u_1", role: "FREE" }),
+        buildUser({ id: "u_1", role: "FREE" }),
       ),
     ).toBe(false);
   });
@@ -58,7 +49,7 @@ describe("isOwnPendingRecipe", () => {
     expect(
       isOwnPendingRecipe(
         recipe({ createdById: "u_1", approved: false }),
-        user({ id: "u_1" }),
+        buildUser({ id: "u_1" }),
       ),
     ).toBe(true);
   });
@@ -67,7 +58,7 @@ describe("isOwnPendingRecipe", () => {
     expect(
       isOwnPendingRecipe(
         recipe({ createdById: "u_1", approved: true }),
-        user({ id: "u_1" }),
+        buildUser({ id: "u_1" }),
       ),
     ).toBe(false);
   });
@@ -76,7 +67,7 @@ describe("isOwnPendingRecipe", () => {
     expect(
       isOwnPendingRecipe(
         recipe({ createdById: "someone_else", approved: false }),
-        user({ id: "admin_1", role: "ADMIN" }),
+        buildUser({ id: "admin_1", role: "ADMIN" }),
       ),
     ).toBe(false);
   });

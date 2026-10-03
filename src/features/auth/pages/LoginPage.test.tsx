@@ -1,7 +1,7 @@
 import { setAccessToken } from "@/lib/http/tokenStore";
 import { buildUser } from "@/test/authFixtures";
 import { fakeResponse } from "@/test/fakeResponse";
-import { serverAnswers } from "@/test/fakeServer";
+import { requestedPaths, serverAnswers } from "@/test/fakeServer";
 import { renderWithQueryClient } from "@/test/queryClientTestUtils";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -102,9 +102,10 @@ describe("LoginPage", () => {
     expect(screen.getByText(/Didn't get it\?/).textContent).toBe(
       "Didn't get it? Resend code in 1:00",
     );
-    expect(
-      fetchSpy.mock.calls.map(([input]) => new URL(String(input)).pathname),
-    ).toEqual(["/auth/login", "/auth/resend-confirmation"]);
+    expect(requestedPaths(fetchSpy)).toEqual([
+      "/auth/login",
+      "/auth/resend-confirmation",
+    ]);
     expect(toast.error).not.toHaveBeenCalled();
   });
 

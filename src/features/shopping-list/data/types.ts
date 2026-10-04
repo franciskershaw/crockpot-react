@@ -14,3 +14,14 @@ export interface ShoppingListItem {
 export interface ShoppingList {
   items: ShoppingListItem[];
 }
+
+export interface Regular {
+  id: string;
+  itemId: string;
+  itemName: string;
+  categoryId: string;
+  categoryName: string;
+  unitId: string | null;
+  unitAbbreviation: string | null;
+  quantity: number;
+}

@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/http/client";
 
-import type { ShoppingList } from "./types";
+import type { Regular, ShoppingList } from "./types";
 
 type MessageResponse = { message: string };
 
@@ -45,4 +45,8 @@ export function regenerateShoppingList(): Promise<MessageResponse> {
   return apiFetch<MessageResponse>("/shopping-list/regenerate", {
     method: "POST",
   });
+}
+
+export function getRegulars(): Promise<Regular[]> {
+  return apiFetch<Regular[]>("/regulars");
 }

@@ -1,4 +1,7 @@
-import type { ShoppingListItem } from "@/features/shopping-list/data/types";
+import type {
+  Regular,
+  ShoppingListItem,
+} from "@/features/shopping-list/data/types";
 
 export function buildShoppingListItem(
   overrides: Partial<ShoppingListItem> = {},
@@ -14,6 +17,20 @@ export function buildShoppingListItem(
     quantity: 2,
     obtained: false,
     isManual: false,
+    ...overrides,
+  };
+}
+
+export function buildRegular(overrides: Partial<Regular> = {}): Regular {
+  return {
+    id: "reg_1",
+    itemId: "i_1",
+    itemName: "Milk",
+    categoryId: "ic_dairy",
+    categoryName: "Dairy",
+    unitId: "u_pt",
+    unitAbbreviation: "pt",
+    quantity: 2,
     ...overrides,
   };
 }

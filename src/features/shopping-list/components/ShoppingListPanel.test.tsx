@@ -1,18 +1,23 @@
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { buildShoppingListItem } from "@/test/shoppingListFixtures";
+import {
+  buildRegular,
+  buildShoppingListItem,
+} from "@/test/shoppingListFixtures";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ShoppingListItem } from "../data/types";
+import type { Regular, ShoppingListItem } from "../data/types";
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useRegenerateShoppingList } from "../hooks/useRegenerateShoppingList";
+import { useRegulars } from "../hooks/useRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { ShoppingListPanel } from "./ShoppingListPanel";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
 vi.mock("../hooks/useShoppingList", () => ({ useShoppingList: vi.fn() }));
+vi.mock("../hooks/useRegulars", () => ({ useRegulars: vi.fn() }));
 vi.mock("../hooks/useRegenerateShoppingList", () => ({
   useRegenerateShoppingList: vi.fn(),
 }));
@@ -49,15 +54,20 @@ const clear = vi.fn();
 function setup({
   items = [] as ShoppingListItem[],
   recipeCount = 2,
+  regulars = [] as Regular[],
   onClose,
 }: {
   items?: ShoppingListItem[];
   recipeCount?: number;
+  regulars?: Regular[];
   onClose?: () => void;
 } = {}) {
   vi.mocked(useShoppingList).mockReturnValue({
     data: { items },
   } as unknown as ReturnType<typeof useShoppingList>);
+  vi.mocked(useRegulars).mockReturnValue({
+    data: regulars,
+  } as unknown as ReturnType<typeof useRegulars>);
   vi.mocked(useMenu).mockReturnValue({
     data: {
       entries: Array.from({ length: recipeCount }, (_, i) => ({
@@ -325,5 +335,109 @@ describe("ShoppingListPanel", () => {
       ).not.toBeInTheDocument();
       expect(screen.getByText("Fruit & veg")).toBeInTheDocument();
     });
+  });
+});
+
+describe("ShoppingListPanel regulars", () => {
+  const regulars = [
+    buildRegular({ id: "reg_milk", itemName: "Milk" }),
+    buildRegular({
+      id: "reg_butter",
+      itemId: "i_butter",
+      itemName: "Butter",
+      unitId: "u_g",
+      unitAbbreviation: "g",
+      quantity: 250,
+    }),
+    buildRegular({
+      id: "reg_tp",
+      itemId: "i_tp",
+      itemName: "Toilet paper",
+      categoryId: "ic_house",
+      categoryName: "House",
+      unitId: "u_rolls",
+      unitAbbreviation: "rolls",
+      quantity: 9,
+    }),
+  ];
+
+  it("shows a Regulars row with how many are saved", () => {
+    setup({ regulars });
+    expect(
+      screen.getByRole("button", { name: /Regulars.*3 saved/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("says None yet when there are no regulars", () => {
+    setup({ regulars: [] });
+    expect(
+      screen.getByRole("button", { name: /Regulars.*None yet/ }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the Regulars row on an empty list and points the empty copy at it", () => {
+    setup({ items: [], recipeCount: 0, regulars });
+    expect(
+      screen.getByRole("button", { name: /Regulars/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Your list is empty\./)).toHaveTextContent(
+      "Your list is empty. Add a recipe, or restock your regulars above.",
+    );
+  });
+
+  it("keeps the hand-add empty copy when there are no regulars", () => {
+    setup({ items: [], recipeCount: 0, regulars: [] });
+    expect(screen.getByText(/Your list is empty\./)).toHaveTextContent(
+      "Your list is empty. Add a recipe, or add an item by hand above.",
+    );
+  });
+
+  it("swaps the list for the regulars, grouped by category, when the row is opened", async () => {
+    setup({
+      items: [buildShoppingListItem({ itemName: "Onions" })],
+      regulars,
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    expect(
+      screen.getByRole("heading", { name: "Regulars" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Onions")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Built from/)).not.toBeInTheDocument();
+    const dairy = screen.getByRole("group", { name: "Dairy" });
+    expect(within(dairy).getByText("Milk")).toBeInTheDocument();
+    expect(within(dairy).getByText("Butter")).toBeInTheDocument();
+    expect(within(dairy).getByText("250 g")).toBeInTheDocument();
+    const house = screen.getByRole("group", { name: "House" });
+    expect(within(house).getByText("Toilet paper")).toBeInTheDocument();
+    expect(within(house).getByText("9 rolls")).toBeInTheDocument();
+  });
+
+  it("goes back to the list from the regulars", async () => {
+    setup({
+      items: [buildShoppingListItem({ itemName: "Onions" })],
+      regulars,
+    });
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Back to shopping list" }),
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Shopping list" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Onions")).toBeInTheDocument();
+  });
+
+  it("invites adding regulars when there are none", async () => {
+    setup({ regulars: [] });
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    expect(
+      screen.getByRole("heading", { name: "No regulars yet" }),
+    ).toBeInTheDocument();
   });
 });

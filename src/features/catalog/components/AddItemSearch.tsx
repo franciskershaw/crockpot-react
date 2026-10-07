@@ -10,7 +10,7 @@ import { useItems } from "@/features/catalog/hooks/useItems";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
-import { Plus, Search, X } from "lucide-react";
+import { Check, Plus, Search, X } from "lucide-react";
 
 import { ingredientItems } from "../utils/ingredientItems";
 import { searchItems, type ItemMatch } from "../utils/searchItems";
@@ -32,6 +32,8 @@ function HighlightedName({ match }: { match: ItemMatch }) {
 }
 
 export function AddItemSearch({
+  label: labelOverride,
+  unavailable,
   onPick,
   onCreate,
   focusOnMount = false,
@@ -39,6 +41,8 @@ export function AddItemSearch({
   variant = "shopping",
   inputRef: externalInputRef,
 }: {
+  label?: string;
+  unavailable?: { itemIds: ReadonlySet<string>; tag: string };
   onPick: (item: Item) => void;
   onCreate?: (name: string) => void;
   focusOnMount?: boolean;
@@ -47,7 +51,8 @@ export function AddItemSearch({
   inputRef?: (input: HTMLInputElement | null) => void;
 }) {
   const isRecipe = variant === "recipe";
-  const label = isRecipe ? "Search ingredients" : "Add something extra";
+  const label =
+    labelOverride ?? (isRecipe ? "Search ingredients" : "Add something extra");
   const { data: items } = useItems();
   const { data: categories } = useItemCategories();
   const [query, setQuery] = useState("");
@@ -198,15 +203,21 @@ export function AddItemSearch({
                 </p>
               ) : (
                 <Command.Group className="max-h-[304px] overflow-y-auto">
-                  {results.map((match) => (
-                    <Command.Item
-                      key={match.item.id}
-                      value={match.item.id}
-                      onSelect={() => pick(match.item)}
-                      className="group flex h-9.5 cursor-pointer items-center gap-3 rounded-[5px] px-2.5 text-[15px] data-[selected=true]:bg-chip"
-                    >
-                      {isRecipe ? (
-                        <>
+                  {results.map((match) => {
+                    const isUnavailable =
+                      unavailable?.itemIds.has(match.item.id) ?? false;
+                    return (
+                      <Command.Item
+                        key={match.item.id}
+                        value={match.item.id}
+                        disabled={isUnavailable}
+                        onSelect={() => pick(match.item)}
+                        className={cn(
+                          "group flex h-9.5 cursor-pointer items-center gap-3 rounded-[5px] px-2.5 text-[15px] data-[selected=true]:bg-chip",
+                          isUnavailable && "cursor-default text-ink-done",
+                        )}
+                      >
+                        {isRecipe && (
                           <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-chip text-ink-body">
                             <CategoryIcon
                               categoryName={
@@ -217,24 +228,28 @@ export function AddItemSearch({
                               aria-hidden
                             />
                           </span>
-                          <HighlightedName match={match} />
+                        )}
+                        <HighlightedName match={match} />
+                        {isUnavailable ? (
+                          <span className="flex shrink-0 items-center gap-1 text-xs font-semibold text-icon-muted">
+                            <Check size={13} strokeWidth={2.4} aria-hidden />
+                            {unavailable?.tag}
+                          </span>
+                        ) : isRecipe ? (
                           <Plus
                             size={16}
                             strokeWidth={2.2}
                             aria-hidden
                             className="shrink-0 text-green"
                           />
-                        </>
-                      ) : (
-                        <>
-                          <HighlightedName match={match} />
+                        ) : (
                           <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
                             {categoryNames.get(match.item.categoryId)}
                           </span>
-                        </>
-                      )}
-                    </Command.Item>
-                  ))}
+                        )}
+                      </Command.Item>
+                    );
+                  })}
                 </Command.Group>
               )}
               {canCreate && (

@@ -260,6 +260,53 @@ describe("AddItemSearch", () => {
     expect(input).toHaveValue("gochujang");
   });
 
+  describe("unavailable items", () => {
+    function setupUnavailable() {
+      const onPick = vi.fn();
+      render(
+        <AddItemSearch
+          onPick={onPick}
+          unavailable={{ itemIds: new Set(["i_2"]), tag: "Already a regular" }}
+        />,
+      );
+      const input = screen.getByRole("combobox", {
+        name: "Add something extra",
+      });
+      return { onPick, input };
+    }
+
+    it("takes the caller's label", () => {
+      render(<AddItemSearch onPick={vi.fn()} label="Add a regular" />);
+
+      expect(
+        screen.queryByRole("combobox", { name: "Add a regular" }),
+      ).toBeInTheDocument();
+    });
+
+    it("shows the caller's tag in place of the category and won't pick it", async () => {
+      const { input, onPick } = setupUnavailable();
+
+      await userEvent.type(input, "chi");
+      const thighs = (await screen.findAllByRole("option"))[0];
+
+      expect(thighs).toHaveAttribute("aria-disabled", "true");
+      expect(thighs).toHaveTextContent("Already a regular");
+      expect(thighs).not.toHaveTextContent("Meat");
+      await userEvent.click(thighs);
+      expect(onPick).not.toHaveBeenCalled();
+    });
+
+    it("skips it when highlighting, so Enter picks the next match", async () => {
+      const { input, onPick } = setupUnavailable();
+
+      await userEvent.type(input, "chi");
+      await screen.findByRole("listbox");
+      await userEvent.keyboard("{Enter}");
+
+      expect(onPick).toHaveBeenCalledWith(catalog[2]);
+    });
+  });
+
   it("in the recipe variant, searches ingredients and shows category icons, not names", async () => {
     render(<AddItemSearch variant="recipe" onPick={vi.fn()} />);
     const input = screen.getByRole("combobox", { name: "Search ingredients" });

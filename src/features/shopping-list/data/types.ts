@@ -35,3 +35,9 @@ export interface RecentlyAdded {
   rows: AddedRow[];
   key: number;
 }
+
+export interface RegularInput {
+  itemId: string;
+  quantity: number;
+  unitId: string | null;
+}

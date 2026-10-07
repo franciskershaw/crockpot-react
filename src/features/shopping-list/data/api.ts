@@ -1,6 +1,6 @@
 import { apiFetch } from "@/lib/http/client";
 
-import type { Regular, ShoppingList } from "./types";
+import type { Regular, RegularInput, ShoppingList } from "./types";
 
 type MessageResponse = { message: string };
 
@@ -59,4 +59,27 @@ export function restockRegulars(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ regularIds }),
   });
+}
+
+export function createRegular(input: RegularInput): Promise<Regular> {
+  return apiFetch<Regular>("/regulars", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateRegular(
+  id: string,
+  changes: { quantity: number; unitId: string | null },
+): Promise<Regular> {
+  return apiFetch<Regular>(`/regulars/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(changes),
+  });
+}
+
+export function deleteRegular(id: string): Promise<void> {
+  return apiFetch<void>(`/regulars/${id}`, { method: "DELETE" });
 }

@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { QuantityControl } from "@/components/QuantityControl";
+import { StatePanel } from "@/components/StatePanel";
 import type { Unit } from "@/features/catalog/data/types";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
-import { Trash2 } from "lucide-react";
+import { RotateCw, Trash2 } from "lucide-react";
 
 import type { Regular } from "../data/types";
 import { useCreateRegular } from "../hooks/useCreateRegular";
@@ -14,6 +15,7 @@ import { useUpdateRegular } from "../hooks/useUpdateRegular";
 import { groupRegulars } from "../utils/groupRegulars";
 import { AddItemRow } from "./AddItemRow";
 import { RegularsCategoryCard } from "./RegularsCategoryCard";
+import { RegularsPlaceholder } from "./RegularsPlaceholder";
 
 const CREATE_ERROR_COPY: Record<string, string> = {
   regular_exists: "That's already one of your regulars.",
@@ -21,12 +23,8 @@ const CREATE_ERROR_COPY: Record<string, string> = {
     "You've reached the 50-regular limit. Remove one to add another.",
 };
 
-export function RegularsEditView({
-  focusSearch = false,
-}: {
-  focusSearch?: boolean;
-}) {
-  const { data: regulars } = useRegulars();
+export function RegularsEditView() {
+  const { data: regulars, isError, refetch } = useRegulars();
   const create = useCreateRegular();
   const { data: items } = useItems();
   const { data: units } = useUnits();
@@ -35,7 +33,9 @@ export function RegularsEditView({
     [items],
   );
 
-  if (!regulars) return null;
+  if (!regulars) {
+    return <RegularsPlaceholder isError={isError} onRetry={() => refetch()} />;
+  }
 
   const unitOptionsForRegular = (regular: Regular) => {
     const item = itemsById.get(regular.itemId);
@@ -50,7 +50,6 @@ export function RegularsEditView({
           itemIds: new Set(regulars.map((regular) => regular.itemId)),
           tag: "Already a regular",
         }}
-        focusOnMount={focusSearch}
         error={
           create.error?.status === 409
             ? CREATE_ERROR_COPY[create.error.message]
@@ -66,22 +65,32 @@ export function RegularsEditView({
           )
         }
       />
-      <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
-        {groupRegulars(regulars).map((group) => (
-          <RegularsCategoryCard
-            key={group.categoryId}
-            categoryName={group.categoryName}
-          >
-            {group.regulars.map((regular) => (
-              <RegularsEditRow
-                key={regular.id}
-                regular={regular}
-                unitOptions={unitOptionsForRegular(regular)}
-              />
-            ))}
-          </RegularsCategoryCard>
-        ))}
-      </div>
+      {regulars.length === 0 ? (
+        <div className="min-h-0 overflow-y-auto">
+          <StatePanel
+            icon={RotateCw}
+            heading="No regulars yet"
+            description="Search above for the things you buy most weeks — milk, bin bags, eggs — and restocking before a shop takes one tap."
+          />
+        </div>
+      ) : (
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
+          {groupRegulars(regulars).map((group) => (
+            <RegularsCategoryCard
+              key={group.categoryId}
+              categoryName={group.categoryName}
+            >
+              {group.regulars.map((regular) => (
+                <RegularsEditRow
+                  key={regular.id}
+                  regular={regular}
+                  unitOptions={unitOptionsForRegular(regular)}
+                />
+              ))}
+            </RegularsCategoryCard>
+          ))}
+        </div>
+      )}
     </>
   );
 }

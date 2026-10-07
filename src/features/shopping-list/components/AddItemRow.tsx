@@ -17,7 +17,6 @@ const CreateItemDialog = lazy(() =>
 export function AddItemRow({
   label,
   unavailable,
-  focusOnMount = false,
   error,
   isPending,
   isError,
@@ -26,7 +25,6 @@ export function AddItemRow({
 }: {
   label?: string;
   unavailable?: { itemIds: ReadonlySet<string>; tag: string };
-  focusOnMount?: boolean;
   error?: ReactNode;
   isPending: boolean;
   isError: boolean;
@@ -41,7 +39,7 @@ export function AddItemRow({
   const { user } = useAuth();
   const { data: units } = useUnits();
   const [picked, setPicked] = useState<Item | null>(null);
-  const [returnFocus, setReturnFocus] = useState(focusOnMount);
+  const [returnFocus, setReturnFocus] = useState(false);
   const [newItemName, setNewItemName] = useState<string | null>(null);
   const [resumeKey, setResumeKey] = useState(0);
   const isAdmin = user?.role === "ADMIN";

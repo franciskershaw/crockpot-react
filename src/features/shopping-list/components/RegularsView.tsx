@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { StatePanel } from "@/components/StatePanel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { Plus, RotateCw } from "lucide-react";
+import { RotateCw } from "lucide-react";
 
 import type { AddedRow, Regular } from "../data/types";
 import { useRegulars } from "../hooks/useRegulars";
@@ -14,39 +13,20 @@ import {
 } from "../utils/groupRegulars";
 import { regularsOnList } from "../utils/regularsOnList";
 import { RegularsCategoryCard } from "./RegularsCategoryCard";
+import { RegularsPlaceholder } from "./RegularsPlaceholder";
 
 export function RegularsView({
   onRestocked,
-  onAddRegular,
 }: {
   onRestocked: (added: AddedRow[]) => void;
-  onAddRegular: () => void;
 }) {
-  const { data: regulars } = useRegulars();
+  const { data: regulars, isError, refetch } = useRegulars();
   const { data: shoppingList } = useShoppingList();
   const restock = useRestockRegulars();
   const [unticked, setUnticked] = useState<ReadonlySet<string>>(new Set());
 
-  if (!regulars) return null;
-
-  if (regulars.length === 0) {
-    return (
-      <StatePanel
-        icon={RotateCw}
-        heading="No regulars yet"
-        description="Add the things you buy most weeks — milk, bin bags, eggs — so restocking before a shop takes one tap."
-        actions={
-          <button
-            type="button"
-            onClick={onAddRegular}
-            className="flex h-11 cursor-pointer items-center gap-2 rounded-[9px] bg-green px-5 text-[15px] font-bold text-on-dark transition-colors hover:bg-green/90"
-          >
-            <Plus size={16} strokeWidth={2.4} aria-hidden />
-            Add a regular
-          </button>
-        }
-      />
-    );
+  if (!regulars) {
+    return <RegularsPlaceholder isError={isError} onRetry={() => refetch()} />;
   }
 
   const onList = regularsOnList(regulars, shoppingList?.items ?? []);

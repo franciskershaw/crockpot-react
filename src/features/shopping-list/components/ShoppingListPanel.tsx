@@ -32,11 +32,6 @@ export function ShoppingListPanel({
     null,
   );
   const [view, setView] = useState<"list" | "regulars" | "edit">("list");
-  const [focusEditSearch, setFocusEditSearch] = useState(false);
-  const openEdit = (focusSearch: boolean) => {
-    setFocusEditSearch(focusSearch);
-    setView("edit");
-  };
   const highlight = (rows: AddedRow[]) =>
     setRecentlyAdded((previous) => ({
       rows,
@@ -46,6 +41,9 @@ export function ShoppingListPanel({
   const recipeCount = menu?.entries.length ?? 0;
   const grouped = data ? groupShoppingList(data.items) : null;
   const regularsCount = regulars?.length ?? 0;
+  const backFromEdit = regularsCount > 0 ? "regulars" : "list";
+
+  if (view === "regulars" && regulars?.length === 0) setView("edit");
 
   return (
     <section
@@ -60,9 +58,11 @@ export function ShoppingListPanel({
             <button
               type="button"
               aria-label={
-                view === "edit" ? "Back to regulars" : "Back to shopping list"
+                view === "edit" && backFromEdit === "regulars"
+                  ? "Back to regulars"
+                  : "Back to shopping list"
               }
-              onClick={() => setView(view === "edit" ? "regulars" : "list")}
+              onClick={() => setView(view === "edit" ? backFromEdit : "list")}
               className="-my-2 -ml-3 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-on-dark-muted transition-colors hover:text-on-dark"
             >
               <ChevronLeft size={20} strokeWidth={2.2} />
@@ -73,7 +73,7 @@ export function ShoppingListPanel({
             {view === "regulars" && regularsCount > 0 && (
               <button
                 type="button"
-                onClick={() => openEdit(false)}
+                onClick={() => setView("edit")}
                 className="flex h-8.5 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-on-dark-muted/50 px-3.5 text-sm font-semibold text-on-dark transition-colors hover:border-on-dark"
               >
                 <Pencil size={13} strokeWidth={2.2} aria-hidden />
@@ -107,20 +107,19 @@ export function ShoppingListPanel({
       </header>
 
       {view === "edit" ? (
-        <RegularsEditView focusSearch={focusEditSearch} />
+        <RegularsEditView />
       ) : view === "regulars" ? (
         <RegularsView
           onRestocked={(rows) => {
             highlight(rows);
             setView("list");
           }}
-          onAddRegular={() => openEdit(true)}
         />
       ) : (
         <>
           <AddExtraItem onAdded={(row) => highlight([row])} />
           <RegularsEntryRow
-            count={regularsCount}
+            count={regulars?.length}
             onOpen={() => setView("regulars")}
           />
 

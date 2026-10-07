@@ -23,13 +23,11 @@ vi.mock("./AddItemRow", () => ({
   AddItemRow: ({
     label,
     unavailable,
-    focusOnMount,
     error,
     onConfirm,
   }: {
     label?: string;
     unavailable?: { itemIds: ReadonlySet<string>; tag: string };
-    focusOnMount?: boolean;
     error?: React.ReactNode;
     onConfirm: (
       item: Item,
@@ -43,7 +41,6 @@ vi.mock("./AddItemRow", () => ({
       data-label={label ?? ""}
       data-unavailable={[...(unavailable?.itemIds ?? [])].join(",")}
       data-tag={unavailable?.tag ?? ""}
-      data-autofocus={String(Boolean(focusOnMount))}
     >
       {error}
       <button
@@ -227,6 +224,50 @@ describe("RegularsEditView", () => {
     expect(remove).toHaveBeenCalledWith({ id: "reg_milk" });
   });
 
+  it("shows a loading placeholder until the regulars arrive", () => {
+    vi.mocked(useRegulars).mockReturnValue({
+      data: undefined,
+      isError: false,
+    } as unknown as ReturnType<typeof useRegulars>);
+    render(<RegularsEditView />);
+
+    expect(screen.queryByText("Loading your regulars…")).toBeInTheDocument();
+  });
+
+  it("offers a retry when the regulars fail to load", async () => {
+    const refetch = vi.fn();
+    vi.mocked(useRegulars).mockReturnValue({
+      data: undefined,
+      isError: true,
+      refetch,
+    } as unknown as ReturnType<typeof useRegulars>);
+    render(<RegularsEditView />);
+
+    expect(
+      screen.queryByText("Couldn't load your regulars."),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+    expect(refetch).toHaveBeenCalled();
+  });
+
+  it("shows the empty state under the search when there are no regulars", () => {
+    vi.mocked(useRegulars).mockReturnValue({
+      data: [],
+    } as unknown as ReturnType<typeof useRegulars>);
+    render(<RegularsEditView />);
+
+    expect(screen.getByTestId("add-row")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "No regulars yet" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/^Search above for the things you buy most weeks/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Add a regular/ }),
+    ).not.toBeInTheDocument();
+  });
+
   describe("adding a regular", () => {
     it("offers the search as Add a regular, marking every current regular", () => {
       render(<RegularsEditView />);
@@ -270,15 +311,6 @@ describe("RegularsEditView", () => {
 
       expect(screen.getByTestId("add-row")).toHaveTextContent(
         "You've reached the 50-regular limit. Remove one to add another.",
-      );
-    });
-
-    it("focuses the search when asked", () => {
-      render(<RegularsEditView focusSearch />);
-
-      expect(screen.getByTestId("add-row")).toHaveAttribute(
-        "data-autofocus",
-        "true",
       );
     });
   });

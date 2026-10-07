@@ -17,18 +17,8 @@ const milk: Item = {
 vi.mock("@/features/catalog/hooks/useUnits", () => ({ useUnits: vi.fn() }));
 vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("@/features/catalog/components/AddItemSearch", () => ({
-  AddItemSearch: ({
-    onPick,
-    focusOnMount,
-  }: {
-    onPick: (item: Item) => void;
-    focusOnMount?: boolean;
-  }) => (
-    <button
-      type="button"
-      data-autofocus={String(Boolean(focusOnMount))}
-      onClick={() => onPick(milk)}
-    >
+  AddItemSearch: ({ onPick }: { onPick: (item: Item) => void }) => (
+    <button type="button" onClick={() => onPick(milk)}>
       search
     </button>
   ),
@@ -59,15 +49,6 @@ function renderRow(props: Partial<Parameters<typeof AddItemRow>[0]> = {}) {
 }
 
 describe("AddItemRow", () => {
-  it("focuses the search on first load when asked", () => {
-    renderRow({ focusOnMount: true });
-
-    expect(screen.getByRole("button", { name: "search" })).toHaveAttribute(
-      "data-autofocus",
-      "true",
-    );
-  });
-
   it("shows the caller's error under the editor", async () => {
     renderRow({ error: "That's already one of your regulars." });
 

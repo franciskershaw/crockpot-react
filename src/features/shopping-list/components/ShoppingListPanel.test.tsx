@@ -47,9 +47,7 @@ vi.mock("./AddExtraItem", () => ({
   ),
 }));
 vi.mock("./RegularsEditView", () => ({
-  RegularsEditView: ({ focusSearch }: { focusSearch?: boolean }) => (
-    <div data-focus-search={String(Boolean(focusSearch))}>edit view</div>
-  ),
+  RegularsEditView: () => <div>edit view</div>,
 }));
 vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({
@@ -68,17 +66,22 @@ vi.mock("./ShoppingListRow", () => ({
 const regenerate = vi.fn();
 const clear = vi.fn();
 const restock = vi.fn();
+const refetchRegulars = vi.fn();
 
 function setup({
   items = [] as ShoppingListItem[],
   recipeCount = 2,
   regulars = [] as Regular[],
+  regularsLoading = false,
+  regularsFailed = false,
   restockFailed = false,
   onClose,
 }: {
   items?: ShoppingListItem[];
   recipeCount?: number;
   regulars?: Regular[];
+  regularsLoading?: boolean;
+  regularsFailed?: boolean;
   restockFailed?: boolean;
   onClose?: () => void;
 } = {}) {
@@ -91,7 +94,9 @@ function setup({
     data: { items },
   } as unknown as ReturnType<typeof useShoppingList>);
   vi.mocked(useRegulars).mockReturnValue({
-    data: regulars,
+    data: regularsLoading || regularsFailed ? undefined : regulars,
+    isError: regularsFailed,
+    refetch: refetchRegulars,
   } as unknown as ReturnType<typeof useRegulars>);
   vi.mocked(useMenu).mockReturnValue({
     data: {
@@ -102,7 +107,7 @@ function setup({
       })),
     },
   } as unknown as ReturnType<typeof useMenu>);
-  render(<ShoppingListPanel onClose={onClose} />);
+  return render(<ShoppingListPanel onClose={onClose} />);
 }
 
 beforeEach(() => {
@@ -475,39 +480,63 @@ describe("ShoppingListPanel regulars", () => {
     ).toBeInTheDocument();
   });
 
-  it("opens Edit with the search focused from the empty state", async () => {
-    setup({ regulars: [] });
+  describe("before the regulars have loaded", () => {
+    it("shows no count on the Regulars row", () => {
+      setup({ regularsLoading: true });
+
+      const row = screen.getByRole("button", { name: /Regulars/ });
+      expect(row).not.toHaveTextContent("None yet");
+      expect(row).not.toHaveTextContent("saved");
+    });
+
+    it("shows a loading placeholder in place of the regulars", async () => {
+      setup({ regularsLoading: true });
+      await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+      expect(screen.queryByText("Loading your regulars…")).toBeInTheDocument();
+    });
+
+    it("offers a retry when they fail to load", async () => {
+      setup({ regularsFailed: true });
+      await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+      expect(
+        screen.queryByText("Couldn't load your regulars."),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+      expect(refetchRegulars).toHaveBeenCalled();
+    });
+  });
+
+  it("stays in Edit regulars after adding the first one", async () => {
+    const { rerender } = setup({ regulars: [] });
     await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
 
-    await userEvent.click(
-      screen.getByRole("button", { name: "Add a regular" }),
-    );
+    vi.mocked(useRegulars).mockReturnValue({
+      data: [regulars[0]],
+    } as unknown as ReturnType<typeof useRegulars>);
+    rerender(<ShoppingListPanel />);
 
     expect(
       screen.queryByRole("heading", { name: "Edit regulars" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("edit view")).toHaveAttribute(
-      "data-focus-search",
-      "true",
+    expect(screen.getByText("edit view")).toBeInTheDocument();
+  });
+
+  it("opens straight into Edit regulars when there are none, with back to the list", async () => {
+    setup({ regulars: [] });
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    expect(
+      screen.queryByRole("heading", { name: "Edit regulars" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("edit view")).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: "Back to shopping list" }),
     );
-  });
-
-  it("has no Edit button when there are no regulars", async () => {
-    setup({ regulars: [] });
-    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
-
     expect(
-      screen.queryByRole("button", { name: "Edit" }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("invites adding regulars when there are none", async () => {
-    setup({ regulars: [] });
-
-    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
-
-    expect(
-      screen.getByRole("heading", { name: "No regulars yet" }),
+      screen.getByRole("heading", { name: "Shopping list" }),
     ).toBeInTheDocument();
   });
   it("disables a regular that's already on the list unbought, unticked and tagged", async () => {

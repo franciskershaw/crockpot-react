@@ -4,7 +4,7 @@ export function RegularsEntryRow({
   count,
   onOpen,
 }: {
-  count: number;
+  count: number | undefined;
   onOpen: () => void;
 }) {
   return (
@@ -17,9 +17,11 @@ export function RegularsEntryRow({
         <RotateCw size={14} strokeWidth={2.2} />
       </span>
       <span className="flex-1 text-base font-semibold">Regulars</span>
-      <span className="text-[13px] text-icon-muted tabular-nums">
-        {count > 0 ? `${count} saved` : "None yet"}
-      </span>
+      {count !== undefined && (
+        <span className="text-[13px] text-icon-muted tabular-nums">
+          {count > 0 ? `${count} saved` : "None yet"}
+        </span>
+      )}
       <ChevronRight size={16} strokeWidth={2} className="text-ink-subtle" />
     </button>
   );

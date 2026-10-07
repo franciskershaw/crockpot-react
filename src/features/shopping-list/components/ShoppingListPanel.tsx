@@ -4,11 +4,12 @@ import { useMenu } from "@/features/menu/hooks/useMenu";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, X } from "lucide-react";
 
+import type { AddedRow, RecentlyAdded } from "../data/types";
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useRegulars } from "../hooks/useRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
-import { AddExtraItem, type RecentlyAdded } from "./AddExtraItem";
+import { AddExtraItem } from "./AddExtraItem";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { RegularsEntryRow } from "./RegularsEntryRow";
 import { RegularsView } from "./RegularsView";
@@ -30,6 +31,11 @@ export function ShoppingListPanel({
     null,
   );
   const [view, setView] = useState<"list" | "regulars">("list");
+  const highlight = (rows: AddedRow[]) =>
+    setRecentlyAdded((previous) => ({
+      rows,
+      key: (previous?.key ?? 0) + 1,
+    }));
 
   const recipeCount = menu?.entries.length ?? 0;
   const grouped = data ? groupShoppingList(data.items) : null;
@@ -83,10 +89,15 @@ export function ShoppingListPanel({
       </header>
 
       {view === "regulars" ? (
-        <RegularsView onRestocked={() => setView("list")} />
+        <RegularsView
+          onRestocked={(rows) => {
+            highlight(rows);
+            setView("list");
+          }}
+        />
       ) : (
         <>
-          <AddExtraItem onAdded={setRecentlyAdded} />
+          <AddExtraItem onAdded={(row) => highlight([row])} />
           <RegularsEntryRow
             count={regularsCount}
             onOpen={() => setView("regulars")}

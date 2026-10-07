@@ -34,6 +34,7 @@ function group(obtained: [boolean, boolean]) {
     }),
     buildShoppingListItem({
       id: "b",
+      itemId: "i_2",
       itemName: "Garlic",
       obtained: obtained[1],
     }),
@@ -44,7 +45,7 @@ function header() {
   return screen.getByRole("button", { name: /Fruit & veg/ });
 }
 
-const added = { itemId: "i_1", unitId: null, key: 7 };
+const added = { rows: [{ itemId: "i_1", unitId: null }], key: 7 };
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -102,7 +103,7 @@ describe("ShoppingListCategory", () => {
     rerender(
       <ShoppingListCategory
         group={group([true, true])}
-        recentlyAdded={{ itemId: "i_1", unitId: null, key: 7 }}
+        recentlyAdded={added}
       />,
     );
 
@@ -114,11 +115,36 @@ describe("ShoppingListCategory", () => {
     ]);
   });
 
+  it("flashes every added row and scrolls to the first", async () => {
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    render(
+      <ShoppingListCategory
+        group={group([false, false])}
+        recentlyAdded={{
+          rows: [
+            { itemId: "i_other", unitId: null },
+            { itemId: "i_1", unitId: null },
+            { itemId: "i_2", unitId: null },
+          ],
+          key: 7,
+        }}
+      />,
+    );
+
+    const rows = screen.getAllByTestId("row");
+    expect(rows.map((row) => row.getAttribute("data-flash"))).toEqual([
+      "7",
+      "7",
+    ]);
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(1));
+    expect(scroll.mock.contexts[0]).toBe(screen.getByText("Onions"));
+  });
+
   it("ignores an addition that belongs to another category", () => {
     render(
       <ShoppingListCategory
         group={group([true, true])}
-        recentlyAdded={{ itemId: "i_other", unitId: null, key: 7 }}
+        recentlyAdded={{ rows: [{ itemId: "i_other", unitId: null }], key: 7 }}
       />,
     );
 

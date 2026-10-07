@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
+import type { RecentlyAdded } from "../data/types";
 import type { ShoppingListCategoryGroup } from "../utils/groupShoppingList";
-import type { RecentlyAdded } from "./AddExtraItem";
 import { ShoppingListRow } from "./ShoppingListRow";
 
 const COLLAPSE_ON_COMPLETE_DELAY_MS = 400;
@@ -25,13 +25,19 @@ export function ShoppingListCategory({
   const [scrollForKey, setScrollForKey] = useState<number | null>(null);
   const addedRowRef = useRef<HTMLDivElement>(null);
 
-  const addedItemId = group.items.find(
-    (item) =>
-      recentlyAdded !== null &&
-      item.itemId === recentlyAdded.itemId &&
-      item.unitId === recentlyAdded.unitId,
+  const addedItemIds = new Set(
+    group.items
+      .filter((item) =>
+        recentlyAdded?.rows.some(
+          (row) => row.itemId === item.itemId && row.unitId === item.unitId,
+        ),
+      )
+      .map((item) => item.id),
+  );
+  const firstAddedItemId = group.items.find((item) =>
+    addedItemIds.has(item.id),
   )?.id;
-  if (recentlyAdded && addedItemId && openedForKey !== recentlyAdded.key) {
+  if (recentlyAdded && firstAddedItemId && openedForKey !== recentlyAdded.key) {
     setOpenedForKey(recentlyAdded.key);
     if (isExpanded) setScrollForKey(recentlyAdded.key);
     else setIsExpanded(true);
@@ -118,9 +124,9 @@ export function ShoppingListCategory({
                 <ShoppingListRow
                   key={item.id}
                   item={item}
-                  ref={item.id === addedItemId ? addedRowRef : undefined}
+                  ref={item.id === firstAddedItemId ? addedRowRef : undefined}
                   flashKey={
-                    item.id === addedItemId &&
+                    addedItemIds.has(item.id) &&
                     recentlyAdded?.key !== flashEndedForKey
                       ? recentlyAdded?.key
                       : undefined

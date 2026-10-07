@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
@@ -7,6 +7,7 @@ import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
 import { cn } from "@/lib/utils";
 
+import type { AddedRow } from "../data/types";
 import { useAddShoppingListItem } from "../hooks/useAddShoppingListItem";
 
 // Admin-only, and the only user of zod/react-hook-form.
@@ -16,16 +17,10 @@ const CreateItemDialog = lazy(() =>
   })),
 );
 
-export interface RecentlyAdded {
-  itemId: string;
-  unitId: string | null;
-  key: number;
-}
-
 export function AddExtraItem({
   onAdded,
 }: {
-  onAdded: (added: RecentlyAdded) => void;
+  onAdded: (added: AddedRow) => void;
 }) {
   const { user } = useAuth();
   const { data: units } = useUnits();
@@ -35,7 +30,6 @@ export function AddExtraItem({
   const [newItemName, setNewItemName] = useState<string | null>(null);
   const [resumeKey, setResumeKey] = useState(0);
   const isAdmin = user?.role === "ADMIN";
-  const addCount = useRef(0);
 
   const allowedUnits = useMemo(
     () => (picked ? unitOptionsFor(picked, units ?? []) : []),
@@ -65,12 +59,7 @@ export function AddExtraItem({
               { itemId: picked.id, quantity, unitId },
               {
                 onSuccess: () => {
-                  addCount.current += 1;
-                  onAdded({
-                    itemId: picked.id,
-                    unitId,
-                    key: addCount.current,
-                  });
+                  onAdded({ itemId: picked.id, unitId });
                   close();
                 },
               },

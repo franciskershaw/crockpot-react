@@ -47,8 +47,16 @@ vi.mock("./AddExtraItem", () => ({
   ),
 }));
 vi.mock("./ShoppingListRow", () => ({
-  ShoppingListRow: ({ item }: { item: ShoppingListItem }) => (
-    <div data-testid="row">{item.itemName}</div>
+  ShoppingListRow: ({
+    item,
+    flashKey,
+  }: {
+    item: ShoppingListItem;
+    flashKey?: number;
+  }) => (
+    <div data-testid="row" data-flash={flashKey ?? ""}>
+      {item.itemName}
+    </div>
   ),
 }));
 
@@ -548,6 +556,45 @@ describe("ShoppingListPanel regulars", () => {
       expect(
         screen.getByRole("heading", { name: "Shopping list" }),
       ).toBeInTheDocument();
+    });
+
+    it("highlights the rows the restock added, not ones it skipped", async () => {
+      const butterRow = buildShoppingListItem({
+        id: "sli_butter",
+        itemId: "i_butter",
+        itemName: "Butter",
+        unitId: "u_g",
+        ...dairy,
+      });
+      const tpRow = buildShoppingListItem({
+        id: "sli_tp",
+        itemId: "i_tp",
+        itemName: "Toilet paper",
+        unitId: "u_rolls",
+        itemCategoryId: "ic_house",
+        itemCategoryName: "House",
+      });
+      const milkRow = { ...milkOnList, itemName: "Milk", ...dairy };
+      restock.mockImplementation(
+        (_ids: string[], options?: { onSuccess?: () => void }) => {
+          vi.mocked(useShoppingList).mockReturnValue({
+            data: { items: [milkRow, butterRow, tpRow] },
+          } as unknown as ReturnType<typeof useShoppingList>);
+          options?.onSuccess?.();
+        },
+      );
+      await openRegulars({ items: [milkRow] });
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Add all to list" }),
+      );
+
+      expect(screen.getByText("Milk")).toHaveAttribute("data-flash", "");
+      expect(screen.getByText("Butter")).not.toHaveAttribute("data-flash", "");
+      expect(screen.getByText("Toilet paper")).not.toHaveAttribute(
+        "data-flash",
+        "",
+      );
     });
 
     it("stays on the regulars and says so when the restock fails", async () => {

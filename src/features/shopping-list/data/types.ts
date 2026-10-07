@@ -25,3 +25,13 @@ export interface Regular {
   unitAbbreviation: string | null;
   quantity: number;
 }
+
+export interface AddedRow {
+  itemId: string;
+  unitId: string | null;
+}
+
+export interface RecentlyAdded {
+  rows: AddedRow[];
+  key: number;
+}

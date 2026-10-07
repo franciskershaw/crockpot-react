@@ -5,7 +5,7 @@ import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import { cn } from "@/lib/utils";
 import { RotateCw } from "lucide-react";
 
-import type { Regular } from "../data/types";
+import type { AddedRow, Regular } from "../data/types";
 import { useRegulars } from "../hooks/useRegulars";
 import { useRestockRegulars } from "../hooks/useRestockRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
@@ -15,7 +15,11 @@ import {
 } from "../utils/groupRegulars";
 import { regularsOnList } from "../utils/regularsOnList";
 
-export function RegularsView({ onRestocked }: { onRestocked: () => void }) {
+export function RegularsView({
+  onRestocked,
+}: {
+  onRestocked: (added: AddedRow[]) => void;
+}) {
   const { data: regulars } = useRegulars();
   const { data: shoppingList } = useShoppingList();
   const restock = useRestockRegulars();
@@ -43,8 +47,12 @@ export function RegularsView({ onRestocked }: { onRestocked: () => void }) {
       else next.add(id);
       return next;
     });
-  const addToList = (ids: string[]) =>
-    restock.mutate(ids, { onSuccess: onRestocked });
+  const addToList = (ids: string[]) => {
+    const added = regulars
+      .filter((regular) => ids.includes(regular.id) && !onList.has(regular.id))
+      .map(({ itemId, unitId }) => ({ itemId, unitId }));
+    restock.mutate(ids, { onSuccess: () => onRestocked(added) });
+  };
 
   return (
     <>

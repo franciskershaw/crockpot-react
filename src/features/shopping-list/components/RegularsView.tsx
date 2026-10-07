@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { StatePanel } from "@/components/StatePanel";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import { RotateCw } from "lucide-react";
 
 import type { Regular } from "../data/types";
 import { useRegulars } from "../hooks/useRegulars";
-import { groupRegulars } from "../utils/groupRegulars";
+import {
+  groupRegulars,
+  type RegularsCategoryGroup,
+} from "../utils/groupRegulars";
 
 export function RegularsView() {
   const { data: regulars } = useRegulars();
@@ -32,22 +36,61 @@ export function RegularsView() {
     });
 
   return (
-    <div className="min-h-0 overflow-y-auto px-4.5 pt-2 pb-3">
+    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
       {groupRegulars(regulars).map((group) => (
-        <fieldset key={group.categoryId} className="min-w-0 pt-2.5">
-          <legend className="w-full border-b border-card-shadow pb-1.5 text-[11px] font-bold tracking-[0.1em] text-icon-muted uppercase">
-            {group.categoryName}
-          </legend>
-          {group.regulars.map((regular) => (
-            <RegularsRow
-              key={regular.id}
-              regular={regular}
-              ticked={!unticked.has(regular.id)}
-              onToggle={(ticked) => toggle(regular.id, ticked)}
-            />
-          ))}
-        </fieldset>
+        <RegularsCategory
+          key={group.categoryId}
+          group={group}
+          isTicked={(id) => !unticked.has(id)}
+          onToggle={toggle}
+        />
       ))}
+    </div>
+  );
+}
+
+function RegularsCategory({
+  group,
+  isTicked,
+  onToggle,
+}: {
+  group: RegularsCategoryGroup;
+  isTicked: (id: string) => boolean;
+  onToggle: (id: string, ticked: boolean) => void;
+}) {
+  const headingId = useId();
+
+  return (
+    <div
+      role="group"
+      aria-labelledby={headingId}
+      className="rounded-[10px] border border-border bg-search-secondary"
+    >
+      <div className="flex items-center gap-2.5 px-3.5 pt-3 pb-1.5">
+        <span className="flex size-6.5 shrink-0 items-center justify-center rounded-md border border-border bg-card text-ink-subtle">
+          <CategoryIcon
+            categoryName={group.categoryName}
+            size={14}
+            strokeWidth={1.9}
+          />
+        </span>
+        <h3
+          id={headingId}
+          className="font-display text-[17px] font-medium text-ink-secondary"
+        >
+          {group.categoryName}
+        </h3>
+      </div>
+      <div className="px-3.5 pb-1.5">
+        {group.regulars.map((regular) => (
+          <RegularsRow
+            key={regular.id}
+            regular={regular}
+            ticked={isTicked(regular.id)}
+            onToggle={(ticked) => onToggle(regular.id, ticked)}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -66,7 +109,7 @@ function RegularsRow({
     : String(regular.quantity);
 
   return (
-    <label className="flex cursor-pointer items-center gap-2.25 py-1.75 text-[15px]">
+    <label className="flex cursor-pointer items-center gap-2.25 border-b border-row-divider py-1.75 text-[15px] last:border-b-0">
       <Checkbox
         checked={ticked}
         onCheckedChange={(checked) => onToggle(checked === true)}

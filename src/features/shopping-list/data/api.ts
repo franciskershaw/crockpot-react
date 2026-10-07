@@ -50,3 +50,13 @@ export function regenerateShoppingList(): Promise<MessageResponse> {
 export function getRegulars(): Promise<Regular[]> {
   return apiFetch<Regular[]>("/regulars");
 }
+
+export function restockRegulars(
+  regularIds: string[],
+): Promise<MessageResponse> {
+  return apiFetch<MessageResponse>("/shopping-list/restock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ regularIds }),
+  });
+}

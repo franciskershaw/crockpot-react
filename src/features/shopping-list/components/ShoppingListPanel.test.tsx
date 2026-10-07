@@ -46,6 +46,9 @@ vi.mock("./AddExtraItem", () => ({
     </button>
   ),
 }));
+vi.mock("./RegularsEditView", () => ({
+  RegularsEditView: () => <div>edit view</div>,
+}));
 vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({
     item,
@@ -449,6 +452,34 @@ describe("ShoppingListPanel regulars", () => {
       screen.getByRole("heading", { name: "Shopping list" }),
     ).toBeInTheDocument();
     expect(screen.getByText("Onions")).toBeInTheDocument();
+  });
+
+  it("opens Edit from the regulars header, and goes back to restock", async () => {
+    setup({ regulars });
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+    expect(screen.queryByRole("button", { name: "Edit" })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    expect(
+      screen.getByRole("heading", { name: "Edit regulars" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("edit view")).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Back to regulars" }),
+    );
+    expect(
+      screen.getByRole("heading", { name: "Regulars" }),
+    ).toBeInTheDocument();
+  });
+
+  it("has no Edit button when there are no regulars", async () => {
+    setup({ regulars: [] });
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    expect(
+      screen.queryByRole("button", { name: "Edit" }),
+    ).not.toBeInTheDocument();
   });
 
   it("invites adding regulars when there are none", async () => {

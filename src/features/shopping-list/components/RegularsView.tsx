@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { StatePanel } from "@/components/StatePanel";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import { cn } from "@/lib/utils";
 import { RotateCw } from "lucide-react";
 
@@ -14,6 +13,7 @@ import {
   type RegularsCategoryGroup,
 } from "../utils/groupRegulars";
 import { regularsOnList } from "../utils/regularsOnList";
+import { RegularsCategoryCard } from "./RegularsCategoryCard";
 
 export function RegularsView({
   onRestocked,
@@ -114,31 +114,17 @@ function RegularsCategory({
   onToggle: (id: string, ticked: boolean) => void;
 }) {
   return (
-    <fieldset className="min-w-0 rounded-[10px] border border-border bg-search-secondary">
-      <legend className="float-left flex w-full items-center gap-2.5 px-3.5 pt-3 pb-1.5">
-        <span className="flex size-6.5 shrink-0 items-center justify-center rounded-md border border-border bg-card text-ink-subtle">
-          <CategoryIcon
-            categoryName={group.categoryName}
-            size={14}
-            strokeWidth={1.9}
-          />
-        </span>
-        <span className="font-display text-[17px] font-medium text-ink-secondary">
-          {group.categoryName}
-        </span>
-      </legend>
-      <div className="clear-left px-3.5 pb-1.5">
-        {group.regulars.map((regular) => (
-          <RegularsRow
-            key={regular.id}
-            regular={regular}
-            onList={isOnList(regular.id)}
-            ticked={isTicked(regular.id)}
-            onToggle={(ticked) => onToggle(regular.id, ticked)}
-          />
-        ))}
-      </div>
-    </fieldset>
+    <RegularsCategoryCard categoryName={group.categoryName}>
+      {group.regulars.map((regular) => (
+        <RegularsRow
+          key={regular.id}
+          regular={regular}
+          onList={isOnList(regular.id)}
+          ticked={isTicked(regular.id)}
+          onToggle={(ticked) => onToggle(regular.id, ticked)}
+        />
+      ))}
+    </RegularsCategoryCard>
   );
 }
 

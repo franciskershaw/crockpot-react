@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft, Pencil, X } from "lucide-react";
 
 import type { AddedRow, RecentlyAdded } from "../data/types";
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
@@ -11,6 +11,7 @@ import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
 import { AddExtraItem } from "./AddExtraItem";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
+import { RegularsEditView } from "./RegularsEditView";
 import { RegularsEntryRow } from "./RegularsEntryRow";
 import { RegularsView } from "./RegularsView";
 import { ShoppingListCategory } from "./ShoppingListCategory";
@@ -30,7 +31,7 @@ export function ShoppingListPanel({
   const [recentlyAdded, setRecentlyAdded] = useState<RecentlyAdded | null>(
     null,
   );
-  const [view, setView] = useState<"list" | "regulars">("list");
+  const [view, setView] = useState<"list" | "regulars" | "edit">("list");
   const highlight = (rows: AddedRow[]) =>
     setRecentlyAdded((previous) => ({
       rows,
@@ -49,19 +50,31 @@ export function ShoppingListPanel({
       )}
     >
       <header className="flex shrink-0 items-center gap-3 bg-foreground py-3.25 pr-4 pl-5 text-on-dark">
-        {view === "regulars" ? (
+        {view !== "list" ? (
           <>
             <button
               type="button"
-              aria-label="Back to shopping list"
-              onClick={() => setView("list")}
+              aria-label={
+                view === "edit" ? "Back to regulars" : "Back to shopping list"
+              }
+              onClick={() => setView(view === "edit" ? "regulars" : "list")}
               className="-my-2 -ml-3 flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-on-dark-muted transition-colors hover:text-on-dark"
             >
               <ChevronLeft size={20} strokeWidth={2.2} />
             </button>
             <h2 className="flex-1 font-display text-[23px] font-normal">
-              Regulars
+              {view === "edit" ? "Edit regulars" : "Regulars"}
             </h2>
+            {view === "regulars" && regularsCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setView("edit")}
+                className="flex h-8.5 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-on-dark-muted/50 px-3.5 text-sm font-semibold text-on-dark transition-colors hover:border-on-dark"
+              >
+                <Pencil size={13} strokeWidth={2.2} aria-hidden />
+                Edit
+              </button>
+            )}
           </>
         ) : (
           <>
@@ -88,7 +101,9 @@ export function ShoppingListPanel({
         )}
       </header>
 
-      {view === "regulars" ? (
+      {view === "edit" ? (
+        <RegularsEditView />
+      ) : view === "regulars" ? (
         <RegularsView
           onRestocked={(rows) => {
             highlight(rows);

@@ -440,4 +440,40 @@ describe("ShoppingListPanel regulars", () => {
       screen.getByRole("heading", { name: "No regulars yet" }),
     ).toBeInTheDocument();
   });
+  it("disables a regular that's already on the list unbought, unticked and tagged", async () => {
+    setup({
+      items: [buildShoppingListItem({ itemId: "i_1", unitId: "u_pt" })],
+      regulars,
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    const milk = screen.getByRole("checkbox", { name: "Add Milk" });
+    expect(milk).toBeDisabled();
+    expect(milk).not.toBeChecked();
+    expect(screen.getAllByText("On your list")).toHaveLength(1);
+    const butter = screen.getByRole("checkbox", { name: "Add Butter" });
+    expect(butter).toBeEnabled();
+    expect(butter).toBeChecked();
+  });
+
+  it("offers a regular whose list row is bought, ticked and untagged", async () => {
+    setup({
+      items: [
+        buildShoppingListItem({
+          itemId: "i_1",
+          unitId: "u_pt",
+          obtained: true,
+        }),
+      ],
+      regulars,
+    });
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    const milk = screen.getByRole("checkbox", { name: "Add Milk" });
+    expect(milk).toBeEnabled();
+    expect(milk).toBeChecked();
+    expect(screen.queryByText("On your list")).not.toBeInTheDocument();
+  });
 });

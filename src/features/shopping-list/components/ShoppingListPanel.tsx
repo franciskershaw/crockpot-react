@@ -83,7 +83,7 @@ export function ShoppingListPanel({
       </header>
 
       {view === "regulars" ? (
-        <RegularsView />
+        <RegularsView onRestocked={() => setView("list")} />
       ) : (
         <>
           <AddExtraItem onAdded={setRecentlyAdded} />

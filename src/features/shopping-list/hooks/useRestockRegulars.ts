@@ -9,6 +9,7 @@ export function useRestockRegulars() {
 
   return useApiMutation<{ message: string }, string[]>({
     mutationFn: (regularIds) => restockRegulars(regularIds),
+    isHandledError: () => true,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: shoppingListKeys.list() }),
   });

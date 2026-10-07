@@ -7,6 +7,7 @@ import { RotateCw } from "lucide-react";
 
 import type { Regular } from "../data/types";
 import { useRegulars } from "../hooks/useRegulars";
+import { useRestockRegulars } from "../hooks/useRestockRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
 import {
   groupRegulars,
@@ -14,9 +15,10 @@ import {
 } from "../utils/groupRegulars";
 import { regularsOnList } from "../utils/regularsOnList";
 
-export function RegularsView() {
+export function RegularsView({ onRestocked }: { onRestocked: () => void }) {
   const { data: regulars } = useRegulars();
   const { data: shoppingList } = useShoppingList();
+  const restock = useRestockRegulars();
   const [unticked, setUnticked] = useState<ReadonlySet<string>>(new Set());
 
   if (!regulars) return null;
@@ -32,6 +34,8 @@ export function RegularsView() {
   }
 
   const onList = regularsOnList(regulars, shoppingList?.items ?? []);
+  const isTicked = (id: string) => !onList.has(id) && !unticked.has(id);
+  const tickedIds = regulars.map((regular) => regular.id).filter(isTicked);
   const toggle = (id: string, ticked: boolean) =>
     setUnticked((current) => {
       const next = new Set(current);
@@ -39,19 +43,54 @@ export function RegularsView() {
       else next.add(id);
       return next;
     });
+  const addToList = (ids: string[]) =>
+    restock.mutate(ids, { onSuccess: onRestocked });
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
-      {groupRegulars(regulars).map((group) => (
-        <RegularsCategory
-          key={group.categoryId}
-          group={group}
-          isOnList={(id) => onList.has(id)}
-          isTicked={(id) => !onList.has(id) && !unticked.has(id)}
-          onToggle={toggle}
-        />
-      ))}
-    </div>
+    <>
+      <div className="shrink-0 px-4.5 pt-4">
+        <button
+          type="button"
+          disabled={restock.isPending}
+          onClick={() => addToList(regulars.map((regular) => regular.id))}
+          className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-[9px] bg-green text-[15px] font-bold text-on-dark transition-colors hover:bg-green/90 disabled:cursor-default"
+        >
+          <RotateCw size={16} strokeWidth={2.2} />
+          Add all to list
+        </button>
+        <div className="mt-3.5 flex items-center gap-3 text-[13px] text-ink-subtle">
+          <span aria-hidden className="h-px flex-1 bg-card-shadow" />
+          Or pick what you need
+          <span aria-hidden className="h-px flex-1 bg-card-shadow" />
+        </div>
+      </div>
+      <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3 pb-3">
+        {groupRegulars(regulars).map((group) => (
+          <RegularsCategory
+            key={group.categoryId}
+            group={group}
+            isOnList={(id) => onList.has(id)}
+            isTicked={isTicked}
+            onToggle={toggle}
+          />
+        ))}
+      </div>
+      <footer className="shrink-0 border-t border-card-shadow px-4.5 py-3.5">
+        {restock.isError && (
+          <p role="alert" className="mb-2.5 text-center text-sm text-rust-text">
+            Couldn't add your regulars. Try again.
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={tickedIds.length === 0 || restock.isPending}
+          onClick={() => addToList(tickedIds)}
+          className="h-12 w-full cursor-pointer rounded-[9px] border-[1.5px] border-green text-[15px] font-bold text-green transition-colors hover:bg-ingredient-chip-bg disabled:cursor-default disabled:border-border disabled:text-separator-muted disabled:hover:bg-transparent"
+        >
+          Add {tickedIds.length} to list
+        </button>
+      </footer>
+    </>
   );
 }
 

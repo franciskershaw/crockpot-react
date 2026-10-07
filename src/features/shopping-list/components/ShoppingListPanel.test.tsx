@@ -12,12 +12,16 @@ import type { Regular, ShoppingListItem } from "../data/types";
 import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useRegenerateShoppingList } from "../hooks/useRegenerateShoppingList";
 import { useRegulars } from "../hooks/useRegulars";
+import { useRestockRegulars } from "../hooks/useRestockRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { ShoppingListPanel } from "./ShoppingListPanel";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
 vi.mock("../hooks/useShoppingList", () => ({ useShoppingList: vi.fn() }));
 vi.mock("../hooks/useRegulars", () => ({ useRegulars: vi.fn() }));
+vi.mock("../hooks/useRestockRegulars", () => ({
+  useRestockRegulars: vi.fn(),
+}));
 vi.mock("../hooks/useRegenerateShoppingList", () => ({
   useRegenerateShoppingList: vi.fn(),
 }));
@@ -50,18 +54,26 @@ vi.mock("./ShoppingListRow", () => ({
 
 const regenerate = vi.fn();
 const clear = vi.fn();
+const restock = vi.fn();
 
 function setup({
   items = [] as ShoppingListItem[],
   recipeCount = 2,
   regulars = [] as Regular[],
+  restockFailed = false,
   onClose,
 }: {
   items?: ShoppingListItem[];
   recipeCount?: number;
   regulars?: Regular[];
+  restockFailed?: boolean;
   onClose?: () => void;
 } = {}) {
+  vi.mocked(useRestockRegulars).mockReturnValue({
+    mutate: restock,
+    isPending: false,
+    isError: restockFailed,
+  } as unknown as ReturnType<typeof useRestockRegulars>);
   vi.mocked(useShoppingList).mockReturnValue({
     data: { items },
   } as unknown as ReturnType<typeof useShoppingList>);
@@ -475,5 +487,78 @@ describe("ShoppingListPanel regulars", () => {
     expect(milk).toBeEnabled();
     expect(milk).toBeChecked();
     expect(screen.queryByText("On your list")).not.toBeInTheDocument();
+  });
+  describe("restock", () => {
+    const milkOnList = buildShoppingListItem({ itemId: "i_1", unitId: "u_pt" });
+    const confirmButton = () =>
+      screen.getByRole("button", { name: /^Add \d+ to list$/ });
+
+    async function openRegulars(options: Parameters<typeof setup>[0] = {}) {
+      setup({ regulars, ...options });
+      await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+    }
+
+    it("adds every regular with Add all, ones already on the list included", async () => {
+      await openRegulars({ items: [milkOnList] });
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Add all to list" }),
+      );
+
+      expect(restock).toHaveBeenCalledWith(
+        ["reg_milk", "reg_butter", "reg_tp"],
+        expect.anything(),
+      );
+    });
+
+    it("counts the ticked regulars live and adds only those", async () => {
+      await openRegulars({ items: [milkOnList] });
+      expect(confirmButton()).toHaveTextContent("Add 2 to list");
+
+      await userEvent.click(
+        screen.getByRole("checkbox", { name: "Add Butter" }),
+      );
+      expect(confirmButton()).toHaveTextContent("Add 1 to list");
+      await userEvent.click(confirmButton());
+
+      expect(restock).toHaveBeenCalledWith(["reg_tp"], expect.anything());
+    });
+
+    it("can't confirm with nothing ticked", async () => {
+      await openRegulars();
+      for (const name of ["Add Milk", "Add Butter", "Add Toilet paper"]) {
+        await userEvent.click(screen.getByRole("checkbox", { name }));
+      }
+
+      expect(confirmButton()).toHaveTextContent("Add 0 to list");
+      expect(confirmButton()).toBeDisabled();
+    });
+
+    it("goes back to the list once the restock succeeds", async () => {
+      restock.mockImplementation(
+        (_ids: string[], options?: { onSuccess?: () => void }) =>
+          options?.onSuccess?.(),
+      );
+      await openRegulars();
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "Add all to list" }),
+      );
+
+      expect(
+        screen.getByRole("heading", { name: "Shopping list" }),
+      ).toBeInTheDocument();
+    });
+
+    it("stays on the regulars and says so when the restock fails", async () => {
+      await openRegulars({ restockFailed: true });
+
+      expect(
+        screen.queryByText(/Couldn't add your regulars/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: "Regulars" }),
+      ).toBeInTheDocument();
+    });
   });
 });

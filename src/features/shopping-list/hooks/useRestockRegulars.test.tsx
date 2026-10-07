@@ -1,5 +1,6 @@
 import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { renderHook, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { restockRegulars } from "../data/api";
@@ -48,5 +49,16 @@ describe("useRestockRegulars", () => {
     expect(
       queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
     ).toBe(false);
+  });
+
+  it("leaves the failure to the regulars view rather than toasting", async () => {
+    const { wrapper } = setupQueryClient([]);
+    mockRestock.mockRejectedValue(new Error("boom"));
+
+    const { result } = renderHook(() => useRestockRegulars(), { wrapper });
+    result.current.mutate(["reg_milk"]);
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).not.toHaveBeenCalled();
   });
 });

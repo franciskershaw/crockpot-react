@@ -213,6 +213,16 @@ describe("RegularsEditView", () => {
     ).toEqual(["No unit", "Gramg", "Kilogramkg"]);
   });
 
+  it("won't send a second delete while the first is in flight", () => {
+    vi.mocked(useDeleteRegular).mockReturnValue({
+      mutate: remove,
+      isPending: true,
+    } as unknown as ReturnType<typeof useDeleteRegular>);
+    render(<RegularsEditView />);
+
+    expect(screen.getByRole("button", { name: "Remove Milk" })).toBeDisabled();
+  });
+
   it("removes a regular straight away, without asking", async () => {
     render(<RegularsEditView />);
     expect(

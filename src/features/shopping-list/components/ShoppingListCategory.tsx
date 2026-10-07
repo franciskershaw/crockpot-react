@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import type { RecentlyAdded } from "../data/types";
 import type { ShoppingListCategoryGroup } from "../utils/groupShoppingList";
+import { isRecentlyAdded } from "../utils/isRecentlyAdded";
 import { ShoppingListRow } from "./ShoppingListRow";
 
 const COLLAPSE_ON_COMPLETE_DELAY_MS = 400;
@@ -13,9 +14,11 @@ const COLLAPSE_ON_COMPLETE_DELAY_MS = 400;
 export function ShoppingListCategory({
   group,
   recentlyAdded = null,
+  scrollToAdded = true,
 }: {
   group: ShoppingListCategoryGroup;
   recentlyAdded?: RecentlyAdded | null;
+  scrollToAdded?: boolean;
 }) {
   const isComplete = group.obtainedCount === group.totalCount;
   const [isExpanded, setIsExpanded] = useState(!isComplete);
@@ -27,11 +30,7 @@ export function ShoppingListCategory({
 
   const addedItemIds = new Set(
     group.items
-      .filter((item) =>
-        recentlyAdded?.rows.some(
-          (row) => row.itemId === item.itemId && row.unitId === item.unitId,
-        ),
-      )
+      .filter((item) => isRecentlyAdded(item, recentlyAdded))
       .map((item) => item.id),
   );
   const firstAddedItemId = group.items.find((item) =>
@@ -51,12 +50,12 @@ export function ShoppingListCategory({
   }
 
   useEffect(() => {
-    if (scrollForKey === null) return;
+    if (scrollForKey === null || !scrollToAdded) return;
     addedRowRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "nearest",
     });
-  }, [scrollForKey]);
+  }, [scrollForKey, scrollToAdded]);
 
   useEffect(() => {
     const justCompleted = isComplete && !wasComplete.current;

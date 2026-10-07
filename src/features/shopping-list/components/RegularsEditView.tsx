@@ -12,16 +12,11 @@ import { useCreateRegular } from "../hooks/useCreateRegular";
 import { useDeleteRegular } from "../hooks/useDeleteRegular";
 import { useRegulars } from "../hooks/useRegulars";
 import { useUpdateRegular } from "../hooks/useUpdateRegular";
+import { createRegularErrorCopy } from "../utils/createRegularErrorCopy";
 import { groupRegulars } from "../utils/groupRegulars";
 import { AddItemRow } from "./AddItemRow";
 import { RegularsCategoryCard } from "./RegularsCategoryCard";
 import { RegularsPlaceholder } from "./RegularsPlaceholder";
-
-const CREATE_ERROR_COPY: Record<string, string> = {
-  regular_exists: "That's already one of your regulars.",
-  regulars_limit_reached:
-    "You've reached the 50-regular limit. Remove one to add another.",
-};
 
 export function RegularsEditView() {
   const { data: regulars, isError, refetch } = useRegulars();
@@ -50,11 +45,7 @@ export function RegularsEditView() {
           itemIds: new Set(regulars.map((regular) => regular.itemId)),
           tag: "Already a regular",
         }}
-        error={
-          create.error?.status === 409
-            ? CREATE_ERROR_COPY[create.error.message]
-            : undefined
-        }
+        error={createRegularErrorCopy(create.error)}
         isPending={create.isPending}
         isError={create.isError}
         onReset={create.reset}
@@ -124,8 +115,9 @@ function RegularsEditRow({
       <button
         type="button"
         aria-label={`Remove ${regular.itemName}`}
+        disabled={remove.isPending}
         onClick={() => remove.mutate({ id: regular.id })}
-        className="flex size-6.5 shrink-0 cursor-pointer items-center justify-center rounded-md text-rust-icon transition-colors hover:bg-chip"
+        className="flex size-6.5 shrink-0 cursor-pointer items-center justify-center rounded-md text-rust-icon transition-colors hover:bg-chip disabled:cursor-default disabled:opacity-50"
       >
         <Trash2 size={14} strokeWidth={1.9} />
       </button>

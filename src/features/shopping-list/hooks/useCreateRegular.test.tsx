@@ -50,6 +50,17 @@ describe("useCreateRegular", () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
+  it("toasts a conflict the edit view has no copy for", async () => {
+    const { wrapper } = setupQueryClient([]);
+    mockCreate.mockRejectedValue(new ApiError(409, "something_else"));
+
+    const { result } = renderHook(() => useCreateRegular(), { wrapper });
+    result.current.mutate(input);
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(toast.error).toHaveBeenCalled();
+  });
+
   it("still toasts any other failure", async () => {
     const { wrapper } = setupQueryClient([]);
     mockCreate.mockRejectedValue(

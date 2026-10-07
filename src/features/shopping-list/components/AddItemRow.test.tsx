@@ -17,8 +17,22 @@ const milk: Item = {
 vi.mock("@/features/catalog/hooks/useUnits", () => ({ useUnits: vi.fn() }));
 vi.mock("@/features/auth/components/AuthContext", () => ({ useAuth: vi.fn() }));
 vi.mock("@/features/catalog/components/AddItemSearch", () => ({
-  AddItemSearch: ({ onPick }: { onPick: (item: Item) => void }) => (
-    <button type="button" onClick={() => onPick(milk)}>
+  AddItemSearch: ({
+    onPick,
+    label,
+    unavailable,
+  }: {
+    onPick: (item: Item) => void;
+    label?: string;
+    unavailable?: { itemIds: ReadonlySet<string>; tag: string };
+  }) => (
+    <button
+      type="button"
+      data-label={label ?? ""}
+      data-unavailable={[...(unavailable?.itemIds ?? [])].join(",")}
+      data-tag={unavailable?.tag ?? ""}
+      onClick={() => onPick(milk)}
+    >
       search
     </button>
   ),
@@ -49,6 +63,18 @@ function renderRow(props: Partial<Parameters<typeof AddItemRow>[0]> = {}) {
 }
 
 describe("AddItemRow", () => {
+  it("hands the caller's label and unavailable items to the search", () => {
+    renderRow({
+      label: "Add a regular",
+      unavailable: { itemIds: new Set(["i_milk"]), tag: "Already a regular" },
+    });
+
+    const search = screen.getByRole("button", { name: "search" });
+    expect(search).toHaveAttribute("data-label", "Add a regular");
+    expect(search).toHaveAttribute("data-unavailable", "i_milk");
+    expect(search).toHaveAttribute("data-tag", "Already a regular");
+  });
+
   it("shows the caller's error under the editor", async () => {
     renderRow({ error: "That's already one of your regulars." });
 

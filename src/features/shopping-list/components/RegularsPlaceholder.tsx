@@ -1,5 +1,7 @@
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
 
+import { LoadFailedLine } from "./LoadFailedLine";
+
 const CARD_ROWS = [3, 2];
 
 export function RegularsPlaceholder({
@@ -9,20 +11,7 @@ export function RegularsPlaceholder({
   isError: boolean;
   onRetry: () => void;
 }) {
-  if (isError) {
-    return (
-      <p className="px-4.5 py-6 text-sm text-ink-subtle">
-        <span>Couldn't load your regulars.</span>{" "}
-        <button
-          type="button"
-          onClick={onRetry}
-          className="cursor-pointer font-semibold text-green"
-        >
-          Retry
-        </button>
-      </p>
-    );
-  }
+  if (isError) return <LoadFailedLine what="regulars" onRetry={onRetry} />;
 
   return (
     <div className={DELAYED_FADE_IN_CLASSES}>

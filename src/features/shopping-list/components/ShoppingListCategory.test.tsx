@@ -140,6 +140,21 @@ describe("ShoppingListCategory", () => {
     expect(scroll.mock.contexts[0]).toBe(screen.getByText("Onions"));
   });
 
+  it("flashes but leaves the scrolling to another category when told to", async () => {
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    render(
+      <ShoppingListCategory
+        group={group([true, false])}
+        recentlyAdded={added}
+        scrollToAdded={false}
+      />,
+    );
+
+    expect(screen.getByText("Onions")).toHaveAttribute("data-flash", "7");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    expect(scroll).not.toHaveBeenCalled();
+  });
+
   it("ignores an addition that belongs to another category", () => {
     render(
       <ShoppingListCategory

@@ -9,7 +9,9 @@ import { useClearShoppingList } from "../hooks/useClearShoppingList";
 import { useRegulars } from "../hooks/useRegulars";
 import { useShoppingList } from "../hooks/useShoppingList";
 import { groupShoppingList } from "../utils/groupShoppingList";
+import { isRecentlyAdded } from "../utils/isRecentlyAdded";
 import { AddExtraItem } from "./AddExtraItem";
+import { LoadFailedLine } from "./LoadFailedLine";
 import { RegenerateShoppingListButton } from "./RegenerateShoppingListButton";
 import { RegularsEditView } from "./RegularsEditView";
 import { RegularsEntryRow } from "./RegularsEntryRow";
@@ -40,6 +42,9 @@ export function ShoppingListPanel({
 
   const recipeCount = menu?.entries.length ?? 0;
   const grouped = data ? groupShoppingList(data.items) : null;
+  const scrollGroupId = grouped?.groups.find((group) =>
+    group.items.some((item) => isRecentlyAdded(item, recentlyAdded)),
+  )?.categoryId;
   const regularsCount = regulars?.length ?? 0;
   const backFromEdit = regularsCount > 0 ? "regulars" : "list";
 
@@ -120,22 +125,20 @@ export function ShoppingListPanel({
           <AddExtraItem onAdded={(row) => highlight([row])} />
           <RegularsEntryRow
             count={regulars?.length}
-            onOpen={() => setView("regulars")}
+            onOpen={() => {
+              setRecentlyAdded(null);
+              setView("regulars");
+            }}
           />
 
           <div className="-mb-px min-h-0 overflow-y-auto">
             {!grouped ? (
               isError ? (
-                <p className="border-b border-card-shadow px-4.5 py-6 text-sm text-ink-subtle">
-                  <span>Couldn't load your shopping list.</span>{" "}
-                  <button
-                    type="button"
-                    onClick={() => refetch()}
-                    className="cursor-pointer font-semibold text-green"
-                  >
-                    Retry
-                  </button>
-                </p>
+                <LoadFailedLine
+                  what="shopping list"
+                  onRetry={() => refetch()}
+                  className="border-b border-card-shadow"
+                />
               ) : (
                 <ShoppingListSkeleton />
               )
@@ -145,6 +148,7 @@ export function ShoppingListPanel({
                   key={group.categoryId}
                   group={group}
                   recentlyAdded={recentlyAdded}
+                  scrollToAdded={group.categoryId === scrollGroupId}
                 />
               ))
             ) : (

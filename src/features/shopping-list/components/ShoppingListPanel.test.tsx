@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import {
@@ -53,11 +54,13 @@ vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({
     item,
     flashKey,
+    ref,
   }: {
     item: ShoppingListItem;
     flashKey?: number;
+    ref?: Ref<HTMLDivElement>;
   }) => (
-    <div data-testid="row" data-flash={flashKey ?? ""}>
+    <div ref={ref} data-testid="row" data-flash={flashKey ?? ""}>
       {item.itemName}
     </div>
   ),
@@ -277,6 +280,36 @@ describe("ShoppingListPanel", () => {
     await userEvent.click(screen.getByRole("button", { name: "add milk" }));
 
     expect(dairyHeader).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("doesn't replay an addition after a trip to the regulars", async () => {
+    setup({
+      items: [
+        buildShoppingListItem({
+          id: "a",
+          itemId: "i_milk",
+          itemName: "Milk",
+          ...dairy,
+          obtained: true,
+        }),
+      ],
+      regulars: [buildRegular()],
+    });
+    await userEvent.click(screen.getByRole("button", { name: "add milk" }));
+    await userEvent.click(screen.getByRole("button", { name: /Dairy/ }));
+    await waitFor(() =>
+      expect(screen.queryByText("Milk")).not.toBeInTheDocument(),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+    await userEvent.click(
+      screen.getByRole("button", { name: "Back to shopping list" }),
+    );
+
+    expect(screen.getByRole("button", { name: /Dairy/ })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
   });
 
   it("suggests adding a recipe or an item when the menu is empty too", () => {
@@ -637,7 +670,8 @@ describe("ShoppingListPanel regulars", () => {
       ).toBeInTheDocument();
     });
 
-    it("highlights the rows the restock added, not ones it skipped", async () => {
+    it("highlights the rows the restock added, not ones it skipped, scrolling to the first", async () => {
+      const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
       const butterRow = buildShoppingListItem({
         id: "sli_butter",
         itemId: "i_butter",
@@ -669,6 +703,8 @@ describe("ShoppingListPanel regulars", () => {
       );
 
       expect(screen.getByText("Milk")).toHaveAttribute("data-flash", "");
+      expect(scroll).toHaveBeenCalledTimes(1);
+      expect(scroll.mock.contexts[0]).toBe(screen.getByText("Butter"));
       expect(screen.getByText("Butter")).not.toHaveAttribute("data-flash", "");
       expect(screen.getByText("Toilet paper")).not.toHaveAttribute(
         "data-flash",

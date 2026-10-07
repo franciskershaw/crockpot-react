@@ -579,17 +579,9 @@ security findings — debt notes only):*
 
 ### Deferred: future features
 
-*Parked 2026-08-31 — a loosely-scoped idea, not sequenced into a
-priority epic yet. Numbered out of physical order deliberately: this
-sits conceptually in Epic 3 (Your Crockpot — Core, alongside `CFE-009`'s
-shopping list), but the founder wants it addressed only once the core
-epics have shipped, not inserted into the current build order. Grill
-properly before starting. Paired with `crockpot-go`'s `CROC-038`.*
-- **CFE-015** — Regulars (was "default items"): restock and manage a
-  personal set of catalog items from the shopping list panel. Grilled
-  2026-10-03, AI-driven, `docs/handoffs/CFE-015.md`. Designed
-  (`../screenshots/regular items/`) and spec dump mapped; ready to build
-  once `crockpot-go` `CROC-038` is done.
+- **CFE-015** — Regulars: restock and manage a personal set of catalog
+  items from the shopping list panel. **Done** (2026-10-07), see
+  `docs/handoffs/CFE-015.md`.
 
 *Descoped from `CFE-010` 2026-10-02 — not sequenced; grill before
 starting.*

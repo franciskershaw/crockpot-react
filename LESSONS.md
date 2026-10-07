@@ -385,3 +385,9 @@ decision as fully closed. No code written yet.
 - Reading crockpot-go's handlers at the grill caught a contract gap (CROC-067). But the shadcn CLI quietly installed an unrelated `cn` npm package while I only fixed the file it generated. A toggle choice slipped into a revision unagreed and reached the mockups. The hero's "continue with email" link, cut at CFE-003 before password auth existed, was only restored when the founder asked.
 - **Pattern**: after a CLI or generator adds code, review its whole diff, `package.json` included, not just the generated file.
 - **Pattern**: when a ticket adds a new way into something, check every existing entry point and the original design for elements earlier tickets cut because the feature didn't exist yet.
+
+## 2026-10-07 — CFE-015 — Regulars. Two design changes mid-build; review found state that assumed the list never unmounts.
+
+- Uppercase category labels became inset cards, and the empty state moved into Edit; its first cut derived the view from the regulars count, so adding the first one bounced back to restock. Three reds failed for the wrong reason (stubs rendering nothing, a test leaning on an unbuilt prop, `setup({ x: undefined })` taking the default). The review found an old highlight replaying: splitting the panel into views made the list unmountable.
+- **Pattern**: when a change lets a long-lived component unmount, re-check any state it kept on the assumption it never would.
+- **Pattern**: store a mode the user is in; don't derive it from data they're in the middle of changing.

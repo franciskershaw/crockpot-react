@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StatePanel } from "@/components/StatePanel";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
-import { RotateCw } from "lucide-react";
+import { Plus, RotateCw } from "lucide-react";
 
 import type { AddedRow, Regular } from "../data/types";
 import { useRegulars } from "../hooks/useRegulars";
@@ -17,8 +17,10 @@ import { RegularsCategoryCard } from "./RegularsCategoryCard";
 
 export function RegularsView({
   onRestocked,
+  onAddRegular,
 }: {
   onRestocked: (added: AddedRow[]) => void;
+  onAddRegular: () => void;
 }) {
   const { data: regulars } = useRegulars();
   const { data: shoppingList } = useShoppingList();
@@ -33,6 +35,16 @@ export function RegularsView({
         icon={RotateCw}
         heading="No regulars yet"
         description="Add the things you buy most weeks — milk, bin bags, eggs — so restocking before a shop takes one tap."
+        actions={
+          <button
+            type="button"
+            onClick={onAddRegular}
+            className="flex h-11 cursor-pointer items-center gap-2 rounded-[9px] bg-green px-5 text-[15px] font-bold text-on-dark transition-colors hover:bg-green/90"
+          >
+            <Plus size={16} strokeWidth={2.4} aria-hidden />
+            Add a regular
+          </button>
+        }
       />
     );
   }

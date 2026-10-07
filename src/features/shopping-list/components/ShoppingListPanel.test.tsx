@@ -47,7 +47,9 @@ vi.mock("./AddExtraItem", () => ({
   ),
 }));
 vi.mock("./RegularsEditView", () => ({
-  RegularsEditView: () => <div>edit view</div>,
+  RegularsEditView: ({ focusSearch }: { focusSearch?: boolean }) => (
+    <div data-focus-search={String(Boolean(focusSearch))}>edit view</div>
+  ),
 }));
 vi.mock("./ShoppingListRow", () => ({
   ShoppingListRow: ({
@@ -471,6 +473,23 @@ describe("ShoppingListPanel regulars", () => {
     expect(
       screen.getByRole("heading", { name: "Regulars" }),
     ).toBeInTheDocument();
+  });
+
+  it("opens Edit with the search focused from the empty state", async () => {
+    setup({ regulars: [] });
+    await userEvent.click(screen.getByRole("button", { name: /Regulars/ }));
+
+    await userEvent.click(
+      screen.getByRole("button", { name: "Add a regular" }),
+    );
+
+    expect(
+      screen.queryByRole("heading", { name: "Edit regulars" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("edit view")).toHaveAttribute(
+      "data-focus-search",
+      "true",
+    );
   });
 
   it("has no Edit button when there are no regulars", async () => {

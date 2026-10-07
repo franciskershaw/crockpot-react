@@ -32,6 +32,11 @@ export function ShoppingListPanel({
     null,
   );
   const [view, setView] = useState<"list" | "regulars" | "edit">("list");
+  const [focusEditSearch, setFocusEditSearch] = useState(false);
+  const openEdit = (focusSearch: boolean) => {
+    setFocusEditSearch(focusSearch);
+    setView("edit");
+  };
   const highlight = (rows: AddedRow[]) =>
     setRecentlyAdded((previous) => ({
       rows,
@@ -68,7 +73,7 @@ export function ShoppingListPanel({
             {view === "regulars" && regularsCount > 0 && (
               <button
                 type="button"
-                onClick={() => setView("edit")}
+                onClick={() => openEdit(false)}
                 className="flex h-8.5 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-on-dark-muted/50 px-3.5 text-sm font-semibold text-on-dark transition-colors hover:border-on-dark"
               >
                 <Pencil size={13} strokeWidth={2.2} aria-hidden />
@@ -102,13 +107,14 @@ export function ShoppingListPanel({
       </header>
 
       {view === "edit" ? (
-        <RegularsEditView />
+        <RegularsEditView focusSearch={focusEditSearch} />
       ) : view === "regulars" ? (
         <RegularsView
           onRestocked={(rows) => {
             highlight(rows);
             setView("list");
           }}
+          onAddRegular={() => openEdit(true)}
         />
       ) : (
         <>

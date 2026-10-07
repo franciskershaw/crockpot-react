@@ -7,14 +7,27 @@ import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
 import { Trash2 } from "lucide-react";
 
 import type { Regular } from "../data/types";
+import { useCreateRegular } from "../hooks/useCreateRegular";
 import { useDeleteRegular } from "../hooks/useDeleteRegular";
 import { useRegulars } from "../hooks/useRegulars";
 import { useUpdateRegular } from "../hooks/useUpdateRegular";
 import { groupRegulars } from "../utils/groupRegulars";
+import { AddItemRow } from "./AddItemRow";
 import { RegularsCategoryCard } from "./RegularsCategoryCard";
 
-export function RegularsEditView() {
+const CREATE_ERROR_COPY: Record<string, string> = {
+  regular_exists: "That's already one of your regulars.",
+  regulars_limit_reached:
+    "You've reached the 50-regular limit. Remove one to add another.",
+};
+
+export function RegularsEditView({
+  focusSearch = false,
+}: {
+  focusSearch?: boolean;
+}) {
   const { data: regulars } = useRegulars();
+  const create = useCreateRegular();
   const { data: items } = useItems();
   const { data: units } = useUnits();
   const itemsById = useMemo(
@@ -30,22 +43,46 @@ export function RegularsEditView() {
   };
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
-      {groupRegulars(regulars).map((group) => (
-        <RegularsCategoryCard
-          key={group.categoryId}
-          categoryName={group.categoryName}
-        >
-          {group.regulars.map((regular) => (
-            <RegularsEditRow
-              key={regular.id}
-              regular={regular}
-              unitOptions={unitOptionsForRegular(regular)}
-            />
-          ))}
-        </RegularsCategoryCard>
-      ))}
-    </div>
+    <>
+      <AddItemRow
+        label="Add a regular"
+        unavailable={{
+          itemIds: new Set(regulars.map((regular) => regular.itemId)),
+          tag: "Already a regular",
+        }}
+        focusOnMount={focusSearch}
+        error={
+          create.error?.status === 409
+            ? CREATE_ERROR_COPY[create.error.message]
+            : undefined
+        }
+        isPending={create.isPending}
+        isError={create.isError}
+        onReset={create.reset}
+        onConfirm={(item, quantity, unitId, close) =>
+          create.mutate(
+            { itemId: item.id, quantity, unitId },
+            { onSuccess: close },
+          )
+        }
+      />
+      <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4.5 pt-3.5 pb-3">
+        {groupRegulars(regulars).map((group) => (
+          <RegularsCategoryCard
+            key={group.categoryId}
+            categoryName={group.categoryName}
+          >
+            {group.regulars.map((regular) => (
+              <RegularsEditRow
+                key={regular.id}
+                regular={regular}
+                unitOptions={unitOptionsForRegular(regular)}
+              />
+            ))}
+          </RegularsCategoryCard>
+        ))}
+      </div>
+    </>
   );
 }
 

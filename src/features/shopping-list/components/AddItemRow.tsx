@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
@@ -15,11 +15,19 @@ const CreateItemDialog = lazy(() =>
 );
 
 export function AddItemRow({
+  label,
+  unavailable,
+  focusOnMount = false,
+  error,
   isPending,
   isError,
   onReset,
   onConfirm,
 }: {
+  label?: string;
+  unavailable?: { itemIds: ReadonlySet<string>; tag: string };
+  focusOnMount?: boolean;
+  error?: ReactNode;
   isPending: boolean;
   isError: boolean;
   onReset: () => void;
@@ -33,7 +41,7 @@ export function AddItemRow({
   const { user } = useAuth();
   const { data: units } = useUnits();
   const [picked, setPicked] = useState<Item | null>(null);
-  const [returnFocus, setReturnFocus] = useState(false);
+  const [returnFocus, setReturnFocus] = useState(focusOnMount);
   const [newItemName, setNewItemName] = useState<string | null>(null);
   const [resumeKey, setResumeKey] = useState(0);
   const isAdmin = user?.role === "ADMIN";
@@ -61,18 +69,27 @@ export function AddItemRow({
       )}
     >
       {picked ? (
-        <AddItemEditor
-          item={picked}
-          allowedUnits={allowedUnits}
-          isPending={isPending}
-          isError={isError}
-          onConfirm={(quantity, unitId) =>
-            onConfirm(picked, quantity, unitId, close)
-          }
-          onCancel={close}
-        />
+        <>
+          <AddItemEditor
+            item={picked}
+            allowedUnits={allowedUnits}
+            isPending={isPending}
+            isError={isError}
+            onConfirm={(quantity, unitId) =>
+              onConfirm(picked, quantity, unitId, close)
+            }
+            onCancel={close}
+          />
+          {error && (
+            <p role="alert" className="mt-1 px-1 text-[13px] text-rust-text">
+              {error}
+            </p>
+          )}
+        </>
       ) : (
         <AddItemSearch
+          label={label}
+          unavailable={unavailable}
           focusOnMount={returnFocus}
           resumeKey={resumeKey}
           onCreate={isAdmin ? setNewItemName : undefined}

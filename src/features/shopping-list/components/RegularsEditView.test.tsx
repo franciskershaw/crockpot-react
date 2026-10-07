@@ -1,10 +1,13 @@
+import type { Item } from "@/features/catalog/data/types";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
+import { ApiError } from "@/lib/http/client";
 import { buildRegular } from "@/test/shoppingListFixtures";
 import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { useCreateRegular } from "../hooks/useCreateRegular";
 import { useDeleteRegular } from "../hooks/useDeleteRegular";
 import { useRegulars } from "../hooks/useRegulars";
 import { useUpdateRegular } from "../hooks/useUpdateRegular";
@@ -15,9 +18,61 @@ vi.mock("@/features/catalog/hooks/useUnits", () => ({ useUnits: vi.fn() }));
 vi.mock("../hooks/useRegulars", () => ({ useRegulars: vi.fn() }));
 vi.mock("../hooks/useUpdateRegular", () => ({ useUpdateRegular: vi.fn() }));
 vi.mock("../hooks/useDeleteRegular", () => ({ useDeleteRegular: vi.fn() }));
+vi.mock("../hooks/useCreateRegular", () => ({ useCreateRegular: vi.fn() }));
+vi.mock("./AddItemRow", () => ({
+  AddItemRow: ({
+    label,
+    unavailable,
+    focusOnMount,
+    error,
+    onConfirm,
+  }: {
+    label?: string;
+    unavailable?: { itemIds: ReadonlySet<string>; tag: string };
+    focusOnMount?: boolean;
+    error?: React.ReactNode;
+    onConfirm: (
+      item: Item,
+      quantity: number,
+      unitId: string | null,
+      close: () => void,
+    ) => void;
+  }) => (
+    <div
+      data-testid="add-row"
+      data-label={label ?? ""}
+      data-unavailable={[...(unavailable?.itemIds ?? [])].join(",")}
+      data-tag={unavailable?.tag ?? ""}
+      data-autofocus={String(Boolean(focusOnMount))}
+    >
+      {error}
+      <button
+        type="button"
+        onClick={() =>
+          onConfirm(
+            {
+              id: "i_eggs",
+              name: "Eggs",
+              categoryId: "ic_dairy",
+              allowedUnitIds: [],
+            },
+            6,
+            null,
+            closeAddRow,
+          )
+        }
+      >
+        confirm eggs
+      </button>
+    </div>
+  ),
+}));
 
 const update = vi.fn();
 const remove = vi.fn();
+const create = vi.fn();
+const closeAddRow = vi.fn();
+let createError: ApiError | null = null;
 
 const regulars = [
   buildRegular({
@@ -88,6 +143,17 @@ beforeEach(() => {
   vi.mocked(useDeleteRegular).mockReturnValue({
     mutate: remove,
   } as unknown as ReturnType<typeof useDeleteRegular>);
+  createError = null;
+  vi.mocked(useCreateRegular).mockImplementation(
+    () =>
+      ({
+        mutate: create,
+        reset: vi.fn(),
+        isPending: false,
+        isError: createError !== null,
+        error: createError,
+      }) as unknown as ReturnType<typeof useCreateRegular>,
+  );
 });
 
 afterEach(() => {
@@ -159,5 +225,61 @@ describe("RegularsEditView", () => {
     await userEvent.click(screen.getByRole("button", { name: "Remove Milk" }));
 
     expect(remove).toHaveBeenCalledWith({ id: "reg_milk" });
+  });
+
+  describe("adding a regular", () => {
+    it("offers the search as Add a regular, marking every current regular", () => {
+      render(<RegularsEditView />);
+
+      const row = screen.getByTestId("add-row");
+      expect(row).toHaveAttribute("data-label", "Add a regular");
+      expect(row).toHaveAttribute("data-unavailable", "i_milk,i_butter,i_tp");
+      expect(row).toHaveAttribute("data-tag", "Already a regular");
+    });
+
+    it("creates the regular, then returns to the search", async () => {
+      create.mockImplementation(
+        (_input: unknown, options?: { onSuccess?: () => void }) =>
+          options?.onSuccess?.(),
+      );
+      render(<RegularsEditView />);
+
+      await userEvent.click(
+        screen.getByRole("button", { name: "confirm eggs" }),
+      );
+
+      expect(create).toHaveBeenCalledWith(
+        { itemId: "i_eggs", quantity: 6, unitId: null },
+        expect.anything(),
+      );
+      expect(closeAddRow).toHaveBeenCalled();
+    });
+
+    it("explains a regular that already exists", () => {
+      createError = new ApiError(409, "regular_exists");
+      render(<RegularsEditView />);
+
+      expect(screen.getByTestId("add-row")).toHaveTextContent(
+        "That's already one of your regulars.",
+      );
+    });
+
+    it("explains the regulars limit", () => {
+      createError = new ApiError(409, "regulars_limit_reached");
+      render(<RegularsEditView />);
+
+      expect(screen.getByTestId("add-row")).toHaveTextContent(
+        "You've reached the 50-regular limit. Remove one to add another.",
+      );
+    });
+
+    it("focuses the search when asked", () => {
+      render(<RegularsEditView focusSearch />);
+
+      expect(screen.getByTestId("add-row")).toHaveAttribute(
+        "data-autofocus",
+        "true",
+      );
+    });
   });
 });

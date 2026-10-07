@@ -367,6 +367,21 @@ CFE-003.
   consider a Cloudinary moderation add-on on `crockpot-go`'s server-side
   upload (`CROC-040`); check its pricing first.
 
+### Epic 7: Account Management
+*Added 2026-10-07, paired with `crockpot-go` Epic 12 (`CROC-030` account
+deletion, `CROC-051` profile and password). One grill covered both
+repos and wrote a design brief. The founder turns it into designs with
+Claude Design (`../screenshots/account/`), and a design review then
+reopens only the decisions `CFE-055`'s handoff marks as design-shaped.*
+- **CFE-055** — Account settings page at `/account`, reached from a new
+  "Account settings" item in the avatar menu: Profile (edit name),
+  Password (password accounts; a note for Google accounts), and Delete
+  account (a confirmation dialog, with the password or a typed email). Grilled
+  2026-10-07, see `docs/handoffs/CFE-055.md`, which includes the Claude
+  Design brief. **Blocked on designs** (`../screenshots/account/` plus a
+  spec dump). Built in three pieces, each after its `crockpot-go` endpoint
+  (`CROC-051`, then `CROC-030`). AI-driven. Open.
+
 ### Tech Debt & Production Readiness
 *From the first whole-codebase tech-debt pass, 2026-09-05. Full detail:
 `docs/findings/2026-09-05-tech-debt.md`.*

@@ -105,6 +105,9 @@
   --readonly-bg: #f3eee1;
   --readonly-border: #e6dcc8;
   --readonly-text: #6b6353;
+  --danger-card-bg: #fdf6f1;
+  --danger-outline: #d9a98c;
+  --disabled-ink: #bdb5a4;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -179,6 +182,9 @@
   --color-readonly-bg: var(--readonly-bg);
   --color-readonly-border: var(--readonly-border);
   --color-readonly-text: var(--readonly-text);
+  --color-danger-card-bg: var(--danger-card-bg);
+  --color-danger-outline: var(--danger-outline);
+  --color-disabled-ink: var(--disabled-ink);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

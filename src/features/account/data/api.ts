@@ -12,6 +12,14 @@ export function changePassword(input: {
   });
 }
 
+export function deleteAccount(body: { password?: string }): Promise<void> {
+  return apiFetch<void>("/me", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 export function updateName(name: string): Promise<User> {
   return apiFetch<User>("/me", {
     method: "PATCH",

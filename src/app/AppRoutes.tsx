@@ -63,6 +63,11 @@ const MyRecipesPage = lazyNamed(
   "MyRecipesPage",
 );
 
+const AccountPage = lazyNamed(
+  () => import("@/features/account/pages/AccountPage"),
+  "AccountPage",
+);
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -141,6 +146,14 @@ export function AppRoutes() {
           <Route path="/library/favourites" element={<FavouritesPage />} />
           <Route path="/library/my-recipes" element={<MyRecipesPage />} />
         </Route>
+        <Route
+          path="/account"
+          element={
+            <RequireAuth>
+              <AccountPage />
+            </RequireAuth>
+          }
+        />
         <Route
           path="/favourites"
           element={<Navigate to="/library/favourites" replace />}

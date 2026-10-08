@@ -47,6 +47,9 @@ vi.mock("@/features/recipes-form/pages/CreateRecipePage", () => ({
 vi.mock("@/features/recipes-form/pages/EditRecipePage", () => ({
   EditRecipeRoute: () => <p>edit recipe page</p>,
 }));
+vi.mock("@/features/account/pages/AccountPage", () => ({
+  AccountPage: () => <p>account page</p>,
+}));
 
 function CurrentPath() {
   return <output aria-label="path">{useLocation().pathname}</output>;
@@ -84,6 +87,13 @@ describe("AppRoutes", () => {
     renderAt("/recipes/r_1/edit");
 
     expect(await screen.findByText("edit recipe page")).toBeInTheDocument();
+  });
+
+  it("routes /account to the account settings page", async () => {
+    renderAt("/account");
+
+    expect(await screen.findByText("account page")).toBeInTheDocument();
+    expect(screen.getByLabelText("path")).toHaveTextContent("/account");
   });
 
   it("keeps the Your Crockpot layout mounted through the /library redirect", async () => {

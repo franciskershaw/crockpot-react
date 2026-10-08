@@ -102,6 +102,9 @@
   --success-banner-text: #2f4a27;
   --link-muted: #7a7263;
   --primary-shadow: #2b4524;
+  --readonly-bg: #f3eee1;
+  --readonly-border: #e6dcc8;
+  --readonly-text: #6b6353;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0.001 106.423);
   --success: oklch(0.52 0.09 152);
@@ -173,6 +176,9 @@
   --color-success-banner-border: var(--success-banner-border);
   --color-success-banner-text: var(--success-banner-text);
   --color-link-muted: var(--link-muted);
+  --color-readonly-bg: var(--readonly-bg);
+  --color-readonly-border: var(--readonly-border);
+  --color-readonly-text: var(--readonly-text);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);

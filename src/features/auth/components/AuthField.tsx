@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 import { AUTH_INPUT } from "../utils/styles";
 
@@ -8,12 +9,14 @@ export function AuthField({
   label,
   action,
   error,
+  inputClassName,
   ...inputProps
 }: ComponentProps<"input"> & {
   id: string;
   label: string;
   action?: ReactNode;
   error?: string;
+  inputClassName?: string;
 }) {
   const errorId = `${id}-error`;
   return (
@@ -29,7 +32,7 @@ export function AuthField({
       </div>
       <Input
         id={id}
-        className={AUTH_INPUT}
+        className={cn(AUTH_INPUT, inputClassName)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         {...inputProps}

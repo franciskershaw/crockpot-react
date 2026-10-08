@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useLogout } from "@/features/auth/hooks/useLogout";
+import { LogOutIcon, SettingsIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { getInitials } from "./getInitials";
 
@@ -36,10 +38,18 @@ export function UserMenu() {
           <p className="text-xs text-muted-foreground">{user.email}</p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/account">
+            <SettingsIcon />
+            Account settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => logout.mutate()}
           disabled={logout.isPending}
         >
+          <LogOutIcon />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -1,7 +1,7 @@
+import { GoogleIcon } from "@/components/GoogleIcon";
 import { Button } from "@/components/ui/button";
 
 import { goToGoogleLogin } from "../utils/googleLogin";
-import { GoogleIcon } from "./GoogleIcon";
 
 export function ContinueWithGoogleButton() {
   return (

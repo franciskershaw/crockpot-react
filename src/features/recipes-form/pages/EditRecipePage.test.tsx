@@ -4,6 +4,7 @@ import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { getRecipe, updateRecipe } from "@/features/recipes/data/api";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
+import { buildUser } from "@/test/authFixtures";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { recipePart } from "@/test/recipeRequest";
 import { renderWithProviders } from "@/test/renderWithProviders";
@@ -53,7 +54,7 @@ const recipe = buildRecipeDetail({
 
 function signInAs(id: string, role: "ADMIN" | "FREE") {
   vi.mocked(useAuth).mockReturnValue({
-    user: { id, email: "cook@example.com", name: "Cook", image: null, role },
+    user: buildUser({ id, email: "cook@example.com", name: "Cook", role }),
     isAuthenticated: true,
     isLoading: false,
   } as ReturnType<typeof useAuth>);

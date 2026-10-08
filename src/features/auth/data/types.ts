@@ -1,10 +1,13 @@
 export type UserRole = "FREE" | "PREMIUM" | "PRO" | "ADMIN";
 
+export type AuthProvider = "password" | "google";
+
 export interface User {
   id: string;
   email: string;
   name: string | null;
   role: UserRole;
+  authProvider: AuthProvider;
 }
 
 export type AuthCallbackErrorCode =

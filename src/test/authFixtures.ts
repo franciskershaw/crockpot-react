@@ -6,6 +6,7 @@ export function buildUser(overrides: Partial<User> = {}): User {
     email: "jamie@example.com",
     name: "Jamie Alder",
     role: "FREE",
+    authProvider: "password",
     ...overrides,
   };
 }

@@ -1,39 +1,80 @@
+import { GoogleIcon } from "@/components/GoogleIcon";
 import { Button } from "@/components/ui/button";
 import { AuthField } from "@/features/auth/components/AuthField";
 import type { User } from "@/features/auth/data/types";
+import { NAME_RULE } from "@/features/auth/utils/authSchemas";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
+import { isInvalidName, useUpdateName } from "../hooks/useUpdateName";
+import { profileNameSchema } from "../utils/accountSchemas";
 import { ACCOUNT_INPUT, ACCOUNT_PRIMARY_BUTTON } from "../utils/styles";
 import { AccountCard } from "./AccountCard";
 
 export function ProfileCard({ user }: { user: User }) {
+  const updateName = useUpdateName();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(profileNameSchema),
+    defaultValues: { name: user.name ?? "" },
+  });
+
   return (
     <AccountCard title="Profile">
       <form
+        noValidate
         className="flex flex-col gap-3.5 md:gap-4.5"
-        onSubmit={(e) => e.preventDefault()}
+        onSubmit={handleSubmit(({ name }) =>
+          updateName.mutate(name, {
+            onSuccess: (saved) => reset({ name: saved.name ?? "" }),
+            onError: (error) => {
+              if (isInvalidName(error)) {
+                setError("name", { message: NAME_RULE });
+              }
+            },
+          }),
+        )}
       >
         <AuthField
           id="account-name"
           label="Name"
           autoComplete="name"
-          defaultValue={user.name ?? ""}
+          error={errors.name?.message}
           inputClassName={ACCOUNT_INPUT}
+          {...register("name")}
         />
         <div>
           <p className="mb-2 text-[13px] font-bold text-ink-secondary">Email</p>
-          <p
-            className={cn(
-              "flex items-center truncate rounded-lg border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
-              ACCOUNT_INPUT,
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            <p
+              className={cn(
+                "flex min-w-0 flex-1 items-center truncate rounded-lg border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
+                ACCOUNT_INPUT,
+              )}
+            >
+              {user.email}
+            </p>
+            {user.authProvider === "google" && (
+              <p className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-ink-body">
+                <GoogleIcon className="size-4" />
+                Signed in with Google
+              </p>
             )}
-          >
-            {user.email}
-          </p>
+          </div>
         </div>
         <div className="flex justify-end pt-1">
-          <Button type="submit" className={ACCOUNT_PRIMARY_BUTTON}>
-            Save
+          <Button
+            type="submit"
+            disabled={updateName.isPending}
+            className={ACCOUNT_PRIMARY_BUTTON}
+          >
+            {updateName.isPending ? "Saving…" : "Save"}
           </Button>
         </div>
       </form>

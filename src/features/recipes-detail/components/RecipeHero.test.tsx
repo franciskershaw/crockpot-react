@@ -4,6 +4,7 @@ import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { buildUser } from "@/test/authFixtures";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
@@ -63,13 +64,12 @@ function setup({
     isAuthenticated,
     isLoading: false,
     user: isAuthenticated
-      ? {
+      ? buildUser({
           id: userId,
           email: "founder@example.com",
           name: "Founder",
-          image: null,
           role,
-        }
+        })
       : null,
   } as unknown as ReturnType<typeof useAuth>);
   mockUseMenuEntry.mockReturnValue({

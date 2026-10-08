@@ -54,6 +54,14 @@ describe("registerSchema", () => {
     });
   });
 
+  it("caps the name at 50 characters", () => {
+    expect(
+      fieldErrors(registerSchema, { ...valid, name: "a".repeat(51) }),
+    ).toEqual({
+      name: ["Enter a name between 1 and 50 characters."],
+    });
+  });
+
   it("accepts a 72-byte password", () => {
     const password = "a".repeat(72);
     expect(

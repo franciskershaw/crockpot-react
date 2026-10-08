@@ -3,6 +3,17 @@ import { z } from "zod";
 
 const email = z.string().trim().pipe(z.email("Enter a valid email address."));
 
+export const NAME_RULE = "Enter a name between 1 and 50 characters.";
+
+// Counts code points to match the API's rune count.
+export function nameField(emptyMessage: string) {
+  return z
+    .string()
+    .trim()
+    .min(1, emptyMessage)
+    .refine((value) => [...value].length <= 50, NAME_RULE);
+}
+
 const newPassword = z
   .string()
   .refine(
@@ -37,7 +48,7 @@ export const loginSchema = z.object({
 
 export const registerSchema = withMatchingPasswords(
   z.object({
-    name: z.string().trim().min(1, "Enter your name."),
+    name: nameField("Enter your name."),
     email,
     password: newPassword,
     confirmPassword: z.string(),

@@ -150,13 +150,11 @@ describe("RecipeDetailPage", () => {
   it("hides the pending-approval banner from a viewer who isn't the creator, even if unapproved", async () => {
     setupMenuAndAuth({
       isAuthenticated: true,
-      user: {
+      user: buildUser({
         id: "someone_else",
         email: "sam@example.com",
         name: "Sam",
-        image: null,
-        role: "FREE",
-      },
+      }),
     });
     mockGetRecipe.mockResolvedValue(
       buildRecipeDetail({ createdById: "u_1", approved: false }),

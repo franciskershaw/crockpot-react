@@ -391,3 +391,9 @@ decision as fully closed. No code written yet.
 - Uppercase category labels became inset cards, and the empty state moved into Edit; its first cut derived the view from the regulars count, so adding the first one bounced back to restock. Three reds failed for the wrong reason (stubs rendering nothing, a test leaning on an unbuilt prop, `setup({ x: undefined })` taking the default). The review found an old highlight replaying: splitting the panel into views made the list unmountable.
 - **Pattern**: when a change lets a long-lived component unmount, re-check any state it kept on the assumption it never would.
 - **Pattern**: store a mode the user is in; don't derive it from data they're in the middle of changing.
+
+## 2026-10-08 — CFE-055 — Account settings. Built ahead of the API on the pinned contract; the compiler broke form resets.
+
+- Saving the name a second time sent the first value: under the React Compiler, `register()` isn't re-run after React Hook Form's `reset()`, so later typing never reached the form. Both cards had it, and no test saved twice. Review also found a password change reported as failed when only the follow-up `/me` fetch failed (a shape copied from `useResetPassword`), and a delete dialog that could be closed mid-request.
+- **Pattern**: never call React Hook Form's `reset()` in this codebase; use `setValue`, or remount the form with a `key`. Give every form test a submit-twice case.
+- **Pattern**: when a mutation chains a follow-up after the request that matters, a failure in the follow-up mustn't report the main request as failed.

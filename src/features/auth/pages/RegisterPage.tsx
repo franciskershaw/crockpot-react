@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +8,6 @@ import { Link } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
 import { AuthErrorBanner } from "../components/AuthErrorBanner";
-import { AuthField } from "../components/AuthField";
 import { ConfirmCodeStep } from "../components/ConfirmCodeStep";
 import { ContinueWithGoogleButton } from "../components/ContinueWithGoogleButton";
 import { OrDivider } from "../components/OrDivider";
@@ -77,14 +77,14 @@ export function RegisterPage() {
         {display?.target === "banner" && (
           <AuthErrorBanner display={display} email={email} />
         )}
-        <AuthField
+        <FormField
           id="register-name"
           label="Name"
           autoComplete="name"
           error={errors.name?.message}
           {...register("name")}
         />
-        <AuthField
+        <FormField
           id="register-email"
           label="Email"
           type="email"
@@ -92,7 +92,7 @@ export function RegisterPage() {
           error={errors.email?.message}
           {...register("email")}
         />
-        <AuthField
+        <FormField
           id="register-password"
           label="Password"
           type="password"
@@ -103,7 +103,7 @@ export function RegisterPage() {
           }
           {...register("password")}
         />
-        <AuthField
+        <FormField
           id="register-confirm-password"
           label="Confirm password"
           type="password"

@@ -1,7 +1,8 @@
 import { Suspense, useEffect } from "react";
+import { CurrentPath } from "@/test/CurrentPath";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Link, MemoryRouter, Outlet, useLocation } from "react-router-dom";
+import { Link, MemoryRouter, Outlet } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppRoutes } from "./AppRoutes";
@@ -50,10 +51,6 @@ vi.mock("@/features/recipes-form/pages/EditRecipePage", () => ({
 vi.mock("@/features/account/pages/AccountPage", () => ({
   AccountPage: () => <p>account page</p>,
 }));
-
-function CurrentPath() {
-  return <output aria-label="path">{useLocation().pathname}</output>;
-}
 
 function renderAt(path: string) {
   render(

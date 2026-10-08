@@ -58,6 +58,20 @@ describe("PasswordCard", () => {
     expect(screen.getByLabelText("New password")).toHaveValue("");
   });
 
+  it("still reports success when restarting the session fails after the change", async () => {
+    mockChangePassword.mockResolvedValueOnce({ accessToken: "fresh-token" });
+    mockStartSession.mockRejectedValueOnce(new Error("/me failed"));
+    const { events } = setup();
+
+    await submit(events, "oldpassword", "newpassword");
+
+    await vi.waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Password changed"),
+    );
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(screen.getByLabelText("Current password")).toHaveValue("");
+  });
+
   it("changes the password again after a first change", async () => {
     mockChangePassword.mockResolvedValue({ accessToken: "fresh-token" });
     const { events } = setup();

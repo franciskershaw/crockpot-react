@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +11,6 @@ import { authErrorDisplay } from "../utils/authErrors";
 import { loginSchema } from "../utils/authSchemas";
 import { AUTH_LINK, AUTH_PRIMARY_BUTTON } from "../utils/styles";
 import { AuthErrorBanner } from "./AuthErrorBanner";
-import { AuthField } from "./AuthField";
 import { FormBanner } from "./FormBanner";
 
 export function LoginForm({
@@ -57,7 +57,7 @@ export function LoginForm({
       >
         {notice && <FormBanner tone="success">{notice}</FormBanner>}
         {display?.target === "banner" && <AuthErrorBanner display={display} />}
-        <AuthField
+        <FormField
           id="login-email"
           label="Email"
           type="email"
@@ -65,7 +65,7 @@ export function LoginForm({
           error={errors.email?.message}
           {...register("email")}
         />
-        <AuthField
+        <FormField
           id="login-password"
           label="Password"
           type="password"

@@ -2,9 +2,10 @@ import type { ComponentProps, ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-import { AUTH_INPUT } from "../utils/styles";
+const INPUT =
+  "h-12 rounded-lg border-[1.5px] bg-card px-3.5 text-base shadow-none md:text-base aria-invalid:border-field-error aria-invalid:ring-field-error/20";
 
-export function AuthField({
+export function FormField({
   id,
   label,
   action,
@@ -32,7 +33,7 @@ export function AuthField({
       </div>
       <Input
         id={id}
-        className={cn(AUTH_INPUT, inputClassName)}
+        className={cn(INPUT, inputClassName)}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? errorId : undefined}
         {...inputProps}

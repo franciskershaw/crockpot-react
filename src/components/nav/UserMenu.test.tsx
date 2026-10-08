@@ -1,10 +1,10 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { buildUser } from "@/test/authFixtures";
+import { CurrentPath } from "@/test/CurrentPath";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { UserMenu } from "./UserMenu";
@@ -20,10 +20,6 @@ const mockUseAuth = vi.mocked(useAuth);
 const mockUseLogout = vi.mocked(useLogout);
 
 const USER = buildUser({ name: "Jamie M." });
-
-function CurrentPath() {
-  return <output aria-label="path">{useLocation().pathname}</output>;
-}
 
 afterEach(() => {
   vi.clearAllMocks();

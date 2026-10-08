@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,7 +8,6 @@ import { Link } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
 import { AuthErrorBanner } from "../components/AuthErrorBanner";
-import { AuthField } from "../components/AuthField";
 import { ResetLinkSent } from "../components/ResetLinkSent";
 import { useCarriedEmail } from "../hooks/useCarriedEmail";
 import { useForgotPassword } from "../hooks/useForgotPassword";
@@ -52,7 +52,7 @@ export function ForgotPasswordPage() {
         className="flex flex-col gap-5"
       >
         {display?.target === "banner" && <AuthErrorBanner display={display} />}
-        <AuthField
+        <FormField
           id="forgot-email"
           label="Email"
           type="email"

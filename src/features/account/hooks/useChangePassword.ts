@@ -14,7 +14,11 @@ export function useChangePassword() {
       newPassword: string;
     }) => {
       const { accessToken } = await changePassword(input);
-      await startSession(queryClient, accessToken);
+      try {
+        await startSession(queryClient, accessToken);
+      } catch {
+        // The password has changed either way; the new refresh cookie restores the session on the next request.
+      }
     },
     isHandledError: (error) => changePasswordFieldError(error) !== null,
     onSuccess: () => {

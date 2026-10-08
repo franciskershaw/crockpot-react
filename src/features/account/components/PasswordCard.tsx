@@ -1,5 +1,5 @@
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
-import { AuthField } from "@/features/auth/components/AuthField";
 import type { User } from "@/features/auth/data/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -56,7 +56,7 @@ function ChangePasswordForm() {
         }),
       )}
     >
-      <AuthField
+      <FormField
         id="account-current-password"
         label="Current password"
         type="password"
@@ -65,7 +65,7 @@ function ChangePasswordForm() {
         inputClassName={ACCOUNT_INPUT}
         {...register("currentPassword")}
       />
-      <AuthField
+      <FormField
         id="account-new-password"
         label="New password"
         type="password"

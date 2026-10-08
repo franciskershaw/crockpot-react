@@ -1,3 +1,4 @@
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +7,6 @@ import { useSearchParams } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
 import { AuthErrorBanner } from "../components/AuthErrorBanner";
-import { AuthField } from "../components/AuthField";
 import { InvalidResetLink } from "../components/InvalidResetLink";
 import { useResetPassword } from "../hooks/useResetPassword";
 import { authErrorDisplay } from "../utils/authErrors";
@@ -48,7 +48,7 @@ export function ResetPasswordPage() {
         className="flex flex-col gap-5"
       >
         {display?.target === "banner" && <AuthErrorBanner display={display} />}
-        <AuthField
+        <FormField
           id="reset-password"
           label="New password"
           type="password"
@@ -59,7 +59,7 @@ export function ResetPasswordPage() {
           }
           {...register("password")}
         />
-        <AuthField
+        <FormField
           id="reset-confirm-password"
           label="Confirm new password"
           type="password"

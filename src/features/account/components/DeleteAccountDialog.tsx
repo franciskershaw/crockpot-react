@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FormField } from "@/components/FormField";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -7,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { AuthField } from "@/features/auth/components/AuthField";
 import type { User } from "@/features/auth/data/types";
 
 import { useDeleteAccount } from "../hooks/useDeleteAccount";
@@ -32,8 +32,16 @@ export function DeleteAccountDialog({
       ? "That password isn't right."
       : undefined;
 
+  const blockWhilePending = (event: Event) => {
+    if (deleteAccount.isPending) event.preventDefault();
+  };
+
   return (
-    <DialogContent showCloseButton={false}>
+    <DialogContent
+      showCloseButton={false}
+      onEscapeKeyDown={blockWhilePending}
+      onInteractOutside={blockWhilePending}
+    >
       <form
         noValidate
         className="grid gap-4"
@@ -51,7 +59,7 @@ export function DeleteAccountDialog({
             you&apos;ve published stay on Crockpot, without your name.
           </DialogDescription>
         </DialogHeader>
-        <AuthField
+        <FormField
           id="delete-account-confirm"
           label={isGoogle ? "Type your email to confirm" : "Password"}
           type={isGoogle ? "email" : "password"}

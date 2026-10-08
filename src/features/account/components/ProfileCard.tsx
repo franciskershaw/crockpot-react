@@ -1,6 +1,6 @@
+import { FormField } from "@/components/FormField";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import { Button } from "@/components/ui/button";
-import { AuthField } from "@/features/auth/components/AuthField";
 import type { User } from "@/features/auth/data/types";
 import { NAME_RULE } from "@/features/auth/utils/authSchemas";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,7 @@ export function ProfileCard({ user }: { user: User }) {
           }),
         )}
       >
-        <AuthField
+        <FormField
           id="account-name"
           label="Name"
           autoComplete="name"
@@ -55,11 +55,11 @@ export function ProfileCard({ user }: { user: User }) {
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <p
               className={cn(
-                "flex min-w-0 flex-1 items-center truncate rounded-lg border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
+                "flex min-w-0 flex-1 items-center rounded-lg border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
                 ACCOUNT_INPUT,
               )}
             >
-              {user.email}
+              <span className="truncate">{user.email}</span>
             </p>
             {user.authProvider === "google" && (
               <p className="flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-ink-body">

@@ -1,10 +1,10 @@
 import { endSession } from "@/features/auth/utils/endSession";
 import { ApiError } from "@/lib/http/client";
 import { buildUser } from "@/test/authFixtures";
-import { renderWithQueryClient } from "@/test/queryClientTestUtils";
+import { CurrentPath } from "@/test/CurrentPath";
+import { deferred, renderWithQueryClient } from "@/test/queryClientTestUtils";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -17,10 +17,6 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 const mockDeleteAccount = vi.mocked(deleteAccount);
 const mockEndSession = vi.mocked(endSession);
-
-function CurrentPath() {
-  return <output aria-label="path">{useLocation().pathname}</output>;
-}
 
 function setup(user = buildUser()) {
   const { queryClient } = renderWithQueryClient(
@@ -101,6 +97,25 @@ describe("DeleteAccountCard", () => {
     expect(dialog).toBeInTheDocument();
     expect(mockEndSession).not.toHaveBeenCalled();
     expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("can't be dismissed while the delete is in flight", async () => {
+    const pending = deferred<void>();
+    mockDeleteAccount.mockReturnValueOnce(pending.promise);
+    const { events } = setup();
+    await openDialog(events);
+
+    await events.type(screen.getByLabelText("Password"), "mypassword");
+    await events.click(confirmButton());
+    await events.keyboard("{Escape}");
+
+    expect(
+      screen.getByRole("dialog", { name: "Delete your account?" }),
+    ).toBeInTheDocument();
+    pending.reject(new ApiError(403, "invalid_password"));
+    expect(
+      await screen.findByText("That password isn't right."),
+    ).toBeInTheDocument();
   });
 
   it("asks a Google account to type its email, matching case-insensitively", async () => {

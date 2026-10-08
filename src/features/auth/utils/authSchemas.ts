@@ -14,7 +14,7 @@ export function nameField(emptyMessage: string) {
     .refine((value) => [...value].length <= 50, NAME_RULE);
 }
 
-const newPassword = z
+export const newPassword = z
   .string()
   .refine(
     (value) => byteLength(value) >= 8,

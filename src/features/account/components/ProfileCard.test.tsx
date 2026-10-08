@@ -53,6 +53,20 @@ describe("ProfileCard", () => {
     expect(toast.success).toHaveBeenCalledWith("Name updated");
   });
 
+  it("saves again after a first save", async () => {
+    mockUpdateName
+      .mockResolvedValueOnce(buildUser({ name: "Sam Lee" }))
+      .mockResolvedValueOnce(buildUser({ name: "Sam Two" }));
+    const { events } = setup();
+
+    await saveName(events, "Sam Lee");
+    await vi.waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
+    await saveName(events, "Sam Two");
+
+    await vi.waitFor(() => expect(mockUpdateName).toHaveBeenCalledTimes(2));
+    expect(mockUpdateName).toHaveBeenLastCalledWith("Sam Two");
+  });
+
   it("rejects an empty name without sending it", async () => {
     const { events } = setup();
 
@@ -72,18 +86,20 @@ describe("ProfileCard", () => {
     expect(toast.error).not.toHaveBeenCalled();
   });
 
-  it("disables Save while the name is saving", async () => {
+  it("disables Save, keeping its label, while the name is saving", async () => {
     const pending = deferred<User>();
     mockUpdateName.mockReturnValueOnce(pending.promise);
     const { events } = setup();
 
     await saveName(events, "Sam");
 
-    expect(
-      await screen.findByRole("button", { name: "Saving…" }),
-    ).toBeDisabled();
+    await vi.waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled(),
+    );
     pending.resolve(buildUser({ name: "Sam" }));
-    expect(await screen.findByRole("button", { name: "Save" })).toBeEnabled();
+    await vi.waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save" })).toBeEnabled(),
+    );
   });
 
   it("notes a Google sign-in by the email, and only for Google accounts", () => {

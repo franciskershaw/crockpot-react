@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
 
+import { PasswordCard } from "../components/PasswordCard";
 import { ProfileCard } from "../components/ProfileCard";
 
 export function AccountPage() {
@@ -14,6 +15,7 @@ export function AccountPage() {
         </h1>
         <div className="flex flex-col gap-4 md:gap-5.5">
           <ProfileCard user={user} />
+          <PasswordCard user={user} />
         </div>
       </div>
     </div>

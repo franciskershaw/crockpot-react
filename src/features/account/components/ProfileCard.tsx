@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { isInvalidName, useUpdateName } from "../hooks/useUpdateName";
+import { useUpdateName } from "../hooks/useUpdateName";
+import { isInvalidName } from "../utils/accountErrors";
 import { profileNameSchema } from "../utils/accountSchemas";
 import { ACCOUNT_INPUT, ACCOUNT_PRIMARY_BUTTON } from "../utils/styles";
 import { AccountCard } from "./AccountCard";
@@ -17,7 +18,7 @@ export function ProfileCard({ user }: { user: User }) {
   const {
     register,
     handleSubmit,
-    reset,
+    setValue,
     setError,
     formState: { errors },
   } = useForm({
@@ -32,7 +33,7 @@ export function ProfileCard({ user }: { user: User }) {
         className="flex flex-col gap-3.5 md:gap-4.5"
         onSubmit={handleSubmit(({ name }) =>
           updateName.mutate(name, {
-            onSuccess: (saved) => reset({ name: saved.name ?? "" }),
+            onSuccess: (saved) => setValue("name", saved.name ?? ""),
             onError: (error) => {
               if (isInvalidName(error)) {
                 setError("name", { message: NAME_RULE });
@@ -74,7 +75,7 @@ export function ProfileCard({ user }: { user: User }) {
             disabled={updateName.isPending}
             className={ACCOUNT_PRIMARY_BUTTON}
           >
-            {updateName.isPending ? "Saving…" : "Save"}
+            Save
           </Button>
         </div>
       </form>

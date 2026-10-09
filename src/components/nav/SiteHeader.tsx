@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { isYourCrockpotPath } from "@/features/your-crockpot/utils/yourCrockpotTabs";
 import { cn } from "@/lib/utils";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const navLinkClassName = ({ isActive }: { isActive: boolean }) =>
   `hover:text-foreground ${isActive ? "text-foreground underline underline-offset-4" : ""}`;
@@ -14,6 +14,8 @@ export function SiteHeader({ className }: { className?: string }) {
   const { isAuthenticated, isLoading } = useAuth();
   const { pathname } = useLocation();
   const inYourCrockpot = isYourCrockpotPath(pathname);
+  const inBrowse =
+    pathname.startsWith("/recipes") && pathname !== "/recipes/new";
   const showAuthedNav = !isLoading && isAuthenticated;
   const showAnonNav = !isLoading && !isAuthenticated;
 
@@ -31,9 +33,13 @@ export function SiteHeader({ className }: { className?: string }) {
 
         <div className="flex items-center gap-8">
           <nav className="hidden items-center gap-8 text-muted-foreground md:flex">
-            <NavLink to="/recipes" className={navLinkClassName}>
+            <Link
+              to="/recipes"
+              aria-current={inBrowse ? "page" : undefined}
+              className={navLinkClassName({ isActive: inBrowse })}
+            >
               Browse recipes
-            </NavLink>
+            </Link>
             {showAuthedNav && (
               <>
                 <Link

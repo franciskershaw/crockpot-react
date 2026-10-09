@@ -89,4 +89,32 @@ describe("SiteHeader", () => {
       "page",
     );
   });
+
+  it("leaves Browse recipes unmarked on the add-recipe page", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<SiteHeader />, { route: "/recipes/new" });
+
+    expect(
+      screen.getByRole("link", { name: "Browse recipes" }),
+    ).not.toHaveAttribute("aria-current");
+  });
+
+  it("marks Browse recipes as current on a recipe page", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: true,
+      isLoading: false,
+    });
+
+    renderWithProviders(<SiteHeader />, { route: "/recipes/abc" });
+
+    expect(
+      screen.getByRole("link", { name: "Browse recipes" }),
+    ).toHaveAttribute("aria-current", "page");
+  });
 });

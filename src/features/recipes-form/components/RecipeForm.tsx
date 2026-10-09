@@ -25,7 +25,6 @@ export function RecipeForm({
   defaultValues,
   submitLabel,
   pendingLabel,
-  footerNote,
   isPending,
   error,
   onSubmit,
@@ -36,7 +35,6 @@ export function RecipeForm({
   defaultValues: RecipeFormValues;
   submitLabel: string;
   pendingLabel: string;
-  footerNote?: string;
   isPending: boolean;
   error: ApiError | null;
   onSubmit: (
@@ -106,14 +104,7 @@ export function RecipeForm({
                 {errorMessage}
               </p>
             ) : (
-              <div className="space-y-1">
-                <PublishStatus />
-                {footerNote && (
-                  <p className="text-[13px] text-muted-foreground">
-                    {footerNote}
-                  </p>
-                )}
-              </div>
+              <PublishStatus />
             )
           }
           submitLabel={submitLabel}

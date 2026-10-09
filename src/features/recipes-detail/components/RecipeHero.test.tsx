@@ -168,9 +168,9 @@ describe("RecipeHero", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows edit and delete for the recipe's owner", () => {
+  it("shows edit and delete for the owner of a pending recipe", () => {
     setup({ isAuthenticated: true, userId: "u_1", role: "FREE" });
-    renderHero(recipe({ createdById: "u_1" }));
+    renderHero(recipe({ createdById: "u_1", approved: false }));
 
     expect(screen.getAllByRole("link", { name: "Edit recipe" })).toHaveLength(
       2,
@@ -180,9 +180,21 @@ describe("RecipeHero", () => {
     ).toHaveLength(2);
   });
 
-  it("shows edit and delete for an admin viewing someone else's recipe", () => {
+  it("hides edit and delete from the owner once the recipe is approved", () => {
+    setup({ isAuthenticated: true, userId: "u_1", role: "FREE" });
+    renderHero(recipe({ createdById: "u_1", approved: true }));
+
+    expect(
+      screen.queryByRole("link", { name: "Edit recipe" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Delete recipe" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows edit and delete for an admin viewing someone else's approved recipe", () => {
     setup({ isAuthenticated: true, userId: "admin_1", role: "ADMIN" });
-    renderHero(recipe({ createdById: "u_1" }));
+    renderHero(recipe({ createdById: "u_1", approved: true }));
 
     expect(screen.getAllByRole("link", { name: "Edit recipe" })).toHaveLength(
       2,

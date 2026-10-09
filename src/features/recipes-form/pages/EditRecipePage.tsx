@@ -1,7 +1,6 @@
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { RouteFallback } from "@/components/RouteFallback";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import type { User } from "@/features/auth/data/types";
 import { getRecipe } from "@/features/recipes/data/api";
 import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import type { RecipeDetail } from "@/features/recipes/data/types";
@@ -15,15 +14,8 @@ import { useUpdateRecipe } from "../hooks/useUpdateRecipe";
 import { fromDetail } from "../utils/fromDetail";
 import { toRequest } from "../utils/toRequest";
 
-function EditRecipeForm({
-  recipe,
-  user,
-}: {
-  recipe: RecipeDetail;
-  user: User | null;
-}) {
+function EditRecipeForm({ recipe }: { recipe: RecipeDetail }) {
   const updateRecipe = useUpdateRecipe(recipe.id);
-  const losesApproval = recipe.approved && user?.role !== "ADMIN";
 
   return (
     <RecipeForm
@@ -32,9 +24,6 @@ function EditRecipeForm({
       defaultValues={fromDetail(recipe)}
       submitLabel="Save changes"
       pendingLabel="Saving…"
-      footerNote={
-        losesApproval ? "Saving sends this back for approval." : undefined
-      }
       isPending={updateRecipe.isPending}
       error={updateRecipe.error}
       onSubmit={(values, done) =>
@@ -75,7 +64,7 @@ export function EditRecipePage({ recipeId }: { recipeId: string }) {
     return <Navigate to={`/recipes/${recipeId}`} replace />;
   }
 
-  return <EditRecipeForm recipe={recipe} user={user} />;
+  return <EditRecipeForm recipe={recipe} />;
 }
 
 export function EditRecipeRoute() {

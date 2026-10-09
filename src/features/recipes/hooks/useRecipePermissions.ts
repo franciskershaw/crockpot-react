@@ -4,11 +4,14 @@ import type { User } from "@/features/auth/data/types";
 import type { RecipeDetail } from "../data/types";
 
 export function canManageRecipe(
-  recipe: Pick<RecipeDetail, "createdById">,
+  recipe: Pick<RecipeDetail, "approved" | "createdById">,
   user: User | null,
 ): boolean {
   if (!user) return false;
-  return user.role === "ADMIN" || user.id === recipe.createdById;
+  return (
+    user.role === "ADMIN" ||
+    (!recipe.approved && user.id === recipe.createdById)
+  );
 }
 
 export function isOwnPendingRecipe(

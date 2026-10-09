@@ -11,33 +11,32 @@ function recipe(
 }
 
 describe("canManageRecipe", () => {
-  it("is false for an anonymous viewer", () => {
-    expect(canManageRecipe(recipe(), null)).toBe(false);
-  });
+  const owner = buildUser({ id: "u_1", role: "FREE" });
+  const admin = buildUser({ id: "admin_1", role: "ADMIN" });
+  const other = buildUser({ id: "u_2", role: "FREE" });
 
-  it("is true for the recipe's own creator", () => {
-    expect(canManageRecipe(recipe({ createdById: "u_1" }), buildUser())).toBe(
-      true,
-    );
-  });
-
-  it("is true for an admin who isn't the creator", () => {
-    expect(
-      canManageRecipe(
-        recipe({ createdById: "someone_else" }),
-        buildUser({ id: "admin_1", role: "ADMIN" }),
-      ),
-    ).toBe(true);
-  });
-
-  it("is false for a signed-in viewer who is neither the creator nor an admin", () => {
-    expect(
-      canManageRecipe(
-        recipe({ createdById: "someone_else" }),
-        buildUser({ id: "u_1", role: "FREE" }),
-      ),
-    ).toBe(false);
-  });
+  it.each([
+    { who: "an admin", user: admin, approved: false, expected: true },
+    { who: "an admin", user: admin, approved: true, expected: true },
+    { who: "the owner", user: owner, approved: false, expected: true },
+    { who: "the owner", user: owner, approved: true, expected: false },
+    { who: "another user", user: other, approved: false, expected: false },
+    { who: "another user", user: other, approved: true, expected: false },
+    {
+      who: "a signed-out viewer",
+      user: null,
+      approved: false,
+      expected: false,
+    },
+    { who: "a signed-out viewer", user: null, approved: true, expected: false },
+  ])(
+    "for $who on a recipe with approved=$approved, is $expected",
+    ({ user, approved, expected }) => {
+      expect(
+        canManageRecipe(recipe({ createdById: "u_1", approved }), user),
+      ).toBe(expected);
+    },
+  );
 });
 
 describe("isOwnPendingRecipe", () => {

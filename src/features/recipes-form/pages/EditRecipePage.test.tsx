@@ -34,7 +34,7 @@ const recipe = buildRecipeDetail({
   id: "r_stew",
   name: "Beef stew",
   createdById: "u_owner",
-  approved: true,
+  approved: false,
   imageUrl: "https://res.cloudinary.com/crockpot/stew.jpg",
   imageFilename: "crockpot/stew",
   instructions: ["Brown the beef."],
@@ -114,25 +114,6 @@ describe("EditRecipePage", () => {
     );
   });
 
-  it("warns a non-admin owner that saving an approved recipe sends it back for approval", async () => {
-    signInAs("u_owner", "FREE");
-    renderEdit();
-
-    expect(
-      await screen.findByText("Saving sends this back for approval."),
-    ).toBeInTheDocument();
-  });
-
-  it("doesn't warn an admin, whose edits stay approved", async () => {
-    signInAs("u_admin", "ADMIN");
-    renderEdit();
-
-    await screen.findByLabelText("Recipe name*");
-    expect(
-      screen.queryByText("Saving sends this back for approval."),
-    ).not.toBeInTheDocument();
-  });
-
   it("lands on the recipe after saving, without the leave prompt", async () => {
     signInAs("u_owner", "FREE");
     vi.mocked(updateRecipe).mockResolvedValue(recipe);
@@ -169,6 +150,14 @@ describe("EditRecipePage", () => {
 
   it("sends anyone who can't manage the recipe to its page", async () => {
     signInAs("u_someone_else", "FREE");
+    renderEdit();
+
+    expect(await screen.findByText("recipe detail page")).toBeInTheDocument();
+  });
+
+  it("sends the owner of an approved recipe to its page", async () => {
+    signInAs("u_owner", "FREE");
+    vi.mocked(getRecipe).mockResolvedValue({ ...recipe, approved: true });
     renderEdit();
 
     expect(await screen.findByText("recipe detail page")).toBeInTheDocument();

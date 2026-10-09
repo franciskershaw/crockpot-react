@@ -1,8 +1,8 @@
 import type { ComponentProps, ReactNode } from "react";
-import { AnimatedSlots } from "@/components/AnimatedSlots";
 import type { UndoSlot } from "@/lib/undoSlots";
 
 import { RECIPE_GRID_CLASSES, RECIPE_LIST_CLASSES } from "../utils/styles";
+import { AnimatedSlots } from "./AnimatedSlots";
 import { MobileRecipeRow } from "./MobileRecipeRow";
 import { RecipeCard } from "./RecipeCard";
 

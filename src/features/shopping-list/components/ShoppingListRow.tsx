@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import { QuantityControl } from "@/components/QuantityControl";
+import { QuantityControl } from "@/components/form/QuantityControl";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";

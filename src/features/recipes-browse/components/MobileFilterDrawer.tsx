@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { BottomSheet } from "@/components/BottomSheet";
+import { BottomSheet } from "@/components/overlays/BottomSheet";
 
 export function MobileFilterDrawer({
   open,

@@ -1,6 +1,6 @@
-import { EmptyTabPanel } from "@/components/EmptyTabPanel";
-import { LoadErrorPanel } from "@/components/LoadErrorPanel";
-import { UndoTile } from "@/components/UndoTile";
+import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
+import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
+import { UndoTile } from "@/components/feedback/UndoTile";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";

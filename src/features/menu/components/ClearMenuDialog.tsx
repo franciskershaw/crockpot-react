@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import { ConfirmActionDialog } from "@/components/overlays/ConfirmActionDialog";
 
 import { useClearMenu } from "../hooks/useClearMenu";
 

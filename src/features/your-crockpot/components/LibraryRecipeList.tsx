@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { LoadErrorPanel } from "@/components/LoadErrorPanel";
-import { LoadMoreSentinel } from "@/components/LoadMoreSentinel";
+import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
+import { LoadMoreSentinel } from "@/components/feedback/LoadMoreSentinel";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import { SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots } from "@/lib/undoSlots";

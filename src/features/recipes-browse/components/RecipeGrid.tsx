@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { LoadErrorPanel } from "@/components/LoadErrorPanel";
-import { LoadMoreSentinel } from "@/components/LoadMoreSentinel";
+import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
+import { LoadMoreSentinel } from "@/components/feedback/LoadMoreSentinel";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";

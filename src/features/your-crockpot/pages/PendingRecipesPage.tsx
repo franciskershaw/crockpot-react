@@ -1,4 +1,4 @@
-import { EmptyTabPanel } from "@/components/EmptyTabPanel";
+import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { ClipboardCheck } from "lucide-react";

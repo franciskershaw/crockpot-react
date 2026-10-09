@@ -1,5 +1,5 @@
-import { LoadErrorPanel } from "@/components/LoadErrorPanel";
-import { StatePanel } from "@/components/StatePanel";
+import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
+import { StatePanel } from "@/components/feedback/StatePanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useRecipe } from "@/features/recipes/hooks/useRecipe";

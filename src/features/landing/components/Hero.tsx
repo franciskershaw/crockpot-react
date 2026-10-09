@@ -1,4 +1,4 @@
-import { GoogleIcon } from "@/components/GoogleIcon";
+import { GoogleIcon } from "@/components/brand/GoogleIcon";
 import { Button } from "@/components/ui/button";
 import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { ArrowRight } from "lucide-react";

@@ -1,4 +1,4 @@
-import { EmptyTabPanel } from "@/components/EmptyTabPanel";
+import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { PILL_CTA_CLASSES } from "@/lib/styles";
 import { ChefHat } from "lucide-react";

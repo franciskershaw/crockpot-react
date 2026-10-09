@@ -1,5 +1,5 @@
-import { QuantityControl } from "@/components/QuantityControl";
-import { StatePanel } from "@/components/StatePanel";
+import { StatePanel } from "@/components/feedback/StatePanel";
+import { QuantityControl } from "@/components/form/QuantityControl";
 import type { Unit } from "@/features/catalog/data/types";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";

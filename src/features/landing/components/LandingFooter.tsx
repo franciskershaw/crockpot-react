@@ -1,4 +1,4 @@
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/brand/Logo";
 import { Link } from "react-router-dom";
 
 export function LandingFooter() {

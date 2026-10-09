@@ -1,7 +1,7 @@
 import { Suspense } from "react";
+import { RouteFallback } from "@/components/feedback/RouteFallback";
 import { MobileTabBar } from "@/components/nav/MobileTabBar";
 import { SiteHeader } from "@/components/nav/SiteHeader";
-import { RouteFallback } from "@/components/RouteFallback";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { isRecipeFormPath } from "@/features/recipes-form/utils/recipeFormPaths";
 import { cn } from "@/lib/utils";

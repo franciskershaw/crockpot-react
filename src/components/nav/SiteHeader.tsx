@@ -1,4 +1,4 @@
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/brand/Logo";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
 import { UserMenu } from "@/components/nav/UserMenu";
 import { Button } from "@/components/ui/button";

@@ -52,120 +52,49 @@ every other decision above: `docs/specs/master-spec.md`.
   `buildRecipeDetail` (`recipeFixtures.ts`), never a hand-copied literal.
 - Hosting (planned, not yet live): Vercel
 
-## Feature folder layout (hard rule, not a suggestion)
+## Folder layout (hard rule, enforced by `src/test/folderLayout.test.ts`)
 
-Every `features/<name>/` folder splits into five buckets, with no loose
-files at the feature root, classified purely
-by *what a file is* — never by domain/concern, which requires a judgment
-call on every new file and drifts the moment two people (or two sessions)
-guess differently:
+No loose files at the root of `src/components/` or of any
+`src/features/<name>/`. The guard test fails the suite if one appears.
+Every folder below is chosen by *what a file is*, never by which part of
+the product it serves, so placing a new file is never a judgment call.
 
-- `pages/` — a component `AppRoutes.tsx` routes to directly. Mechanical
-  test: does a `<Route>` element point at it?
+### Inside a feature: five buckets
+
+- `pages/` — a component a `<Route>` in `AppRoutes.tsx` points at.
 - `components/` — every other `.tsx` component.
 - `hooks/` — every `use*.ts`/`use*.tsx` hook.
-- `data/` — `api.ts`, `types.ts`, `queryKeys.ts` (each a singleton per
-  feature). Strictly these three file kinds.
-- `utils/` — every other non-React module (no JSX, no hooks): pure helpers
-  and lookup tables, plus shared class-string constants (`styles.ts`), e.g.
-  `recipes/utils/matchTier.ts`, `recipes/utils/styles.ts`,
-  `auth/utils/googleLogin.ts`. Replaced the earlier "loose at feature root"
-  exception (2026-09-19); keep the definition mechanical so `utils/` stays
-  a bucket, not a junk drawer.
+- `data/` — only `api.ts`, `types.ts`, `queryKeys.ts`.
+- `utils/` — every other non-React module (no JSX, no hooks), including
+  shared class-string constants (`styles.ts`).
 
-Tests colocate next to the file they cover, in whichever bucket that file
-lands in (`components/RecipeCard.tsx` + `components/RecipeCard.test.tsx`).
+Tests sit next to the file they cover. Two exceptions:
 
-**One named exception**: a React Context module that pairs a `Provider`
-component with its own `use*` hook in one file (e.g. `AuthContext.tsx`)
-stays a single file in `components/` — a `Provider` is fundamentally a
-component, and splitting the pair across buckets to satisfy this rule
-would be a real code change, not a pure reorg. Only worth its own
-`contexts/` grouping once a feature has 2+ real contexts — one file
-doesn't justify a folder (checked project-wide at `CFE-031`: `AuthContext`
-is currently the only real one anywhere in the app).
+- A Context module pairing a `Provider` with its `use*` hook stays one
+  file in `components/` (e.g. `AuthContext.tsx`).
+- Components that exist only to serve one other component, with every
+  caller in the same feature, may share a subfolder of `components/`.
 
-Applied to `recipes` (33 → 5 root files) and `auth` (11 → 3) at `CFE-004`
-close-out, once `recipes` had grown genuinely unmaintainable (grill-me
-2026-09-05, rejected an earlier by-concern proposal — `filters/`+`browse/`
-— for the same judgment-call problem this rule exists to avoid). Applies
-to every feature from its first ticket forward, not just at the point it
-gets messy — the whole point is organizing as you go rather than sorting
-out after the fact. `data/` bucket added, and retrofitted to `auth`/
-`menu`/`recipes`, at `CFE-031` (2026-09-18) — a founder preference
-against loose root files, not a technical requirement. `landing` brought
-into line with the `pages/`+`components/` split the same day, having
-been flat since `CFE-003` by accident of timing, not by design.
+When a feature's `components/` or `hooks/` passes ~15 files and splits
+cleanly by which routed page imports each file, split it into sibling
+features named `<feature>-<page>` (e.g. `recipes-browse/`), keeping
+files used by 2+ pages in the original folder.
 
-**Second named exception**: a tight cluster of components that only
-exist because of each other — sub-components with no other caller,
-extracted purely to share code between two or more parent components —
-may live in their own subfolder under `components/` (e.g.
-`components/add-to-menu/`), rather than flat alongside unrelated files.
-Narrower than the rejected `filters/`/`browse/` proposal above: that was
-a broad thematic split across many files with a fuzzy boundary ("is this
-a filter thing or a browse thing?"); this applies only when "does this
-file exist solely to support this one other component" has an
-unambiguous yes/no answer for every file in the folder, *and* every
-caller stays inside the same top-level feature. First applied at
-`CFE-020` (2026-09-07): `add-to-menu/` held `AddToMenuButton` (browse
-card), `AddToMenuCTA` (recipe detail hero), and the
-`AddToMenuStepperControls`/`AddToMenuConfirmButton`/`AddToMenuBadge`
-pieces shared between those two. **Dissolved at `CFE-031`** once
-`AddToMenuCTA` moved into the new `recipes-detail/` feature: the cluster
-was no longer self-contained (a caller now sat outside the folder, in a
-different top-level feature), so it flattened into shared
-`recipes/components/` rather than being renamed — a name scoped to
-either remaining caller would be equally misleading, since both still
-need the shared pieces. Rejected the same day: folder-per-component as a
-default regardless of size — a folder holding one file is less scannable
-than the file alone, and a shared name prefix (`AddToMenu*`, `Recipe*`)
-already signals the grouping without one.
+### Shared `src/components/`
 
-**Splitting an oversized feature by page**: when a feature's
-`components/`/`hooks/` bucket exceeds ~15 files *and* splits cleanly by
-"which routed page exclusively imports this" (mechanical, grep-able —
-not the by-concern judgment call rejected above), split the feature into
-page-specific sibling features, each with their own buckets. Keep
-only 2+-page-consumer files (including `data/`) in the original folder
-as the shared core. Pre-emptively moving a single-consumer file into
-that shared core (ahead of today's import graph) needs a backlogged
-ticket that will actually need it, not a guess: logic (hooks) is
-low-risk to move on a single such ticket, since its shape won't change
-based on who calls it; a presentational component should wait for its
-own second real caller *unless multiple* backlogged tickets converge on
-the same need — a stronger signal than one ticket's guess. First applied
-at `CFE-031` (2026-09-18): `recipes/` → `recipes/` (shared) +
-`recipes-browse/` + `recipes-detail/`, named to keep alphabetical
-grouping in a directory listing (`recipe-detail/`, singular, would sort
-*before* `recipes/`; `recipes-detail/` sorts after it, alongside
-`recipes-browse/`). `RecipeCard`/`RecipeCardSkeleton` moved pre-emptively
-on the multi-ticket signal (`CFE-006`/`007`/`008` all need a
-recipe-card-shaped display); `useRecipePermissions`/`useDeleteRecipe` on
-the single-ticket (`CFE-008`) logic case. Kept bare `recipes/` rather
-than renaming to `recipes-shared/` or similar: consistent with `auth`'s
-bare name for its own cross-cutting layer, and merging `recipes-browse/`
-back into it would put `components/` back over the 15-file threshold
-that justified the split.
+A file used by one feature lives in that feature. Only files used by 2+
+features (or by the app shell) come here, and each goes in one folder:
 
-## Shared `src/components/` layout
+- `ui/` — shadcn primitives, customised in place.
+- `app/` — root wiring mounted only by `App.tsx`.
+- `nav/` — the app shell and links that move between pages.
+- `brand/` — logos and brand marks.
+- `feedback/` — loading, empty, error, retry and undo states.
+- `overlays/` — dialogs and sheets opened over the page.
+- `form/` — input controls and field wrappers.
 
-Same single-consumer-lives-with-its-consumer principle as the feature
-buckets above, applied one level up:
-
-- `ui/` — shadcn-generated primitives, regenerated/customized in place.
-- `nav/` — `AppShell` and anything with no caller outside it. The
-  caller count decides, not how generic a file feels: `RouteFallback`
-  moved here at `CFE-031` with one caller, then back to the root at
-  `CFE-039` once `YourCrockpotLayout` became a second.
-- `app/` — mounted only by `App.tsx` itself (`ErrorBoundary`,
-  `ScrollToTop`); root wiring, not reusable UI. Added at `CFE-031`.
-- Root — genuinely reusable across 2+ features (`Logo`, `StatePanel`,
-  `RouteFallback`). A
-  file with exactly one real consumer belongs with that consumer, not
-  here, regardless of how generic it feels — `GoogleIcon.tsx` moved into
-  `features/auth/components/` at `CFE-031` on this basis (single consumer,
-  and inherently auth-domain iconography alongside `googleLogin.ts`).
+If a new shared component fits none of these, stop and ask. Don't put it
+at the root, and don't create a new folder for it unasked.
 
 ## Design-artifact grounding (hard rule, not a suggestion)
 

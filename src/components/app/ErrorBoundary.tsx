@@ -1,5 +1,5 @@
 import { Component, type ReactNode } from "react";
-import { StatePanel } from "@/components/StatePanel";
+import { StatePanel } from "@/components/feedback/StatePanel";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 

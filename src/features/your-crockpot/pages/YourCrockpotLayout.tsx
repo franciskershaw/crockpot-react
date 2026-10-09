@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { RouteFallback } from "@/components/RouteFallback";
+import { RouteFallback } from "@/components/feedback/RouteFallback";
 import { MenuActionsMenu } from "@/features/menu/components/MenuActionsMenu";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { cn } from "@/lib/utils";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FormField } from "@/components/FormField";
+import { FormField } from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";

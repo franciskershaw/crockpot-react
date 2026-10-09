@@ -1,4 +1,4 @@
-import { HistoryBackLink } from "@/components/HistoryBackLink";
+import { HistoryBackLink } from "@/components/nav/HistoryBackLink";
 import { ArrowLeft } from "lucide-react";
 
 export function RecipeFormMobileHeader({

@@ -1,7 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
 
 import { StatePanel } from "./StatePanel";
-import { Button } from "./ui/button";
 
 export function LoadErrorPanel({
   what,

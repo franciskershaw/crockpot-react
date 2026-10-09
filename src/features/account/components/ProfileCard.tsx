@@ -1,5 +1,5 @@
-import { FormField } from "@/components/FormField";
-import { GoogleIcon } from "@/components/GoogleIcon";
+import { GoogleIcon } from "@/components/brand/GoogleIcon";
+import { FormField } from "@/components/form/FormField";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/features/auth/data/types";
 import { NAME_RULE } from "@/features/auth/utils/authSchemas";

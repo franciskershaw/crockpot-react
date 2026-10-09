@@ -1,4 +1,4 @@
-import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import { ConfirmActionDialog } from "@/components/overlays/ConfirmActionDialog";
 import { RotateCw } from "lucide-react";
 
 import { useRegenerateShoppingList } from "../hooks/useRegenerateShoppingList";

@@ -1,5 +1,5 @@
+import { StatePanel } from "@/components/feedback/StatePanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
-import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { ChefHat, Search } from "lucide-react";
 

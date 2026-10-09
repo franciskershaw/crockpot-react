@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import { ConfirmActionDialog } from "@/components/overlays/ConfirmActionDialog";
 import { useMenu } from "@/features/menu/hooks/useMenu";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, Pencil, X } from "lucide-react";

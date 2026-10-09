@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ConfirmActionDialog } from "@/components/ConfirmActionDialog";
+import { ConfirmActionDialog } from "@/components/overlays/ConfirmActionDialog";
 import type { ApiError } from "@/lib/http/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm, useWatch } from "react-hook-form";

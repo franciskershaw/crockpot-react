@@ -1,4 +1,4 @@
-import { QuantityControl } from "@/components/QuantityControl";
+import { QuantityControl } from "@/components/form/QuantityControl";
 import { CategoryIcon } from "@/features/catalog/components/CategoryIcon";
 import type { Unit } from "@/features/catalog/data/types";
 import { Trash2 } from "lucide-react";

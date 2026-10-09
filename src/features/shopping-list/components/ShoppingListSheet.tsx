@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BottomSheet } from "@/components/BottomSheet";
+import { BottomSheet } from "@/components/overlays/BottomSheet";
 import { ShoppingCart } from "lucide-react";
 
 import { useShoppingList } from "../hooks/useShoppingList";

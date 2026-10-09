@@ -1,5 +1,5 @@
-import { LoadErrorPanel } from "@/components/LoadErrorPanel";
-import { RouteFallback } from "@/components/RouteFallback";
+import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
+import { RouteFallback } from "@/components/feedback/RouteFallback";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { RecipeDetail } from "@/features/recipes/data/types";
 import { useRecipe } from "@/features/recipes/hooks/useRecipe";

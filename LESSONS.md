@@ -438,3 +438,8 @@ decision as fully closed. No code written yet.
 
 - `CFE-007` gave every undo tile one shared 5s window that each new removal restarted, so twelve quick un-hearts left twelve tiles standing until the last one expired. The founder never wanted that; the shared queue was argued for during the build and its reason was never written down, so it couldn't be re-judged later. Now each tile has its own pausable 4s timer.
 - **Pattern**: when I steer the founder off their instinct on UX behaviour, record the reason where the code or spec carries it; an unrecorded "Claude convinced me" choice can't be weighed against what users then see.
+
+## 2026-10-09 — CFE-061 — Landing pre-launch tidy-up. Mostly clean.
+
+- The founder had to point out that signed-in users had no route to the new Privacy page, since the footer only appears on the landing page; it was added to the avatar menu. The branch review found the privacy copy's "we don't store your IP" true of the app but not of the hosting logs it will sit behind.
+- **Pattern**: a new public page needs an entry point for every auth state; a privacy claim has to hold for the deployed stack, not only for the app code.

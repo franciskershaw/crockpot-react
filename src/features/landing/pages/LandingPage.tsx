@@ -10,7 +10,7 @@ import { pickShowcaseRecipes } from "../utils/showcaseRecipes";
 
 export function LandingPage() {
   useScrollToHash();
-  const [showcase] = useState(() => pickShowcaseRecipes(5));
+  const [showcase] = useState(pickShowcaseRecipes);
 
   return (
     <>

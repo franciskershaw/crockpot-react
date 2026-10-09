@@ -313,11 +313,13 @@ CFE-003.
 - **CFE-061** — Landing page pre-launch tidy-up: drop the hardcoded
   recipe-count pill, real photos in the showcase cards (random pick from
   a hardcoded pool), planner tease as "coming soon", a real `/privacy`
-  page and a trimmed footer. Agreed 2026-10-09, see
+  page and a trimmed footer. **Done** (2026-10-09), see
   `docs/handoffs/CFE-061.md`.
 - **CFE-062** — At deployment: add the API's host to the privacy page's
   processor list once chosen, and re-check the page's "Last updated"
-  date. `contact@crockpot.app` (`CONTACT_EMAIL`) forwards to the founder's
+  date. Confirm the page's IP wording against the real hosting logs
+  (nginx, Vercel) and their retention. Check every `SHOWCASE_POOL` image
+  URL still returns 200, since production deletes replaced photos. `contact@crockpot.app` (`CONTACT_EMAIL`) forwards to the founder's
   Gmail via Cloudflare Email Routing, set up 2026-10-09; catch-all drops.
 
 ### Epic 3: Your Crockpot — Core

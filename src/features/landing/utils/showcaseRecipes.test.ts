@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 
-import { pickShowcaseRecipes, SHOWCASE_POOL } from "./showcaseRecipes";
+import {
+  pickShowcaseRecipes,
+  SHOWCASE_CARD_COUNT,
+  SHOWCASE_POOL,
+} from "./showcaseRecipes";
 
 describe("pickShowcaseRecipes", () => {
-  it("picks the requested number of different recipes from the pool", () => {
-    const picked = pickShowcaseRecipes(5);
+  it("fills every card with a different recipe from the pool", () => {
+    const picked = pickShowcaseRecipes();
 
-    expect(picked).toHaveLength(5);
-    expect(new Set(picked.map((r) => r.name)).size).toBe(5);
+    expect(picked).toHaveLength(SHOWCASE_CARD_COUNT);
+    expect(new Set(picked.map((r) => r.name)).size).toBe(SHOWCASE_CARD_COUNT);
     for (const recipe of picked) expect(SHOWCASE_POOL).toContain(recipe);
   });
 });

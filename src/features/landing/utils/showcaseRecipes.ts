@@ -5,6 +5,9 @@ export interface ShowcaseRecipe {
   imageUrl: string;
 }
 
+export const SHOWCASE_CARD_COUNT = 5;
+
+// Production deletes a recipe's old Cloudinary photo when it's replaced or the recipe is deleted, so update this pool if that happens to one of these.
 export const SHOWCASE_POOL: ShowcaseRecipe[] = [
   {
     name: "BBQ Pulled Pork",
@@ -71,11 +74,11 @@ export const SHOWCASE_POOL: ShowcaseRecipe[] = [
   },
 ];
 
-export function pickShowcaseRecipes(count: number): ShowcaseRecipe[] {
+export function pickShowcaseRecipes(): ShowcaseRecipe[] {
   const pool = [...SHOWCASE_POOL];
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return pool.slice(0, count);
+  return pool.slice(0, SHOWCASE_CARD_COUNT);
 }

@@ -16,14 +16,7 @@ export function PrivacyPage() {
           <Section title="Who runs Crockpot">
             <p>
               Crockpot is run by myself, Francis Kershaw, a solo developer based
-              in the UK. For anything about your data, email{" "}
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="underline underline-offset-3"
-              >
-                {CONTACT_EMAIL}
-              </a>
-              .
+              in the UK. For anything about your data, email <ContactLink />.
             </p>
           </Section>
 
@@ -51,8 +44,10 @@ export function PrivacyPage() {
               email address and account ID.
             </p>
             <p>
-              Our server sees your IP address, as every website does. We use it
-              to limit how many requests can be made, and we don't store it.
+              Our server sees your IP address, as every website does. Crockpot
+              uses it to limit how many requests can be made and doesn't save
+              it, though our hosting providers' server logs record it for a
+              short time.
             </p>
           </Section>
 
@@ -108,7 +103,7 @@ export function PrivacyPage() {
             <p>
               Under UK data protection law you can ask for a copy of your data,
               ask us to correct or delete it, or object to how we use it. Email{" "}
-              {CONTACT_EMAIL}. If you're unhappy with our answer, you can
+              <ContactLink />. If you're unhappy with our answer, you can
               complain to the Information Commissioner's Office (ico.org.uk).
             </p>
           </Section>
@@ -124,5 +119,16 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       <h2 className="font-display text-xl md:text-2xl">{title}</h2>
       {children}
     </section>
+  );
+}
+
+function ContactLink() {
+  return (
+    <a
+      href={`mailto:${CONTACT_EMAIL}`}
+      className="underline underline-offset-3"
+    >
+      {CONTACT_EMAIL}
+    </a>
   );
 }

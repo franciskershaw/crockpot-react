@@ -402,3 +402,9 @@ decision as fully closed. No code written yet.
 
 - No rework. One piece, built against `crockpot-go` `CROC-059` after it was green. Putting the copy map in `useOptimisticMenuMutation` covered all four menu writes and the undo re-add in one place, and folded in `CFE-054`'s `shopping_list_quantity_too_large`. Skipped a pre-disable at the cap: the 409 path was needed anyway, and a disabled state would have needed a design.
 - **Pattern**: a code-to-copy map keyed on server strings needs `Object.hasOwn`, and a test with a prototype key like `"constructor"` to prove it.
+
+## 2026-10-09 — CFE-014 — Admin approval. Banner took two rounds; review found a latent stale-state bug.
+
+- The admin banner was first built as a copy of the owner's, then merged with the page still choosing between two renders; the founder wanted one component that decides who's looking. Review found the unkeyed detail route would carry approve state into an already-cached recipe. The `isAdmin` sweep nearly shadowed a local `isAdmin` into an always-true check; a grep caught it, not the typechecker.
+- **Pattern**: for a role or state variant of an existing component, have the component decide for itself and the page render it once.
+- **Pattern**: key a route's page by its id when it holds per-item mutation state.

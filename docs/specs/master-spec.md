@@ -357,12 +357,10 @@ CFE-003.
 
 ### Epic 6: Admin
 - **CFE-014** — Recipe approval, admin-only: a Pending tab in Library and
-  an Approve button in an admin variant of the detail page's pending
-  banner, above the hero photo. Approval is the only check on uploaded
-  images. Also hides Edit/Delete from owners of approved recipes (the
-  missing `CROC-062` pair). Grilled 2026-10-09 with `crockpot-go`
-  `CROC-017`, see `docs/handoffs/CFE-014.md`. If public signup opens
-  wide, consider a Cloudinary moderation add-on on `crockpot-go`'s
+  an Approve button on the detail page's pending banner. Also hides
+  Edit/Delete from owners of approved recipes (the `CROC-062` pair).
+  **Done** (2026-10-09, `docs/handoffs/CFE-014.md`). If public signup
+  opens wide, consider a Cloudinary moderation add-on on `crockpot-go`'s
   server-side upload (`CROC-040`); check its pricing first.
 
 ### Epic 7: Account Management

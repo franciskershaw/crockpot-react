@@ -413,3 +413,8 @@ decision as fully closed. No code written yet.
 
 - No rework. A catch-all stop on the wrapper replaced the ticket's "repro first" step, since it closes every gap without needing to know which one was hit.
 - **Pattern**: an interactive control nested inside a link needs its click stopped on its wrapper, not just on each button; gaps, mid-animation slots and disabled buttons never run a button's handler.
+
+## 2026-10-09 — CFE-052 — Recipe-layer drift. Clean.
+
+- No rework. Re-reading the week-old findings at the grill caught two drifts (`isOwnPendingRecipe` gone at `CFE-014`; the back buttons checked history at different times). The branch review found the new shared `HistoryBackLink` silently dropped a caller's `onClick`; fixed with a test.
+- **Pattern**: when extracting a wrapper that spreads a primitive's props, compose the handlers it overrides or drop them from the prop type.

@@ -36,6 +36,7 @@ export function buildRecipeListSearchParams(
   if (params.limit !== undefined) search.set("limit", String(params.limit));
   if (params.seed !== undefined) search.set("seed", params.seed);
   if (params.mine) search.set("mine", "true");
+  if (params.approved === false) search.set("approved", "false");
 
   return search;
 }

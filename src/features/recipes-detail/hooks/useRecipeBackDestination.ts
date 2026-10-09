@@ -22,6 +22,7 @@ const BACK_LABELS: Record<string, string> = {
   "/menu": "Back to menu",
   "/library/favourites": "Back to favourites",
   "/library/my-recipes": "Back to my recipes",
+  "/library/pending": "Back to pending",
 };
 
 // Single leading slash only — rejects `//`/`/\` (protocol-relative) and schemes like `https:`, which <Link> would follow as a real cross-origin href.

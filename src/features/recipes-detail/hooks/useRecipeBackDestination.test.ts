@@ -55,6 +55,13 @@ describe("resolveBackDestination", () => {
     });
   });
 
+  it("resolves the known /library/pending label", () => {
+    expect(resolveBackDestination("/library/pending")).toEqual({
+      to: "/library/pending",
+      label: "Back to pending",
+    });
+  });
+
   it("trusts an unrecognized from for navigation but uses the generic label", () => {
     expect(resolveBackDestination("/somewhere-else")).toEqual({
       to: "/somewhere-else",

@@ -89,6 +89,11 @@ describe("buildRecipeListSearchParams", () => {
     expect(search.get("mine")).toBe("true");
   });
 
+  it("sets approved=false when asked for pending recipes", () => {
+    const search = buildRecipeListSearchParams({ approved: false });
+    expect(search.get("approved")).toBe("false");
+  });
+
   it("omits mine otherwise", () => {
     expect(buildRecipeListSearchParams({ mine: false }).has("mine")).toBe(
       false,

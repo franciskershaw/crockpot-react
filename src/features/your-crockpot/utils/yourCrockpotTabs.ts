@@ -4,10 +4,11 @@ export const YOUR_CROCKPOT_TABS = [
   { path: "/library", to: "/library/favourites", label: "Library" },
 ] as const;
 
-export const LIBRARY_TABS = [
+export const LIBRARY_TABS: { to: string; label: string; adminOnly?: true }[] = [
   { to: "/library/favourites", label: "Favourites" },
   { to: "/library/my-recipes", label: "My recipes" },
-] as const;
+  { to: "/library/pending", label: "Pending", adminOnly: true },
+];
 
 function normalisePath(pathname: string) {
   return pathname.replace(/\/+$/, "") || "/";

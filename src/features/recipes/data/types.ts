@@ -43,6 +43,7 @@ export interface RecipeListParams {
   limit?: number;
   seed?: string;
   mine?: boolean;
+  approved?: false;
 }
 
 export interface RecipeCategory {

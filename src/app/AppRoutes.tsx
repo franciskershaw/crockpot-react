@@ -62,6 +62,10 @@ const MyRecipesPage = lazyNamed(
   () => import("@/features/your-crockpot/pages/MyRecipesPage"),
   "MyRecipesPage",
 );
+const PendingRecipesPage = lazyNamed(
+  () => import("@/features/your-crockpot/pages/PendingRecipesPage"),
+  "PendingRecipesPage",
+);
 
 const AccountPage = lazyNamed(
   () => import("@/features/account/pages/AccountPage"),
@@ -145,6 +149,7 @@ export function AppRoutes() {
           />
           <Route path="/library/favourites" element={<FavouritesPage />} />
           <Route path="/library/my-recipes" element={<MyRecipesPage />} />
+          <Route path="/library/pending" element={<PendingRecipesPage />} />
         </Route>
         <Route
           path="/account"

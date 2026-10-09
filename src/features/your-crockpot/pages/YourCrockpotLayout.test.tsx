@@ -1,16 +1,46 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { useMenu } from "@/features/menu/hooks/useMenu";
+import { buildUser } from "@/test/authFixtures";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useFavourites } from "../hooks/useFavourites";
 import { useMyRecipes } from "../hooks/useMyRecipes";
+import { usePendingRecipes } from "../hooks/usePendingRecipes";
 import { YourCrockpotLayout } from "./YourCrockpotLayout";
 
 vi.mock("@/features/menu/hooks/useMenu", () => ({ useMenu: vi.fn() }));
 vi.mock("../hooks/useFavourites", () => ({ useFavourites: vi.fn() }));
 vi.mock("../hooks/useMyRecipes", () => ({ useMyRecipes: vi.fn() }));
+vi.mock("../hooks/usePendingRecipes", () => ({ usePendingRecipes: vi.fn() }));
+vi.mock("@/features/auth/components/AuthContext", () => ({
+  useAuth: vi.fn(),
+}));
+
+function signInAs(role: "ADMIN" | "FREE") {
+  vi.mocked(useAuth).mockReturnValue({
+    isAuthenticated: true,
+    user: buildUser({ role }),
+  } as ReturnType<typeof useAuth>);
+}
+
+function mockPendingCount(total: number) {
+  vi.mocked(usePendingRecipes).mockReturnValue({
+    data: {
+      pages: [{ recipes: [], page: 1, limit: 12, total, totalPages: 1 }],
+      pageParams: [1],
+    },
+  } as unknown as ReturnType<typeof usePendingRecipes>);
+}
+
+beforeEach(() => {
+  signInAs("FREE");
+  vi.mocked(usePendingRecipes).mockReturnValue({
+    data: undefined,
+  } as unknown as ReturnType<typeof usePendingRecipes>);
+});
 vi.mock("@/features/menu/components/MenuActionsMenu", () => ({
   MenuActionsMenu: () => <button type="button">More menu actions</button>,
 }));
@@ -204,6 +234,26 @@ describe("YourCrockpotLayout", () => {
     expect(
       screen.getByRole("link", { name: "My recipes 3" }),
     ).toBeInTheDocument();
+  });
+
+  it("shows admins a counted Pending sub-tab after My recipes", () => {
+    signInAs("ADMIN");
+    mockPendingCount(2);
+    renderAt("/library/favourites", 6, 24, 3);
+
+    const subTabs = within(screen.getByRole("navigation", { name: "Library" }));
+    expect(
+      subTabs.getAllByRole("link").map((link) => link.textContent),
+    ).toEqual(["Favourites 24", "My recipes 3", "Pending 2"]);
+  });
+
+  it("hides the Pending sub-tab from everyone else", () => {
+    mockPendingCount(2);
+    renderAt("/library/favourites", 6, 24, 3);
+
+    expect(
+      screen.queryByRole("link", { name: /Pending/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows no count until a tab's data loads, and 0 once it has", () => {

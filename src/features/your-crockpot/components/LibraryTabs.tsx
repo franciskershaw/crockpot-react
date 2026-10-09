@@ -1,3 +1,4 @@
+import { useAuth } from "@/features/auth/components/AuthContext";
 import { cn } from "@/lib/utils";
 import { NavLink } from "react-router-dom";
 
@@ -9,12 +10,15 @@ export function LibraryTabs({
 }: {
   counts: Partial<Record<string, number>>;
 }) {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "ADMIN";
+
   return (
     <nav
       aria-label="Library"
       className="-mx-6 flex gap-8 border-b border-slider-track px-6 pt-4 md:mx-0 md:border-0 md:px-0 md:pt-6"
     >
-      {LIBRARY_TABS.map((tab) => (
+      {LIBRARY_TABS.filter((tab) => isAdmin || !tab.adminOnly).map((tab) => (
         <NavLink
           key={tab.to}
           to={tab.to}

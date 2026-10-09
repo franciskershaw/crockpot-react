@@ -9,6 +9,7 @@ import { LibraryTabs } from "../components/LibraryTabs";
 import { YourCrockpotTabs } from "../components/YourCrockpotTabs";
 import { useFavourites } from "../hooks/useFavourites";
 import { useMyRecipes } from "../hooks/useMyRecipes";
+import { usePendingRecipes } from "../hooks/usePendingRecipes";
 import {
   findYourCrockpotTab,
   YOUR_CROCKPOT_TABS,
@@ -42,6 +43,7 @@ export function YourCrockpotLayout() {
   const { data: menu } = useMenu();
   const { data: favourites } = useFavourites();
   const { data: myRecipes } = useMyRecipes();
+  const { data: pending } = usePendingRecipes();
   const menuCount = menu?.entries.length;
   const favouriteCount = favourites?.pages[0]?.total;
   const ownCount = myRecipes?.pages[0]?.total;
@@ -81,6 +83,7 @@ export function YourCrockpotLayout() {
             counts={{
               "/library/favourites": favouriteCount,
               "/library/my-recipes": ownCount,
+              "/library/pending": pending?.pages[0]?.total,
             }}
           />
         )}

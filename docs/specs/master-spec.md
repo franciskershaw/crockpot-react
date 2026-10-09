@@ -833,3 +833,17 @@ starting.*
   with a DevTools Network waterfall of a first open: how long from the
   click to the hero request starting, against how long it takes to
   download.
+
+- **CFE-060** — Placeholder for recipes without a photo. Founder-raised
+  in the pre-MVP bug run (2026-10-09). Not blocking go-live. The photo
+  is optional, so a recipe saved without one shows a flat `bg-muted`
+  box on the browse card (`RecipeCard`), the mobile row thumbnail
+  (`MobileRecipeRow`) and the recipe hero (`RecipeHero`, under its dark
+  wash and gradient). All 213 migrated recipes have photos, so this only
+  affects new ones. The old app drew it in code, not from an asset: a
+  grey box with a brand-coloured `ChefHat` on cards, and an
+  orange-to-red gradient on the hero. Claude built a version from
+  existing tokens (`chip` → `faint-border` gradient with a centred
+  `ChefHat`) and it wasn't adequate, so a slightly bigger think is
+  required. Start from a Claude-Design spec for this state rather than
+  improvising from tokens.

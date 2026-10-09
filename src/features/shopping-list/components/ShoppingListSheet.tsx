@@ -20,7 +20,7 @@ export function ShoppingListSheet() {
             ? `Open shopping list, ${remaining} left to buy`
             : "Open shopping list"
         }
-        className="fixed right-4 bottom-20 z-30 flex size-14 cursor-pointer items-center justify-center rounded-full bg-green text-on-dark shadow-fab md:hidden"
+        className="fixed right-4 bottom-20 z-30 md:bottom-6 flex size-14 cursor-pointer items-center justify-center rounded-full bg-green text-on-dark shadow-fab lg:hidden"
       >
         <ShoppingCart size={22} strokeWidth={2} />
         {remaining > 0 && (
@@ -35,6 +35,7 @@ export function ShoppingListSheet() {
       <BottomSheet
         open={isOpen}
         onOpenChange={setIsOpen}
+        closeAtWidth={1024}
         title="Shopping list"
         description="Everything you need to buy for the recipes on your menu."
       >

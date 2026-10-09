@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
-const DESKTOP_BREAKPOINT_QUERY = "(min-width: 768px)";
-
 export function BottomSheet({
   open,
   onOpenChange,
@@ -18,6 +16,7 @@ export function BottomSheet({
   description,
   header,
   closeLabel,
+  closeAtWidth = 768,
   children,
 }: {
   open: boolean;
@@ -26,19 +25,20 @@ export function BottomSheet({
   description: string;
   header?: ReactNode;
   closeLabel?: string;
+  closeAtWidth?: number;
   children: ReactNode;
 }) {
   useEffect(() => {
     if (!open) return;
 
-    const query = window.matchMedia(DESKTOP_BREAKPOINT_QUERY);
+    const query = window.matchMedia(`(min-width: ${closeAtWidth}px)`);
     const handleChange = (event: MediaQueryListEvent) => {
       if (event.matches) onOpenChange(false);
     };
 
     query.addEventListener("change", handleChange);
     return () => query.removeEventListener("change", handleChange);
-  }, [open, onOpenChange]);
+  }, [open, onOpenChange, closeAtWidth]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -46,7 +46,7 @@ export function BottomSheet({
         showCloseButton={false}
         animation="none"
         overlayClassName="bg-foreground/55 duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:duration-400"
-        className="inset-x-0 top-auto bottom-0 left-0 flex max-h-[calc(100dvh-16px)] w-full max-w-none translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-background p-0 shadow-none duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:duration-400 data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom"
+        className="inset-x-0 top-auto bottom-0 left-0 flex max-h-[calc(100dvh-16px)] w-full max-w-none translate-x-0 sm:max-w-none translate-y-0 flex-col gap-0 overflow-hidden rounded-t-[20px] rounded-b-none border-0 bg-background p-0 shadow-none duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:duration-400 data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom"
       >
         {header && (
           <div className="relative shrink-0 px-5 pt-5 pb-3">

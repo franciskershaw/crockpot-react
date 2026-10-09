@@ -8,7 +8,9 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function renderSheet(props: { header?: React.ReactNode } = {}) {
+function renderSheet(
+  props: { header?: React.ReactNode; closeAtWidth?: number } = {},
+) {
   const onOpenChange = vi.fn();
   render(
     <BottomSheet
@@ -74,5 +76,17 @@ describe("BottomSheet", () => {
     onChange?.({ matches: true } as MediaQueryListEvent);
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("watches the given width for closing itself", () => {
+    const matchMedia = vi.spyOn(window, "matchMedia").mockReturnValue({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    } as unknown as MediaQueryList);
+
+    renderSheet({ closeAtWidth: 1024 });
+
+    expect(matchMedia).toHaveBeenCalledWith("(min-width: 1024px)");
   });
 });

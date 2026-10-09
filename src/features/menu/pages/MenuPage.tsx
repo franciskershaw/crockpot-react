@@ -60,7 +60,7 @@ export function MenuPage() {
               description="Tap the basket on any recipe you fancy and it lands here. Your shopping list builds itself from whatever you add."
             />
           ) : (
-            <div className="pb-16 md:pb-0">
+            <div className="pb-16 lg:pb-0">
               <RecipeListGrid
                 slots={slots}
                 renderUndo={renderUndo}
@@ -77,7 +77,7 @@ export function MenuPage() {
         </motion.div>
         {entries && <MenuFooterPill recipeCount={entries.length} />}
       </div>
-      <div className="hidden min-w-0 md:block lg:-mx-1 lg:h-full lg:px-1 lg:pt-1 lg:pb-6">
+      <div className="hidden min-w-0 lg:block lg:-mx-1 lg:h-full lg:px-1 lg:pt-1 lg:pb-6">
         <ShoppingListPanel />
       </div>
       <ShoppingListSheet />

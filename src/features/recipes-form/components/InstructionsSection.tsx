@@ -1,28 +1,19 @@
 import { useState } from "react";
 import { InstructionSteps } from "@/features/recipes/components/InstructionSteps";
 import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
-import { FIELD_CLASSES } from "@/lib/styles";
-import { cn } from "@/lib/utils";
 import { Eye, Pencil } from "lucide-react";
 import { useController } from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { parseSteps } from "../utils/parseSteps";
+import { TEXTAREA_CLASSES } from "../utils/styles";
+import { CountHint } from "./CountHint";
 import { FieldError } from "./FieldError";
 import { FormSection } from "./FormSection";
 
 const PLACEHOLDER = `One step per line, e.g.
 Toss the beef in flour and season well.
 Brown it in batches, then transfer to the slow cooker.`;
-
-function stepsHint(count: number): string {
-  if (count === 0) {
-    return "One line, one step — switch to Preview any time to sanity-check before you publish.";
-  }
-  if (count <= RECIPE_LIMITS.steps.max)
-    return `${count} of ${RECIPE_LIMITS.steps.max} steps`;
-  return `${count} steps — remove ${count - RECIPE_LIMITS.steps.max} to publish`;
-}
 
 export function InstructionsSection() {
   const {
@@ -79,23 +70,17 @@ export function InstructionsSection() {
           onBlur={onBlur}
           placeholder={PLACEHOLDER}
           rows={8}
-          className={cn(
-            FIELD_CLASSES,
-            "block w-full resize-y px-4 py-3.5 text-[15px] leading-7 outline-none placeholder:text-placeholder",
-          )}
+          className={TEXTAREA_CLASSES}
         />
       )}
       {/* Over the limit, the hint below already says so. */}
       {!overLimit && <FieldError message={error?.message} />}
-      <p
-        aria-live="polite"
-        className={cn(
-          "mt-3 text-[13px]",
-          overLimit ? "font-semibold text-rust-text" : "text-placeholder",
-        )}
-      >
-        {stepsHint(steps.length)}
-      </p>
+      <CountHint
+        count={steps.length}
+        max={RECIPE_LIMITS.steps.max}
+        noun="steps"
+        emptyHint="One line, one step — switch to Preview any time to sanity-check before you publish."
+      />
     </FormSection>
   );
 }

@@ -1,19 +1,11 @@
 import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
-import { FIELD_CLASSES } from "@/lib/styles";
-import { cn } from "@/lib/utils";
 import { useController } from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "../utils/parseNotes";
+import { TEXTAREA_CLASSES } from "../utils/styles";
+import { CountHint } from "./CountHint";
 import { OptionalSection } from "./OptionalSection";
-
-function notesHint(count: number): string {
-  if (count === 0)
-    return `One line, one note — up to ${RECIPE_LIMITS.notes.max}.`;
-  if (count <= RECIPE_LIMITS.notes.max)
-    return `${count} of ${RECIPE_LIMITS.notes.max} notes`;
-  return `${count} notes — remove ${count - RECIPE_LIMITS.notes.max} to publish`;
-}
 
 const PLACEHOLDER = `One note per line, e.g.
 Even better the next day.
@@ -41,22 +33,14 @@ export function ChefNotesSection() {
         onBlur={onBlur}
         placeholder={PLACEHOLDER}
         rows={4}
-        className={cn(
-          FIELD_CLASSES,
-          "block w-full resize-y px-4 py-3.5 text-[15px] leading-7 outline-none placeholder:text-placeholder",
-        )}
+        className={TEXTAREA_CLASSES}
       />
-      <p
-        aria-live="polite"
-        className={cn(
-          "mt-3 text-[13px]",
-          noteCount > RECIPE_LIMITS.notes.max
-            ? "font-semibold text-rust-text"
-            : "text-placeholder",
-        )}
-      >
-        {notesHint(noteCount)}
-      </p>
+      <CountHint
+        count={noteCount}
+        max={RECIPE_LIMITS.notes.max}
+        noun="notes"
+        emptyHint={`One line, one note — up to ${RECIPE_LIMITS.notes.max}.`}
+      />
     </OptionalSection>
   );
 }

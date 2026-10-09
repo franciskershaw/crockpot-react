@@ -147,7 +147,6 @@ function RegularsRow({
         disabled={onList}
         onCheckedChange={(checked) => onToggle(checked === true)}
         aria-label={`Add ${regular.itemName}`}
-        className="size-4.75 rounded-sm shadow-none [&_svg]:size-3"
       />
       <span className="truncate">{regular.itemName}</span>
       <span aria-hidden className="text-separator-muted">

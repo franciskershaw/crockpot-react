@@ -12,7 +12,7 @@ function Checkbox({
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "peer size-4.25 shrink-0 cursor-pointer rounded-lg border-[1.5px] border-faint-border shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-transparent data-[state=checked]:bg-green data-[state=checked]:text-background",
+        "peer size-4.75 shrink-0 cursor-pointer rounded-sm border-[1.5px] border-faint-border transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-transparent data-[state=checked]:bg-green data-[state=checked]:text-background",
         className,
       )}
       onKeyDown={(event) => {
@@ -25,7 +25,7 @@ function Checkbox({
         data-slot="checkbox-indicator"
         className="grid place-content-center text-current transition-none"
       >
-        <CheckIcon strokeWidth={3.5} className="size-2.75" />
+        <CheckIcon strokeWidth={3.5} className="size-3" />
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
   );

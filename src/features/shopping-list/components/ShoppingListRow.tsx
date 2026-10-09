@@ -39,7 +39,6 @@ export function ShoppingListRow({
           update.mutate({ id: item.id, obtained: checked === true })
         }
         aria-label={`Mark ${item.itemName} as bought`}
-        className="size-4.75 rounded-sm shadow-none [&_svg]:size-3"
       />
       <div className="flex min-w-0 flex-1 items-center gap-1.75 text-[15px]">
         <span

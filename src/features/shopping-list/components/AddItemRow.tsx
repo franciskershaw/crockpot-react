@@ -6,6 +6,7 @@ import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
+import { byId } from "@/lib/byId";
 import { cn } from "@/lib/utils";
 
 // Admin-only, and the only user of zod/react-hook-form.
@@ -45,7 +46,7 @@ export function AddItemRow({
   const [resumeKey, setResumeKey] = useState(0);
 
   const allowedUnits = useMemo(
-    () => (picked ? unitOptionsFor(picked, units ?? []) : []),
+    () => (picked ? unitOptionsFor(picked, byId(units)) : []),
     [picked, units],
   );
 

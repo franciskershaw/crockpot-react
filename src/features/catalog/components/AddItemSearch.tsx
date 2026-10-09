@@ -7,6 +7,7 @@ import {
 import type { Item } from "@/features/catalog/data/types";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
+import { byId } from "@/lib/byId";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
@@ -86,10 +87,7 @@ export function AddItemSearch({
     () => searchItems(searchable, query),
     [searchable, query],
   );
-  const categoryNames = useMemo(
-    () => new Map(categories?.map((category) => [category.id, category.name])),
-    [categories],
-  );
+  const categoriesById = byId(categories);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
@@ -221,7 +219,8 @@ export function AddItemSearch({
                           <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-chip text-ink-body">
                             <CategoryIcon
                               categoryName={
-                                categoryNames.get(match.item.categoryId) ?? ""
+                                categoriesById.get(match.item.categoryId)
+                                  ?.name ?? ""
                               }
                               size={14}
                               strokeWidth={2}
@@ -244,7 +243,7 @@ export function AddItemSearch({
                           />
                         ) : (
                           <span className="shrink-0 text-xs text-icon-muted group-data-[selected=true]:text-ink-subtle">
-                            {categoryNames.get(match.item.categoryId)}
+                            {categoriesById.get(match.item.categoryId)?.name}
                           </span>
                         )}
                       </Command.Item>

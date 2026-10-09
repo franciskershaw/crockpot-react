@@ -1,3 +1,4 @@
+import { byId } from "@/lib/byId";
 import { describe, expect, it } from "vitest";
 
 import type { Item, Unit } from "../data/types";
@@ -16,17 +17,17 @@ function item(allowedUnitIds: string[]): Item {
 describe("unitOptionsFor", () => {
   it("offers the item's allowed units, in the item's order", () => {
     expect(
-      unitOptionsFor(item(["u_clove", "u_g"]), units).map((u) => u.id),
+      unitOptionsFor(item(["u_clove", "u_g"]), byId(units)).map((u) => u.id),
     ).toEqual(["u_clove", "u_g"]);
   });
 
   it("skips allowed ids it has no unit for", () => {
     expect(
-      unitOptionsFor(item(["u_missing", "u_g"]), units).map((u) => u.id),
+      unitOptionsFor(item(["u_missing", "u_g"]), byId(units)).map((u) => u.id),
     ).toEqual(["u_g"]);
   });
 
   it("offers every unit when the item allows any", () => {
-    expect(unitOptionsFor(item([]), units)).toEqual(units);
+    expect(unitOptionsFor(item([]), byId(units))).toEqual(units);
   });
 });

@@ -1,10 +1,10 @@
-import { useMemo } from "react";
 import { QuantityControl } from "@/components/QuantityControl";
 import { StatePanel } from "@/components/StatePanel";
 import type { Unit } from "@/features/catalog/data/types";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
+import { byId } from "@/lib/byId";
 import { RotateCw, Trash2 } from "lucide-react";
 
 import type { Regular } from "../data/types";
@@ -23,10 +23,8 @@ export function RegularsEditView() {
   const create = useCreateRegular();
   const { data: items } = useItems();
   const { data: units } = useUnits();
-  const itemsById = useMemo(
-    () => new Map(items?.map((item) => [item.id, item])),
-    [items],
-  );
+  const itemsById = byId(items);
+  const unitsById = byId(units);
 
   if (!regulars) {
     return <RegularsPlaceholder isError={isError} onRetry={() => refetch()} />;
@@ -34,7 +32,7 @@ export function RegularsEditView() {
 
   const unitOptionsForRegular = (regular: Regular) => {
     const item = itemsById.get(regular.itemId);
-    return item ? unitOptionsFor(item, units ?? []) : (units ?? []);
+    return item ? unitOptionsFor(item, unitsById) : (units ?? []);
   };
 
   return (

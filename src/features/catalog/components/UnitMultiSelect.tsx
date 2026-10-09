@@ -6,6 +6,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { Unit } from "@/features/catalog/data/types";
+import { byId } from "@/lib/byId";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Command } from "cmdk";
@@ -23,7 +24,7 @@ export function UnitMultiSelect({
   onChange: (unitIds: string[]) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const unitsById = new Map(units.map((unit) => [unit.id, unit]));
+  const unitsById = byId(units);
   const picked = value.flatMap((unitId) => {
     const unit = unitsById.get(unitId);
     return unit ? [unit] : [];

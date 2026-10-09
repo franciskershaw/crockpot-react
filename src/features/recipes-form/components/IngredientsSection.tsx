@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
@@ -8,6 +8,7 @@ import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { unitOptionsFor } from "@/features/catalog/utils/unitOptions";
+import { byId } from "@/lib/byId";
 import { useController, useFormState } from "react-hook-form";
 
 import type { IngredientRow, RecipeFormValues } from "../data/types";
@@ -37,22 +38,13 @@ export function IngredientsSection() {
   const [resumeKey, setResumeKey] = useState(0);
   const { user } = useAuth();
 
-  const unitAbbreviations = useMemo(
-    () => new Map(units?.map((unit) => [unit.id, unit.abbreviation])),
-    [units],
-  );
-  const itemsById = useMemo(
-    () => new Map(items?.map((item) => [item.id, item])),
-    [items],
-  );
-  const categoryNames = useMemo(
-    () => new Map(categories?.map((category) => [category.id, category.name])),
-    [categories],
-  );
+  const unitsById = byId(units);
+  const itemsById = byId(items);
+  const categoriesById = byId(categories);
 
   const unitOptionsForRow = (row: IngredientRow) => {
     const item = itemsById.get(row.itemId);
-    return item ? unitOptionsFor(item, units ?? []) : (units ?? []);
+    return item ? unitOptionsFor(item, unitsById) : (units ?? []);
   };
 
   const pickItem = (item: Item) => {
@@ -93,7 +85,7 @@ export function IngredientsSection() {
         <div className="rounded-[7px] border-[1.5px] border-border bg-search-secondary px-3 py-1">
           <AddItemEditor
             item={picked}
-            allowedUnits={unitOptionsFor(picked, units ?? [])}
+            allowedUnits={unitOptionsFor(picked, unitsById)}
             isPending={false}
             isError={false}
             confirmLabel="Add ingredient"
@@ -103,7 +95,8 @@ export function IngredientsSection() {
                 {
                   itemId: picked.id,
                   itemName: picked.name,
-                  itemCategoryName: categoryNames.get(picked.categoryId) ?? "",
+                  itemCategoryName:
+                    categoriesById.get(picked.categoryId)?.name ?? "",
                   unitId,
                   quantity: String(quantity),
                 },
@@ -139,7 +132,9 @@ export function IngredientsSection() {
               unitOptions={unitOptionsForRow(row)}
               editSignal={editSignals[row.itemId] ?? 0}
               unitAbbreviation={
-                row.unitId ? (unitAbbreviations.get(row.unitId) ?? null) : null
+                row.unitId
+                  ? (unitsById.get(row.unitId)?.abbreviation ?? null)
+                  : null
               }
               onChange={(changed) =>
                 setRows(

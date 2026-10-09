@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import type { RecipeCategory } from "@/features/recipes/data/types";
 import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
+import { byId } from "@/lib/byId";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 
@@ -24,7 +25,7 @@ export function CategoryPicker({
 }) {
   const [open, setOpen] = useState(false);
   const atCap = selectedIds.length >= RECIPE_LIMITS.categories.max;
-  const nameById = new Map(categories.map((c) => [c.id, c.name]));
+  const categoriesById = byId(categories);
 
   const toggle = (id: string) =>
     onChange(
@@ -42,10 +43,10 @@ export function CategoryPicker({
               key={id}
               className="flex h-8.5 items-center gap-1.5 rounded-full bg-green pr-2 pl-3.5 text-sm font-bold text-on-dark"
             >
-              {nameById.get(id)}
+              {categoriesById.get(id)?.name}
               <button
                 type="button"
-                aria-label={`Remove ${nameById.get(id)}`}
+                aria-label={`Remove ${categoriesById.get(id)?.name}`}
                 onClick={() => toggle(id)}
                 className="flex size-5 cursor-pointer items-center justify-center rounded-full"
               >

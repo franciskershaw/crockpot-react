@@ -622,6 +622,23 @@ security findings — debt notes only):*
   `public/favicon.svg` is still Vite's default logo, waiting on a
   Crockpot icon.
 
+*Founder-raised in the pre-MVP bug run, 2026-10-09.*
+- **CFE-057** — App-wide colour contrast audit, before MVP.
+  Accessibility hasn't been checked systematically. Two passes, results
+  in a dated `docs/findings/` doc:
+  - **Token pairs:** a script computes WCAG contrast for every
+    text-colour/background token pairing the code actually uses (all
+    colours are tokens in `src/index.css`).
+  - **Rendered screens:** an axe-core run on the main screens, for what
+    the token pass can't see (opacity, overlays, text over images).
+
+  Already known: `icon-muted` (select placeholders, "optional" labels)
+  is ~2.5:1 on `card`, and the `--placeholder` token ~2.9:1, both under
+  4.5:1. Fixes are likely token-level, so they change the look app-wide.
+  Grill which ones to take, and whether disabled controls (exempt in
+  WCAG) get a minimum anyway. Seed: the Create item button's disabled
+  state was 1.8:1 and is fixed (`bg-chip` + `ink-subtle`, ~3.2:1).
+
 ### Deferred: future features
 
 - **CFE-015** — Regulars: restock and manage a personal set of catalog

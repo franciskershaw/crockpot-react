@@ -204,7 +204,7 @@ function CreateItemForm({
         <Button
           type="submit"
           disabled={!categoryId || createItem.isPending}
-          className="h-10 rounded-lg bg-green px-5 font-semibold text-background hover:bg-green/90 disabled:bg-faint-border disabled:opacity-100"
+          className="h-10 rounded-lg bg-green px-5 font-semibold text-background hover:bg-green/90 disabled:bg-chip disabled:text-ink-subtle disabled:opacity-100"
         >
           {createItem.isPending && <Loader2 className="size-4 animate-spin" />}
           {createItem.isPending ? "Creating…" : "Create item"}

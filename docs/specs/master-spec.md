@@ -218,6 +218,31 @@ CFE-003.
   (2026-08-28). See `docs/handoffs/CFE-002a.md`.
 - **CFE-002b** — Email/password suite. **Done** (2026-10-03), see
   `docs/handoffs/CFE-002b.md`.
+- **CFE-056** — Return to where you were after signing in. Not urgent,
+  post-MVP. Today every sign-in lands on `/menu`
+  (`RequireSignedOut` and `AuthCallback` both send you to
+  `DEFAULT_AUTHENTICATED_ROUTE`), which is jarring from browse or a
+  recipe page. Also: a signed-out deep link to a protected page
+  (`RequireAuth`) goes to `/` rather than to sign in and back. Mapped
+  touch points, all frontend (no `crockpot-go` change):
+  - The header and tab-bar sign-in links record the current path.
+  - Every auth-page link that already carries `email` carries the return
+    path too: `LoginPage`, `LoginForm`, `RegisterPage`,
+    `ForgotPasswordPage`, `ResetLinkSent` and `AuthErrorBanner`.
+  - Google leaves the app, so its return path would wait in
+    `sessionStorage`, written by `goToGoogleLogin` (called from
+    `ContinueWithGoogleButton`, `AuthErrorBanner` and `Hero`) and read
+    once by `AuthCallback`.
+  - Same-site paths only (no `//`, no auth pages), so a crafted link
+    can't bounce a fresh sign-in off-site.
+  - `RequireAuth` catch: logout has no navigate of its own and relies on
+    `RequireAuth` sending you to `/`. Redirecting signed-out users to
+    `/login` would send logout there too, unless it tells "arrived
+    signed out" apart from "signed out here".
+
+  Grill question: is a cheaper slice worth it, such as only the header
+  links and `RequireSignedOut`, dropping the hops between auth pages and
+  Google?
 
 ### Epic 2: Recipe Browsing
 - **CFE-003** — Landing page, plus the colour palette and Newsreader +

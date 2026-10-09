@@ -423,3 +423,8 @@ decision as fully closed. No code written yet.
 
 - Finding 11 assumed `RecipeForm.test` only needed the router handle back; it needed real routes, so it was narrowed mid-build. The grill dropped `useMemo`s on the claim the React Compiler builds each map once per fetch; compiling `IngredientsSection` showed it folds them into a larger block that re-runs per keystroke. Harmless here, but the spec had to be corrected.
 - **Pattern**: before leaning on "the React Compiler memoises this", compile the file and look; it memoises per reactive block, not per value.
+
+## 2026-10-09 — CFE-056 — Return-to-page after sign-in, backlogged mid-build. Undersized.
+
+- Called it "modest, one commit" from the mechanism alone (two sign-in links, two redirect sites). Building it surfaced six auth-page links carrying `email`, three Google callers and a logout interaction in `RequireAuth`. That surprise was the cue to stop and re-size, but I kept going until the founder halted it at ~15 files; the diff was thrown away.
+- **Pattern**: before sizing a change, list every file the value has to pass through, not just where it starts and ends. A new touch point found mid-build means stop and re-size with the founder, not absorb it.

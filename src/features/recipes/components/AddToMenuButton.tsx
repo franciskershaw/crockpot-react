@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useAddToMenuButtonState } from "../hooks/useAddToMenuButtonState";
+import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuBadge } from "./AddToMenuBadge";
 import { AddToMenuConfirmButton } from "./AddToMenuConfirmButton";
 import { AddToMenuStepperControls } from "./AddToMenuStepperControls";
@@ -33,7 +34,7 @@ export function AddToMenuButton({
   } = useAddToMenuButtonState(recipe, { onRemove });
 
   return (
-    <div className="relative">
+    <div role="presentation" className="relative" onClick={stopEvent}>
       <div className="flex h-8 items-center rounded-full border border-border bg-card/95 shadow-sm">
         <div className="relative flex h-8 w-8 items-center justify-center">
           <AnimatePresence mode="wait">

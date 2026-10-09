@@ -660,6 +660,12 @@ starting.*
   exchanges the cart and cancel buttons) would fall through to the
   `Link`. Needs a repro before a fix direction is picked.
 
+  **Done** (2026-10-09). A click inside the composition that missed an
+  enabled button reached the `Link`. That covers gaps, separators, the
+  slot `AnimatePresence mode="wait"` empties mid-swap, and disabled
+  buttons. Fix: `role="presentation" onClick={stopEvent}` on
+  `AddToMenuButton`'s root and on `MobileRecipeRow`'s action cluster.
+
 - **CFE-036** — Founder-reported minor bug (2026-09-19): scrolling to the
   bottom of the browse page fast enough to trigger the infinite scroll
   can leave it stuck, needing a scroll up and down to load the next

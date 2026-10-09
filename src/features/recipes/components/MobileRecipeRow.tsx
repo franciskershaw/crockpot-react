@@ -75,7 +75,11 @@ export function MobileRecipeRow({
             {recipe.timeInMinutes} mins
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div
+          role="presentation"
+          className="flex shrink-0 items-center gap-2"
+          onClick={stopEvent}
+        >
           <RecipeFavouriteButton
             recipe={recipe}
             onClick={stopEvent}

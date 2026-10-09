@@ -3,7 +3,7 @@ import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -41,15 +41,17 @@ function setup({
   onRemoveFromMenu = vi.fn(),
   onUnfavourite,
   isInMenu = true,
+  menuPending = false,
 }: {
   onRemoveFromMenu?: () => void;
   onUnfavourite?: () => void;
   isInMenu?: boolean;
+  menuPending?: boolean;
 } = {}) {
   vi.mocked(useMenuEntry).mockReturnValue({
     isInMenu,
     serves: isInMenu ? 6 : undefined,
-    isPending: false,
+    isPending: menuPending,
   });
   const updateServes = { mutate: vi.fn(), isPending: false };
   const removeFromMenu = { mutate: vi.fn(), isPending: false };
@@ -172,6 +174,24 @@ describe("MobileRecipeRow", () => {
     ]) {
       expect(screen.getByRole("button", { name })).toBeInTheDocument();
     }
+  });
+
+  it("doesn't open the recipe when a click lands between the row's action buttons", () => {
+    setup();
+
+    fireEvent.click(servesPill().parentElement!);
+
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
+  });
+
+  it("doesn't open the recipe when the disabled cart is clicked while the menu loads", () => {
+    setup({ menuPending: true });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Loading menu status" }),
+    );
+
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
   });
 
   it("closes the editor on cancel", async () => {

@@ -408,3 +408,8 @@ decision as fully closed. No code written yet.
 - The admin banner was first built as a copy of the owner's, then merged with the page still choosing between two renders; the founder wanted one component that decides who's looking. Review found the unkeyed detail route would carry approve state into an already-cached recipe. The `isAdmin` sweep nearly shadowed a local `isAdmin` into an always-true check; a grep caught it, not the typechecker.
 - **Pattern**: for a role or state variant of an existing component, have the component decide for itself and the page render it once.
 - **Pattern**: key a route's page by its id when it holds per-item mutation state.
+
+## 2026-10-09 — CFE-035 — Card link firing through the add-to-menu controls. Clean.
+
+- No rework. A catch-all stop on the wrapper replaced the ticket's "repro first" step, since it closes every gap without needing to know which one was hit.
+- **Pattern**: an interactive control nested inside a link needs its click stopped on its wrapper, not just on each button; gaps, mid-animation slots and disabled buttons never run a button's handler.

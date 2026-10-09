@@ -3,8 +3,9 @@ import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
 import { buildRecipeCard } from "@/test/recipeFixtures";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
+import { Link, MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { AddToMenuButton } from "./AddToMenuButton";
@@ -184,5 +185,47 @@ describe("AddToMenuButton", () => {
     await user.click(screen.getByRole("button", { name: /remove from menu/i }));
 
     expect(removeFromMenu.mutate).toHaveBeenCalledWith({ recipeId: "r_1" });
+  });
+});
+
+describe("AddToMenuButton inside a card link", () => {
+  function renderInsideLink() {
+    render(
+      <MemoryRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Link to="/recipes/r_1">
+                <AddToMenuButton recipe={buildRecipeCard()} />
+              </Link>
+            }
+          />
+          <Route path="/recipes/:id" element={<p>Recipe detail page</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("doesn't open the recipe when a click lands in the pill beside a button", () => {
+    setup({ isInMenu: false });
+    renderInsideLink();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Add to menu" }).parentElement!,
+    );
+
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
+  });
+
+  it("doesn't open the recipe when the disabled cart is clicked while the menu loads", () => {
+    setup({ isPending: true });
+    renderInsideLink();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Loading menu status" }),
+    );
+
+    expect(screen.queryByText("Recipe detail page")).not.toBeInTheDocument();
   });
 });

@@ -302,24 +302,22 @@ CFE-003.
   cards (both stay on the detail page) — supersedes `yp4.png` and
   `CFE-006` decisions 9-10 for this tab. Newest-first order depends on
   `crockpot-go` `CROC-060`. **Done** (2026-09-28).
-- **CFE-045** — Menu cap handling, paired with `crockpot-go` `CROC-059`
-  (blocked on it). Every add-to-menu surface (browse `RecipeCard`,
-  detail-page CTA, `MobileRecipeRow`, and the Menu tab's undo re-add)
-  shows the cap error in a clear message instead of a generic failure,
-  and the optimistic add reverts. Whether to also disable adding before
-  the request once the cached menu is at the cap is for this ticket's
-  grill. Surfaced at `CFE-007`'s grill (2026-09-27), not grilled.
+- **CFE-045** — Menu write errors show copy, not codes, paired with
+  `crockpot-go` `CROC-059` (blocked on it for the on-screen check).
+  `menu_limit_reached` and `shopping_list_quantity_too_large` toast
+  readable copy from one map in `useOptimisticMenuMutation`; the
+  optimistic change reverts as today. No pre-disable at the cap.
+  Grilled 2026-10-09 (`docs/handoffs/CFE-045.md`).
 - **CFE-054** — Quantity rule and error codes in sync with `crockpot-go`
   `CROC-064` (Done 2026-10-03, so unblocked). Low priority. (1) `parseQuantity`
   (`src/lib/quantity.ts`) also rejects anything over 100,000, the
   server's new ceiling. The current 6-digit pattern allows up to
   999,999.99. The 0.01 floor already matches. (2) Any error UI that
-  switches on codes reads `invalid_quantity` (out of range),
-  `shopping_list_quantity_too_large` (the menu's aggregated list would
-  overflow, returned mostly from add-to-menu and serves changes, not
-  the shopping list), and the shopping list's renamed `invalid_item_id`,
-  `invalid_unit_id` and `unit_not_allowed_for_item`. Nothing reads any of
-  them today. Surfaced at `CROC-064`'s grill (2026-10-03), not grilled.
+  switches on codes reads `invalid_quantity` (out of range) and the
+  shopping list's renamed `invalid_item_id`, `invalid_unit_id` and
+  `unit_not_allowed_for_item`. Nothing reads any of them today.
+  (`shopping_list_quantity_too_large` moved to `CFE-045`, 2026-10-09.)
+  Surfaced at `CROC-064`'s grill (2026-10-03), not grilled.
 - **CFE-046** — Library tab: Favourites and My recipes merged under one
   top-level `Library` tab with underline sub-tabs, at
   `/library/favourites` and `/library/my-recipes` (old paths and

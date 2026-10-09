@@ -428,3 +428,8 @@ decision as fully closed. No code written yet.
 
 - Called it "modest, one commit" from the mechanism alone (two sign-in links, two redirect sites). Building it surfaced six auth-page links carrying `email`, three Google callers and a logout interaction in `RequireAuth`. That surprise was the cue to stop and re-size, but I kept going until the founder halted it at ~15 files; the diff was thrown away.
 - **Pattern**: before sizing a change, list every file the value has to pass through, not just where it starts and ends. A new touch point found mid-build means stop and re-size with the founder, not absorb it.
+
+## 2026-10-09 — CFE-059 — Recipe hero grey flash. Abandoned after four experiments; backlogged.
+
+- Four fixes in a row went to the founder without a measurement of where the wait was. Each was judged by eye under conditions I set, and I told the founder to test with DevTools "Disable cache", which made the press-time preload impossible to judge and made Cloudinary look uncached. The founder lost confidence in the image optimisation, which turned out to be sound once measured (cards ~20KB vs ~400KB originals).
+- **Pattern**: for a perceived-latency bug, get a Network waterfall of the real case before proposing fixes, and test with the cache on, the way users experience it.

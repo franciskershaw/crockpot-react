@@ -803,3 +803,33 @@ starting.*
       page 1, stop `crockpot-go`, scroll to the end → row under the
       loaded cards; restart `crockpot-go`, click Retry → next page loads
       and the row goes. Commit message offered with that hand-over.
+
+- **CFE-059** — Grey flash on the recipe hero, browse → detail.
+  Founder-raised in the pre-MVP bug run (2026-10-09). Not blocking
+  go-live. Since `2fb9b0f` (sized Cloudinary URLs), the card fetches
+  `fillImage(url, 400, 180)` and the hero `limitImage(url, [800, 1200,
+  1600])`: different files, so on a first open the hero's `bg-muted` box
+  shows until its image downloads. Before, both used the raw URL, so the
+  hero was already cached, but every browse card downloaded the full
+  original. Keep the sizing: measured on five recipes, cards are
+  18–27KB against 280–470KB originals; the hero saves about a third.
+  Cloudinary sends `max-age=2592000, immutable`, so a repeat open is
+  cached; the first request for a new size takes ~0.8s, then ~45ms from
+  its CDN. Tried and rejected, all in the hero:
+  - Card image as a blurred placeholder: instant, but softer and
+    differently framed, so it looked worse whenever the full image
+    lagged.
+  - Cloudinary `w_40,e_blur` preview (~200 bytes) requested by the hero:
+    it raced the full image and only showed on the slowest throttling.
+  - Full hero image preloaded on card press, with the hero's exact
+    srcset/sizes: no visible change. Tested with DevTools "Disable
+    cache" on, which stops the hero reusing the preload, so not fairly
+    judged.
+  - Blur preview preloaded when cards render, plus the press-time
+    preload: no visible improvement.
+  Untried: a dominant colour or blurhash stored per recipe at upload
+  (no request; `crockpot-go` change plus a backfill); a shared-element
+  view transition; Cloudinary eager transformations at upload. Start
+  with a DevTools Network waterfall of a first open: how long from the
+  click to the hero request starting, against how long it takes to
+  download.

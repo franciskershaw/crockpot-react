@@ -30,6 +30,7 @@ export function useUndoQueue<T>() {
       return next;
     });
   }, []);
+
   const forget = useCallback(
     (key: string) => {
       clearTimeout(countdowns.current.get(key)?.timer);
@@ -119,6 +120,7 @@ export function useUndoQueue<T>() {
         setPaused(removal.key, false);
         setRemovals((current) => [
           ...current.filter(({ key }) => key !== removal.key),
+          { ...removal, settled: false, undone: false },
         ]);
       },
       [run, setPaused],

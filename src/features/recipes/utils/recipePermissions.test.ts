@@ -2,7 +2,7 @@ import { buildUser } from "@/test/authFixtures";
 import { describe, expect, it } from "vitest";
 
 import type { RecipeDetail } from "../data/types";
-import { canManageRecipe, pendingApprovalViewer } from "./useRecipePermissions";
+import { canManageRecipe, pendingApprovalViewer } from "./recipePermissions";
 
 function recipe(
   overrides: Partial<Pick<RecipeDetail, "createdById" | "approved">> = {},

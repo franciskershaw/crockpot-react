@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { RecipeDetail } from "@/features/recipes/data/types";
-import { pendingApprovalViewer } from "@/features/recipes/hooks/useRecipePermissions";
+import { pendingApprovalViewer } from "@/features/recipes/utils/recipePermissions";
 import { Clock } from "lucide-react";
 
 import { isRecipeChanged, useApproveRecipe } from "../hooks/useApproveRecipe";

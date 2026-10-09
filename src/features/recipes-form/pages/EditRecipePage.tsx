@@ -3,7 +3,7 @@ import { RouteFallback } from "@/components/RouteFallback";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { RecipeDetail } from "@/features/recipes/data/types";
 import { useRecipe } from "@/features/recipes/hooks/useRecipe";
-import { canManageRecipe } from "@/features/recipes/hooks/useRecipePermissions";
+import { canManageRecipe } from "@/features/recipes/utils/recipePermissions";
 import { ApiError } from "@/lib/http/client";
 import { Navigate, useParams } from "react-router-dom";
 

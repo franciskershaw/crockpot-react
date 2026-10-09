@@ -317,8 +317,8 @@ CFE-003.
   `docs/handoffs/CFE-006.md`. **Done** (2026-09-27).
 - **CFE-007** — Favourites tab. **Done** (2026-09-27). Also reshaped
   pieces Menu shares: the mobile row's cart and badge (replacing
-  `CFE-006`'s serves pill), an undo tile per removal on one shared,
-  pausable 5s window with a countdown bar, and the add-to-menu overlay
+  `CFE-006`'s serves pill), an undo tile per removal, each on its own
+  pausable 4s window with a countdown bar, and the add-to-menu overlay
   closing on confirm (fixing `CFE-023`). See `LESSONS.md`. Now a
   sub-tab of Library (`CFE-046`).
 - **CFE-008** — My recipes sub-tab (`/library/my-recipes`): the caller's

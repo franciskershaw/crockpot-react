@@ -19,7 +19,7 @@ import { useUndoableMenuRemoval } from "../hooks/useUndoableMenuRemoval";
 export function MenuPage() {
   const { data: menu, isError, refetch } = useMenu();
   const entries = menu?.entries;
-  const { removals, remove, canUndo, undo, ...countdown } =
+  const { removals, remove, canUndo, undo, isPaused, pause, resume } =
     useUndoableMenuRemoval();
   const slots = buildUndoSlots(
     entries ?? [],
@@ -33,10 +33,9 @@ export function MenuPage() {
       title={slot.item.recipe.name}
       canUndo={canUndo(slot.key)}
       onUndo={() => undo(slot.key, slot.index)}
-      paused={countdown.paused}
-      countdownKey={countdown.generation}
-      onPause={countdown.pause}
-      onResume={countdown.resume}
+      paused={isPaused(slot.key)}
+      onPause={() => pause(slot.key)}
+      onResume={() => resume(slot.key)}
     />
   );
 

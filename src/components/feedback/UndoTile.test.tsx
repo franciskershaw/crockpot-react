@@ -12,7 +12,6 @@ function renderTile(paused = false) {
       canUndo
       onUndo={vi.fn()}
       paused={paused}
-      countdownKey={1}
       onPause={onPause}
       onResume={onResume}
     />,

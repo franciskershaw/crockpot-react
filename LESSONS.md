@@ -433,3 +433,8 @@ decision as fully closed. No code written yet.
 
 - Four fixes in a row went to the founder without a measurement of where the wait was. Each was judged by eye under conditions I set, and I told the founder to test with DevTools "Disable cache", which made the press-time preload impossible to judge and made Cloudinary look uncached. The founder lost confidence in the image optimisation, which turned out to be sound once measured (cards ~20KB vs ~400KB originals).
 - **Pattern**: for a perceived-latency bug, get a Network waterfall of the real case before proposing fixes, and test with the cache on, the way users experience it.
+
+## 2026-10-09 — Bug run — Undo tiles each count down on their own.
+
+- `CFE-007` gave every undo tile one shared 5s window that each new removal restarted, so twelve quick un-hearts left twelve tiles standing until the last one expired. The founder never wanted that; the shared queue was argued for during the build and its reason was never written down, so it couldn't be re-judged later. Now each tile has its own pausable 4s timer.
+- **Pattern**: when I steer the founder off their instinct on UX behaviour, record the reason where the code or spec carries it; an unrecorded "Claude convinced me" choice can't be weighed against what users then see.

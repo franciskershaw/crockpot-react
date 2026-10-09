@@ -28,7 +28,7 @@ export function FavouritesPage() {
     loadMore,
   } = useFavourites();
   const recipes = data?.pages.flatMap((page) => page.recipes);
-  const { removals, remove, canUndo, undo, ...countdown } =
+  const { removals, remove, canUndo, undo, isPaused, pause, resume } =
     useUndoableFavouriteRemoval();
   const slots = buildUndoSlots(recipes ?? [], (recipe) => recipe.id, removals);
   const showUndo = slots.some((slot) => slot.undo);
@@ -46,10 +46,9 @@ export function FavouritesPage() {
       title={slot.item.name}
       canUndo={canUndo(slot.key)}
       onUndo={() => undo(slot.key, slot.index)}
-      paused={countdown.paused}
-      countdownKey={countdown.generation}
-      onPause={countdown.pause}
-      onResume={countdown.resume}
+      paused={isPaused(slot.key)}
+      onPause={() => pause(slot.key)}
+      onResume={() => resume(slot.key)}
     />
   );
 

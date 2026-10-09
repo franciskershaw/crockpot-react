@@ -6,7 +6,6 @@ export function UndoTile({
   canUndo,
   onUndo,
   paused = false,
-  countdownKey,
   onPause,
   onResume,
 }: {
@@ -14,7 +13,6 @@ export function UndoTile({
   canUndo: boolean;
   onUndo: () => void;
   paused?: boolean;
-  countdownKey?: number;
   onPause?: () => void;
   onResume?: () => void;
 }) {
@@ -61,7 +59,6 @@ export function UndoTile({
         Undo
       </button>
       <span
-        key={countdownKey}
         data-testid="undo-countdown"
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-0.5 origin-left animate-undo-countdown bg-green/50 motion-reduce:[animation-timing-function:steps(5,end)]"

@@ -2,33 +2,67 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Removal } from "./undoSlots";
 
-export const UNDO_WINDOW_MS = 5000;
+export const UNDO_WINDOW_MS = 4000;
 
 type NewRemoval<T> = Pick<Removal<T>, "key" | "item" | "anchorKey" | "index">;
 
-// Every removal restarts one shared window, so a later removal only ever extends
-// an earlier one's chance to undo; they all clear together when it ends.
+interface Countdown {
+  remaining: number;
+  startedAt: number;
+  holds: number;
+  timer?: ReturnType<typeof setTimeout>;
+}
+
+// Each removal counts down and pauses on its own; one never changes another's time.
 export function useUndoQueue<T>() {
   const [removals, setRemovals] = useState<Removal<T>[]>([]);
-  const [generation, setGeneration] = useState(0);
-  const [pauses, setPauses] = useState(0);
-  const remaining = useRef(UNDO_WINDOW_MS);
-  const restart = useRef(false);
-  const paused = pauses > 0;
+  const [pausedKeys, setPausedKeys] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const countdowns = useRef(new Map<string, Countdown>());
+  const mounted = useRef(false);
 
+  const setPaused = useCallback((key: string, paused: boolean) => {
+    setPausedKeys((current) => {
+      const next = new Set(current);
+      if (paused) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, []);
+  const forget = useCallback(
+    (key: string) => {
+      clearTimeout(countdowns.current.get(key)?.timer);
+      countdowns.current.delete(key);
+      setPaused(key, false);
+      setRemovals((current) =>
+        current.filter((removal) => removal.key !== key),
+      );
+    },
+    [setPaused],
+  );
+
+  const run = useCallback(
+    (key: string, countdown: Countdown) => {
+      if (!mounted.current) return;
+      countdown.startedAt = Date.now();
+      countdown.timer = setTimeout(() => forget(key), countdown.remaining);
+    },
+    [forget],
+  );
+
+  // Hidden or unmounted, every countdown stops; shown again, the unheld ones carry on.
   useEffect(() => {
-    if (restart.current) {
-      remaining.current = UNDO_WINDOW_MS;
-      restart.current = false;
-    }
-    if (generation === 0 || paused) return;
-    const startedAt = Date.now();
-    const timer = setTimeout(() => setRemovals([]), remaining.current);
+    mounted.current = true;
+    const all = countdowns.current;
+    all.forEach((countdown, key) => {
+      if (countdown.holds === 0 && !countdown.timer) run(key, countdown);
+    });
     return () => {
-      clearTimeout(timer);
-      remaining.current -= Date.now() - startedAt;
+      mounted.current = false;
+      all.forEach(stop);
     };
-  }, [generation, paused]);
+  }, [run]);
 
   const update = useCallback(
     (key: string, change: Partial<Removal<T>>) =>
@@ -52,31 +86,54 @@ export function useUndoQueue<T>() {
       update(key, { undone: true });
       return removals.find((r) => r.key === key);
     },
-    generation,
-    paused,
-    pause: useCallback(() => setPauses((current) => current + 1), []),
-    resume: useCallback(
-      () => setPauses((current) => Math.max(0, current - 1)),
-      [],
+    isPaused: (key: string) => pausedKeys.has(key),
+    pause: useCallback(
+      (key: string) => {
+        const countdown = countdowns.current.get(key);
+        if (!countdown) return;
+        countdown.holds += 1;
+        if (countdown.holds > 1) return;
+        stop(countdown);
+        setPaused(key, true);
+      },
+      [setPaused],
     ),
-    start: useCallback((removal: NewRemoval<T>) => {
-      setRemovals((current) => [
-        ...current.filter(({ key }) => key !== removal.key),
-        { ...removal, settled: false, undone: false },
-      ]);
-      restart.current = true;
-      setGeneration((current) => current + 1);
-    }, []),
+    resume: useCallback(
+      (key: string) => {
+        const countdown = countdowns.current.get(key);
+        if (!countdown || countdown.holds === 0) return;
+        countdown.holds -= 1;
+        if (countdown.holds > 0) return;
+        run(key, countdown);
+        setPaused(key, false);
+      },
+      [run, setPaused],
+    ),
+    start: useCallback(
+      (removal: NewRemoval<T>) => {
+        const previous = countdowns.current.get(removal.key);
+        if (previous) stop(previous);
+        const countdown = { remaining: UNDO_WINDOW_MS, startedAt: 0, holds: 0 };
+        countdowns.current.set(removal.key, countdown);
+        run(removal.key, countdown);
+        setPaused(removal.key, false);
+        setRemovals((current) => [
+          ...current.filter(({ key }) => key !== removal.key),
+        ]);
+      },
+      [run, setPaused],
+    ),
     settle: useCallback(
       (key: string) => update(key, { settled: true }),
       [update],
     ),
-    forget: useCallback(
-      (key: string) =>
-        setRemovals((current) =>
-          current.filter((removal) => removal.key !== key),
-        ),
-      [],
-    ),
+    forget,
   };
+}
+
+function stop(countdown: Countdown) {
+  if (!countdown.timer) return;
+  clearTimeout(countdown.timer);
+  countdown.timer = undefined;
+  countdown.remaining -= Date.now() - countdown.startedAt;
 }

@@ -7,10 +7,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { RecipeCategory } from "@/features/recipes/data/types";
+import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
-
-const MAX_CATEGORIES = 3;
 
 export function CategoryPicker({
   categories,
@@ -24,7 +23,7 @@ export function CategoryPicker({
   triggerRef?: Ref<HTMLButtonElement>;
 }) {
   const [open, setOpen] = useState(false);
-  const atCap = selectedIds.length >= MAX_CATEGORIES;
+  const atCap = selectedIds.length >= RECIPE_LIMITS.categories.max;
   const nameById = new Map(categories.map((c) => [c.id, c.name]));
 
   const toggle = (id: string) =>
@@ -99,7 +98,9 @@ export function CategoryPicker({
         </ul>
         <div className="mt-1 flex items-center justify-between gap-3 border-t border-card-shadow px-2.5 pt-2.5 pb-1.5">
           <p className="text-[13px] text-muted-foreground">
-            {atCap ? "Up to 3 — remove one to add another" : "Pick up to 3"}
+            {atCap
+              ? `Up to ${RECIPE_LIMITS.categories.max} — remove one to add another`
+              : `Pick up to ${RECIPE_LIMITS.categories.max}`}
           </p>
           <button
             type="button"

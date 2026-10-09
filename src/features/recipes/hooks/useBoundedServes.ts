@@ -1,7 +1,6 @@
 import { useCallback, useState } from "react";
 
-const MIN_SERVES = 1;
-const MAX_SERVES = 50;
+import { RECIPE_LIMITS } from "../utils/recipeLimits";
 
 // A local adjustment shouldn't outlive the default it was adjusted from.
 export function useBoundedServes(defaultServes: number) {
@@ -19,8 +18,11 @@ export function useBoundedServes(defaultServes: number) {
     (delta: number) =>
       setOverride((current) =>
         Math.max(
-          MIN_SERVES,
-          Math.min(MAX_SERVES, (current ?? defaultServes) + delta),
+          RECIPE_LIMITS.serves.min,
+          Math.min(
+            RECIPE_LIMITS.serves.max,
+            (current ?? defaultServes) + delta,
+          ),
         ),
       ),
     [defaultServes],
@@ -31,7 +33,7 @@ export function useBoundedServes(defaultServes: number) {
     serves,
     adjust,
     reset,
-    canDecrease: serves > MIN_SERVES,
-    canIncrease: serves < MAX_SERVES,
+    canDecrease: serves > RECIPE_LIMITS.serves.min,
+    canIncrease: serves < RECIPE_LIMITS.serves.max,
   };
 }

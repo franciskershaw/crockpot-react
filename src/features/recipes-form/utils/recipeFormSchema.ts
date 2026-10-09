@@ -1,3 +1,4 @@
+import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
 import { byteLength } from "@/lib/byteLength";
 import { parseQuantity } from "@/lib/quantity";
 import { z } from "zod";
@@ -6,8 +7,7 @@ import type { RecipeFormValues } from "../data/types";
 import { parseNotes } from "./parseNotes";
 import { parseSteps } from "./parseSteps";
 
-export const MAX_STEPS = 50;
-export const MAX_NOTES = 10;
+const { time, serves, categories, ingredients, steps, notes } = RECIPE_LIMITS;
 
 const hasNoDuplicates = (values: string[]) =>
   new Set(values).size === values.length;
@@ -59,22 +59,22 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
     timeInMinutes: z
       .number()
       .int()
-      .min(1, "Cooking time must be 1–1440 minutes.")
-      .max(1440, "Cooking time must be 1–1440 minutes."),
+      .min(time.min, `Cooking time must be ${time.min}–${time.max} minutes.`)
+      .max(time.max, `Cooking time must be ${time.min}–${time.max} minutes.`),
     serves: z
       .number()
       .int()
-      .min(1, "Serves must be 1–50.")
-      .max(50, "Serves must be 1–50."),
+      .min(serves.min, `Serves must be ${serves.min}–${serves.max}.`)
+      .max(serves.max, `Serves must be ${serves.min}–${serves.max}.`),
     categoryIds: z
       .array(z.string())
-      .min(1, "Pick at least one category.")
-      .max(3, "Pick up to 3 categories.")
+      .min(categories.min, "Pick at least one category.")
+      .max(categories.max, `Pick up to ${categories.max} categories.`)
       .refine(hasNoDuplicates, "Pick each category once."),
     ingredients: z
       .array(ingredientRowSchema)
-      .min(1, "Add at least one ingredient.")
-      .max(50, "Up to 50 ingredients.")
+      .min(ingredients.min, "Add at least one ingredient.")
+      .max(ingredients.max, `Up to ${ingredients.max} ingredients.`)
       .refine(
         (rows) => hasNoDuplicates(rows.map((row) => row.itemId)),
         "Each ingredient can only be listed once.",
@@ -83,18 +83,18 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
       const count = parseSteps(value).length;
       if (count === 0) {
         ctx.addIssue({ code: "custom", message: "Add at least one step." });
-      } else if (count > MAX_STEPS) {
+      } else if (count > steps.max) {
         ctx.addIssue({
           code: "custom",
-          message: `Up to ${MAX_STEPS} steps — this has ${count}.`,
+          message: `Up to ${steps.max} steps — this has ${count}.`,
         });
       }
     }),
     notes: z
       .string()
       .refine(
-        (value) => parseNotes(value).length <= MAX_NOTES,
-        `Up to ${MAX_NOTES} notes.`,
+        (value) => parseNotes(value).length <= notes.max,
+        `Up to ${notes.max} notes.`,
       ),
   });
 

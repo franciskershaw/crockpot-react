@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { InstructionSteps } from "@/features/recipes/components/InstructionSteps";
+import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Eye, Pencil } from "lucide-react";
@@ -7,7 +8,6 @@ import { useController } from "react-hook-form";
 
 import type { RecipeFormValues } from "../data/types";
 import { parseSteps } from "../utils/parseSteps";
-import { MAX_STEPS } from "../utils/recipeFormSchema";
 import { FieldError } from "./FieldError";
 import { FormSection } from "./FormSection";
 
@@ -19,8 +19,9 @@ function stepsHint(count: number): string {
   if (count === 0) {
     return "One line, one step — switch to Preview any time to sanity-check before you publish.";
   }
-  if (count <= MAX_STEPS) return `${count} of ${MAX_STEPS} steps`;
-  return `${count} steps — remove ${count - MAX_STEPS} to publish`;
+  if (count <= RECIPE_LIMITS.steps.max)
+    return `${count} of ${RECIPE_LIMITS.steps.max} steps`;
+  return `${count} steps — remove ${count - RECIPE_LIMITS.steps.max} to publish`;
 }
 
 export function InstructionsSection() {
@@ -34,7 +35,7 @@ export function InstructionsSection() {
     () => parseSteps(value).length > 0,
   );
   const steps = parseSteps(value);
-  const overLimit = steps.length > MAX_STEPS;
+  const overLimit = steps.length > RECIPE_LIMITS.steps.max;
 
   const toggle = (
     <button
@@ -61,10 +62,11 @@ export function InstructionsSection() {
     <FormSection title="Instructions*" action={toggle}>
       {previewing ? (
         <>
-          <InstructionSteps steps={steps.slice(0, MAX_STEPS)} />
+          <InstructionSteps steps={steps.slice(0, RECIPE_LIMITS.steps.max)} />
           {overLimit && (
             <p className="mt-5 text-[13px] font-semibold text-rust-text">
-              +{steps.length - MAX_STEPS} more steps — remove them to publish
+              +{steps.length - RECIPE_LIMITS.steps.max} more steps — remove them
+              to publish
             </p>
           )}
         </>

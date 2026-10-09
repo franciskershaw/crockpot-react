@@ -1,4 +1,5 @@
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
+import { RECIPE_LIMITS } from "@/features/recipes/utils/recipeLimits";
 import { FIELD_CLASSES } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import { Clock, Users } from "lucide-react";
@@ -66,8 +67,8 @@ export function RecipeDetailsSection() {
               label="cooking time"
               value={timeInMinutes.value}
               onChange={timeInMinutes.onChange}
-              min={1}
-              max={1440}
+              min={RECIPE_LIMITS.time.min}
+              max={RECIPE_LIMITS.time.max}
               step={5}
             />
           </div>
@@ -80,8 +81,8 @@ export function RecipeDetailsSection() {
               label="serves"
               value={serves.value}
               onChange={serves.onChange}
-              min={1}
-              max={50}
+              min={RECIPE_LIMITS.serves.min}
+              max={RECIPE_LIMITS.serves.max}
               step={1}
             />
           </div>
@@ -90,7 +91,9 @@ export function RecipeDetailsSection() {
         <div>
           <span className={LABEL_CLASSES}>
             Categories*{" "}
-            <span className="font-normal text-icon-muted">(pick 1–3)</span>
+            <span className="font-normal text-icon-muted">
+              {`(pick ${RECIPE_LIMITS.categories.min}–${RECIPE_LIMITS.categories.max})`}
+            </span>
           </span>
           <CategoryPicker
             categories={categories ?? []}

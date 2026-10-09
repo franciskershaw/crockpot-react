@@ -315,6 +315,10 @@ CFE-003.
   a hardcoded pool), planner tease as "coming soon", a real `/privacy`
   page and a trimmed footer. Agreed 2026-10-09, see
   `docs/handoffs/CFE-061.md`.
+- **CFE-062** — At deployment: add the API's host to the privacy page's
+  processor list once chosen, and re-check the page's "Last updated"
+  date. `contact@crockpot.app` (`CONTACT_EMAIL`) forwards to the founder's
+  Gmail via Cloudflare Email Routing, set up 2026-10-09; catch-all drops.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive

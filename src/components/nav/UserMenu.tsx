@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useLogout } from "@/features/auth/hooks/useLogout";
-import { LogOutIcon, SettingsIcon } from "lucide-react";
+import { LogOutIcon, SettingsIcon, ShieldIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { getInitials } from "./getInitials";
@@ -42,6 +42,12 @@ export function UserMenu() {
           <Link to="/account">
             <SettingsIcon />
             Account settings
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/privacy">
+            <ShieldIcon />
+            Privacy
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

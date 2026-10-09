@@ -67,6 +67,10 @@ const PendingRecipesPage = lazyNamed(
   "PendingRecipesPage",
 );
 
+const PrivacyPage = lazyNamed(
+  () => import("@/features/legal/pages/PrivacyPage"),
+  "PrivacyPage",
+);
 const AccountPage = lazyNamed(
   () => import("@/features/account/pages/AccountPage"),
   "AccountPage",
@@ -117,6 +121,7 @@ export function AppRoutes() {
             </RequireSignedOut>
           }
         />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/recipes" element={<BrowseRecipesPage />} />
         <Route
           path="/recipes/new"

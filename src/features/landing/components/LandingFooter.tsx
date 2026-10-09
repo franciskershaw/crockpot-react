@@ -1,4 +1,5 @@
 import { Logo } from "@/components/brand/Logo";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { Link } from "react-router-dom";
 
 export function LandingFooter() {
@@ -11,11 +12,12 @@ export function LandingFooter() {
           <Link to="/recipes" className="hover:text-background">
             Recipes
           </Link>
-          <Link to="/#pricing" className="hover:text-background">
-            Pricing
+          <Link to="/privacy" className="hover:text-background">
+            Privacy
           </Link>
-          <span>Privacy</span>
-          <span className="hidden md:inline">Contact</span>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-background">
+            Contact
+          </a>
         </nav>
       </div>
     </footer>

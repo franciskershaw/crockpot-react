@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { getRecipe } from "@/features/recipes/data/api";
 import { recipeKeys } from "@/features/recipes/data/queryKeys";
-import { isOwnPendingRecipe } from "@/features/recipes/hooks/useRecipePermissions";
 import { ApiError } from "@/lib/http/client";
 import { useApiQuery } from "@/lib/tanstack/useApiQuery";
 import { ChefHat } from "lucide-react";
@@ -27,7 +26,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
     queryFn: () => getRecipe(recipeId),
   });
   const { sentinelRef, isStuck } = useStickyHeroTrigger();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   if (isPending) return <RecipeDetailSkeleton />;
 
@@ -52,7 +51,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 
   return (
     <div>
-      {isOwnPendingRecipe(recipe, user) && <RecipePendingApprovalBanner />}
+      <RecipePendingApprovalBanner recipe={recipe} />
       <RecipeHero
         recipe={recipe}
         hasActionBar={isAuthenticated}

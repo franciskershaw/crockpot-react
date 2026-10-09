@@ -14,23 +14,24 @@ export function canManageRecipe(
   );
 }
 
-export function isOwnPendingRecipe(
+export type PendingApprovalViewer = "owner" | "admin";
+
+export function pendingApprovalViewer(
   recipe: Pick<RecipeDetail, "approved" | "createdById">,
   user: User | null,
-): boolean {
-  if (!user) return false;
-  return !recipe.approved && user.id === recipe.createdById;
+): PendingApprovalViewer | null {
+  if (!user || recipe.approved) return null;
+  if (user.role === "ADMIN") return "admin";
+  return user.id === recipe.createdById ? "owner" : null;
 }
 
 export interface RecipePermissions {
   canManage: boolean;
-  isOwnPendingApproval: boolean;
 }
 
 export function useRecipePermissions(recipe: RecipeDetail): RecipePermissions {
   const { user } = useAuth();
   return {
     canManage: canManageRecipe(recipe, user),
-    isOwnPendingApproval: isOwnPendingRecipe(recipe, user),
   };
 }

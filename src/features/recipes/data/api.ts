@@ -81,6 +81,17 @@ export function updateRecipe(
   return apiFetch<RecipeDetail>(`/recipes/${id}`, { method: "PATCH", body });
 }
 
+export function approveRecipe(
+  id: string,
+  updatedAt: string,
+): Promise<RecipeDetail> {
+  return apiFetch<RecipeDetail>(`/recipes/${id}/approve`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ updatedAt }),
+  });
+}
+
 export function deleteRecipe(id: string): Promise<void> {
   return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
 }

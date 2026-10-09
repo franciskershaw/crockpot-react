@@ -2,7 +2,7 @@ import { buildUser } from "@/test/authFixtures";
 import { describe, expect, it } from "vitest";
 
 import type { RecipeDetail } from "../data/types";
-import { canManageRecipe, isOwnPendingRecipe } from "./useRecipePermissions";
+import { canManageRecipe, pendingApprovalViewer } from "./useRecipePermissions";
 
 function recipe(
   overrides: Partial<Pick<RecipeDetail, "createdById" | "approved">> = {},
@@ -39,35 +39,36 @@ describe("canManageRecipe", () => {
   );
 });
 
-describe("isOwnPendingRecipe", () => {
-  it("is false for an anonymous viewer", () => {
-    expect(isOwnPendingRecipe(recipe({ approved: false }), null)).toBe(false);
-  });
+describe("pendingApprovalViewer", () => {
+  const owner = buildUser({ id: "u_1", role: "FREE" });
+  const admin = buildUser({ id: "admin_1", role: "ADMIN" });
+  const adminOwner = buildUser({ id: "u_1", role: "ADMIN" });
+  const other = buildUser({ id: "u_2", role: "FREE" });
 
-  it("is true for the creator's own unapproved recipe", () => {
+  it.each([
+    { who: "the owner", user: owner, expected: "owner" },
+    { who: "an admin", user: admin, expected: "admin" },
+    { who: "an admin who owns it", user: adminOwner, expected: "admin" },
+    { who: "another user", user: other, expected: null },
+    { who: "a signed-out viewer", user: null, expected: null },
+  ])("on a pending recipe, is $expected for $who", ({ user, expected }) => {
     expect(
-      isOwnPendingRecipe(
+      pendingApprovalViewer(
         recipe({ createdById: "u_1", approved: false }),
-        buildUser({ id: "u_1" }),
+        user,
       ),
-    ).toBe(true);
+    ).toBe(expected);
   });
 
-  it("is false once the recipe is approved, even for its creator", () => {
+  it.each([
+    { who: "the owner", user: owner },
+    { who: "an admin", user: admin },
+  ])("on an approved recipe, is null for $who", ({ user }) => {
     expect(
-      isOwnPendingRecipe(
+      pendingApprovalViewer(
         recipe({ createdById: "u_1", approved: true }),
-        buildUser({ id: "u_1" }),
+        user,
       ),
-    ).toBe(false);
-  });
-
-  it("is false for an admin viewing someone else's unapproved recipe", () => {
-    expect(
-      isOwnPendingRecipe(
-        recipe({ createdById: "someone_else", approved: false }),
-        buildUser({ id: "admin_1", role: "ADMIN" }),
-      ),
-    ).toBe(false);
+    ).toBeNull();
   });
 });

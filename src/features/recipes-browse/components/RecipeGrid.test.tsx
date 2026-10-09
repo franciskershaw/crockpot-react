@@ -105,69 +105,6 @@ describe("RecipeGrid", () => {
     expect(screen.queryByText("Unfiltered Recipe")).not.toBeInTheDocument();
   });
 
-  it("suppresses the star for a recipe matched via a single selected category", async () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockListRecipes.mockResolvedValue({
-      recipes: [
-        buildRecipeCard({ tier: "best", matchedCategoryCount: 1, score: 1 }),
-      ],
-      page: 1,
-      limit: 20,
-      total: 1,
-      totalPages: 1,
-    });
-
-    renderWithProviders(
-      <RecipeGrid
-        params={{ categoryIds: ["c1"] }}
-        from="/recipes"
-        activeFilterCount={1}
-        onClearFilters={vi.fn()}
-      />,
-    );
-
-    await waitFor(() =>
-      expect(screen.getByText("BBQ Pulled Pork")).toBeInTheDocument(),
-    );
-
-    expect(screen.queryByText("Best Match")).not.toBeInTheDocument();
-    expect(screen.getByText("1 category matched")).toBeInTheDocument();
-  });
-
-  it("shows the star for a recipe matched via two selected categories", async () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockListRecipes.mockResolvedValue({
-      recipes: [
-        buildRecipeCard({ tier: "best", matchedCategoryCount: 2, score: 1 }),
-      ],
-      page: 1,
-      limit: 20,
-      total: 1,
-      totalPages: 1,
-    });
-
-    renderWithProviders(
-      <RecipeGrid
-        params={{ categoryIds: ["c1", "c2"] }}
-        from="/recipes"
-        activeFilterCount={2}
-        onClearFilters={vi.fn()}
-      />,
-    );
-
-    await waitFor(() =>
-      expect(screen.getByText("Best Match")).toBeInTheDocument(),
-    );
-  });
-
   describe("entrance animation", () => {
     function grid() {
       return (

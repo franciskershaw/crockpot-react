@@ -231,7 +231,10 @@ describe("RecipeCard", () => {
     expect(screen.queryByText(/matched/)).not.toBeInTheDocument();
   });
 
-  it("shows the Best Match star when tier is best and selection isn't the single-category case", () => {
+  it.each([
+    ["best", "Best Match"],
+    ["good", "Good Match"],
+  ] as const)("shows the star for the API's %s tier", (tier, label) => {
     mockUseAuth.mockReturnValue({
       user: null,
       isAuthenticated: false,
@@ -242,102 +245,10 @@ describe("RecipeCard", () => {
     } as unknown as ReturnType<typeof useToggleFavourite>);
 
     renderWithProviders(
-      <RecipeCard
-        recipe={recipe({ tier: "best" })}
-        from="/recipes"
-        selectedCategoryCount={2}
-      />,
+      <RecipeCard recipe={recipe({ tier })} from="/recipes" />,
     );
 
-    expect(screen.getByText("Best Match")).toBeInTheDocument();
-  });
-
-  it("shows the Good Match star when tier is good and selection isn't the single-category case", () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockUseToggleFavourite.mockReturnValue({
-      mutate: vi.fn(),
-    } as unknown as ReturnType<typeof useToggleFavourite>);
-
-    renderWithProviders(
-      <RecipeCard
-        recipe={recipe({ tier: "good" })}
-        from="/recipes"
-        selectedIngredientCount={1}
-      />,
-    );
-
-    expect(screen.getByText("Good Match")).toBeInTheDocument();
-  });
-
-  it("suppresses the star when exactly one category is selected and no ingredients", () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockUseToggleFavourite.mockReturnValue({
-      mutate: vi.fn(),
-    } as unknown as ReturnType<typeof useToggleFavourite>);
-
-    renderWithProviders(
-      <RecipeCard
-        recipe={recipe({ tier: "best", matchedCategoryCount: 1 })}
-        from="/recipes"
-        selectedCategoryCount={1}
-        selectedIngredientCount={0}
-      />,
-    );
-
-    expect(screen.queryByText(/Best Match|Good Match/)).not.toBeInTheDocument();
-    expect(screen.getByText("1 category matched")).toBeInTheDocument();
-  });
-
-  it("shows the star when one category and one ingredient are both selected", () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockUseToggleFavourite.mockReturnValue({
-      mutate: vi.fn(),
-    } as unknown as ReturnType<typeof useToggleFavourite>);
-
-    renderWithProviders(
-      <RecipeCard
-        recipe={recipe({ tier: "best" })}
-        from="/recipes"
-        selectedCategoryCount={1}
-        selectedIngredientCount={1}
-      />,
-    );
-
-    expect(screen.getByText("Best Match")).toBeInTheDocument();
-  });
-
-  it("shows the star when exactly one ingredient is selected and no categories", () => {
-    mockUseAuth.mockReturnValue({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    mockUseToggleFavourite.mockReturnValue({
-      mutate: vi.fn(),
-    } as unknown as ReturnType<typeof useToggleFavourite>);
-
-    renderWithProviders(
-      <RecipeCard
-        recipe={recipe({ tier: "good" })}
-        from="/recipes"
-        selectedIngredientCount={1}
-        selectedCategoryCount={0}
-      />,
-    );
-
-    expect(screen.getByText("Good Match")).toBeInTheDocument();
+    expect(screen.getByText(label)).toBeInTheDocument();
   });
 
   it.each([

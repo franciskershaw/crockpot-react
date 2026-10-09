@@ -581,62 +581,21 @@ security findings — debt notes only):*
   opening a new tab); `isSafeRelativePath` lets control characters through
   (`?from=/%09/evil.com`), which a browser strips to `//evil.com` if it
   ever reaches a raw href. Unconfirmed whether react-router encodes it.
-- **CFE-053** — Recipe-form housekeeping: single-source the recipe limits
-  (serves, categories, time); catalogue by-id maps built once per fetch
-  (seeded at `CFE-010`); shared textarea classes and count hint; delete the
-  unreferenced Vite scaffold assets; `renderWithProviders` returns the
-  router so `RecipeForm.test` drops its retrying client; rename
-  `useReferenceData.ts`. Findings 7–12, all mechanical. Not started.
-  Grilled 2026-10-09 (cheap to undo, AI-driven, one commit per finding).
-  - **Acceptance criteria**
-    - [ ] **7.** `RECIPE_LIMITS` in `recipes/utils/` holds time 1–1440,
-      serves 1–50, categories 1–3, ingredients 1–50, steps 50, notes 10
-      (all checked against `crockpot-go` `recipe_requests.go`/
-      `validation.go`). The schema (bounds and messages),
-      `useBoundedServes`, the `RecipeDetailsSection` steppers and copy,
-      and `CategoryPicker` (cap and copy) read it; `MAX_STEPS`/`MAX_NOTES`
-      and `CategoryPicker`'s local `MAX_CATEGORIES` go. No copy changes.
-    - [ ] **8.** `byId(list)` in `src/lib/` (a `Map` keyed on `id`)
-      replaces all eight hand-built maps (`unitOptions.ts`,
-      `UnitMultiSelect`, `AddItemSearch`, `IngredientsSection` ×3,
-      `CategoryPicker`, `RegularsEditView`); name/abbreviation lookups
-      read `.get(id)?.name`. `unitOptionsFor` takes the units map, built
-      once by each caller. The hand-written `useMemo`s around these maps
-      go (React Compiler memoises them). Not `select`-derived hooks:
-      two sites get their list as a prop, and the compiler already
-      builds each map once per fetch.
-    - [ ] **9.** `TEXTAREA_CLASSES` (folding in `FIELD_CLASSES`) in
-      `recipes-form/utils/styles.ts`, used by Description, Chef's notes
-      and Instructions. `CountHint({ count, max, noun, emptyHint })` in
-      `recipes-form/components/` replaces `stepsHint`/`notesHint` and
-      their `<p>`, rendering exactly today's copy, classes and
-      `aria-live`.
-    - [ ] **10.** Delete `src/assets/{hero.png,react.svg,vite.svg}` and
-      `public/icons.svg`.
-    - [ ] **11.** `RecipeForm.test.tsx` keeps its own three-route router
-      but takes its client from `setupQueryClient` (retries off) instead
-      of a bare `new QueryClient()`. Narrowed at build: the test needs
-      real `/menu` and `/recipes/:id` routes, which `renderWithProviders`'
-      single splat route can't give, and it never used the router handle;
-      `renderWithProviders` keeps its own client for its deliberate
-      `gcTime: 0`.
-    - [ ] **12.** `recipes-browse/hooks/useReferenceData.ts` →
-      `useRecipeTimeRange.ts`.
-  - **Non-goals**: replacing `public/favicon.svg`, which is still Vite's
-    default logo and needs a Crockpot icon (design work, not filed);
-    `select`-derived catalogue hooks; any copy or visual change.
-  - **Verification**
-    - Pure refactor, no red step: `npm test`, `npm run lint` and
-      `npm run build` green after each commit; grep shows no
-      `new Map(` over catalogue data, no `MAX_STEPS`/`MAX_NOTES`/
-      `MAX_CATEGORIES`, and no bare limit numbers left in the form.
-    - Visual, founder on `npm run dev`, for 9: the add-recipe form with
-      Instructions and Chef's notes each empty, under the cap, and over
-      it (51 steps / 11 notes): hint copy and rust colour unchanged;
-      the three textareas look as before.
-    - Interactive, founder: ingredient rows and Regulars edit still
-      offer the right units per item; the serves stepper on a recipe
-      page stops at 1 and 50.
+- **CFE-053** — Recipe-form housekeeping. Findings 7–12. **Done**
+  (2026-10-09). `RECIPE_LIMITS` (`recipes/utils/recipeLimits.ts`) is the
+  one copy of the recipe limits the backend enforces; the schema,
+  steppers, `CategoryPicker` and copy read it. `byId` (`src/lib/`) builds
+  every id-keyed catalogue lookup, and `unitOptionsFor` takes the units
+  map. The maps are plain render-time values under the React Compiler,
+  not stable per fetch: in `IngredientsSection` they rebuild whenever the
+  rows change (~0.01ms), so don't pass one to a memoised child or an
+  effect dependency without wrapping it in `useMemo`. `TEXTAREA_CLASSES`
+  and `CountHint` serve the form's textareas. `RecipeForm.test` takes a
+  retry-free client from `setupQueryClient` but keeps its own router
+  (it needs real routes, which `renderWithProviders`' splat can't give).
+  Scaffold assets deleted; `useRecipeTimeRange.ts` renamed. Not done:
+  `public/favicon.svg` is still Vite's default logo, waiting on a
+  Crockpot icon.
 
 ### Deferred: future features
 

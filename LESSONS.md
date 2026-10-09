@@ -418,3 +418,8 @@ decision as fully closed. No code written yet.
 
 - No rework. Re-reading the week-old findings at the grill caught two drifts (`isOwnPendingRecipe` gone at `CFE-014`; the back buttons checked history at different times). The branch review found the new shared `HistoryBackLink` silently dropped a caller's `onClick`; fixed with a test.
 - **Pattern**: when extracting a wrapper that spreads a primitive's props, compose the handlers it overrides or drop them from the prop type.
+
+## 2026-10-09 — CFE-053 — Recipe-form housekeeping. Mostly clean; two premises were wrong.
+
+- Finding 11 assumed `RecipeForm.test` only needed the router handle back; it needed real routes, so it was narrowed mid-build. The grill dropped `useMemo`s on the claim the React Compiler builds each map once per fetch; compiling `IngredientsSection` showed it folds them into a larger block that re-runs per keystroke. Harmless here, but the spec had to be corrected.
+- **Pattern**: before leaning on "the React Compiler memoises this", compile the file and look; it memoises per reactive block, not per value.

@@ -55,7 +55,7 @@ export function ProfileCard({ user }: { user: User }) {
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <p
               className={cn(
-                "flex min-w-0 flex-1 items-center rounded-lg border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
+                "flex min-w-0 flex-1 items-center rounded-field border border-readonly-border bg-readonly-bg px-3.5 text-base text-readonly-text",
                 ACCOUNT_INPUT,
               )}
             >

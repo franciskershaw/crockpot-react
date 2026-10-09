@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const INPUT =
-  "h-12 rounded-lg border-[1.5px] bg-card px-3.5 text-base shadow-none md:text-base aria-invalid:border-field-error aria-invalid:ring-field-error/20";
+  "h-12 rounded-field border-[1.5px] bg-card px-3.5 text-base shadow-none md:text-base aria-invalid:border-field-error aria-invalid:ring-field-error/20";
 
 export function FormField({
   id,

@@ -82,7 +82,7 @@ export function IngredientsSection() {
       </p>
 
       {picked ? (
-        <div className="rounded-[7px] border-[1.5px] border-border bg-search-secondary px-3 py-1">
+        <div className="rounded-field border-[1.5px] border-border bg-search-secondary px-3 py-1">
           <AddItemEditor
             item={picked}
             allowedUnits={unitOptionsFor(picked, unitsById)}

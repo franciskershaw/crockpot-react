@@ -77,7 +77,7 @@ export function PhotoField() {
               ? { src: image.previewUrl }
               : fillImage(image.url, 400, 180))}
             alt=""
-            className="block h-41 w-full rounded-[7px] object-cover"
+            className="block h-41 w-full rounded-field object-cover"
           />
           <div className="absolute right-2.5 bottom-2.5 flex gap-2">
             <button
@@ -108,7 +108,7 @@ export function PhotoField() {
           type="button"
           disabled={isReading}
           onClick={openPicker}
-          className="flex h-41 w-full cursor-pointer items-center justify-center gap-1.5 rounded-[7px] border-[1.5px] border-dashed border-faint-border text-sm font-semibold text-ink-body disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex h-41 w-full cursor-pointer items-center justify-center gap-1.5 rounded-field border-[1.5px] border-dashed border-faint-border text-sm font-semibold text-ink-body disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Plus size={14} strokeWidth={2.2} />
           Add photo

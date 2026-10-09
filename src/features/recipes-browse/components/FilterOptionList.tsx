@@ -107,7 +107,7 @@ export function FilterOptionList({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={`Search ${label.toLowerCase()}...`}
-          className="h-9.5 rounded-[7px] border-border bg-search-secondary pl-8.5 text-[13px] text-icon-muted placeholder:text-icon-muted"
+          className="h-9.5 rounded-field border-border bg-search-secondary pl-8.5 text-[13px] text-icon-muted placeholder:text-icon-muted"
         />
       </div>
 

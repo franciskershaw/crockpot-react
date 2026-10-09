@@ -138,7 +138,7 @@ function CreateItemForm({
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger
                   id="create-item-category"
-                  className="h-10! w-full cursor-pointer rounded-[7px] border-[1.5px] border-border bg-card px-3 text-sm shadow-none focus-visible:border-green focus-visible:ring-green/14 data-placeholder:text-icon-muted"
+                  className="h-10! w-full cursor-pointer rounded-field border-[1.5px] border-border bg-card px-3 text-sm shadow-none focus-visible:border-green focus-visible:ring-green/14 data-placeholder:text-icon-muted"
                 >
                   <SelectValue placeholder="Choose a category" />
                 </SelectTrigger>

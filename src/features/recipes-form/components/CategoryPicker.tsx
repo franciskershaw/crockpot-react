@@ -37,7 +37,7 @@ export function CategoryPicker({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
-        <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-[7px] border-[1.5px] border-border bg-card p-2">
+        <div className="flex min-h-12 flex-wrap items-center gap-2 rounded-field border-[1.5px] border-border bg-card p-2">
           {selectedIds.map((id) => (
             <span
               key={id}

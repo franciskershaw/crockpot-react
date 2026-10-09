@@ -30,7 +30,7 @@ export function NumberStepper({
 
   return (
     // Ring only while typing, not when a ± button takes focus.
-    <div className="flex h-12 items-center justify-between rounded-[7px] border-[1.5px] border-border bg-card px-2.5 transition-[border-color,box-shadow] has-[input:focus]:border-green has-[input:focus]:ring-[3px] has-[input:focus]:ring-green/14">
+    <div className="flex h-12 items-center justify-between rounded-field border-[1.5px] border-border bg-card px-2.5 transition-[border-color,box-shadow] has-[input:focus]:border-green has-[input:focus]:ring-[3px] has-[input:focus]:ring-green/14">
       <button
         type="button"
         aria-label={`Decrease ${label}`}

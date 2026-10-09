@@ -647,7 +647,8 @@ security findings — debt notes only):*
   Crockpot icon.
 
 *Founder-raised in the pre-MVP bug run, 2026-10-09.*
-- **CFE-057** — App-wide colour contrast audit, before MVP.
+- **CFE-057** — App-wide colour contrast audit. Not blocking go-live
+  (founder, 2026-10-09).
   Accessibility hasn't been checked systematically. Two passes, results
   in a dated `docs/findings/` doc:
   - **Token pairs:** a script computes WCAG contrast for every

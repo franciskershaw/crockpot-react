@@ -310,6 +310,11 @@ CFE-003.
   pill styling with no new design. Recipes keep loading independently.
   Load time itself is `crockpot-go` `CROC-045` (gzip). Grilled
   2026-10-03, see `docs/handoffs/CFE-047.md`.
+- **CFE-061** — Landing page pre-launch tidy-up: drop the hardcoded
+  recipe-count pill, real photos in the showcase cards (random pick from
+  a hardcoded pool), planner tease as "coming soon", a real `/privacy`
+  page and a trimmed footer. Agreed 2026-10-09, see
+  `docs/handoffs/CFE-061.md`.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive

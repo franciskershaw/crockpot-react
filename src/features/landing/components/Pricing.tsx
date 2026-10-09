@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
+import { type ShowcaseRecipe } from "../utils/showcaseRecipes";
 import { HARD_SHADOW, SECTION_GAP } from "../utils/styles";
 import { PricingCard, type Plan } from "./PricingCard";
-import { RecipeCardPlaceholder } from "./RecipeCardPlaceholder";
+import { ShowcaseRecipeCard } from "./ShowcaseRecipeCard";
 
 const FREE: Plan = {
   name: "Free",
@@ -30,7 +31,7 @@ const PREMIUM: Plan = {
   ],
 };
 
-export function Pricing() {
+export function Pricing({ recipes }: { recipes: ShowcaseRecipe[] }) {
   return (
     <section id="pricing" className={`mx-auto max-w-7xl px-6 ${SECTION_GAP}`}>
       <div className="flex items-center gap-6">
@@ -44,12 +45,12 @@ export function Pricing() {
 
       <div className="mt-10 lg:grid lg:grid-cols-[2fr_3fr] lg:items-center lg:gap-12">
         <div className="hidden lg:relative lg:block lg:h-110">
-          <RecipeCardPlaceholder
-            meta="25 mins · serves 4"
+          <ShowcaseRecipeCard
+            recipe={recipes[0]}
             className="absolute left-0 top-0 -rotate-3"
           />
-          <RecipeCardPlaceholder
-            meta="45 mins · serves 6"
+          <ShowcaseRecipeCard
+            recipe={recipes[1]}
             className="absolute bottom-0 right-4 rotate-2"
           />
         </div>

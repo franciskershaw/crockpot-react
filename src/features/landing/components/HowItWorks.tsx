@@ -14,7 +14,7 @@ const STEPS: Step[] = [
     step: "01",
     accent: "bg-accent-rust",
     title: "Add meals to your menu",
-    body: "Browse 189 recipes and tap the basket on anything you fancy. No calendar, no set-up — the menu is just what you're cooking soon.",
+    body: "Browse the recipes and tap the basket on anything you fancy. No calendar, no set-up — the menu is just what you're cooking soon.",
   },
   {
     step: "02",

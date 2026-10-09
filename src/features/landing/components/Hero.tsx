@@ -4,20 +4,14 @@ import { goToGoogleLogin } from "@/features/auth/utils/googleLogin";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { type ShowcaseRecipe } from "../utils/showcaseRecipes";
 import { HARD_SHADOW } from "../utils/styles";
-import { RecipeCardPlaceholder } from "./RecipeCardPlaceholder";
+import { ShowcaseRecipeCard } from "./ShowcaseRecipeCard";
 
-export function Hero() {
+export function Hero({ recipes }: { recipes: ShowcaseRecipe[] }) {
   return (
     <section className="mx-auto grid max-w-7xl gap-12 px-6 pt-8 md:pt-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-16">
       <div className="space-y-6">
-        <p className="inline-block rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-          <span className="hidden sm:inline">
-            189 recipes · free forever tier · no card
-          </span>
-          <span className="sm:hidden">189 recipes · free forever</span>
-        </p>
-
         <h1 className="font-display text-[33px] font-medium leading-[1.1] text-balance sm:text-[74px] sm:leading-[1.05]">
           Never write a shopping list again.
         </h1>
@@ -63,16 +57,16 @@ export function Hero() {
       </div>
 
       <div className="hidden lg:relative lg:block lg:h-125">
-        <RecipeCardPlaceholder
-          meta="30 mins · serves 4"
+        <ShowcaseRecipeCard
+          recipe={recipes[0]}
           className="absolute left-0 top-0 -rotate-3"
         />
-        <RecipeCardPlaceholder
-          meta="40 mins · serves 2"
+        <ShowcaseRecipeCard
+          recipe={recipes[1]}
           className="absolute right-0 top-12 rotate-3"
         />
-        <RecipeCardPlaceholder
-          meta="320 mins · serves 12"
+        <ShowcaseRecipeCard
+          recipe={recipes[2]}
           className="absolute bottom-0 left-16 -rotate-2"
         />
       </div>

@@ -195,6 +195,9 @@ Sequenced to unblock on `crockpot-go` roughly in the order its own epics
 land, but the exact interleaving is a planning call for each ticket's own
 `grill-me`, not fixed here.
 
+**Current plan (2026-10-09): go live.** Order and cutover runbook:
+`crockpot-go`'s Epic 13. Frontend tickets: Epic 8 below.
+
 *Next-phase priority set 2026-09-06 (see `crockpot-go`'s matching note):
 `CFE-020` and `CFE-021` jump the queue ahead of Epic 3 once their
 respective `crockpot-go` blockers (`CROC-019`, then `CROC-042`) land —
@@ -587,11 +590,12 @@ security findings — debt notes only):*
   `AuthProvider` test, `RecipeGrid`'s remount test and `AppShell` keep
   their own setup (each needs a provider tree the helper doesn't build).
 - **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
-  `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on the first
-  Vercel deploy**, which itself waits on `crockpot-go` deploying.
-  The CSP must allow `res.cloudinary.com` images (cards, detail, the
-  edit form's photo), and `blob:` images for `CFE-049`'s local preview;
-  uploads go to the API, so no Cloudinary upload origin.
+  `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on `CFE-066`**
+  (the first Vercel deploy). The CSP must allow `res.cloudinary.com`
+  images (cards, detail, the edit form's photo), `blob:` images for
+  `CFE-049`'s local preview, Google Fonts (`fonts.googleapis.com` styles,
+  `fonts.gstatic.com` fonts, loaded in `index.html`) and the API origin
+  for `connect-src`; uploads go to the API, so no Cloudinary upload origin.
 
 *From the fourth whole-codebase tech-debt pass, 2026-10-02. Full detail:
 `docs/findings/2026-10-02-tech-debt.md`.*
@@ -658,6 +662,25 @@ security findings — debt notes only):*
   Grill which ones to take, and whether disabled controls (exempt in
   WCAG) get a minimum anyway. Seed: the Create item button's disabled
   state was 1.8:1 and is fixed (`bg-chip` + `ink-subtle`, ~3.2:1).
+
+### Epic 8: Go-live
+*Set 2026-10-09. The go-live order for both repos is in `crockpot-go`'s
+Epic 13; this epic holds the frontend tickets it sequences, plus
+`CFE-044` and `CFE-062` above.*
+- **CFE-063** — Crockpot favicon/app icon, replacing Vite's default
+  `public/favicon.svg` (left over from `CFE-053`). Open.
+- **CFE-064** — Pre-launch security review, the first for this repo. In
+  scope: `CFE-052`'s two flagged items (`HistoryBackLink` hijacking
+  cmd/ctrl/middle-click; `isSafeRelativePath` letting control characters
+  through). Findings to a dated `docs/findings/` doc. Paired with
+  `crockpot-go` `CROC-076`. Open.
+- **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
+  states, errors, toasts, privacy page). Open.
+- **CFE-066** — Vercel cutover. The Vercel project linked to the old
+  Next.js app today gets re-pointed at this repo: Vite preset,
+  `VITE_API_URL`, the production domain. `vercel.json`'s SPA rewrite
+  already matches `packing-list-react`'s. Run inside `crockpot-go`
+  `CROC-077`'s sequence, after the prod data import. Open.
 
 ### Deferred: future features
 

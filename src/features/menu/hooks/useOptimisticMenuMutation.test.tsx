@@ -1,7 +1,9 @@
 import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
+import { ApiError } from "@/lib/http/client";
 import { deferred, setupQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderHook, waitFor } from "@testing-library/react";
+import { toast } from "sonner";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { menuKeys } from "../data/queryKeys";
@@ -155,5 +157,36 @@ describe("useOptimisticMenuMutation", () => {
     expect(
       queryClient.getQueryState(shoppingListKeys.list())?.isInvalidated,
     ).toBe(true);
+  });
+
+  it.each([
+    [
+      new ApiError(409, "menu_limit_reached"),
+      "You've reached the 30-recipe menu limit. Remove one to add another.",
+    ],
+    [
+      new ApiError(400, "shopping_list_quantity_too_large"),
+      "That would push a shopping-list quantity past the largest amount we can store.",
+    ],
+    [
+      new ApiError(500, "failed to upsert menu entry"),
+      "failed to upsert menu entry",
+    ],
+  ])("reverts and toasts %s once, as readable copy", async (error, copy) => {
+    const { queryClient, wrapper } = setup();
+
+    const { result } = renderHook(
+      () =>
+        useOptimisticMenuMutation({
+          mutationFn: () => Promise.reject(error),
+          ...transform(),
+        }),
+      { wrapper },
+    );
+    result.current.mutate("vars");
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(menu(queryClient)).toEqual({ entries: [] });
+    expect(vi.mocked(toast.error).mock.calls).toEqual([[copy]]);
   });
 });

@@ -2,9 +2,11 @@ import { shoppingListKeys } from "@/features/shopping-list/data/queryKeys";
 import { refetchAfterLastMutation } from "@/lib/tanstack/refetchAfterLastMutation";
 import { useApiMutation } from "@/lib/tanstack/useApiMutation";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { menuKeys } from "../data/queryKeys";
 import type { Menu } from "../data/types";
+import { menuErrorCopy } from "../utils/menuErrorCopy";
 import type { MenuTransform } from "../utils/menuTransforms";
 
 // A failure marks the menu stale; whichever menu change settles last does the one refetch. Successes never refetch.
@@ -21,6 +23,7 @@ export function useOptimisticMenuMutation<TVariables, TBefore>({
   return useApiMutation<{ message: string }, TVariables, { before: TBefore }>({
     mutationKey: menuKeys.change(),
     mutationFn,
+    isHandledError: (error) => menuErrorCopy(error) !== null,
     onMutate: async (variables) => {
       await queryClient.cancelQueries({ queryKey: menuKeys.menu() });
       const before = capture(
@@ -32,7 +35,9 @@ export function useOptimisticMenuMutation<TVariables, TBefore>({
       );
       return { before };
     },
-    onError: (_error, variables, context) => {
+    onError: (error, variables, context) => {
+      const copy = menuErrorCopy(error);
+      if (copy) toast.error(copy);
       if (context) {
         queryClient.setQueryData<Menu>(menuKeys.menu(), (data) =>
           revert(data, variables, context.before),

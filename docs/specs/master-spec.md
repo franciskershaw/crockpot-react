@@ -303,7 +303,7 @@ CFE-003.
   `CFE-006` decisions 9-10 for this tab. Newest-first order depends on
   `crockpot-go` `CROC-060`. **Done** (2026-09-28).
 - **CFE-045** — Menu write errors show copy, not codes, paired with
-  `crockpot-go` `CROC-059` (blocked on it for the on-screen check).
+  `crockpot-go` `CROC-059` (Done 2026-10-09, so unblocked).
   `menu_limit_reached` and `shopping_list_quantity_too_large` toast
   readable copy from one map in `useOptimisticMenuMutation`; the
   optimistic change reverts as today. No pre-disable at the cap.

@@ -1,5 +1,6 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { User } from "@/features/auth/data/types";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 
 import type { RecipeDetail } from "../data/types";
 
@@ -8,10 +9,7 @@ export function canManageRecipe(
   user: User | null,
 ): boolean {
   if (!user) return false;
-  return (
-    user.role === "ADMIN" ||
-    (!recipe.approved && user.id === recipe.createdById)
-  );
+  return isAdmin(user) || (!recipe.approved && user.id === recipe.createdById);
 }
 
 export type PendingApprovalViewer = "owner" | "admin";
@@ -21,7 +19,7 @@ export function pendingApprovalViewer(
   user: User | null,
 ): PendingApprovalViewer | null {
   if (!user || recipe.approved) return null;
-  if (user.role === "ADMIN") return "admin";
+  if (isAdmin(user)) return "admin";
   return user.id === recipe.createdById ? "owner" : null;
 }
 

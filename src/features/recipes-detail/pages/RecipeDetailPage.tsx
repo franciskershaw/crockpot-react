@@ -75,5 +75,5 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 export function RecipeDetailRoute() {
   const { id } = useParams();
   if (!id) return <Navigate to="/recipes" replace />;
-  return <RecipeDetailPage recipeId={id} />;
+  return <RecipeDetailPage key={id} recipeId={id} />;
 }

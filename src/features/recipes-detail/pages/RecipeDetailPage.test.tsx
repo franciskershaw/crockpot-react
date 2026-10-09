@@ -3,20 +3,25 @@ import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
 import { useRemoveFromMenu } from "@/features/menu/hooks/useRemoveFromMenu";
 import { useUpdateMenuEntryServes } from "@/features/menu/hooks/useUpdateMenuEntryServes";
-import { getRecipe } from "@/features/recipes/data/api";
+import { approveRecipe, getRecipe } from "@/features/recipes/data/api";
+import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { ApiError } from "@/lib/http/client";
 import { buildUser } from "@/test/authFixtures";
+import { renderWithQueryClient } from "@/test/queryClientTestUtils";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Link, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { RecipeDetailPage } from "./RecipeDetailPage";
+import { RecipeDetailPage, RecipeDetailRoute } from "./RecipeDetailPage";
 
 vi.mock("@/features/recipes/data/api", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/features/recipes/data/api")>()),
   getRecipe: vi.fn(),
+  approveRecipe: vi.fn(),
 }));
 vi.mock("sonner", () => ({ toast: { error: vi.fn() } }));
 vi.mock("@/features/auth/components/AuthContext", () => ({
@@ -213,5 +218,45 @@ describe("RecipeDetailPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /retry/i }));
 
     await waitFor(() => expect(mockGetRecipe).toHaveBeenCalledTimes(2));
+  });
+
+  it("starts the next recipe's approval afresh, even when it's already cached", async () => {
+    setupMenuAndAuth({
+      isAuthenticated: true,
+      user: buildUser({ id: "u_admin", role: "ADMIN" }),
+    });
+    const stew = buildRecipeDetail({
+      id: "r_a",
+      name: "Stew",
+      approved: false,
+    });
+    const pie = buildRecipeDetail({ id: "r_b", name: "Pie", approved: false });
+    mockGetRecipe.mockImplementation(async (id) => (id === "r_b" ? pie : stew));
+    vi.mocked(approveRecipe).mockRejectedValue(
+      new ApiError(409, "recipe_changed"),
+    );
+    renderWithQueryClient(
+      <>
+        <Link to="/recipes/r_b">next recipe</Link>
+        <Routes>
+          <Route path="/recipes/:id" element={<RecipeDetailRoute />} />
+        </Routes>
+      </>,
+      { route: "/recipes/r_a", seed: [[recipeKeys.detail("r_b"), pie]] },
+    );
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Approve" }));
+    await screen.findByText(
+      "This recipe changed since you opened it — check it again",
+    );
+    await user.click(screen.getByRole("link", { name: "next recipe" }));
+
+    expect((await screen.findAllByText("Pie")).length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText(
+        "This recipe changed since you opened it — check it again",
+      ),
+    ).not.toBeInTheDocument();
   });
 });

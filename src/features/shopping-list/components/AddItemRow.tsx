@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
@@ -42,7 +43,6 @@ export function AddItemRow({
   const [returnFocus, setReturnFocus] = useState(false);
   const [newItemName, setNewItemName] = useState<string | null>(null);
   const [resumeKey, setResumeKey] = useState(0);
-  const isAdmin = user?.role === "ADMIN";
 
   const allowedUnits = useMemo(
     () => (picked ? unitOptionsFor(picked, units ?? []) : []),
@@ -90,11 +90,11 @@ export function AddItemRow({
           unavailable={unavailable}
           focusOnMount={returnFocus}
           resumeKey={resumeKey}
-          onCreate={isAdmin ? setNewItemName : undefined}
+          onCreate={isAdmin(user) ? setNewItemName : undefined}
           onPick={pick}
         />
       )}
-      {isAdmin && (
+      {isAdmin(user) && (
         <Suspense fallback={null}>
           <CreateItemDialog
             open={newItemName !== null}

@@ -1,4 +1,5 @@
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { toast } from "sonner";
 
 import { RecipeForm } from "../components/RecipeForm";
@@ -23,7 +24,7 @@ export function CreateRecipePage() {
       onSubmit={(values, done) =>
         createRecipe.mutate(toRequest(values), {
           onSuccess: (recipe) => {
-            if (user?.role !== "ADMIN") {
+            if (!isAdmin(user)) {
               toast.success(
                 "Submitted — only you can see it until it's approved.",
               );

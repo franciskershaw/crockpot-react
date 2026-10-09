@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { AddItemEditor } from "@/features/catalog/components/AddItemEditor";
 import { AddItemSearch } from "@/features/catalog/components/AddItemSearch";
 import type { Item } from "@/features/catalog/data/types";
@@ -35,7 +36,6 @@ export function IngredientsSection() {
   const [newItemName, setNewItemName] = useState<string | null>(null);
   const [resumeKey, setResumeKey] = useState(0);
   const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
 
   const unitAbbreviations = useMemo(
     () => new Map(units?.map((unit) => [unit.id, unit.abbreviation])),
@@ -118,7 +118,7 @@ export function IngredientsSection() {
           variant="recipe"
           focusOnMount={returnFocus}
           resumeKey={resumeKey}
-          onCreate={isAdmin ? setNewItemName : undefined}
+          onCreate={isAdmin(user) ? setNewItemName : undefined}
           onPick={pickItem}
           inputRef={searchRef}
         />
@@ -153,7 +153,7 @@ export function IngredientsSection() {
           ))}
         </ul>
       )}
-      {isAdmin && (
+      {isAdmin(user) && (
         <Suspense fallback={null}>
           <CreateItemDialog
             open={newItemName !== null}

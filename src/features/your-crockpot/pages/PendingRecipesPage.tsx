@@ -1,5 +1,6 @@
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { useAuth } from "@/features/auth/components/AuthContext";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { ClipboardCheck } from "lucide-react";
 import { Navigate } from "react-router-dom";
 
@@ -10,7 +11,7 @@ export function PendingRecipesPage() {
   const { user } = useAuth();
   const query = usePendingRecipes();
 
-  if (user?.role !== "ADMIN") {
+  if (!isAdmin(user)) {
     return <Navigate to="/library/favourites" replace />;
   }
 

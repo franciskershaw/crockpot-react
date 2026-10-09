@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import type { User } from "@/features/auth/data/types";
+import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { Trash2Icon } from "lucide-react";
 
 import { AccountCard } from "./AccountCard";
@@ -10,7 +11,7 @@ import { DeleteAccountDialog } from "./DeleteAccountDialog";
 export function DeleteAccountCard({ user }: { user: User }) {
   const [open, setOpen] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const isAdmin = user.role === "ADMIN";
+  const userIsAdmin = isAdmin(user);
 
   return (
     <AccountCard
@@ -21,7 +22,7 @@ export function DeleteAccountCard({ user }: { user: User }) {
       <p className="text-[13.5px] md:text-[14.5px]">
         Permanently delete your account and your data.
       </p>
-      {isAdmin && (
+      {userIsAdmin && (
         <p className="mt-2 text-[13px] font-semibold text-ink-subtle">
           Admin accounts can&apos;t be deleted here.
         </p>
@@ -30,7 +31,7 @@ export function DeleteAccountCard({ user }: { user: User }) {
         <Button
           type="button"
           variant="outline"
-          disabled={isAdmin}
+          disabled={userIsAdmin}
           onClick={() => {
             setAttempt((n) => n + 1);
             setOpen(true);

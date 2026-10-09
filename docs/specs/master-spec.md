@@ -571,7 +571,44 @@ security findings — debt notes only):*
   generic list ops (`useDeleteRecipe` re-implements one); `EditRecipePage`
   copies the detail query (`useRecipe(id)`); `canGoBackInApp` and the
   history-back click are shared across features from a `recipes-detail`
-  hook file. Findings 4–6. Not started.
+  hook file. Findings 4–6. Not started. Grilled 2026-10-09 (cheap to
+  undo, AI-driven, one batch, one commit per piece).
+  - **Acceptance criteria**
+    - [ ] `recipes/utils/favouritesCache.ts` → `recipeListCache.ts`:
+      `withoutRecipe`, `findRecipe`, `withRecipeRestored`, `withTotal`,
+      `RecipeSlot` (was `FavouriteSlot`), plus `flipFavourite` moved out
+      of `useToggleFavourite.ts`. `flipFavouriteOnMenu`/`Detail` stay in
+      the hook (not list ops). `useDeleteRecipe` drops `evictRecipe` for
+      `withoutRecipe`.
+    - [ ] `useRecipe(id)` in `recipes/hooks/` wraps the detail query;
+      `RecipeDetailPage` and `EditRecipePage` use it. `getRecipe` stays
+      a standalone function. `useApproveRecipe`'s cache write is
+      unchanged.
+    - [ ] `canGoBackInApp` → `src/lib/canGoBackInApp.ts`, its tests moved
+      out of `useRecipeBackDestination.test.ts` beside it.
+    - [ ] `HistoryBackLink` in `src/components/`: a `Link` wrapper that
+      checks `canGoBackInApp()` at click time and does `navigate(-1)`,
+      else falls through to `to`. `RecipeBackButton` and
+      `RecipeFormMobileHeader` use it; `BackDestination.canGoBack` is
+      deleted; no `recipes-form` → `recipes-detail` import remains.
+    - [ ] `canManageRecipe` + `pendingApprovalViewer` (finding 6 named
+      `isOwnPendingRecipe`, replaced at `CFE-014`) →
+      `recipes/utils/recipePermissions.ts`; `useRecipePermissions`
+      re-uses them; `EditRecipePage` and `RecipePendingApprovalBanner`
+      import from `utils/`; the test file moves with them.
+  - **Non-goals**: new unit tests for the moved list helpers (covered
+    through the hook tests); any behaviour or UI change; dropping
+    `useRecipePermissions`.
+  - **Verification**
+    - Pure refactor, no red step: `npm test`, `npm run lint` and
+      `npm run build` stay green after each piece; grep shows no
+      `favouritesCache`, `evictRecipe` or cross-feature
+      `recipes-detail/hooks` import left.
+    - Interactive, founder on `npm run dev`: browse → recipe → "Back to
+      recipes" restores scroll; open a recipe URL in a fresh tab → back
+      goes to `/recipes`; on mobile width, edit page header back returns
+      to the recipe; delete a recipe and un-heart a favourite, both lists
+      update.
 - **CFE-053** — Recipe-form housekeeping: single-source the recipe limits
   (serves, categories, time); catalogue by-id maps built once per fetch
   (seeded at `CFE-010`); shared textarea classes and count hint; delete the

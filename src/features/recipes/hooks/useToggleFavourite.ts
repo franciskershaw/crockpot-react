@@ -7,22 +7,23 @@ import { addFavourite, removeFavourite } from "../data/api";
 import { recipeKeys } from "../data/queryKeys";
 import type { RecipeDetail, RecipeListData } from "../data/types";
 import {
-  findFavourite,
-  withFavouriteRestored,
-  withoutFavourite,
+  findRecipe,
+  flipFavourite,
+  withoutRecipe,
+  withRecipeRestored,
   withTotal,
-  type FavouriteSlot,
-} from "../utils/favouritesCache";
+  type RecipeSlot,
+} from "../utils/recipeListCache";
 
 interface ToggleFavouriteVariables {
   recipeId: string;
   wasFavourite: boolean;
-  restoreAt?: FavouriteSlot;
+  restoreAt?: RecipeSlot;
 }
 
 interface FavouritesChange {
-  removed?: FavouriteSlot;
-  restored?: FavouriteSlot;
+  removed?: RecipeSlot;
+  restored?: RecipeSlot;
   // Not loaded, so only the total moves: +1 for a heart, -1 for an un-heart.
   counted?: 1 | -1;
 }
@@ -36,15 +37,15 @@ function applyFavouritesChange(
 ): { data: RecipeListData; change: FavouritesChange } | undefined {
   if (!data) return;
   if (wasFavourite) {
-    const removed = findFavourite(data, recipeId);
+    const removed = findRecipe(data, recipeId);
     return removed
-      ? { data: withoutFavourite(data, recipeId), change: { removed } }
+      ? { data: withoutRecipe(data, recipeId), change: { removed } }
       : { data: withTotal(data, -1), change: { counted: -1 } };
   }
-  if (findFavourite(data, recipeId)) return;
+  if (findRecipe(data, recipeId)) return;
   if (restoreAt) {
     return {
-      data: withFavouriteRestored(data, restoreAt),
+      data: withRecipeRestored(data, restoreAt),
       change: { restored: restoreAt },
     };
   }
@@ -56,26 +57,10 @@ function revertFavouritesChange(
   recipeId: string,
   { removed, restored, counted }: FavouritesChange,
 ): RecipeListData {
-  if (removed) return withFavouriteRestored(data, removed);
-  if (restored) return withoutFavourite(data, recipeId);
+  if (removed) return withRecipeRestored(data, removed);
+  if (restored) return withoutRecipe(data, recipeId);
   if (counted) return withTotal(data, -counted);
   return data;
-}
-
-function flipFavourite(
-  data: RecipeListData,
-  recipeId: string,
-  isFavourite: boolean,
-): RecipeListData {
-  return {
-    ...data,
-    pages: data.pages.map((page) => ({
-      ...page,
-      recipes: page.recipes.map((recipe) =>
-        recipe.id === recipeId ? { ...recipe, isFavourite } : recipe,
-      ),
-    })),
-  };
 }
 
 function flipFavouriteOnMenu(

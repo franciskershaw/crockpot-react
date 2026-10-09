@@ -1,7 +1,7 @@
 import type { RecipeCard, RecipeListData } from "../data/types";
 
 // index is the recipe's position across all loaded pages, as the page renders them.
-export interface FavouriteSlot {
+export interface RecipeSlot {
   recipe: RecipeCard;
   index: number;
 }
@@ -13,10 +13,10 @@ export function withTotal(data: RecipeListData, delta: number): RecipeListData {
   };
 }
 
-export function findFavourite(
+export function findRecipe(
   data: RecipeListData,
   recipeId: string,
-): FavouriteSlot | undefined {
+): RecipeSlot | undefined {
   let offset = 0;
   for (const page of data.pages) {
     const index = page.recipes.findIndex((recipe) => recipe.id === recipeId);
@@ -26,11 +26,11 @@ export function findFavourite(
   }
 }
 
-export function withoutFavourite(
+export function withoutRecipe(
   data: RecipeListData,
   recipeId: string,
 ): RecipeListData {
-  if (!findFavourite(data, recipeId)) return data;
+  if (!findRecipe(data, recipeId)) return data;
   return withTotal(
     {
       ...data,
@@ -43,11 +43,11 @@ export function withoutFavourite(
   );
 }
 
-export function withFavouriteRestored(
+export function withRecipeRestored(
   data: RecipeListData,
-  { recipe, index }: FavouriteSlot,
+  { recipe, index }: RecipeSlot,
 ): RecipeListData {
-  if (findFavourite(data, recipe.id) || data.pages.length === 0) return data;
+  if (findRecipe(data, recipe.id) || data.pages.length === 0) return data;
   let remaining = index;
   let target = data.pages.length - 1;
   for (const [pageIndex, page] of data.pages.entries()) {
@@ -75,4 +75,20 @@ export function withFavouriteRestored(
     },
     1,
   );
+}
+
+export function flipFavourite(
+  data: RecipeListData,
+  recipeId: string,
+  isFavourite: boolean,
+): RecipeListData {
+  return {
+    ...data,
+    pages: data.pages.map((page) => ({
+      ...page,
+      recipes: page.recipes.map((recipe) =>
+        recipe.id === recipeId ? { ...recipe, isFavourite } : recipe,
+      ),
+    })),
+  };
 }

@@ -587,6 +587,53 @@ security findings — debt notes only):*
   unreferenced Vite scaffold assets; `renderWithProviders` returns the
   router so `RecipeForm.test` drops its retrying client; rename
   `useReferenceData.ts`. Findings 7–12, all mechanical. Not started.
+  Grilled 2026-10-09 (cheap to undo, AI-driven, one commit per finding).
+  - **Acceptance criteria**
+    - [ ] **7.** `RECIPE_LIMITS` in `recipes/utils/` holds time 1–1440,
+      serves 1–50, categories 1–3, ingredients 1–50, steps 50, notes 10
+      (all checked against `crockpot-go` `recipe_requests.go`/
+      `validation.go`). The schema (bounds and messages),
+      `useBoundedServes`, the `RecipeDetailsSection` steppers and copy,
+      and `CategoryPicker` (cap and copy) read it; `MAX_STEPS`/`MAX_NOTES`
+      and `CategoryPicker`'s local `MAX_CATEGORIES` go. No copy changes.
+    - [ ] **8.** `byId(list)` in `src/lib/` (a `Map` keyed on `id`)
+      replaces all eight hand-built maps (`unitOptions.ts`,
+      `UnitMultiSelect`, `AddItemSearch`, `IngredientsSection` ×3,
+      `CategoryPicker`, `RegularsEditView`); name/abbreviation lookups
+      read `.get(id)?.name`. `unitOptionsFor` takes the units map, built
+      once by each caller. The hand-written `useMemo`s around these maps
+      go (React Compiler memoises them). Not `select`-derived hooks:
+      two sites get their list as a prop, and the compiler already
+      builds each map once per fetch.
+    - [ ] **9.** `TEXTAREA_CLASSES` (folding in `FIELD_CLASSES`) in
+      `recipes-form/utils/styles.ts`, used by Description, Chef's notes
+      and Instructions. `CountHint({ count, max, noun, emptyHint })` in
+      `recipes-form/components/` replaces `stepsHint`/`notesHint` and
+      their `<p>`, rendering exactly today's copy, classes and
+      `aria-live`.
+    - [ ] **10.** Delete `src/assets/{hero.png,react.svg,vite.svg}` and
+      `public/icons.svg`.
+    - [ ] **11.** `renderWithProviders` builds its client through
+      `setupQueryClient` (keeping `gcTime: 0`) and returns
+      `{ router, queryClient }` alongside the render result;
+      `RecipeForm.test.tsx` uses it instead of its own `new QueryClient()`.
+    - [ ] **12.** `recipes-browse/hooks/useReferenceData.ts` →
+      `useRecipeTimeRange.ts`.
+  - **Non-goals**: replacing `public/favicon.svg`, which is still Vite's
+    default logo and needs a Crockpot icon (design work, not filed);
+    `select`-derived catalogue hooks; any copy or visual change.
+  - **Verification**
+    - Pure refactor, no red step: `npm test`, `npm run lint` and
+      `npm run build` green after each commit; grep shows no
+      `new Map(` over catalogue data, no `MAX_STEPS`/`MAX_NOTES`/
+      `MAX_CATEGORIES`, and no bare limit numbers left in the form.
+    - Visual, founder on `npm run dev`, for 9: the add-recipe form with
+      Instructions and Chef's notes each empty, under the cap, and over
+      it (51 steps / 11 notes): hint copy and rust colour unchanged;
+      the three textareas look as before.
+    - Interactive, founder: ingredient rows and Regulars edit still
+      offer the right units per item; the serves stepper on a recipe
+      page stops at 1 and 50.
 
 ### Deferred: future features
 

@@ -14,7 +14,7 @@ import { RecipeGrid } from "../components/RecipeGrid";
 import { SearchBar } from "../components/SearchBar";
 import { useRecipeFilters } from "../hooks/useRecipeFilters";
 import { useRecipeList } from "../hooks/useRecipeList";
-import { useRecipeTimeRange } from "../hooks/useReferenceData";
+import { useRecipeTimeRange } from "../hooks/useRecipeTimeRange";
 import { useSessionSeed } from "../hooks/useSessionSeed";
 
 export function BrowseRecipesPage() {

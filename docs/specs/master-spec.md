@@ -355,6 +355,15 @@ CFE-003.
   for how each of this line's former open gaps (regenerate, quantity
   editor, progress bar, add-extra, clear-list, mobile) was resolved.
 
+- **CFE-058** — Water off the browse ingredient filter. Founder-raised
+  in the pre-MVP bug run (2026-10-09). Not blocking go-live. Blocked on
+  `crockpot-go` `CROC-073`, which adds an item-level `alwaysOnHand` flag
+  and keeps flagged items off generated shopping lists. Here: add the
+  field to `Item`, and have the browse filter drop flagged items. Keep
+  them in the recipe ingredient picker, since recipes legitimately list
+  water. Both use `ingredientItems` (`catalog/utils/`), so it needs a
+  small split.
+
 ### Epic 4: Add/Edit Recipe
 - **CFE-010** — Manual recipe form: create at `/recipes/new`, edit at
   `/recipes/:id/edit`. **Done** (2026-10-02), see

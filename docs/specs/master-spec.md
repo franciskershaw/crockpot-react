@@ -613,10 +613,13 @@ security findings — debt notes only):*
       `aria-live`.
     - [ ] **10.** Delete `src/assets/{hero.png,react.svg,vite.svg}` and
       `public/icons.svg`.
-    - [ ] **11.** `renderWithProviders` builds its client through
-      `setupQueryClient` (keeping `gcTime: 0`) and returns
-      `{ router, queryClient }` alongside the render result;
-      `RecipeForm.test.tsx` uses it instead of its own `new QueryClient()`.
+    - [ ] **11.** `RecipeForm.test.tsx` keeps its own three-route router
+      but takes its client from `setupQueryClient` (retries off) instead
+      of a bare `new QueryClient()`. Narrowed at build: the test needs
+      real `/menu` and `/recipes/:id` routes, which `renderWithProviders`'
+      single splat route can't give, and it never used the router handle;
+      `renderWithProviders` keeps its own client for its deliberate
+      `gcTime: 0`.
     - [ ] **12.** `recipes-browse/hooks/useReferenceData.ts` →
       `useRecipeTimeRange.ts`.
   - **Non-goals**: replacing `public/favicon.svg`, which is still Vite's

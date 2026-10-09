@@ -3,7 +3,7 @@ import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useUnits } from "@/features/catalog/hooks/useUnits";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { setupQueryClient } from "@/test/queryClientTestUtils";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, Link, RouterProvider } from "react-router-dom";
@@ -85,12 +85,13 @@ function setup(
     ],
     { initialEntries: ["/recipes/new"] },
   );
+  const { wrapper: Wrapper } = setupQueryClient();
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <Wrapper>
       <RouterProvider router={router} />
-    </QueryClientProvider>,
+    </Wrapper>,
   );
-  return { user: userEvent.setup(), router };
+  return { user: userEvent.setup() };
 }
 
 const leaveDialog = () =>

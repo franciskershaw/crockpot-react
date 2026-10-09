@@ -26,7 +26,9 @@ export function EmptyRecipes({
               <Button variant="outline" onClick={onClearFilters}>
                 Clear all filters
               </Button>
-              <AddRecipeLink />
+              <Button asChild>
+                <AddRecipeLink />
+              </Button>
             </div>
           </>
         }
@@ -39,7 +41,11 @@ export function EmptyRecipes({
       icon={ChefHat}
       heading="No recipes yet"
       description="It looks like there are no recipes in the collection yet. Check back soon."
-      actions={<AddRecipeLink />}
+      actions={
+        <Button asChild>
+          <AddRecipeLink />
+        </Button>
+      }
     />
   );
 }

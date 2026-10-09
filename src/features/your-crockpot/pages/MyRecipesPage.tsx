@@ -1,6 +1,6 @@
 import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { AddRecipeLink } from "@/components/nav/AddRecipeLink";
-import { PILL_CTA_CLASSES } from "@/lib/styles";
+import { Button } from "@/components/ui/button";
 import { ChefHat } from "lucide-react";
 
 import { LibraryRecipeList } from "../components/LibraryRecipeList";
@@ -19,9 +19,9 @@ export function MyRecipesPage() {
           heading="No recipes of your own yet"
           description="Recipes you create live here, ready to add to your menu."
           action={
-            <AddRecipeLink className={PILL_CTA_CLASSES}>
-              Create a recipe
-            </AddRecipeLink>
+            <Button asChild>
+              <AddRecipeLink>Create a recipe</AddRecipeLink>
+            </Button>
           }
         />
       }

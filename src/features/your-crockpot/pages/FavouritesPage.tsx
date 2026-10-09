@@ -2,9 +2,10 @@ import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
 import { LoadMoreSentinel } from "@/components/feedback/LoadMoreSentinel";
 import { UndoTile } from "@/components/feedback/UndoTile";
+import { Button } from "@/components/ui/button";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
-import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
+import { SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
 import { useLoadMoreOnSentinel } from "@/lib/useLoadMoreOnSentinel";
 import { cn } from "@/lib/utils";
@@ -66,9 +67,9 @@ export function FavouritesPage() {
           heading="No favourites yet"
           description="Tap the heart on any recipe you love and it's saved here for next time."
           action={
-            <Link to="/recipes" className={PILL_CTA_CLASSES}>
-              Browse recipes
-            </Link>
+            <Button asChild>
+              <Link to="/recipes">Browse recipes</Link>
+            </Button>
           }
         />
       ) : (

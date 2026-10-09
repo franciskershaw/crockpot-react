@@ -2,10 +2,8 @@ import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { StatePanel } from "@/components/StatePanel";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { getRecipe } from "@/features/recipes/data/api";
-import { recipeKeys } from "@/features/recipes/data/queryKeys";
+import { useRecipe } from "@/features/recipes/hooks/useRecipe";
 import { ApiError } from "@/lib/http/client";
-import { useApiQuery } from "@/lib/tanstack/useApiQuery";
 import { ChefHat } from "lucide-react";
 import { Link, Navigate, useParams } from "react-router-dom";
 
@@ -16,15 +14,7 @@ import { RecipePendingApprovalBanner } from "../components/RecipePendingApproval
 import { useStickyHeroTrigger } from "../hooks/useStickyHeroTrigger";
 
 export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
-  const {
-    data: recipe,
-    error,
-    isPending,
-    refetch,
-  } = useApiQuery({
-    queryKey: recipeKeys.detail(recipeId),
-    queryFn: () => getRecipe(recipeId),
-  });
+  const { data: recipe, error, isPending, refetch } = useRecipe(recipeId);
   const { sentinelRef, isStuck } = useStickyHeroTrigger();
   const { isAuthenticated } = useAuth();
 

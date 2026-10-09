@@ -1,12 +1,10 @@
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
 import { RouteFallback } from "@/components/RouteFallback";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { getRecipe } from "@/features/recipes/data/api";
-import { recipeKeys } from "@/features/recipes/data/queryKeys";
 import type { RecipeDetail } from "@/features/recipes/data/types";
+import { useRecipe } from "@/features/recipes/hooks/useRecipe";
 import { canManageRecipe } from "@/features/recipes/hooks/useRecipePermissions";
 import { ApiError } from "@/lib/http/client";
-import { useApiQuery } from "@/lib/tanstack/useApiQuery";
 import { Navigate, useParams } from "react-router-dom";
 
 import { RecipeForm } from "../components/RecipeForm";
@@ -39,15 +37,7 @@ function EditRecipeForm({ recipe }: { recipe: RecipeDetail }) {
 }
 
 export function EditRecipePage({ recipeId }: { recipeId: string }) {
-  const {
-    data: recipe,
-    error,
-    isPending,
-    refetch,
-  } = useApiQuery({
-    queryKey: recipeKeys.detail(recipeId),
-    queryFn: () => getRecipe(recipeId),
-  });
+  const { data: recipe, error, isPending, refetch } = useRecipe(recipeId);
   const { user } = useAuth();
 
   if (isPending) return <RouteFallback />;

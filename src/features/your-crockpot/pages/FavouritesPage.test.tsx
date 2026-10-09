@@ -214,6 +214,9 @@ describe("FavouritesPage", () => {
 
     expect(names("recipe-card")).toEqual(["Beef Casserole"]);
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Couldn't load more recipes."),
+    ).not.toBeInTheDocument();
   });
 
   it("puts an undo in the un-hearted card's place, and undo re-favourites it into that slot", async () => {
@@ -333,6 +336,37 @@ describe("FavouritesPage", () => {
       FakeIntersectionObserver.setSentinelInView(true);
 
       expect(loadMore).toHaveBeenCalled();
+    });
+
+    it("keeps the list and offers a retry when loading more fails", async () => {
+      mockFavourites([["Beef Casserole"]], {
+        isError: true,
+        hasNextPage: true,
+      });
+      render(page());
+
+      expect(names("recipe-card")).toEqual(["Beef Casserole"]);
+      expect(
+        screen.queryByText("Something went wrong"),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText("Couldn't load more recipes."),
+      ).toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Retry" }));
+      expect(loadMore).toHaveBeenCalled();
+    });
+
+    it("hides the retry while it is in flight", () => {
+      mockFavourites([["Beef Casserole"]], {
+        isError: true,
+        hasNextPage: true,
+        isFetching: true,
+      });
+      render(page());
+
+      expect(
+        screen.queryByText("Couldn't load more recipes."),
+      ).not.toBeInTheDocument();
     });
   });
 });

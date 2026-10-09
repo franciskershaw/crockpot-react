@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
+import { LoadMoreSentinel } from "@/components/LoadMoreSentinel";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
-import { useSentinelInView } from "@/lib/useSentinelInView";
+import { useLoadMoreOnSentinel } from "@/lib/useLoadMoreOnSentinel";
 import { AnimatePresence, motion } from "motion/react";
 
 import { useRecipeList } from "../hooks/useRecipeList";
@@ -32,6 +33,7 @@ export function RecipeGrid({
     data,
     fetchNextPage,
     hasNextPage,
+    isFetching,
     isFetchingNextPage,
     isLoading,
     isError,
@@ -44,13 +46,16 @@ export function RecipeGrid({
     () => new Set(data?.pages.flatMap((page) => page.recipes.map((r) => r.id))),
   );
 
-  const { sentinelRef, inView: sentinelInView } = useSentinelInView();
-
-  // Driven by state, not observer events: an event dropped while a fetch was
-  // running is never repeated while the sentinel stays in view.
-  useEffect(() => {
-    if (sentinelInView && hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [sentinelInView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const loadMore = () => {
+    if (isFetching || !hasNextPage) return;
+    fetchNextPage();
+  };
+  const sentinelRef = useLoadMoreOnSentinel({
+    hasNextPage,
+    isFetching,
+    isError,
+    loadMore,
+  });
 
   if (isLoading) {
     return (
@@ -64,11 +69,11 @@ export function RecipeGrid({
     );
   }
 
-  if (isError) {
-    return <LoadErrorPanel what="recipes" onRetry={() => refetch()} />;
+  if (!data) {
+    return isError ? (
+      <LoadErrorPanel what="recipes" onRetry={() => refetch()} />
+    ) : null;
   }
-
-  if (!data) return null;
 
   const recipes = data.pages.flatMap((page) => page.recipes);
 
@@ -133,7 +138,14 @@ export function RecipeGrid({
           ))}
       </AnimatePresence>
 
-      {hasNextPage && <div ref={sentinelRef} className="col-span-full h-1" />}
+      <LoadMoreSentinel
+        sentinelRef={sentinelRef}
+        hasNextPage={hasNextPage}
+        isError={isError}
+        isFetching={isFetching}
+        onRetry={loadMore}
+        className="col-span-full"
+      />
     </ResponsiveRecipeGrid>
   );
 }

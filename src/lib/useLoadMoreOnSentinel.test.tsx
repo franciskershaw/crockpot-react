@@ -62,7 +62,7 @@ describe("useLoadMoreOnSentinel", () => {
     expect(loadMore).toHaveBeenCalledTimes(callsWhileFetching + 1);
   });
 
-  it("doesn't retry a failed page while the sentinel stays in view, but does once it comes back", () => {
+  it("never retries a failed page on its own, even once the sentinel comes back", () => {
     const { rerender } = render(<List />);
     FakeIntersectionObserver.setSentinelInView(true);
     const callsBeforeFailure = loadMore.mock.calls.length;
@@ -72,10 +72,10 @@ describe("useLoadMoreOnSentinel", () => {
 
     FakeIntersectionObserver.setSentinelInView(false);
     FakeIntersectionObserver.setSentinelInView(true);
-    expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure + 1);
+    expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure);
   });
 
-  it("doesn't retry a failed refresh while the sentinel stays in view", () => {
+  it("never retries a failed refresh on its own, even once the sentinel comes back", () => {
     const { rerender } = render(<List />);
     FakeIntersectionObserver.setSentinelInView(true);
     rerender(<List isFetching />);
@@ -86,6 +86,16 @@ describe("useLoadMoreOnSentinel", () => {
 
     FakeIntersectionObserver.setSentinelInView(false);
     FakeIntersectionObserver.setSentinelInView(true);
-    expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure + 1);
+    expect(loadMore).toHaveBeenCalledTimes(callsBeforeFailure);
+  });
+
+  it("asks again once a retry clears the error with the sentinel in view", () => {
+    const { rerender } = render(<List isError />);
+    FakeIntersectionObserver.setSentinelInView(true);
+    expect(loadMore).not.toHaveBeenCalled();
+
+    rerender(<List />);
+
+    expect(loadMore).toHaveBeenCalledTimes(1);
   });
 });

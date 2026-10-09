@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useSentinelInView } from "@/lib/useSentinelInView";
 
 export function useLoadMoreOnSentinel({
@@ -15,17 +15,10 @@ export function useLoadMoreOnSentinel({
   loadMore: () => void;
 }) {
   const { sentinelRef, inView } = useSentinelInView();
-  // After a failed fetch (a page, or refreshing a stale list), only scrolling away and back retries it.
-  const leftViewSinceLastLoad = useRef(false);
 
+  // After a failed fetch only the caller's retry tries again, never the sentinel.
   useEffect(() => {
-    if (!inView) leftViewSinceLastLoad.current = true;
-  }, [inView]);
-
-  useEffect(() => {
-    if (!inView || !hasNextPage) return;
-    if (isError && !leftViewSinceLastLoad.current) return;
-    leftViewSinceLastLoad.current = false;
+    if (!inView || !hasNextPage || isError) return;
     loadMore();
   }, [inView, hasNextPage, isFetching, isError, changesInFlight, loadMore]);
 

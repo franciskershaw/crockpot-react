@@ -684,15 +684,53 @@ starting.*
   limiting, a velocity-aware gate (defer only above a scroll-speed
   threshold) is the untried option.
 
-- **CFE-037** — A failed next-page fetch replaces the whole browse grid
-  with the "Something went wrong" panel, because `RecipeGrid`'s
-  `isError` branch also fires when `data` already holds loaded pages
-  (surfaced while testing `CFE-036`). Losing the loaded recipes to one
-  transient failure is probably worse than a retry affordance under the
-  grid; not yet grilled. Must also rewrite `RecipeGrid.test.tsx`'s "does
-  not retry a failed page fetch while the sentinel stays in view": it
-  awaits that panel, so it currently locks in the behaviour this ticket
-  changes. Keep its real intent — a failed page fetch must not loop while
-  the sentinel stays in view (today only the unmounted sentinel prevents
-  it; once the grid stays mounted, the effect needs its own guard, e.g.
-  `isFetchNextPageError`).
+- **CFE-037** — Infinite lists keep loaded recipes and show an inline
+  retry when a later fetch fails (Browse, Favourites, Library). Browse
+  replaces the whole grid with the "Something went wrong" panel because
+  `RecipeGrid`'s `isError` branch also fires when `data` already holds
+  loaded pages (surfaced while testing `CFE-036`); Favourites and Library
+  keep their cards but fail silently, with only a scroll-away-and-back
+  retry. Grilled 2026-10-09 (cheap to undo, AI-driven).
+  - **Acceptance criteria**
+    - [ ] `LoadMoreSentinel` in `src/components/` (renders the sentinel,
+      or the retry row in its place): one centred row, muted
+      "Couldn't load more recipes." + small outline `Button` "Retry",
+      `src/index.css` tokens only; fixed copy, since every list holds
+      recipes and `LoadErrorPanel`'s `what` ("your favourites") doesn't
+      read after "more". No Claude-Design spec (founder call).
+    - [ ] Shown when `isError`, recipes are loaded, `hasNextPage` and
+      not `isFetching`, in place of the sentinel (a failed last-page
+      refresh shows nothing: Library's `loadMore` no-ops without a next
+      page, so Retry would be dead); the full `LoadErrorPanel` stays for
+      `isError` with no recipes. Plain `isError`, not `isFetchNextPageError`: a failed
+      stale-list refetch in Favourites also blocks paging.
+    - [ ] Retry calls the list's `loadMore()` (Favourites' refetches a
+      stale list or pages on, `useFavourites.ts`).
+    - [ ] `useLoadMoreOnSentinel` moves to `src/lib/` beside
+      `useSentinelInView` (second feature caller), test moving with it.
+      After a failure it never loads on its own (Retry is the only way
+      back; the scroll-away-and-back retry is gone), and
+      `useSentinelInView` ignores observer reports that land after
+      unmount — together they stopped a fetch/toast loop when Retry
+      failed fast with the backend off. `RecipeGrid` adopts it with a `loadMore` shaped like
+      `useLibraryRecipes`' (`isFetching || !hasNextPage` → return).
+    - [ ] Browse: a failed page 2 keeps page 1's cards and shows the row;
+      no repeat request while the sentinel stays in view (rewrites "does
+      not retry a failed page fetch…", which today awaits the panel);
+      Retry requests page 2 and its cards appear.
+    - [ ] Browse: a failed filter change (first page of a new key, with
+      `keepPreviousData`) still shows the full panel — confirm by test
+      that placeholder data is dropped on error.
+    - [ ] Favourites and Library: a failed next page keeps the cards and
+      shows the row; Retry loads the page.
+  - **Non-goals**: auto-retry/backoff (`retry: false` stays global); any
+    change to first-load error or skeleton states.
+  - **Verification**
+    - Logic, failing test first: `npx vitest run RecipeGrid
+      FavouritesPage MyRecipesPage useLoadMoreOnSentinel` (hook test now
+      in `src/lib/`), then
+      `npm test`.
+    - Visual + interactive, founder on `npm run dev`: in each list, load
+      page 1, stop `crockpot-go`, scroll to the end → row under the
+      loaded cards; restart `crockpot-go`, click Retry → next page loads
+      and the row goes. Commit message offered with that hand-over.

@@ -147,6 +147,9 @@ describe("MyRecipesPage", () => {
 
     expect(names("recipe-card")).toEqual(["Beef Casserole"]);
     expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Couldn't load more recipes."),
+    ).not.toBeInTheDocument();
   });
 
   it("asks for more once the end of the list comes into view", () => {
@@ -156,6 +159,17 @@ describe("MyRecipesPage", () => {
 
     FakeIntersectionObserver.setSentinelInView(true);
 
+    expect(loadMore).toHaveBeenCalled();
+  });
+
+  it("keeps the list and offers a retry when loading more fails", async () => {
+    mockMyRecipes([["Beef Casserole"]], { isError: true, hasNextPage: true });
+    renderPage();
+
+    expect(names("recipe-card")).toEqual(["Beef Casserole"]);
+    expect(screen.queryByText("Something went wrong")).not.toBeInTheDocument();
+    expect(screen.getByText("Couldn't load more recipes.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Retry" }));
     expect(loadMore).toHaveBeenCalled();
   });
 });

@@ -1,10 +1,12 @@
 import { EmptyTabPanel } from "@/components/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/LoadErrorPanel";
+import { LoadMoreSentinel } from "@/components/LoadMoreSentinel";
 import { UndoTile } from "@/components/UndoTile";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
 import { PILL_CTA_CLASSES, SCROLL_PANE_CLASSES } from "@/lib/styles";
 import { buildUndoSlots, type UndoSlot } from "@/lib/undoSlots";
+import { useLoadMoreOnSentinel } from "@/lib/useLoadMoreOnSentinel";
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 import { motion } from "motion/react";
@@ -12,7 +14,6 @@ import { Link } from "react-router-dom";
 
 import { LibraryListSkeleton } from "../components/LibraryListSkeleton";
 import { useFavourites } from "../hooks/useFavourites";
-import { useLoadMoreOnSentinel } from "../hooks/useLoadMoreOnSentinel";
 import { useUndoableFavouriteRemoval } from "../hooks/useUndoableFavouriteRemoval";
 
 export function FavouritesPage() {
@@ -83,7 +84,13 @@ export function FavouritesPage() {
                 remove(slot.item, slot.anchorKey, slot.index),
             })}
           />
-          {hasNextPage && <div ref={sentinelRef} className="h-1" />}
+          <LoadMoreSentinel
+            sentinelRef={sentinelRef}
+            hasNextPage={hasNextPage}
+            isError={isError}
+            isFetching={isFetching}
+            onRetry={loadMore}
+          />
         </>
       )}
     </motion.div>

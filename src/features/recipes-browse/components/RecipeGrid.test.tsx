@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { listRecipes } from "@/features/recipes/data/api";
+import type { RecipeListParams } from "@/features/recipes/data/types";
 import { FakeIntersectionObserver } from "@/test/fakeIntersectionObserver";
 import { buildRecipeCard } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
@@ -58,6 +60,49 @@ describe("RecipeGrid", () => {
       .click(screen.getByRole("button", { name: /retry/i }));
 
     await waitFor(() => expect(mockListRecipes).toHaveBeenCalledTimes(2));
+  });
+
+  it("shows the full error, not the previous filter's recipes, when a filter change fails", async () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockListRecipes.mockImplementation(async (params) => {
+      if (params?.categoryIds) throw new Error("network down");
+      return {
+        recipes: [buildRecipeCard({ name: "Unfiltered Recipe" })],
+        page: 1,
+        limit: 12,
+        total: 1,
+        totalPages: 1,
+      };
+    });
+    function FilterHarness() {
+      const [params, setParams] = useState<RecipeListParams>({});
+      return (
+        <>
+          <button onClick={() => setParams({ categoryIds: ["c1"] })}>
+            Apply filter
+          </button>
+          <RecipeGrid
+            params={params}
+            from="/recipes"
+            activeFilterCount={0}
+            onClearFilters={vi.fn()}
+          />
+        </>
+      );
+    }
+    renderWithProviders(<FilterHarness />);
+    await screen.findByText("Unfiltered Recipe");
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Apply filter" }));
+
+    await screen.findByText("Something went wrong");
+    expect(screen.queryByText("Unfiltered Recipe")).not.toBeInTheDocument();
   });
 
   it("suppresses the star for a recipe matched via a single selected category", async () => {
@@ -261,17 +306,78 @@ describe("RecipeGrid", () => {
       expect(pagesRequested().filter((page) => page === 2)).toHaveLength(1);
     });
 
-    it("does not retry a failed page fetch while the sentinel stays in view", async () => {
+    function failPage2() {
       mockListRecipes.mockImplementation(async (params) => {
         if (params?.page === 2) throw new Error("network down");
         return pageResponse(params?.page ?? 1);
       });
+    }
+
+    it("keeps loaded recipes and offers a retry when a page fetch fails, without retrying on its own", async () => {
+      failPage2();
       await screen.findByText("Recipe 1");
 
       FakeIntersectionObserver.setSentinelInView(true);
-      await screen.findByText("Something went wrong");
+      await screen.findByText("Couldn't load more recipes.");
 
+      expect(screen.getByText("Recipe 1")).toBeInTheDocument();
+      expect(
+        screen.queryByText("Something went wrong"),
+      ).not.toBeInTheDocument();
+      FakeIntersectionObserver.setSentinelInView(true);
       expect(pagesRequested()).toEqual([1, 2]);
+    });
+
+    it("loads the failed page on retry", async () => {
+      failPage2();
+      await screen.findByText("Recipe 1");
+      FakeIntersectionObserver.setSentinelInView(true);
+      await screen.findByText("Couldn't load more recipes.");
+
+      mockListRecipes.mockImplementation(async (params) =>
+        pageResponse(params?.page ?? 1),
+      );
+      await userEvent
+        .setup()
+        .click(screen.getByRole("button", { name: "Retry" }));
+
+      await screen.findByText("Recipe 2");
+      expect(
+        screen.queryByText("Couldn't load more recipes."),
+      ).not.toBeInTheDocument();
+    });
+
+    it("does not fetch again on its own when a disconnected observer reports late", async () => {
+      const created: FakeIntersectionObserver[] = [];
+      vi.stubGlobal(
+        "IntersectionObserver",
+        class extends FakeIntersectionObserver {
+          constructor(callback: IntersectionObserverCallback) {
+            super(callback);
+            created.push(this);
+          }
+        },
+      );
+      failPage2();
+      await screen.findByText("Recipe 1");
+      FakeIntersectionObserver.setSentinelInView(true);
+      await screen.findByText("Couldn't load more recipes.");
+
+      const user = userEvent.setup();
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await user.click(screen.getByRole("button", { name: "Retry" }));
+        await screen.findByText("Couldn't load more recipes.");
+        const observer = created.at(-1)!;
+        act(() =>
+          observer.callback(
+            [{ isIntersecting: true } as IntersectionObserverEntry],
+            observer as unknown as IntersectionObserver,
+          ),
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(pagesRequested()).toEqual([1, 2, 2, 2, 2]);
     });
   });
 });

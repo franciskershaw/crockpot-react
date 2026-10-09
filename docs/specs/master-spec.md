@@ -307,7 +307,7 @@ CFE-003.
   `menu_limit_reached` and `shopping_list_quantity_too_large` toast
   readable copy from one map in `useOptimisticMenuMutation`; the
   optimistic change reverts as today. No pre-disable at the cap.
-  Grilled 2026-10-09 (`docs/handoffs/CFE-045.md`).
+  **Done** (2026-10-09, `docs/handoffs/CFE-045.md`).
 - **CFE-054** — Quantity rule and error codes in sync with `crockpot-go`
   `CROC-064` (Done 2026-10-03, so unblocked). Low priority. (1) `parseQuantity`
   (`src/lib/quantity.ts`) also rejects anything over 100,000, the

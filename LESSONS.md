@@ -397,3 +397,8 @@ decision as fully closed. No code written yet.
 - Saving the name a second time sent the first value: under the React Compiler, `register()` isn't re-run after React Hook Form's `reset()`, so later typing never reached the form. Both cards had it, and no test saved twice. Review also found a password change reported as failed when only the follow-up `/me` fetch failed (a shape copied from `useResetPassword`), and a delete dialog that could be closed mid-request.
 - **Pattern**: never call React Hook Form's `reset()` in this codebase; use `setValue`, or remount the form with a `key`. Give every form test a submit-twice case.
 - **Pattern**: when a mutation chains a follow-up after the request that matters, a failure in the follow-up mustn't report the main request as failed.
+
+## 2026-10-09 — CFE-045 — Menu write errors show copy. Clean.
+
+- No rework. One piece, built against `crockpot-go` `CROC-059` after it was green. Putting the copy map in `useOptimisticMenuMutation` covered all four menu writes and the undo re-add in one place, and folded in `CFE-054`'s `shopping_list_quantity_too_large`. Skipped a pre-disable at the cap: the 409 path was needed anyway, and a disabled state would have needed a design.
+- **Pattern**: a code-to-copy map keyed on server strings needs `Object.hasOwn`, and a test with a prototype key like `"constructor"` to prove it.

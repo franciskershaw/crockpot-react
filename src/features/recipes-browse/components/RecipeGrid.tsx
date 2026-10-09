@@ -90,9 +90,6 @@ export function RecipeGrid({
     .slice(0, -1)
     .reduce((sum, page) => sum + page.recipes.length, 0);
 
-  const selectedCategoryCount = params.categoryIds?.length ?? 0;
-  const selectedIngredientCount = params.ingredientIds?.length ?? 0;
-
   return (
     <ResponsiveRecipeGrid>
       {recipes.map((recipe, index) => {
@@ -116,8 +113,6 @@ export function RecipeGrid({
               recipe={recipe}
               from={from}
               priority={index < PRIORITY_CARD_COUNT}
-              selectedCategoryCount={selectedCategoryCount}
-              selectedIngredientCount={selectedIngredientCount}
             />
           </motion.div>
         );

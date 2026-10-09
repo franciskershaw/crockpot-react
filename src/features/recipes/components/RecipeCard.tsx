@@ -5,7 +5,6 @@ import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
-import { visibleMatchTier } from "../utils/matchTier";
 import { recipeDetailPath } from "../utils/recipeDetailPath";
 import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuButton } from "./AddToMenuButton";
@@ -25,25 +24,17 @@ export function RecipeCard({
   recipe,
   from,
   priority = false,
-  selectedCategoryCount = 0,
-  selectedIngredientCount = 0,
   onRemoveFromMenu,
   onUnfavourite,
 }: {
   recipe: RecipeCardData;
   from: string;
   priority?: boolean;
-  selectedCategoryCount?: number;
-  selectedIngredientCount?: number;
   onRemoveFromMenu?: () => void;
   onUnfavourite?: () => void;
 }) {
   const { isAuthenticated } = useAuth();
-  const matchTier = visibleMatchTier(
-    recipe.tier,
-    selectedIngredientCount,
-    selectedCategoryCount,
-  );
+  const matchTier = recipe.tier;
 
   return (
     <Link

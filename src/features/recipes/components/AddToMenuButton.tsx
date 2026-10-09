@@ -107,7 +107,7 @@ export function AddToMenuButton({
                 animate={{ scaleY: 1 }}
                 exit={{ scaleY: 0 }}
                 transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-4 w-px bg-border"
+                className="h-4 w-px shrink-0 bg-border"
               />
 
               <motion.div
@@ -133,7 +133,7 @@ export function AddToMenuButton({
                 animate={{ scaleY: 1 }}
                 exit={{ scaleY: 0 }}
                 transition={{ duration: 0.15, delay: 0.1 }}
-                className="h-4 w-px bg-border"
+                className="h-4 w-px shrink-0 bg-border"
               />
 
               <AddToMenuConfirmButton

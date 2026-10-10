@@ -66,7 +66,7 @@ export function getRecipeTimeRange(): Promise<RecipeTimeRange> {
 }
 
 export function getRecipe(id: string): Promise<RecipeDetail> {
-  return apiFetch<RecipeDetail>(`/recipes/${id}`);
+  return apiFetch<RecipeDetail>(`/recipes/${encodeURIComponent(id)}`);
 }
 
 // Multipart: a `recipe` JSON part (RecipeWriteInput) plus an optional `photo`. The browser sets the boundary header.
@@ -78,14 +78,17 @@ export function updateRecipe(
   id: string,
   body: FormData,
 ): Promise<RecipeDetail> {
-  return apiFetch<RecipeDetail>(`/recipes/${id}`, { method: "PATCH", body });
+  return apiFetch<RecipeDetail>(`/recipes/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body,
+  });
 }
 
 export function approveRecipe(
   id: string,
   updatedAt: string,
 ): Promise<RecipeDetail> {
-  return apiFetch<RecipeDetail>(`/recipes/${id}/approve`, {
+  return apiFetch<RecipeDetail>(`/recipes/${encodeURIComponent(id)}/approve`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ updatedAt }),
@@ -93,19 +96,27 @@ export function approveRecipe(
 }
 
 export function deleteRecipe(id: string): Promise<void> {
-  return apiFetch<void>(`/recipes/${id}`, { method: "DELETE" });
+  return apiFetch<void>(`/recipes/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }
 
 export function addFavourite(recipeId: string): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/recipes/${recipeId}/favourite`, {
-    method: "POST",
-  });
+  return apiFetch<{ message: string }>(
+    `/recipes/${encodeURIComponent(recipeId)}/favourite`,
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function removeFavourite(
   recipeId: string,
 ): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/recipes/${recipeId}/favourite`, {
-    method: "DELETE",
-  });
+  return apiFetch<{ message: string }>(
+    `/recipes/${encodeURIComponent(recipeId)}/favourite`,
+    {
+      method: "DELETE",
+    },
+  );
 }

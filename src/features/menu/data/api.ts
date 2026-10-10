@@ -21,19 +21,25 @@ export function updateMenuEntryServes(
   recipeId: string,
   serves: number,
 ): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/menu/entries/${recipeId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ serves }),
-  });
+  return apiFetch<{ message: string }>(
+    `/menu/entries/${encodeURIComponent(recipeId)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ serves }),
+    },
+  );
 }
 
 export function removeMenuEntry(
   recipeId: string,
 ): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(`/menu/entries/${recipeId}`, {
-    method: "DELETE",
-  });
+  return apiFetch<{ message: string }>(
+    `/menu/entries/${encodeURIComponent(recipeId)}`,
+    {
+      method: "DELETE",
+    },
+  );
 }
 
 export function clearMenu(): Promise<{ message: string }> {

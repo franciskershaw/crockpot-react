@@ -24,17 +24,23 @@ export function updateShoppingListItem(
   id: string,
   changes: { obtained?: boolean; quantity?: number },
 ): Promise<MessageResponse> {
-  return apiFetch<MessageResponse>(`/shopping-list/items/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(changes),
-  });
+  return apiFetch<MessageResponse>(
+    `/shopping-list/items/${encodeURIComponent(id)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(changes),
+    },
+  );
 }
 
 export function deleteShoppingListItem(id: string): Promise<MessageResponse> {
-  return apiFetch<MessageResponse>(`/shopping-list/items/${id}`, {
-    method: "DELETE",
-  });
+  return apiFetch<MessageResponse>(
+    `/shopping-list/items/${encodeURIComponent(id)}`,
+    {
+      method: "DELETE",
+    },
+  );
 }
 
 export function clearShoppingList(): Promise<MessageResponse> {
@@ -73,7 +79,7 @@ export function updateRegular(
   id: string,
   changes: { quantity: number; unitId: string | null },
 ): Promise<Regular> {
-  return apiFetch<Regular>(`/regulars/${id}`, {
+  return apiFetch<Regular>(`/regulars/${encodeURIComponent(id)}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(changes),
@@ -81,5 +87,7 @@ export function updateRegular(
 }
 
 export function deleteRegular(id: string): Promise<void> {
-  return apiFetch<void>(`/regulars/${id}`, { method: "DELETE" });
+  return apiFetch<void>(`/regulars/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
 }

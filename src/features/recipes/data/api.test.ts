@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { fakeResponse } from "@/test/fakeResponse";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { buildRecipeListSearchParams } from "./api";
+import { buildRecipeListSearchParams, getRecipe } from "./api";
 
 describe("buildRecipeListSearchParams", () => {
   it("returns an empty search for no params", () => {
@@ -99,5 +100,24 @@ describe("buildRecipeListSearchParams", () => {
       false,
     );
     expect(buildRecipeListSearchParams({}).has("mine")).toBe(false);
+  });
+});
+
+describe("getRecipe", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("keeps a path-traversing id inside /recipes/", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(fakeResponse(true, 200, {}));
+
+    await getRecipe("x/../../menu");
+
+    const [url] = fetchSpy.mock.calls[0];
+    expect(new URL(String(url)).pathname).toMatch(
+      /\/recipes\/x%2F\.\.%2F\.\.%2Fmenu$/,
+    );
   });
 });

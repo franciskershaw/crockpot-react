@@ -11,7 +11,7 @@ export function PrivacyPage() {
           Privacy
         </h1>
         <p className="mb-8 text-sm text-muted-foreground">
-          Last updated 9 October 2026
+          Last updated 10 October 2026
         </p>
 
         <div className="space-y-8">
@@ -46,10 +46,10 @@ export function PrivacyPage() {
               email address and account ID.
             </p>
             <p>
-              Our server sees your IP address, as every website does. Crockpot
-              uses it to limit how many requests can be made and doesn't save
-              it, though our hosting providers' server logs record it for a
-              short time.
+              Our server sees your IP address, as any website does. Crockpot
+              uses it to limit how many requests can be made, and our server's
+              logs record it so we can spot faults and abuse. Those logs are
+              deleted after 14 days.
             </p>
           </Section>
 
@@ -89,6 +89,11 @@ export function PrivacyPage() {
               <li>Resend: verification and password-reset emails</li>
               <li>Google: sign-in, if you choose it</li>
               <li>Vercel: hosts this website</li>
+              <li>DigitalOcean: hosts our server, in London</li>
+              <li>
+                Cloudflare: carries traffic to our server, and forwards emails
+                sent to our contact address
+              </li>
             </ul>
           </Section>
 

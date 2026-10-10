@@ -465,3 +465,8 @@ decision as fully closed. No code written yet.
 
 - The grill planned one table-driven test over every static route, but `AppRoutes.test.tsx` mocks most pages, so it was swapped for `PageTitle` tests plus the branching detail/edit cases. The founder rejected the em-dash title separator after seeing it; titles use a pipe.
 - **Pattern**: open the test harness before promising a test shape in the grill. And no em dashes in anything a user sees.
+
+## 2026-10-10 — CFE-065 — Copy pass. Two misses on my side.
+
+- My first pass only applied the deslop skill's summary rules, read via `cat`; the founder asked whether I'd run it, and the full catalogs then caught passive voice, false agency, curly quotes and tells in my own rewrites. I'd also recommended keeping "fancy" as the brand's tone without asking; the founder found it try-hard. The Premium "Coming soon" took three screenshots: first a gap, then a heading-sized label, then misaligned buttons.
+- **Pattern**: when the founder names a skill, invoke it and read its references before drafting. Don't present inherited copy as agreed tone. For layout swaps, keep the space and the hierarchy, and align with layout (flex, `mt-auto`) rather than with copy length.

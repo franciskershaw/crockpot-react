@@ -707,22 +707,13 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   downloads alongside the hero. Accepted: a favourite tap in the
   ~100ms before the full recipe arrives shows no feedback until it
   lands.
-- **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
-  states, errors, toasts, privacy page). Scoped 2026-10-10 (cheap to
-  undo, AI-driven, no full grill). Open.
-  - **Scope:** every string a user can see or hear in this repo: page
-    text, headings, buttons, empty/error states, toasts, form
-    validation, placeholders, `aria-label`s, the privacy page, and
-    `index.html`'s title and description. Not `crockpot-go`'s emails or
-    API messages; not code comments or docs.
-  - **Rules:** the `deslop` skill; no em dashes in any user-facing
-    string; British English, keeping the landing page's warm, plain
-    tone. No guard test (founder call).
-  - **Process:** Claude drafts a before/after list grouped by page; the
-    founder strikes or rewords; then Claude applies it and updates tests
-    that assert on copy.
-  - **Verification:** full suite green after test updates; founder reads
-    the changed screens in `npm run dev`.
+- **CFE-065** — **Done** (2026-10-10). Copy pass over every
+  user-facing string with the `deslop` skill: no dashes in sentences
+  (en dashes in number ranges stay), active voice, fewer lists of
+  three, straight quotes, consistent sentence case, no "fancy". The
+  landing's Premium card shows "Coming soon" instead of a price; pricing
+  cards pin their buttons to the bottom. Code comments were out of
+  scope; no guard test (founder call).
 - **CFE-066** — Vercel cutover. The Vercel project linked to the old
   Next.js app today gets re-pointed at this repo: Vite preset,
   `VITE_API_URL`, the production domain. `vercel.json`'s SPA rewrite

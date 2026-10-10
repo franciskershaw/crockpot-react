@@ -92,7 +92,7 @@ export function ShoppingListPanel({
               Shopping list
             </h2>
             {grouped && (
-              <span className="text-[13px] text-on-dark-muted tabular-nums">
+              <span className="text-[13px] text-on-dark-muted tabular-nums max-sm:hidden">
                 {grouped.obtainedCount} / {grouped.totalCount}
               </span>
             )}

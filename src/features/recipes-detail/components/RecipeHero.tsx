@@ -40,12 +40,6 @@ export function RecipeHero({
 
   const actions = (
     <>
-      {isAuthenticated && (
-        <RecipeFavouriteButton
-          recipe={recipe}
-          className={ACTION_BUTTON_CLASSES}
-        />
-      )}
       {permissions.canManage && (
         <>
           <RecipeEditButton
@@ -59,6 +53,12 @@ export function RecipeHero({
             className={ACTION_BUTTON_CLASSES}
           />
         </>
+      )}
+      {isAuthenticated && (
+        <RecipeFavouriteButton
+          recipe={recipe}
+          className={ACTION_BUTTON_CLASSES}
+        />
       )}
       {isAuthenticated && <AddToMenuCTA recipe={recipe} variant="desktop" />}
     </>

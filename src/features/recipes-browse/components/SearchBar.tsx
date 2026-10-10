@@ -43,7 +43,7 @@ export function SearchBar({
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder="Search recipes by name…"
-        className="h-11.5 rounded-field border-[1.5px] border-border bg-card px-10 text-[15px] placeholder:text-placeholder md:text-[15px]"
+        className="h-10.5 md:h-11.5 rounded-field border-[1.5px] border-border bg-card px-10 text-[15px] placeholder:text-placeholder md:text-[15px]"
       />
       {draft && (
         <button

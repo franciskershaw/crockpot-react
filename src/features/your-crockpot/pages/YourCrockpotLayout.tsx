@@ -65,7 +65,7 @@ export function YourCrockpotLayout() {
         >
           <div className="flex w-full items-start justify-between gap-3 md:w-auto">
             <div>
-              <h1 className="mb-1.25 font-display text-[46px] leading-none font-medium tracking-[-0.015em] text-foreground">
+              <h1 className="mb-1.25 font-display text-[46px] leading-none max-[400px]:text-[36px] font-medium tracking-[-0.015em] text-foreground">
                 {tab.label}
               </h1>
               <p className="text-[15px] text-muted-foreground">{subtitle}</p>

@@ -720,6 +720,15 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   already matches `packing-list-react`'s. Run inside `crockpot-go`
   `CROC-077`'s sequence, after the prod data import. Open.
 
+- **CFE-069** — Mobile polish, founder-raised after go-live
+  (2026-10-10): the Browse heading no longer wraps on phones (smaller,
+  one line); the shopping list header drops its "0 / 10" count below
+  `sm`; "Menu"/"Library" headings shrink on the narrowest phones only;
+  recipe page actions run edit, delete, heart, add to menu, so the heart
+  sits by the menu button for every viewer. Visual, checked by the
+  founder on a phone. Open.
+- **CFE-070** — Proper README with screenshots. Open.
+
 ### Deferred: future features
 
 - **CFE-015** — Regulars: restock and manage a personal set of catalog

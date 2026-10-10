@@ -4,6 +4,7 @@ import { LoadMoreSentinel } from "@/components/feedback/LoadMoreSentinel";
 import { RecipeCard } from "@/features/recipes/components/RecipeCard";
 import { RecipeCardSkeleton } from "@/features/recipes/components/RecipeCardSkeleton";
 import type { RecipeListParams } from "@/features/recipes/data/types";
+import type { BackFrom } from "@/features/recipes/utils/recipeDetailPath";
 import { DELAYED_FADE_IN_CLASSES } from "@/lib/styles";
 import { useLoadMoreOnSentinel } from "@/lib/useLoadMoreOnSentinel";
 import { AnimatePresence, motion } from "motion/react";
@@ -25,7 +26,7 @@ export function RecipeGrid({
   onClearFilters,
 }: {
   params: RecipeListParams;
-  from: string;
+  from: BackFrom;
   activeFilterCount: number;
   onClearFilters: () => void;
 }) {

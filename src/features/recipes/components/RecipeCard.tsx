@@ -5,7 +5,7 @@ import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
-import { recipeDetailPath } from "../utils/recipeDetailPath";
+import { recipeDetailPath, type BackFrom } from "../utils/recipeDetailPath";
 import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
@@ -28,7 +28,7 @@ export function RecipeCard({
   onUnfavourite,
 }: {
   recipe: RecipeCardData;
-  from: string;
+  from: BackFrom;
   priority?: boolean;
   onRemoveFromMenu?: () => void;
   onUnfavourite?: () => void;

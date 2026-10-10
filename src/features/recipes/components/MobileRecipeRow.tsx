@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useAddToMenuButtonState } from "../hooks/useAddToMenuButtonState";
-import { recipeDetailPath } from "../utils/recipeDetailPath";
+import { recipeDetailPath, type BackFrom } from "../utils/recipeDetailPath";
 import { stopEvent } from "../utils/stopEvent";
 import { ICON_BUTTON_CLASSES } from "../utils/styles";
 import { AddToMenuBadge } from "./AddToMenuBadge";
@@ -26,7 +26,7 @@ export function MobileRecipeRow({
   onUnfavourite,
 }: {
   recipe: RecipeCardData;
-  from: string;
+  from: BackFrom;
   onRemoveFromMenu?: () => void;
   onUnfavourite?: () => void;
 }) {

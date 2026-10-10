@@ -80,6 +80,20 @@ describe("resolveBackDestination", () => {
     });
   });
 
+  it("keeps a known path with a trailing slash and its query string", () => {
+    expect(resolveBackDestination("/recipes/?q=beef")).toEqual({
+      to: "/recipes/?q=beef",
+      label: "Back to recipes",
+    });
+  });
+
+  it("uses the label of a known path with a trailing slash", () => {
+    expect(resolveBackDestination("/menu/")).toEqual({
+      to: "/menu/",
+      label: "Back to menu",
+    });
+  });
+
   it("falls back to /recipes for a known path with a trailing fragment", () => {
     expect(resolveBackDestination("/recipes#//evil.com")).toEqual({
       to: "/recipes",

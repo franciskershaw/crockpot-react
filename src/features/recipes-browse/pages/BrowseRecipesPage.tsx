@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
 import { useRecipeCategories } from "@/features/recipes/hooks/useRecipeCategories";
+import type { BackFrom } from "@/features/recipes/utils/recipeDetailPath";
 import { SlidersHorizontal } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
@@ -33,7 +34,9 @@ export function BrowseRecipesPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const location = useLocation();
-  const from = `${location.pathname}${location.search}`;
+  const from: BackFrom = location.search
+    ? `/recipes?${location.search.slice(1)}`
+    : "/recipes";
 
   const seed = useSessionSeed();
   const requestParams = { ...params, seed };

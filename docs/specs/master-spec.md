@@ -706,7 +706,8 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
      reframe. The page also renders the hero from the cached card
      (browse, library, favourites or menu) instead of waiting ~56ms for
      the detail request behind an invisible skeleton; the body skeleton
-     sits below until it arrives. Cards pending approval aren't used:
+     sits below until it arrives; the by-line comes from the card too
+     (`crockpot-go` `CROC-080`). Cards pending approval aren't used:
      their banner and creator-only actions would pop in. Checked by the
      founder on a fast connection, desktop and phone: no empty frame. From menu/library rows or a direct link
      nothing usable is cached and the hero behaves as today.

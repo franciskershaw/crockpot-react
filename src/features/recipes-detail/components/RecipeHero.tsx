@@ -19,9 +19,9 @@ import { RecipeHeroImage } from "./RecipeHeroImage";
 const ACTION_BUTTON_CLASSES =
   "border-0 bg-background/90 backdrop-blur-xs shadow-sm hover:bg-background";
 
-// A cached card can stand in until the full recipe arrives; the by-line waits for it.
+// A cached card can stand in until the full recipe arrives.
 export type RecipeHeroRecipe = RecipeCard &
-  Partial<Pick<RecipeDetail, "createdById" | "createdByName">>;
+  Partial<Pick<RecipeDetail, "createdById">>;
 
 export function RecipeHero({
   recipe,

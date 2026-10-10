@@ -112,6 +112,7 @@ describe("RecipeDetailPage", () => {
       id: "r_1",
       name: "BBQ Pulled Pork",
       approved: true,
+      createdByName: "Jamie M.",
     });
 
     renderWithQueryClient(<RecipeDetailPage recipeId="r_1" />, {
@@ -131,6 +132,7 @@ describe("RecipeDetailPage", () => {
     expect(
       screen.getByRole("heading", { name: "BBQ Pulled Pork" }),
     ).toBeInTheDocument();
+    expect(screen.getByText("By Jamie M.")).toBeInTheDocument();
     expect(screen.getByRole("status")).toBeInTheDocument();
 
     resolveRecipe!(

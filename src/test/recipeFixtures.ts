@@ -13,6 +13,7 @@ export function buildRecipeCard(
     approved: true,
     categories: [],
     createdAt: "2026-01-01T00:00:00.000Z",
+    createdByName: "Jamie",
     isFavourite: false,
     matchedIngredientCount: 0,
     totalIngredientCount: 0,

@@ -12,6 +12,7 @@ export interface RecipeCard {
   approved: boolean;
   categories: RecipeCategory[];
   createdAt: string;
+  createdByName: string | null;
   isFavourite: boolean;
   matchedIngredientCount: number;
   totalIngredientCount: number;
@@ -73,7 +74,6 @@ export interface RecipeDetail extends RecipeCard {
   notes: string[];
   ingredients: HydratedIngredient[];
   createdById: string;
-  createdByName: string | null;
   updatedAt: string;
 }
 

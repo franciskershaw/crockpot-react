@@ -67,4 +67,52 @@ describe("SearchBar", () => {
     rerender(<SearchBar value="" onChange={vi.fn()} />);
     expect(screen.getByRole("textbox")).toHaveValue("");
   });
+
+  it("shows the clear button only while there is text", async () => {
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+    });
+    render(<SearchBar value="" onChange={vi.fn()} />);
+
+    expect(
+      screen.queryByRole("button", { name: "Clear search" }),
+    ).not.toBeInTheDocument();
+
+    await user.type(screen.getByRole("textbox"), "c");
+
+    expect(
+      screen.getByRole("button", { name: "Clear search" }),
+    ).toBeInTheDocument();
+  });
+
+  it("clears an applied search immediately and refocuses the input", async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+    });
+    render(<SearchBar value="pork" onChange={onChange} />);
+
+    await user.click(screen.getByRole("button", { name: "Clear search" }));
+
+    const input = screen.getByRole("textbox");
+    expect(input).toHaveValue("");
+    expect(input).toHaveFocus();
+    expect(onChange).toHaveBeenCalledWith("");
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("clearing text that was never applied sends nothing", async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup({
+      advanceTimers: vi.advanceTimersByTime,
+    });
+    render(<SearchBar value="" onChange={onChange} />);
+
+    await user.type(screen.getByRole("textbox"), "chi");
+    await user.click(screen.getByRole("button", { name: "Clear search" }));
+    await vi.advanceTimersByTimeAsync(300);
+
+    expect(screen.getByRole("textbox")).toHaveValue("");
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });

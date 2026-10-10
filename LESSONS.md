@@ -458,3 +458,5 @@ decision as fully closed. No code written yet.
 
 - The framing bug came from `2fb9b0f` fixing the crop to one box shape while the card box changes shape with the grid. The flash took two passes: the card image under the hero worked, but the founder still saw the app background, because the hero itself waited on the detail request behind the invisible delayed skeleton. Rendering the hero from the cached card fixed it, and exposed the by-line as a late field (`crockpot-go` `CROC-080`). The founder's diagnosis ("for a moment there's nothing there") was right all along; the earlier fixes only changed what filled a box that didn't exist yet.
 - **Pattern**: for a "flash between pages" bug, trace what's on screen frame by frame from the click, including whether the target component is mounted at all, before improving what it shows once it is. And crop to a box shape only when that shape is fixed.
+
+## 2026-10-10 — Browse search clear button (no ticket). Clean; reused `AddItemSearch`'s clear control rather than restyling.

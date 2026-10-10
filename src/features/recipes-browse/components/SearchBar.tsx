@@ -1,6 +1,6 @@
-import { useEffect, useEffectEvent, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 const DEBOUNCE_MS = 300;
 
@@ -15,6 +15,7 @@ export function SearchBar({
 }) {
   const [draft, setDraft] = useState(value);
   const [syncedValue, setSyncedValue] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   if (value !== syncedValue) {
     setSyncedValue(value);
@@ -37,12 +38,27 @@ export function SearchBar({
         className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-icon-muted"
       />
       <Input
+        ref={inputRef}
         type="text"
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
         placeholder="Search recipes by name..."
-        className="h-11.5 rounded-field border-[1.5px] border-border bg-card px-3.5 pl-10 text-[15px] placeholder:text-placeholder md:text-[15px]"
+        className="h-11.5 rounded-field border-[1.5px] border-border bg-card px-10 text-[15px] placeholder:text-placeholder md:text-[15px]"
       />
+      {draft && (
+        <button
+          type="button"
+          aria-label="Clear search"
+          onClick={() => {
+            setDraft("");
+            if (value !== "") onChange("");
+            inputRef.current?.focus();
+          }}
+          className="absolute top-1/2 right-2.5 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-ink-subtle hover:bg-chip"
+        >
+          <X size={14} strokeWidth={2} />
+        </button>
+      )}
     </div>
   );
 }

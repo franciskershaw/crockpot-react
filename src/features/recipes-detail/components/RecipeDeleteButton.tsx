@@ -49,8 +49,8 @@ export function RecipeDeleteButton({
         <DialogHeader>
           <DialogTitle>Delete recipe</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{recipeName}&quot;? This
-            action cannot be undone.
+            This permanently deletes &quot;{recipeName}&quot;. You can&apos;t
+            undo it.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

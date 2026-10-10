@@ -14,19 +14,19 @@ const STEPS: Step[] = [
     step: "01",
     accent: "bg-accent-rust",
     title: "Add meals to your menu",
-    body: "Browse the recipes and tap the basket on anything you fancy. No calendar, no set-up — the menu is just what you're cooking soon.",
+    body: "Browse the recipes and tap the basket on anything that catches your eye. Your menu is whatever you're cooking soon. There's no calendar to fill in.",
   },
   {
     step: "02",
     accent: "bg-primary",
-    title: "The list writes itself",
-    body: "Every ingredient across every recipe on the menu, added up into one list and grouped by aisle. Edit it, add extras, clear it.",
+    title: "Crockpot writes your list",
+    body: "Every ingredient from the recipes on your menu, added up into one list grouped by aisle. You can edit it and add extras.",
   },
   {
     step: "03",
     accent: "bg-accent-gold",
     title: "Shop from your phone",
-    body: "Open the list in the shop, tick things into the trolley, watch it shrink. That's the whole job done.",
+    body: "Open the list in the shop and tick things off as they go in the trolley.",
   },
 ];
 

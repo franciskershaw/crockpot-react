@@ -59,23 +59,23 @@ function setup({
 describe.each(["desktop", "mobile"] as const)(
   "AddToMenuCTA (%s)",
   (variant) => {
-    it('shows "Add to Menu" with no badge when not in the menu', () => {
+    it('shows "Add to menu" with no badge when not in the menu', () => {
       setup({ isInMenu: false });
       render(<AddToMenuCTA recipe={buildRecipeCard()} variant={variant} />);
 
       expect(
         screen.getByRole("button", { name: "Add to menu" }),
-      ).toHaveTextContent("Add to Menu");
+      ).toHaveTextContent("Add to menu");
       expect(screen.queryByText("4")).not.toBeInTheDocument();
     });
 
-    it('shows "In Menu" with a serves badge when already in the menu', () => {
+    it('shows "On your menu" with a serves badge when already in the menu', () => {
       setup({ isInMenu: true, serves: 6 });
       render(<AddToMenuCTA recipe={buildRecipeCard()} variant={variant} />);
 
       expect(
         screen.getByRole("button", { name: "Edit menu item" }),
-      ).toHaveTextContent("In Menu");
+      ).toHaveTextContent("On your menu");
       expect(screen.getByText("6")).toBeInTheDocument();
     });
 

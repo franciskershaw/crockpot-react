@@ -102,7 +102,7 @@ export function AddToMenuCTA({
                   transition={{ duration: 0.2 }}
                   className="text-[13px] font-bold whitespace-nowrap text-background"
                 >
-                  {isInMenu ? "In Menu" : "Add to Menu"}
+                  {isInMenu ? "On your menu" : "Add to menu"}
                 </motion.span>
               </motion.button>
             )}

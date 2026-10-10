@@ -16,8 +16,8 @@ export function MobileFilterDrawer({
     <BottomSheet
       open={open}
       onOpenChange={onOpenChange}
-      title="Recipe Filters"
-      description="Search and filter the recipe catalog."
+      title="Recipe filters"
+      description="Search and filter the recipes."
       header={header}
       closeLabel="Close filters"
     >

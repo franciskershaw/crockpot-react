@@ -98,7 +98,7 @@ describe("ResetPasswordPage", () => {
     });
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
-        "Password updated. You've been signed out on other devices.",
+        "Password updated. We've signed you out on your other devices.",
       ),
     );
   });

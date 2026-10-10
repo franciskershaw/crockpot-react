@@ -90,7 +90,7 @@ export function FilterOptionList({
             onClick={handleToggleShowAll}
             className="cursor-pointer text-xs font-bold text-green"
           >
-            {showAll ? "Hide" : `Show All (${hiddenCount} more)`}
+            {showAll ? "Hide" : `Show all (${hiddenCount} more)`}
           </button>
         )}
       </div>
@@ -106,7 +106,7 @@ export function FilterOptionList({
           type="text"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder={`Search ${label.toLowerCase()}...`}
+          placeholder={`Search ${label.toLowerCase()}…`}
           className="h-9.5 rounded-field border-border bg-search-secondary pl-8.5 text-[13px] text-icon-muted placeholder:text-icon-muted"
         />
       </div>

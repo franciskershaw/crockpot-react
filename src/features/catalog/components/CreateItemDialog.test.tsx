@@ -180,7 +180,7 @@ describe("CreateItemDialog", () => {
 
     expect(
       await within(dialog).findByText(
-        "An item called “Onions” already exists.",
+        'An item called "Onions" already exists.',
       ),
     ).toBeInTheDocument();
     expect(

@@ -2,7 +2,7 @@ export const MAX_PHOTO_SIDE = 1600;
 const JPEG_QUALITY = 0.85;
 
 export const PHOTO_DECODE_MESSAGE =
-  "Couldn't read that photo — use a JPG, PNG or WebP";
+  "Couldn't read that photo. Use a JPG, PNG or WebP.";
 
 export class PhotoDecodeError extends Error {
   constructor() {

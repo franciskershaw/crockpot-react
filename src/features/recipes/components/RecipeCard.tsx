@@ -11,8 +11,8 @@ import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
 
 const TIER_LABEL = {
-  best: "Best Match",
-  good: "Good Match",
+  best: "Best match",
+  good: "Good match",
 } as const;
 
 const TIER_BADGE_CLASSES = {

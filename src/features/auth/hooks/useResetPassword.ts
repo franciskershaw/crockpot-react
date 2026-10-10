@@ -17,7 +17,7 @@ export function useResetPassword() {
     // Hook-level, not per-mutate: signing in unmounts the page before a per-call callback would run.
     onSuccess: () => {
       toast.success(
-        "Password updated. You've been signed out on other devices.",
+        "Password updated. We've signed you out on your other devices.",
       );
     },
   });

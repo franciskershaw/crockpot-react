@@ -64,7 +64,7 @@ export function RegisterPage() {
   return (
     <AuthCard
       title="Create your account"
-      subtitle="Free forever. Takes about a minute."
+      subtitle="It's free, and takes about a minute."
     >
       <PageTitle>Create account</PageTitle>
       <form

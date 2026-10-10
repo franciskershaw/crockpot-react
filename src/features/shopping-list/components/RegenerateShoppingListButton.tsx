@@ -23,7 +23,7 @@ export function RegenerateShoppingListButton({
         </button>
       }
       title="Regenerate shopping list?"
-      description="This rebuilds the list from the recipes on your menu. Anything you've added yourself, and anything you've ticked off, will be lost."
+      description="This rebuilds the list from the recipes on your menu. You'll lose anything you've added yourself or ticked off."
       confirmLabel="Regenerate list"
       pendingLabel="Regenerating…"
       isPending={regenerate.isPending}

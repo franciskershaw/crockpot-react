@@ -15,7 +15,7 @@ export function EmptyRecipes({
       <StatePanel
         icon={Search}
         heading="No results"
-        description="We couldn't find any recipes matching your current filters. Try adjusting or clearing them to see more options."
+        description="No recipes match these filters. Try changing or clearing some."
         actions={
           <>
             <p className="text-sm text-muted-foreground">
@@ -40,7 +40,7 @@ export function EmptyRecipes({
     <StatePanel
       icon={ChefHat}
       heading="No recipes yet"
-      description="It looks like there are no recipes in the collection yet. Check back soon."
+      description="There aren't any recipes yet. Check back soon."
       actions={
         <Button asChild>
           <AddRecipeLink />

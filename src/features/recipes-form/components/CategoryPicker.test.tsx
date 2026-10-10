@@ -64,7 +64,7 @@ describe("CategoryPicker", () => {
     expect(screen.getByRole("checkbox", { name: "Group" })).toBeDisabled();
     expect(screen.getByRole("checkbox", { name: "Batch" })).toBeEnabled();
     expect(
-      screen.getByText("Up to 3 — remove one to add another"),
+      screen.getByText("Up to 3. Remove one to add another."),
     ).toBeInTheDocument();
   });
 

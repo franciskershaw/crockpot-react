@@ -5,7 +5,7 @@ import { getAuthErrorMessage } from "./types";
 describe("getAuthErrorMessage", () => {
   it("tells a password account to sign in with email", () => {
     expect(getAuthErrorMessage("email_registered_with_password")).toBe(
-      "This email has a password — sign in with email instead.",
+      "This email uses a password. Sign in with email instead.",
     );
   });
 

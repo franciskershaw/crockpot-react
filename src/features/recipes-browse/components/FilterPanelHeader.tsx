@@ -7,7 +7,7 @@ export function FilterPanelHeader({
 }) {
   return (
     <div className="flex items-baseline gap-3">
-      <h2 className="font-display text-[21px] font-normal">Recipe Filters</h2>
+      <h2 className="font-display text-[21px] font-normal">Recipe filters</h2>
       {activeFilterCount > 0 && (
         <button
           type="button"

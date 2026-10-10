@@ -10,7 +10,7 @@ const SEVEN_OPTIONS = Array.from({ length: 7 }, (_, i) => ({
 }));
 
 describe("FilterOptionList", () => {
-  it("shows only the first 6 options with a Show All (N more) toggle beyond that", () => {
+  it("shows only the first 6 options with a Show all (N more) toggle beyond that", () => {
     render(
       <FilterOptionList
         label="Categories"
@@ -24,7 +24,7 @@ describe("FilterOptionList", () => {
     expect(screen.getByText("Category 6")).toBeInTheDocument();
     expect(screen.queryByText("Category 7")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Show All (1 more)" }),
+      screen.getByRole("button", { name: "Show all (1 more)" }),
     ).toBeInTheDocument();
   });
 
@@ -40,13 +40,13 @@ describe("FilterOptionList", () => {
 
     await userEvent
       .setup()
-      .click(screen.getByRole("button", { name: "Show All (1 more)" }));
+      .click(screen.getByRole("button", { name: "Show all (1 more)" }));
 
     expect(screen.getByText("Category 7")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Hide" })).toBeInTheDocument();
   });
 
-  it("does not render a Show All toggle when 6 or fewer options exist", () => {
+  it("does not render a Show all toggle when 6 or fewer options exist", () => {
     render(
       <FilterOptionList
         label="Categories"
@@ -73,7 +73,7 @@ describe("FilterOptionList", () => {
 
     await userEvent
       .setup()
-      .type(screen.getByPlaceholderText("Search categories..."), "gory 3");
+      .type(screen.getByPlaceholderText("Search categories…"), "gory 3");
 
     expect(screen.getByText("Category 3")).toBeInTheDocument();
     expect(screen.queryByText("Category 1")).not.toBeInTheDocument();
@@ -91,7 +91,7 @@ describe("FilterOptionList", () => {
 
     await userEvent
       .setup()
-      .type(screen.getByPlaceholderText("Search categories..."), "zzz");
+      .type(screen.getByPlaceholderText("Search categories…"), "zzz");
 
     expect(screen.getByText("0 results")).toBeInTheDocument();
   });

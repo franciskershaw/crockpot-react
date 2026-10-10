@@ -47,7 +47,7 @@ function LoginFlow() {
   return (
     <AuthCard
       title="Sign in"
-      subtitle="Welcome back — pick up your menu where you left it."
+      subtitle="Welcome back. Your menu's where you left it."
     >
       <LoginForm
         defaultEmail={view.email}

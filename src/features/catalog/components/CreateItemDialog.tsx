@@ -88,7 +88,7 @@ function CreateItemForm({
       onError: (error) => {
         if (error.status === 409) {
           setError("name", {
-            message: `An item called “${values.name}” already exists.`,
+            message: `An item called "${values.name}" already exists.`,
           });
         }
       },

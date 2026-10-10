@@ -17,8 +17,8 @@ export function PrivacyPage() {
         <div className="space-y-8">
           <Section title="Who runs Crockpot">
             <p>
-              Crockpot is run by myself, Francis Kershaw, a solo developer based
-              in the UK. For anything about your data, email <ContactLink />.
+              Crockpot is run by me, Francis Kershaw, a solo developer based in
+              the UK. For anything about your data, email <ContactLink />.
             </p>
           </Section>
 
@@ -37,8 +37,8 @@ export function PrivacyPage() {
               </li>
               <li>
                 Sign-in tokens that keep you signed in, and the links we email
-                for verification and password resets. These are stored hashed
-                and expire.
+                for verification and password resets. We store these hashed, and
+                they expire.
               </li>
             </ul>
             <p>
@@ -57,22 +57,23 @@ export function PrivacyPage() {
             <p>
               To run the service you signed up for: your account, menu, lists
               and recipes. We email you only to verify your address or reset
-              your password. No marketing, no selling your data, no ads.
+              your password. We don't send marketing, sell your data or show
+              ads.
             </p>
           </Section>
 
           <Section title="Cookies">
             <p>
-              One cookie, which keeps you signed in. It's essential to the site
-              working, so there's no cookie banner. No analytics or tracking
+              One cookie, which keeps you signed in. The site needs it to work,
+              so there's no cookie banner. There are no analytics or tracking
               cookies.
             </p>
           </Section>
 
           <Section title="Recipes you publish">
             <p>
-              Once a recipe you've added is approved, anyone can see it, with
-              your name on it.
+              Once an admin approves a recipe you've added, anyone can see it,
+              with your name on it.
             </p>
           </Section>
 

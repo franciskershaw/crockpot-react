@@ -56,8 +56,8 @@ export function InstructionsSection() {
           <InstructionSteps steps={steps.slice(0, RECIPE_LIMITS.steps.max)} />
           {overLimit && (
             <p className="mt-5 text-[13px] font-semibold text-rust-text">
-              +{steps.length - RECIPE_LIMITS.steps.max} more steps — remove them
-              to publish
+              {steps.length - RECIPE_LIMITS.steps.max} steps over the limit.
+              Remove them to publish.
             </p>
           )}
         </>
@@ -79,7 +79,7 @@ export function InstructionsSection() {
         count={steps.length}
         max={RECIPE_LIMITS.steps.max}
         noun="steps"
-        emptyHint="One line, one step — switch to Preview any time to sanity-check before you publish."
+        emptyHint="One step per line. Switch to Preview to check them before you publish."
       />
     </FormSection>
   );

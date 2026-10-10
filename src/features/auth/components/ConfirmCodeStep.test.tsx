@@ -112,7 +112,7 @@ describe("ConfirmCodeStep", () => {
     await enterCode(ui, "429107");
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Email confirmed — please sign in.",
+      "Email confirmed. Sign in to carry on.",
     );
     expect(screen.getByLabelText("Email")).toHaveValue(email);
   });
@@ -126,7 +126,7 @@ describe("ConfirmCodeStep", () => {
     await enterCode(ui, "429107");
 
     expect(await screen.findByRole("status")).toHaveTextContent(
-      "Email confirmed — please sign in.",
+      "Email confirmed. Sign in to carry on.",
     );
     expect(requestedPaths(fetchSpy)).toEqual(["/auth/confirm"]);
   });

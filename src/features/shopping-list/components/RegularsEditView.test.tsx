@@ -271,7 +271,7 @@ describe("RegularsEditView", () => {
       screen.queryByRole("heading", { name: "No regulars yet" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/^Search above for the things you buy most weeks/),
+      screen.getByText(/^Search above for things you buy most weeks/),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /Add a regular/ }),

@@ -77,8 +77,8 @@ export function IngredientsSection() {
   return (
     <FormSection title={title}>
       <p className="-mt-2 mb-4 text-[13px] text-muted-foreground">
-        Search our list first — most common ingredients are already there and
-        will total up correctly on shopping lists.
+        Search our list first. Crockpot can only add up quantities for
+        ingredients that come from it.
       </p>
 
       {picked ? (
@@ -120,7 +120,7 @@ export function IngredientsSection() {
 
       {rows.length === 0 ? (
         <p className="py-6 text-center text-sm text-muted-foreground">
-          No ingredients yet — search our list above.
+          No ingredients yet. Search the list above to add one.
         </p>
       ) : (
         <ul className="mt-2">

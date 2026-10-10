@@ -18,7 +18,7 @@ describe("SearchBar", () => {
 
     expect(screen.getByRole("textbox")).toHaveValue("pork");
     expect(
-      screen.getByPlaceholderText("Search recipes by name..."),
+      screen.getByPlaceholderText("Search recipes by name…"),
     ).toBeInTheDocument();
   });
 

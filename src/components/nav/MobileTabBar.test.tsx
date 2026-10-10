@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("MobileTabBar", () => {
-  it("shows Browse Recipes + Login when logged out", () => {
+  it("shows Browse recipes + Sign in when logged out", () => {
     mockUseAuth.mockReturnValue({
       user: null,
       isAuthenticated: false,
@@ -26,8 +26,8 @@ describe("MobileTabBar", () => {
 
     renderWithProviders(<MobileTabBar />);
 
-    expect(screen.getByText("Browse Recipes")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Login" })).toHaveAttribute(
+    expect(screen.getByText("Browse recipes")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
       "href",
       "/login",
     );
@@ -43,17 +43,17 @@ describe("MobileTabBar", () => {
 
     renderWithProviders(<MobileTabBar />);
 
-    expect(screen.getByText("Browse Recipes")).toBeInTheDocument();
+    expect(screen.getByText("Browse recipes")).toBeInTheDocument();
     expect(screen.getByText("Your Crockpot")).toBeInTheDocument();
-    expect(screen.queryByText("Login")).not.toBeInTheDocument();
+    expect(screen.queryByText("Sign in")).not.toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: /Add Recipe/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Add recipe/ })).toHaveAttribute(
       "href",
       "/recipes/new",
     );
   });
 
-  it("marks Add Recipe as current on the add-recipe page", () => {
+  it("marks Add recipe as current on the add-recipe page", () => {
     mockUseAuth.mockReturnValue({
       user: null,
       isAuthenticated: true,
@@ -62,7 +62,7 @@ describe("MobileTabBar", () => {
 
     renderWithProviders(<MobileTabBar />, { route: "/recipes/new" });
 
-    expect(screen.getByRole("link", { name: /Add Recipe/ })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Add recipe/ })).toHaveAttribute(
       "aria-current",
       "page",
     );

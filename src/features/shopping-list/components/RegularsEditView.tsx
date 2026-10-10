@@ -59,7 +59,7 @@ export function RegularsEditView() {
           <StatePanel
             icon={RotateCw}
             heading="No regulars yet"
-            description="Search above for the things you buy most weeks — milk, bin bags, eggs — and restocking before a shop takes one tap."
+            description="Search above for things you buy most weeks, like milk or bin bags. Then restocking before a shop takes one tap."
           />
         </div>
       ) : (

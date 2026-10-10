@@ -100,7 +100,7 @@ export function CategoryPicker({
         <div className="mt-1 flex items-center justify-between gap-3 border-t border-card-shadow px-2.5 pt-2.5 pb-1.5">
           <p className="text-[13px] text-muted-foreground">
             {atCap
-              ? `Up to ${RECIPE_LIMITS.categories.max} — remove one to add another`
+              ? `Up to ${RECIPE_LIMITS.categories.max}. Remove one to add another.`
               : `Pick up to ${RECIPE_LIMITS.categories.max}`}
           </p>
           <button

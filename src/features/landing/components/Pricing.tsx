@@ -21,8 +21,7 @@ const FREE: Plan = {
 
 const PREMIUM: Plan = {
   name: "Premium",
-  price: "£4.99",
-  period: "a month",
+  period: "Coming soon",
   features: [
     "Everything in Free",
     "Unlimited recipes of your own",

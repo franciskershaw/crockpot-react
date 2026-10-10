@@ -159,7 +159,7 @@ describe("PhotoField", () => {
     await user.upload(photoInput(), phonePhoto("IMG_0002.HEIC"));
 
     expect(
-      screen.getByText("Couldn't read that photo — use a JPG, PNG or WebP"),
+      screen.getByText("Couldn't read that photo. Use a JPG, PNG or WebP."),
     ).toBeVisible();
     expect(screen.getByLabelText("kind")).toHaveTextContent("existing");
   });
@@ -173,7 +173,7 @@ describe("PhotoField", () => {
     await user.upload(photoInput(), phonePhoto());
 
     expect(
-      screen.queryByText("Couldn't read that photo — use a JPG, PNG or WebP"),
+      screen.queryByText("Couldn't read that photo. Use a JPG, PNG or WebP."),
     ).not.toBeInTheDocument();
     expect(screen.getByLabelText("kind")).toHaveTextContent("new");
   });

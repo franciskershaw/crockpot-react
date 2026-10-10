@@ -50,13 +50,13 @@ describe("publishStatus", () => {
   it("says it looks complete once the form would publish", () => {
     expect(publishStatus(values())).toEqual({
       complete: true,
-      message: "Looks complete — ready to publish",
+      message: "Ready to publish",
     });
   });
 
   it("flags fixes when nothing is missing but something is invalid", () => {
     expect(publishStatus(values({ name: "ab" }))).toEqual(
-      needed("Almost there — a few things to fix before publishing"),
+      needed("A few things to fix before you can publish"),
     );
   });
 });

@@ -17,7 +17,7 @@ export function CreateRecipePage() {
       <PageTitle>Add a recipe</PageTitle>
       <RecipeForm
         title="Add a recipe"
-        subtitle="Fill it in below — you'll be done in under a minute."
+        subtitle="Fill it in below. It takes about a minute."
         backTo="/recipes"
         defaultValues={defaultRecipeFormValues}
         submitLabel="Publish recipe"
@@ -29,7 +29,7 @@ export function CreateRecipePage() {
             onSuccess: (recipe) => {
               if (!isAdmin(user)) {
                 toast.success(
-                  "Submitted — only you can see it until it's approved.",
+                  "Recipe submitted. Only you can see it until it's approved.",
                 );
               }
               done(recipe.id);

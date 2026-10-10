@@ -8,8 +8,8 @@ const rateLimited = (retryAfterSeconds?: number) =>
 
 describe("photoFieldError", () => {
   it.each([
-    ["invalid_image", "Couldn't read that photo — use a JPG, PNG or WebP"],
-    ["image_too_large", "That photo is too large — try a smaller one"],
+    ["invalid_image", "Couldn't read that photo. Use a JPG, PNG or WebP."],
+    ["image_too_large", "That photo is too large. Try a smaller one."],
   ])("explains a 400 %s under the photo", (code, message) => {
     expect(photoFieldError(new ApiError(400, code))).toBe(message);
   });
@@ -32,7 +32,7 @@ describe("footerError", () => {
 
   it("asks to check over any other 400", () => {
     expect(footerError(new ApiError(400, "invalid_item_id"), withPhoto)).toBe(
-      "The server couldn't accept this recipe — check it over and try again.",
+      "We couldn't save this recipe. Check it over and try again.",
     );
   });
 
@@ -45,7 +45,7 @@ describe("footerError", () => {
   it("asks to retry a failed upload", () => {
     expect(
       footerError(new ApiError(502, "image_upload_failed"), withPhoto),
-    ).toBe("Couldn't upload the photo — try again");
+    ).toBe("Couldn't upload the photo. Try again.");
   });
 
   it("leaves a 502 from anything else to the toast", () => {
@@ -55,17 +55,17 @@ describe("footerError", () => {
   });
 
   it.each([
-    [600, "Too many photo uploads — try again in 10 minutes"],
-    [61, "Too many photo uploads — try again in 2 minutes"],
-    [45, "Too many photo uploads — try again in 1 minute"],
-    [undefined, "Too many photo uploads — try again later"],
+    [600, "Too many photo uploads. Try again in 10 minutes."],
+    [61, "Too many photo uploads. Try again in 2 minutes."],
+    [45, "Too many photo uploads. Try again in 1 minute."],
+    [undefined, "Too many photo uploads. Try again later."],
   ])("rounds a photo 429's %s seconds up to minutes", (seconds, message) => {
     expect(footerError(rateLimited(seconds), withPhoto)).toBe(message);
   });
 
   it("doesn't blame photos for a 429 on a save without one", () => {
     expect(footerError(rateLimited(120), withoutPhoto)).toBe(
-      "Too many requests — try again in 2 minutes",
+      "Too many requests. Try again in 2 minutes.",
     );
   });
 

@@ -114,7 +114,7 @@ describe("IngredientsSection", () => {
     renderSection();
 
     expect(
-      screen.getByText("No ingredients yet — search our list above."),
+      screen.getByText("No ingredients yet. Search the list above to add one."),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Ingredients*" }),
@@ -141,7 +141,9 @@ describe("IngredientsSection", () => {
       screen.getByRole("heading", { name: /Ingredients\*/ }),
     ).toHaveTextContent("1");
     expect(
-      screen.queryByText("No ingredients yet — search our list above."),
+      screen.queryByText(
+        "No ingredients yet. Search the list above to add one.",
+      ),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("combobox")).toHaveFocus();
   });
@@ -182,7 +184,7 @@ describe("IngredientsSection", () => {
 
     expect(rows()).toHaveLength(0);
     expect(
-      screen.getByText("No ingredients yet — search our list above."),
+      screen.getByText("No ingredients yet. Search the list above to add one."),
     ).toBeInTheDocument();
   });
 
@@ -231,7 +233,7 @@ describe("IngredientsSection", () => {
 
     await user.type(screen.getByRole("combobox"), "Gochujang");
     await user.click(
-      screen.getByRole("option", { name: /Add “Gochujang” as a new item/ }),
+      screen.getByRole("option", { name: /Add "Gochujang" as a new item/ }),
     );
     await user.click(await screen.findByRole("button", { name: "created" }));
     await user.click(screen.getByRole("button", { name: "Add ingredient" }));
@@ -247,7 +249,7 @@ describe("IngredientsSection", () => {
 
     await user.type(screen.getByRole("combobox"), "Gochujang");
     await user.click(
-      screen.getByRole("option", { name: /Add “Gochujang” as a new item/ }),
+      screen.getByRole("option", { name: /Add "Gochujang" as a new item/ }),
     );
     await user.click(
       await screen.findByRole("button", { name: "cancel dialog" }),

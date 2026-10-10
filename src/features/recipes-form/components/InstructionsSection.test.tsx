@@ -35,14 +35,14 @@ describe("InstructionsSection", () => {
   it("counts steps against the limit as they're typed", () => {
     const { enter } = setup();
 
-    expect(screen.getByText(/One line, one step/)).toBeInTheDocument();
+    expect(screen.getByText(/One step per line/)).toBeInTheDocument();
 
     enter(lines(12));
     expect(screen.getByText("12 of 50 steps")).toBeInTheDocument();
 
     enter(lines(54));
     expect(
-      screen.getByText("54 steps — remove 4 to publish"),
+      screen.getByText("54 steps. Remove 4 to publish."),
     ).toBeInTheDocument();
   });
 
@@ -55,7 +55,7 @@ describe("InstructionsSection", () => {
     const list = screen.getByRole("list");
     expect(within(list).getAllByRole("listitem")).toHaveLength(50);
     expect(
-      screen.getByText("+3 more steps — remove them to publish"),
+      screen.getByText("3 steps over the limit. Remove them to publish."),
     ).toBeInTheDocument();
   });
 });

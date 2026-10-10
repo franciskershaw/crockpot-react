@@ -53,7 +53,7 @@ export function ConfirmCodeStep({
     return (
       <LoginForm
         defaultEmail={email}
-        notice="Email confirmed — please sign in."
+        notice="Email confirmed. Sign in to carry on."
       />
     );
   }

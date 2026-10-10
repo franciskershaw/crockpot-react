@@ -17,8 +17,8 @@ export function Hero({ recipes }: { recipes: ShowcaseRecipe[] }) {
         </h1>
 
         <p className="max-w-md text-[15px] text-muted-foreground sm:text-xl">
-          Pick the meals you fancy this week. Crockpot adds up every ingredient
-          across them and hands you one tidy list, sorted by aisle.
+          Pick this week's meals. Crockpot adds up every ingredient across them
+          and hands you one tidy list, sorted by aisle.
         </p>
 
         <div className="max-w-md space-y-4">

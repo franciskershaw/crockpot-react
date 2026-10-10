@@ -42,7 +42,7 @@ describe("shrinkPhoto", () => {
 
     await expect(result).rejects.toBeInstanceOf(PhotoDecodeError);
     await expect(result).rejects.toThrow(
-      "Couldn't read that photo — use a JPG, PNG or WebP",
+      "Couldn't read that photo. Use a JPG, PNG or WebP.",
     );
   });
 });

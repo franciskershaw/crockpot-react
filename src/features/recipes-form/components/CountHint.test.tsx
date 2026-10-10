@@ -9,7 +9,7 @@ function setup(count: number) {
       count={count}
       max={10}
       noun="notes"
-      emptyHint="One line, one note — up to 10."
+      emptyHint="One note per line, up to 10."
     />,
   );
 }
@@ -19,7 +19,7 @@ describe("CountHint", () => {
     setup(0);
 
     expect(
-      screen.getByText("One line, one note — up to 10."),
+      screen.getByText("One note per line, up to 10."),
     ).toBeInTheDocument();
   });
 
@@ -34,7 +34,7 @@ describe("CountHint", () => {
   it("says how many to remove, in the warning colour, once over the max", () => {
     setup(13);
 
-    expect(screen.getByText("13 notes — remove 3 to publish")).toHaveClass(
+    expect(screen.getByText("13 notes. Remove 3 to publish.")).toHaveClass(
       "text-rust-text",
     );
   });

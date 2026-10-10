@@ -55,7 +55,7 @@ describe("RecipeDeleteButton", () => {
       .click(screen.getByRole("button", { name: "Delete recipe" }));
 
     expect(
-      screen.getByText(/Are you sure you want to delete "BBQ Pulled Pork"/),
+      screen.getByText(/This permanently deletes "BBQ Pulled Pork"/),
     ).toBeInTheDocument();
   });
 

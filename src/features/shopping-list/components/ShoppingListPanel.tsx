@@ -159,7 +159,7 @@ export function ShoppingListPanel({
                 )}
               >
                 {recipeCount > 0 ? (
-                  "Your list is empty — Regenerate to rebuild it from your menu."
+                  "Your list is empty. Tap Regenerate to rebuild it from your menu."
                 ) : (
                   <>
                     Your list is empty.

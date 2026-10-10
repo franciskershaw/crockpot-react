@@ -15,11 +15,14 @@ export function MobileTabBar() {
   const inYourCrockpot = isYourCrockpotPath(pathname);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background md:hidden">
+    <nav
+      aria-label="Tabs"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background md:hidden"
+    >
       <div className="mx-auto flex max-w-sm items-stretch justify-around">
         <NavLink to="/recipes" className={tabLinkClassName}>
           <Search className="size-5" />
-          Browse Recipes
+          Browse recipes
         </NavLink>
 
         {!isLoading && isAuthenticated && (
@@ -34,7 +37,7 @@ export function MobileTabBar() {
             </Link>
             <AddRecipeLink className={tabLinkClassName}>
               <Plus className="size-5" />
-              Add Recipe
+              Add recipe
             </AddRecipeLink>
           </>
         )}
@@ -44,7 +47,7 @@ export function MobileTabBar() {
             className="flex flex-1 flex-col items-center gap-1 py-3 text-sm text-muted-foreground"
           >
             <LogIn className="size-5" />
-            Login
+            Sign in
           </Link>
         )}
       </div>

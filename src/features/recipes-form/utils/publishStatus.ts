@@ -30,8 +30,8 @@ export function publishStatus(values: RecipeFormValues): {
   if (!recipeFormSchema.safeParse(values).success) {
     return {
       complete: false,
-      message: "Almost there — a few things to fix before publishing",
+      message: "A few things to fix before you can publish",
     };
   }
-  return { complete: true, message: "Looks complete — ready to publish" };
+  return { complete: true, message: "Ready to publish" };
 }

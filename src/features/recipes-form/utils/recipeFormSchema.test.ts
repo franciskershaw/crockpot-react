@@ -150,7 +150,7 @@ describe("recipeFormSchema", () => {
     it("allows up to 50 steps, saying how many there are", () => {
       expect(errors(validValues({ instructions: lines(50) }))).toEqual({});
       expect(errors(validValues({ instructions: lines(52) }))).toEqual({
-        instructions: "Up to 50 steps — this has 52.",
+        instructions: "Up to 50 steps. This has 52.",
       });
     });
   });

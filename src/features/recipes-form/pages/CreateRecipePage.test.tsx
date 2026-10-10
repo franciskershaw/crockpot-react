@@ -215,7 +215,7 @@ describe("CreateRecipePage saving", () => {
       }),
     );
     expect(toast.success).toHaveBeenCalledWith(
-      "Submitted — only you can see it until it's approved.",
+      "Recipe submitted. Only you can see it until it's approved.",
     );
   });
 
@@ -232,9 +232,9 @@ describe("CreateRecipePage saving", () => {
   });
 
   it.each([
-    [400, "image_too_large", "That photo is too large — try a smaller one"],
-    [400, "invalid_image", "Couldn't read that photo — use a JPG, PNG or WebP"],
-    [502, "image_upload_failed", "Couldn't upload the photo — try again"],
+    [400, "image_too_large", "That photo is too large. Try a smaller one."],
+    [400, "invalid_image", "Couldn't read that photo. Use a JPG, PNG or WebP."],
+    [502, "image_upload_failed", "Couldn't upload the photo. Try again."],
   ])("explains a %i %s and keeps the photo", async (status, code, message) => {
     vi.mocked(createRecipe).mockRejectedValue(new ApiError(status, code));
 
@@ -246,7 +246,7 @@ describe("CreateRecipePage saving", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByText(
-        "The server couldn't accept this recipe — check it over and try again.",
+        "We couldn't save this recipe. Check it over and try again.",
       ),
     ).not.toBeInTheDocument();
     expect(toast.error).not.toHaveBeenCalled();
@@ -261,7 +261,7 @@ describe("CreateRecipePage saving", () => {
 
     expect(
       await screen.findByText(
-        "Too many photo uploads — try again in 10 minutes",
+        "Too many photo uploads. Try again in 10 minutes.",
       ),
     ).toBeInTheDocument();
     expect(toast.error).not.toHaveBeenCalled();
@@ -276,7 +276,7 @@ describe("CreateRecipePage saving", () => {
     [
       400,
       "invalid_item_id",
-      "The server couldn't accept this recipe — check it over and try again.",
+      "We couldn't save this recipe. Check it over and try again.",
     ],
   ])(
     "shows a %i in the footer and stays on the form",

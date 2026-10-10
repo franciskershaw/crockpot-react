@@ -160,7 +160,7 @@ export function AddItemSearch({
                 }}
                 aria-label={label}
                 placeholder={
-                  isRecipe ? 'Search ingredients — e.g. "onions"' : label
+                  isRecipe ? "Search ingredients, like onions" : label
                 }
                 className={cn(
                   "min-w-0 flex-1 bg-transparent outline-none placeholder:text-icon-muted",
@@ -197,7 +197,7 @@ export function AddItemSearch({
             <Command.List>
               {results.length === 0 ? (
                 <p className="px-2.5 py-3.5 text-sm text-ink-subtle">
-                  Nothing called “{trimmedQuery}” yet.
+                  Nothing called &quot;{trimmedQuery}&quot; yet.
                 </p>
               ) : (
                 <Command.Group className="max-h-[304px] overflow-y-auto">
@@ -261,7 +261,7 @@ export function AddItemSearch({
                       className="flex h-9.5 cursor-pointer items-center gap-2.5 rounded-[5px] px-2.5 text-[15px] font-bold text-green data-[selected=true]:bg-chip"
                     >
                       <Plus size={16} strokeWidth={2.2} className="shrink-0" />
-                      Add “{trimmedQuery}” as a new item
+                      Add &quot;{trimmedQuery}&quot; as a new item
                     </Command.Item>
                   </Command.Group>
                 </>

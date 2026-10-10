@@ -140,6 +140,8 @@ describe("AppShell", () => {
 
     renderShell(LazyChild, path);
 
-    expect(Boolean(screen.queryByText("Browse Recipes"))).toBe(rendered);
+    expect(Boolean(screen.queryByRole("navigation", { name: "Tabs" }))).toBe(
+      rendered,
+    );
   });
 });

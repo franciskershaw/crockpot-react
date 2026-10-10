@@ -97,7 +97,7 @@ export function BrowseRecipesPage() {
           <div className="hidden items-center gap-4 py-3 md:flex">
             <div className="flex shrink-0 items-center gap-3">
               <h1 className="font-display font-medium text-4xl">
-                Browse Recipes
+                Browse recipes
               </h1>
               {total !== undefined && (
                 <Badge variant="chip">{total} recipes</Badge>
@@ -116,7 +116,7 @@ export function BrowseRecipesPage() {
 
           <div className="flex flex-col gap-3 py-3 md:hidden">
             <div className="flex items-center gap-3">
-              <h1 className="font-display text-4xl">Browse Recipes</h1>
+              <h1 className="font-display text-4xl">Browse recipes</h1>
               {total !== undefined && (
                 <Badge variant="chip">{total} recipes</Badge>
               )}

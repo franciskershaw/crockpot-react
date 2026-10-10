@@ -17,7 +17,7 @@ export function useDeleteAccount() {
     onSuccess: () => {
       endSession(queryClient);
       navigate("/", { replace: true });
-      toast.success("Your account has been deleted.");
+      toast.success("We've deleted your account.");
     },
   });
 }

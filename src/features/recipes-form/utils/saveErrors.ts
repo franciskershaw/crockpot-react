@@ -4,7 +4,7 @@ import { PHOTO_DECODE_MESSAGE } from "@/lib/shrinkPhoto";
 
 const PHOTO_FIELD_MESSAGES: Record<string, string> = {
   invalid_image: PHOTO_DECODE_MESSAGE,
-  image_too_large: "That photo is too large — try a smaller one",
+  image_too_large: "That photo is too large. Try a smaller one.",
 };
 
 export function photoFieldError(error: ApiError | null): string | null {
@@ -23,13 +23,13 @@ export function footerError(
   }
   if (error.status === 429) {
     const what = sentPhoto ? "Too many photo uploads" : "Too many requests";
-    return `${what} — try again ${retryWait(error.retryAfterSeconds)}`;
+    return `${what}. Try again ${retryWait(error.retryAfterSeconds)}.`;
   }
   if (error.status === 502 && error.message === "image_upload_failed") {
-    return "Couldn't upload the photo — try again";
+    return "Couldn't upload the photo. Try again.";
   }
   if (error.status === 400 && !photoFieldError(error)) {
-    return "The server couldn't accept this recipe — check it over and try again.";
+    return "We couldn't save this recipe. Check it over and try again.";
   }
   return null;
 }

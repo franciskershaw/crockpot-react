@@ -76,9 +76,7 @@ describe("DeleteAccountCard", () => {
       expect(screen.getByLabelText("path")).toHaveTextContent(/^\/$/),
     );
     expect(mockEndSession).toHaveBeenCalledWith(queryClient);
-    expect(toast.success).toHaveBeenCalledWith(
-      "Your account has been deleted.",
-    );
+    expect(toast.success).toHaveBeenCalledWith("We've deleted your account.");
   });
 
   it("keeps the dialog open with an inline error on a wrong password", async () => {

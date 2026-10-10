@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 function hintText(count: number, max: number, noun: string, emptyHint: string) {
   if (count === 0) return emptyHint;
   if (count <= max) return `${count} of ${max} ${noun}`;
-  return `${count} ${noun} — remove ${count - max} to publish`;
+  return `${count} ${noun}. Remove ${count - max} to publish.`;
 }
 
 export function CountHint({

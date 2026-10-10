@@ -39,7 +39,7 @@ export function ChefNotesSection() {
         count={noteCount}
         max={RECIPE_LIMITS.notes.max}
         noun="notes"
-        emptyHint={`One line, one note — up to ${RECIPE_LIMITS.notes.max}.`}
+        emptyHint={`One note per line, up to ${RECIPE_LIMITS.notes.max}.`}
       />
     </OptionalSection>
   );

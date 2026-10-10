@@ -58,7 +58,7 @@ export function MenuPage() {
             <EmptyTabPanel
               icon={ChefHat}
               heading="Nothing on the menu yet"
-              description="Tap the basket on any recipe you fancy and it lands here. Your shopping list builds itself from whatever you add."
+              description="Tap the basket on a recipe to add it to your menu. Your shopping list is built from whatever you add."
             />
           ) : (
             <div className="pb-16 lg:pb-0">

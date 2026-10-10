@@ -118,7 +118,7 @@ export function RecipeForm({
             if (!open) blocker.reset?.();
           }}
           title="Leave without saving?"
-          description="Your changes to this recipe will be lost."
+          description="You'll lose your changes to this recipe."
           confirmLabel="Leave"
           destructive
           onConfirm={() => blocker.proceed?.()}

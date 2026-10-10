@@ -19,7 +19,7 @@ export class ErrorBoundary extends Component<
         <StatePanel
           icon={AlertTriangle}
           heading="Something went wrong"
-          description="An unexpected error occurred. Reloading the page usually fixes it."
+          description="Reloading the page usually fixes it."
           actions={
             <Button onClick={() => window.location.reload()}>Reload</Button>
           }

@@ -86,7 +86,7 @@ export const recipeFormSchema: z.ZodType<RecipeFormValues, RecipeFormValues> =
       } else if (count > steps.max) {
         ctx.addIssue({
           code: "custom",
-          message: `Up to ${steps.max} steps — this has ${count}.`,
+          message: `Up to ${steps.max} steps. This has ${count}.`,
         });
       }
     }),

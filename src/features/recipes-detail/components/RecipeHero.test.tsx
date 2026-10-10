@@ -136,7 +136,7 @@ describe("RecipeHero", () => {
     expect(screen.queryByText(/^By /)).not.toBeInTheDocument();
   });
 
-  it("hides favourite, edit, delete and the Add to Menu CTA for an anonymous visitor", () => {
+  it("hides favourite, edit, delete and the Add to menu CTA for an anonymous visitor", () => {
     setup({ isAuthenticated: false });
     renderHero(recipe());
 
@@ -206,7 +206,7 @@ describe("RecipeHero", () => {
     ).toHaveLength(2);
   });
 
-  it("renders the Add to Menu CTA for an authenticated viewer", () => {
+  it("renders the Add to menu CTA for an authenticated viewer", () => {
     setup({ isAuthenticated: true });
     renderHero(recipe());
 

@@ -54,8 +54,8 @@ export function DeleteAccountDialog({
         <DialogHeader>
           <DialogTitle>Delete your account?</DialogTitle>
           <DialogDescription>
-            This can&apos;t be undone. Your menu, shopping list, favourites,
-            regulars and unpublished recipes will be deleted. Recipes
+            This can&apos;t be undone. We&apos;ll delete your menu, shopping
+            list, favourites, regulars and unpublished recipes. Recipes
             you&apos;ve published stay on Crockpot, without your name.
           </DialogDescription>
         </DialogHeader>

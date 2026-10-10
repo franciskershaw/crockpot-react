@@ -22,7 +22,7 @@ export type AuthCallbackErrorCode =
 
 const MESSAGES: Partial<Record<AuthCallbackErrorCode, string>> = {
   email_registered_with_password:
-    "This email has a password — sign in with email instead.",
+    "This email uses a password. Sign in with email instead.",
 };
 const FALLBACK = "We couldn't sign you in. Please try again.";
 

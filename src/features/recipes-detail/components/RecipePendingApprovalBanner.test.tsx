@@ -53,7 +53,7 @@ describe("RecipePendingApprovalBanner", () => {
 
     expect(
       screen.getByText(
-        "Pending approval — visible only to you until an admin approves it",
+        "Waiting for approval. Only you can see it until an admin approves it.",
       ),
     ).toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
@@ -67,7 +67,7 @@ describe("RecipePendingApprovalBanner", () => {
 
     expect(
       screen.getByText(
-        "Pending approval — check the photo and details before approving",
+        "Waiting for approval. Check the photo and details before approving.",
       ),
     ).toBeInTheDocument();
     await userEvent.click(approveButton());
@@ -89,7 +89,7 @@ describe("RecipePendingApprovalBanner", () => {
 
     expect(
       await screen.findByText(
-        "This recipe changed since you opened it — check it again",
+        "Someone changed this recipe since you opened it. Check it again before approving.",
       ),
     ).toBeInTheDocument();
 
@@ -103,7 +103,7 @@ describe("RecipePendingApprovalBanner", () => {
     );
     expect(
       screen.queryByText(
-        "This recipe changed since you opened it — check it again",
+        "Someone changed this recipe since you opened it. Check it again before approving.",
       ),
     ).not.toBeInTheDocument();
   });

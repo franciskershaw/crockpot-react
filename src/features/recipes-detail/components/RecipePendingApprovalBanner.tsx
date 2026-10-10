@@ -19,10 +19,10 @@ export function RecipePendingApprovalBanner({
 
   const message =
     viewer === "owner"
-      ? "Pending approval — visible only to you until an admin approves it"
+      ? "Waiting for approval. Only you can see it until an admin approves it."
       : isRecipeChanged(approve.error)
-        ? "This recipe changed since you opened it — check it again"
-        : "Pending approval — check the photo and details before approving";
+        ? "Someone changed this recipe since you opened it. Check it again before approving."
+        : "Waiting for approval. Check the photo and details before approving.";
 
   return (
     <div className="border-b border-category-chip-border bg-category-chip-bg px-6 py-3 text-category-chip-text">

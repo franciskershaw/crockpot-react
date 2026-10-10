@@ -250,13 +250,13 @@ describe("RecipeCard", () => {
 
     renderWithProviders(<RecipeCard recipe={recipe()} from="/recipes" />);
 
-    expect(screen.queryByText(/Best Match|Good Match/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Best match|Good match/)).not.toBeInTheDocument();
     expect(screen.queryByText(/matched/)).not.toBeInTheDocument();
   });
 
   it.each([
-    ["best", "Best Match"],
-    ["good", "Good Match"],
+    ["best", "Best match"],
+    ["good", "Good match"],
   ] as const)("shows the star for the API's %s tier", (tier, label) => {
     mockUseAuth.mockReturnValue({
       user: null,

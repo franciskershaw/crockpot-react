@@ -253,7 +253,9 @@ describe("RecipeDetailPage", () => {
 
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
-    expect(await screen.findByText(/pending approval/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/waiting for approval/i),
+    ).toBeInTheDocument();
   });
 
   it("hides the pending-approval banner once the recipe is approved", async () => {
@@ -268,7 +270,7 @@ describe("RecipeDetailPage", () => {
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
     await screen.findByText("BBQ Pulled Pork");
-    expect(screen.queryByText(/pending approval/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/waiting for approval/i)).not.toBeInTheDocument();
   });
 
   it("hides the pending-approval banner from a viewer who isn't the creator, even if unapproved", async () => {
@@ -287,7 +289,7 @@ describe("RecipeDetailPage", () => {
     renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
 
     await screen.findByText("BBQ Pulled Pork");
-    expect(screen.queryByText(/pending approval/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/waiting for approval/i)).not.toBeInTheDocument();
   });
 
   it("renders the description only when the recipe has one", async () => {
@@ -368,14 +370,14 @@ describe("RecipeDetailPage", () => {
 
     await user.click(await screen.findByRole("button", { name: "Approve" }));
     await screen.findByText(
-      "This recipe changed since you opened it — check it again",
+      "Someone changed this recipe since you opened it. Check it again before approving.",
     );
     await user.click(screen.getByRole("link", { name: "next recipe" }));
 
     expect((await screen.findAllByText("Pie")).length).toBeGreaterThan(0);
     expect(
       screen.queryByText(
-        "This recipe changed since you opened it — check it again",
+        "Someone changed this recipe since you opened it. Check it again before approving.",
       ),
     ).not.toBeInTheDocument();
   });

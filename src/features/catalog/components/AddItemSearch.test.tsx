@@ -129,7 +129,7 @@ describe("AddItemSearch", () => {
     await userEvent.type(input, "gochujang");
 
     expect(
-      await screen.findByText("Nothing called “gochujang” yet."),
+      await screen.findByText('Nothing called "gochujang" yet.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole("option")).not.toBeInTheDocument();
   });
@@ -179,7 +179,7 @@ describe("AddItemSearch", () => {
 
       await userEvent.type(input, " chi ");
       const addRow = await screen.findByRole("option", {
-        name: "Add “chi” as a new item",
+        name: 'Add "chi" as a new item',
       });
       expect(screen.getAllByRole("option").at(-1)).toBe(addRow);
       await userEvent.click(addRow);
@@ -196,10 +196,10 @@ describe("AddItemSearch", () => {
 
       await userEvent.type(input, "gochujang");
       expect(
-        await screen.findByText("Nothing called “gochujang” yet."),
+        await screen.findByText('Nothing called "gochujang" yet.'),
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("option", { name: "Add “gochujang” as a new item" }),
+        screen.getByRole("option", { name: 'Add "gochujang" as a new item' }),
       ).toHaveAttribute("aria-selected", "true");
       await userEvent.keyboard("{Enter}");
 
@@ -233,7 +233,7 @@ describe("AddItemSearch", () => {
     const { input } = setup();
 
     await userEvent.type(input, "gochujang");
-    await screen.findByText("Nothing called “gochujang” yet.");
+    await screen.findByText('Nothing called "gochujang" yet.');
 
     expect(screen.queryByRole("option")).not.toBeInTheDocument();
   });

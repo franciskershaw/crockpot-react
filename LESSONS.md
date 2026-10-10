@@ -443,3 +443,8 @@ decision as fully closed. No code written yet.
 
 - The founder had to point out that signed-in users had no route to the new Privacy page, since the footer only appears on the landing page; it was added to the avatar menu. The branch review found the privacy copy's "we don't store your IP" true of the app but not of the hosting logs it will sit behind.
 - **Pattern**: a new public page needs an entry point for every auth state; a privacy claim has to hold for the deployed stack, not only for the app code.
+
+## 2026-10-09 — CFE-064 — First security pass, by hand and light-touch
+
+- Covered token storage, the HTTP client, XSS sinks, query-param redirects, the reset and OAuth callback pages, storage, cache clearing and `npm audit`, alongside `crockpot-go`'s pass. 3 findings, one ticket (`CFE-067`). The open redirect `CFE-052` left unconfirmed was settled with a throwaway test rendering the real `<Link>`: a tab in `?from=` reaches the `href` and resolves off-site.
+- **Pattern**: settle "does the router encode this?" with a throwaway render test and the WHATWG `URL` parser, not by reading library source; it took one minute and turned a maybe into a confirmed finding.

@@ -670,11 +670,21 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
 `CFE-044` and `CFE-062` above.*
 - **CFE-063** — Crockpot favicon/app icon, replacing Vite's default
   `public/favicon.svg` (left over from `CFE-053`). Open.
-- **CFE-064** — Pre-launch security review, the first for this repo. In
-  scope: `CFE-052`'s two flagged items (`HistoryBackLink` hijacking
-  cmd/ctrl/middle-click; `isSafeRelativePath` letting control characters
-  through). Findings to a dated `docs/findings/` doc. Paired with
-  `crockpot-go` `CROC-076`. Open.
+- **CFE-064** — **Done** (2026-10-09). First security pass, done by hand
+  as a light-touch review paired with `crockpot-go` `CROC-076`; founder
+  accepted it as showing no red flags. 3 findings (one confirmed open
+  redirect, the rest low or informational):
+  `docs/findings/2026-10-09-security.md`. Fixes in `CFE-067`. Of
+  `CFE-052`'s two items, `isSafeRelativePath` is finding 1;
+  `HistoryBackLink` taking over cmd/ctrl/middle-click is a usability bug
+  (it goes back instead of opening a new tab), not a security one, and
+  stays unfiled.
+- **CFE-067** — Security fixes from `CFE-064`: reject control characters
+  and whitespace in `?from=` before `isSafeRelativePath`'s check (or
+  accept only known back paths), with `\t`/`\n` test cases; `npm audit
+  fix`, then tests and a build; `encodeURIComponent` ids in the
+  `data/api.ts` wrappers. Small. Open. Done before `crockpot-go`
+  `CROC-075`, per its Epic 13 order.
 - **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
   states, errors, toasts, privacy page). Open.
 - **CFE-066** — Vercel cutover. The Vercel project linked to the old

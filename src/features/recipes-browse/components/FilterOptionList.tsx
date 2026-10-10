@@ -45,7 +45,8 @@ export function FilterOptionList({
 
   useEffect(() => {
     const node = scrollRef.current;
-    if (!node) return;
+    // Only the expanded list's fade needs these; measuring on mount forces a layout while the sheet opens.
+    if (!node || !showAll) return;
 
     const updateScrollState = () => {
       setIsScrolledToBottom(

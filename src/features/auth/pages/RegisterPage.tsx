@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FormField } from "@/components/form/FormField";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,6 +48,7 @@ export function RegisterPage() {
   if (registered) {
     return (
       <AuthCard>
+        <PageTitle>Create account</PageTitle>
         <ConfirmCodeStep
           email={registered.email}
           password={registered.password}
@@ -64,6 +66,7 @@ export function RegisterPage() {
       title="Create your account"
       subtitle="Free forever. Takes about a minute."
     >
+      <PageTitle>Create account</PageTitle>
       <form
         noValidate
         onSubmit={handleSubmit(({ name, email, password }) =>

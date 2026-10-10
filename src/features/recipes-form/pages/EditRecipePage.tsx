@@ -1,5 +1,6 @@
 import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
 import { RouteFallback } from "@/components/feedback/RouteFallback";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import type { RecipeDetail } from "@/features/recipes/data/types";
 import { useRecipe } from "@/features/recipes/hooks/useRecipe";
@@ -16,23 +17,26 @@ function EditRecipeForm({ recipe }: { recipe: RecipeDetail }) {
   const updateRecipe = useUpdateRecipe(recipe.id);
 
   return (
-    <RecipeForm
-      title="Edit recipe"
-      backTo={`/recipes/${recipe.id}`}
-      defaultValues={fromDetail(recipe)}
-      submitLabel="Save changes"
-      pendingLabel="Saving…"
-      isPending={updateRecipe.isPending}
-      error={updateRecipe.error}
-      onSubmit={(values, done) =>
-        updateRecipe.mutate(
-          toRequest(values, { hadImage: recipe.imageUrl !== null }),
-          {
-            onSuccess: () => done(recipe.id),
-          },
-        )
-      }
-    />
+    <>
+      <PageTitle>{`Edit ${recipe.name}`}</PageTitle>
+      <RecipeForm
+        title="Edit recipe"
+        backTo={`/recipes/${recipe.id}`}
+        defaultValues={fromDetail(recipe)}
+        submitLabel="Save changes"
+        pendingLabel="Saving…"
+        isPending={updateRecipe.isPending}
+        error={updateRecipe.error}
+        onSubmit={(values, done) =>
+          updateRecipe.mutate(
+            toRequest(values, { hadImage: recipe.imageUrl !== null }),
+            {
+              onSuccess: () => done(recipe.id),
+            },
+          )
+        }
+      />
+    </>
   );
 }
 

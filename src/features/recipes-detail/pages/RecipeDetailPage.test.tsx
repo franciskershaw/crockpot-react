@@ -147,6 +147,51 @@ describe("RecipeDetailPage", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
+  it("titles the tab with the cached card's name before the full recipe loads", () => {
+    setupMenuAndAuth();
+    mockGetRecipe.mockReturnValue(new Promise(() => {}));
+    const card = buildRecipeCard({
+      id: "r_1",
+      name: "BBQ Pulled Pork",
+      approved: true,
+    });
+
+    renderWithQueryClient(<RecipeDetailPage recipeId="r_1" />, {
+      seed: [
+        [
+          recipeKeys.list({}),
+          {
+            pages: [
+              { recipes: [card], page: 1, limit: 12, total: 1, totalPages: 1 },
+            ],
+            pageParams: [1],
+          },
+        ],
+      ],
+    });
+
+    expect(document.title).toBe("BBQ Pulled Pork | Crockpot");
+  });
+
+  it("sets no title of its own on a direct visit until the recipe loads, then the recipe's name", async () => {
+    setupMenuAndAuth();
+    let resolveRecipe: (recipe: RecipeDetail) => void;
+    mockGetRecipe.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRecipe = resolve;
+      }),
+    );
+
+    renderWithProviders(<RecipeDetailPage recipeId="r_1" />);
+
+    expect(document.querySelector("title")).toBeNull();
+
+    resolveRecipe!(buildRecipeDetail({ name: "BBQ Pulled Pork" }));
+
+    await screen.findByText("BBQ Pulled Pork");
+    expect(document.title).toBe("BBQ Pulled Pork | Crockpot");
+  });
+
   it("waits for the full recipe when the cached card is pending approval", () => {
     setupMenuAndAuth();
     mockGetRecipe.mockReturnValue(new Promise(() => {}));
@@ -278,6 +323,7 @@ describe("RecipeDetailPage", () => {
     expect(
       screen.getByRole("link", { name: /back to recipes/i }),
     ).toHaveAttribute("href", "/recipes");
+    expect(document.title).toBe("Recipe not found | Crockpot");
   });
 
   it("shows a generic error panel with retry for a non-404 failure", async () => {

@@ -1,3 +1,4 @@
+import { PageTitle } from "@/components/meta/PageTitle";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { toast } from "sonner";
@@ -12,27 +13,30 @@ export function CreateRecipePage() {
   const createRecipe = useCreateRecipe();
 
   return (
-    <RecipeForm
-      title="Add a recipe"
-      subtitle="Fill it in below — you'll be done in under a minute."
-      backTo="/recipes"
-      defaultValues={defaultRecipeFormValues}
-      submitLabel="Publish recipe"
-      pendingLabel="Publishing…"
-      isPending={createRecipe.isPending}
-      error={createRecipe.error}
-      onSubmit={(values, done) =>
-        createRecipe.mutate(toRequest(values), {
-          onSuccess: (recipe) => {
-            if (!isAdmin(user)) {
-              toast.success(
-                "Submitted — only you can see it until it's approved.",
-              );
-            }
-            done(recipe.id);
-          },
-        })
-      }
-    />
+    <>
+      <PageTitle>Add a recipe</PageTitle>
+      <RecipeForm
+        title="Add a recipe"
+        subtitle="Fill it in below — you'll be done in under a minute."
+        backTo="/recipes"
+        defaultValues={defaultRecipeFormValues}
+        submitLabel="Publish recipe"
+        pendingLabel="Publishing…"
+        isPending={createRecipe.isPending}
+        error={createRecipe.error}
+        onSubmit={(values, done) =>
+          createRecipe.mutate(toRequest(values), {
+            onSuccess: (recipe) => {
+              if (!isAdmin(user)) {
+                toast.success(
+                  "Submitted — only you can see it until it's approved.",
+                );
+              }
+              done(recipe.id);
+            },
+          })
+        }
+      />
+    </>
   );
 }

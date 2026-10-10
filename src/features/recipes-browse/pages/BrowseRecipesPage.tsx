@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Badge } from "@/components/ui/badge";
 import { useItemCategories } from "@/features/catalog/hooks/useItemCategories";
 import { useItems } from "@/features/catalog/hooks/useItems";
@@ -90,6 +91,7 @@ export function BrowseRecipesPage() {
 
   return (
     <>
+      <PageTitle>Browse recipes</PageTitle>
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6">
           <div className="hidden items-center gap-4 py-3 md:flex">

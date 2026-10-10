@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FormField } from "@/components/form/FormField";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,6 +35,7 @@ export function ForgotPasswordPage() {
   if (sentTo) {
     return (
       <AuthCard>
+        <PageTitle>Reset password</PageTitle>
         <ResetLinkSent email={sentTo} />
       </AuthCard>
     );
@@ -44,6 +46,7 @@ export function ForgotPasswordPage() {
       title="Reset your password"
       subtitle="Enter the email on your account and we'll send you a link to reset your password."
     >
+      <PageTitle>Reset password</PageTitle>
       <form
         noValidate
         onSubmit={handleSubmit(({ email }) =>

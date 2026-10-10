@@ -668,8 +668,16 @@ security findings — debt notes only):*
 *Set 2026-10-09. The go-live order for both repos is in `crockpot-go`'s
 Epic 13; this epic holds the frontend tickets it sequences, plus
 `CFE-044` and `CFE-062` above.*
-- **CFE-063** — Crockpot favicon/app icon, replacing Vite's default
-  `public/favicon.svg` (left over from `CFE-053`). Open.
+- **CFE-063** — **Done** (2026-10-10). Browser info. Each page sets its
+  tab title (`Menu | Crockpot`) through `src/components/meta/PageTitle`,
+  React 19's native `<title>`, so `index.html`'s title returns when a
+  page unmounts; one per page, never in a layout. Recipe detail uses the
+  recipe's name (from the cached card when there is one, no placeholder)
+  and `Recipe not found` on 404; edit uses `Edit {name}`. New crock pot
+  icon (`public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`),
+  `theme-color` and a meta description in `index.html`. Not done: web
+  manifest, Open Graph cards (an SPA can't do per-recipe previews
+  without SSR).
 - **CFE-064** — **Done** (2026-10-09). First security pass, done by hand
   as a light-touch review paired with `crockpot-go` `CROC-076`; founder
   accepted it as showing no red flags. 3 findings (one confirmed open

@@ -103,6 +103,16 @@ describe("EditRecipePage", () => {
     ).toBeInTheDocument();
   });
 
+  it("sets no title of its own until the recipe loads, then titles the tab for editing it", async () => {
+    signInAs("u_owner", "FREE");
+    renderEdit();
+
+    expect(document.querySelector("title")).toBeNull();
+
+    await screen.findByLabelText("Recipe name*");
+    expect(document.title).toBe("Edit Beef stew | Crockpot");
+  });
+
   it("shows the existing photo", async () => {
     signInAs("u_owner", "FREE");
     renderEdit();

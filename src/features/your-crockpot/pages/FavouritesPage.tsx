@@ -2,6 +2,7 @@ import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
 import { LoadMoreSentinel } from "@/components/feedback/LoadMoreSentinel";
 import { UndoTile } from "@/components/feedback/UndoTile";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Button } from "@/components/ui/button";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import type { RecipeCard as RecipeCardData } from "@/features/recipes/data/types";
@@ -54,6 +55,7 @@ export function FavouritesPage() {
 
   return (
     <motion.div layoutScroll className={cn(SCROLL_PANE_CLASSES, "lg:pb-10")}>
+      <PageTitle>Favourites</PageTitle>
       {!recipes ? (
         isError ? (
           <LoadErrorPanel what="your favourites" onRetry={() => refetch()} />

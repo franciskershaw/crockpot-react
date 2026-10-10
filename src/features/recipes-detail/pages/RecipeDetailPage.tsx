@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
 import { StatePanel } from "@/components/feedback/StatePanel";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useRecipe } from "@/features/recipes/hooks/useRecipe";
@@ -34,16 +35,19 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 
   if (error instanceof ApiError && error.status === 404) {
     return (
-      <StatePanel
-        icon={ChefHat}
-        heading="Recipe not found"
-        description="This recipe doesn't exist, or isn't available to view."
-        actions={
-          <Button asChild>
-            <Link to="/recipes">Back to recipes</Link>
-          </Button>
-        }
-      />
+      <>
+        <PageTitle>Recipe not found</PageTitle>
+        <StatePanel
+          icon={ChefHat}
+          heading="Recipe not found"
+          description="This recipe doesn't exist, or isn't available to view."
+          actions={
+            <Button asChild>
+              <Link to="/recipes">Back to recipes</Link>
+            </Button>
+          }
+        />
+      </>
     );
   }
 
@@ -53,6 +57,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
 
   return (
     <div>
+      <PageTitle>{(recipe ?? preview!).name}</PageTitle>
       {recipe && <RecipePendingApprovalBanner recipe={recipe} />}
       <RecipeHero
         recipe={recipe ?? preview!}

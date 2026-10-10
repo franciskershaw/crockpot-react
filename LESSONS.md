@@ -460,3 +460,8 @@ decision as fully closed. No code written yet.
 - **Pattern**: for a "flash between pages" bug, trace what's on screen frame by frame from the click, including whether the target component is mounted at all, before improving what it shows once it is. And crop to a box shape only when that shape is fixed.
 
 ## 2026-10-10 — Browse search clear button (no ticket). Clean; reused `AddItemSearch`'s clear control rather than restyling.
+
+## 2026-10-10 — CFE-063 — Page titles and favicon. Mostly clean.
+
+- The grill planned one table-driven test over every static route, but `AppRoutes.test.tsx` mocks most pages, so it was swapped for `PageTitle` tests plus the branching detail/edit cases. The founder rejected the em-dash title separator after seeing it; titles use a pipe.
+- **Pattern**: open the test harness before promising a test shape in the grill. And no em dashes in anything a user sees.

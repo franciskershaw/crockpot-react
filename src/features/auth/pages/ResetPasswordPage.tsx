@@ -1,4 +1,5 @@
 import { FormField } from "@/components/form/FormField";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +31,7 @@ export function ResetPasswordPage() {
   if (!token || display?.target === "invalidLink") {
     return (
       <AuthCard>
+        <PageTitle>Set a new password</PageTitle>
         <InvalidResetLink />
       </AuthCard>
     );
@@ -40,6 +42,7 @@ export function ResetPasswordPage() {
       title="Set a new password"
       subtitle="Choose a new password for your account."
     >
+      <PageTitle>Set a new password</PageTitle>
       <form
         noValidate
         onSubmit={handleSubmit(({ password }) =>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { Link, useLocation } from "react-router-dom";
 
 import { AuthCard } from "../components/AuthCard";
@@ -16,7 +17,12 @@ type View =
 
 // Keyed on the location so a link back to /login (e.g. from the code step's banner) starts over at the form.
 export function LoginPage() {
-  return <LoginFlow key={useLocation().key} />;
+  return (
+    <>
+      <PageTitle>Sign in</PageTitle>
+      <LoginFlow key={useLocation().key} />
+    </>
+  );
 }
 
 function LoginFlow() {

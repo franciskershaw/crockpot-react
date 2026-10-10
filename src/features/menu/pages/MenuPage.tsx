@@ -1,6 +1,7 @@
 import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
 import { LoadErrorPanel } from "@/components/feedback/LoadErrorPanel";
 import { UndoTile } from "@/components/feedback/UndoTile";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { RecipeListGrid } from "@/features/recipes/components/RecipeListGrid";
 import { ShoppingListPanel } from "@/features/shopping-list/components/ShoppingListPanel";
 import { ShoppingListSheet } from "@/features/shopping-list/components/ShoppingListSheet";
@@ -41,6 +42,7 @@ export function MenuPage() {
 
   return (
     <div className="grid grid-cols-1 items-start gap-6.5 lg:h-full lg:grid-cols-[1fr_372px] lg:grid-rows-1 lg:items-stretch">
+      <PageTitle>Menu</PageTitle>
       <div className="relative min-w-0 lg:h-full">
         <motion.div
           layoutScroll

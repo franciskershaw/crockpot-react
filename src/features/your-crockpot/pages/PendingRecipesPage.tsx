@@ -1,4 +1,5 @@
 import { EmptyTabPanel } from "@/components/feedback/EmptyTabPanel";
+import { PageTitle } from "@/components/meta/PageTitle";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { isAdmin } from "@/features/auth/utils/isAdmin";
 import { ClipboardCheck } from "lucide-react";
@@ -16,18 +17,21 @@ export function PendingRecipesPage() {
   }
 
   return (
-    <LibraryRecipeList
-      query={query}
-      what="pending recipes"
-      loadingLabel="Loading pending recipes…"
-      from="/library/pending"
-      empty={
-        <EmptyTabPanel
-          icon={ClipboardCheck}
-          heading="Nothing waiting for approval"
-          description="New recipes from other cooks land here for you to check before everyone can see them."
-        />
-      }
-    />
+    <>
+      <PageTitle>Pending</PageTitle>
+      <LibraryRecipeList
+        query={query}
+        what="pending recipes"
+        loadingLabel="Loading pending recipes…"
+        from="/library/pending"
+        empty={
+          <EmptyTabPanel
+            icon={ClipboardCheck}
+            heading="Nothing waiting for approval"
+            description="New recipes from other cooks land here for you to check before everyone can see them."
+          />
+        }
+      />
+    </>
   );
 }

@@ -453,3 +453,8 @@ decision as fully closed. No code written yet.
 
 - No rework on the planned fixes. The grill counted 10 ids to encode by eye; there were 12. The branch review found two gaps the findings doc hadn't: an allowlist matched exactly rejects `/recipes/` (filters lost), and `encodeURIComponent` leaves a bare `..` id to be resolved by the URL parser. Typing `from` as the allowlist's keys made the compiler find browse's untyped `location.pathname`.
 - **Pattern**: when a fix turns a pattern check into an allowlist, type the producers against the same list, so the compiler finds every source the grep would have to.
+
+## 2026-10-10 — CFE-068 — Card framing and the hero flash. Solved after CFE-059's four misses.
+
+- The framing bug came from `2fb9b0f` fixing the crop to one box shape while the card box changes shape with the grid. The flash took two passes: the card image under the hero worked, but the founder still saw the app background, because the hero itself waited on the detail request behind the invisible delayed skeleton. Rendering the hero from the cached card fixed it, and exposed the by-line as a late field (`crockpot-go` `CROC-080`). The founder's diagnosis ("for a moment there's nothing there") was right all along; the earlier fixes only changed what filled a box that didn't exist yet.
+- **Pattern**: for a "flash between pages" bug, trace what's on screen frame by frame from the click, including whether the target component is mounted at all, before improving what it shows once it is. And crop to a box shape only when that shape is fixed.

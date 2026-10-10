@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { useAddToMenu } from "@/features/menu/hooks/useAddToMenu";
 import { useMenuEntry } from "@/features/menu/hooks/useMenuEntry";
@@ -7,7 +8,8 @@ import type { RecipeDetail } from "@/features/recipes/data/types";
 import { buildUser } from "@/test/authFixtures";
 import { buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
-import { screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { RecipeHero } from "./RecipeHero";
@@ -211,5 +213,34 @@ describe("RecipeHero", () => {
     expect(screen.getAllByRole("button", { name: "Add to menu" })).toHaveLength(
       2,
     );
+  });
+
+  it("fades a replaced photo in afresh instead of showing it before it loads", async () => {
+    setup();
+    const first = "https://res.cloudinary.com/dqdjr1d4f/image/upload/v1/a.jpg";
+    const second = "https://res.cloudinary.com/dqdjr1d4f/image/upload/v2/b.jpg";
+    function Swapper() {
+      const [url, setUrl] = useState(first);
+      return (
+        <>
+          <button onClick={() => setUrl(second)}>swap</button>
+          <RecipeHero
+            recipe={recipe({ imageUrl: url })}
+            hasActionBar={false}
+            isStuck={false}
+            sentinelRef={() => {}}
+          />
+        </>
+      );
+    }
+    const { container } = renderWithProviders(<Swapper />);
+    const fullImage = () => container.querySelector("img.transition-opacity");
+
+    fireEvent.load(fullImage()!);
+    expect(fullImage()).toHaveClass("opacity-100");
+
+    await userEvent.setup().click(screen.getByRole("button", { name: "swap" }));
+
+    expect(fullImage()).toHaveClass("opacity-0");
   });
 });

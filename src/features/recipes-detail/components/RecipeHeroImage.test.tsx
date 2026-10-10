@@ -17,7 +17,7 @@ function images(container: HTMLElement) {
 
 describe("RecipeHeroImage", () => {
   it("paints the card's already-loaded image from the first render", () => {
-    const { container } = render(<RecipeHeroImage url={URL} />);
+    const { container } = render(<RecipeHeroImage url={URL} withCardImage />);
     const { placeholder } = images(container);
     const card = recipeCardImage(URL);
 
@@ -27,7 +27,7 @@ describe("RecipeHeroImage", () => {
   });
 
   it("keeps the full image hidden until it loads, then shows it", () => {
-    const { container } = render(<RecipeHeroImage url={URL} />);
+    const { container } = render(<RecipeHeroImage url={URL} withCardImage />);
     const { full } = images(container);
 
     expect(full).toHaveAttribute("srcset", recipeHeroImage(URL).srcSet);
@@ -37,5 +37,15 @@ describe("RecipeHeroImage", () => {
 
     expect(full).toHaveClass("opacity-100");
     expect(full).not.toHaveClass("opacity-0");
+  });
+
+  it("skips the card image when the page didn't start from a card", () => {
+    const { container } = render(
+      <RecipeHeroImage url={URL} withCardImage={false} />,
+    );
+    const imgs = container.querySelectorAll("img");
+
+    expect(imgs).toHaveLength(1);
+    expect(imgs[0]).toHaveAttribute("srcset", recipeHeroImage(URL).srcSet);
   });
 });

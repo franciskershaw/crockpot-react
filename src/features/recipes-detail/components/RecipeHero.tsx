@@ -26,11 +26,13 @@ export type RecipeHeroRecipe = RecipeCard &
 export function RecipeHero({
   recipe,
   hasActionBar,
+  withCardImage = false,
   sentinelRef,
   isStuck,
 }: {
   recipe: RecipeHeroRecipe;
   hasActionBar: boolean;
+  withCardImage?: boolean;
 } & StickyHeroTrigger) {
   const { isAuthenticated } = useAuth();
   const permissions = useRecipePermissions(recipe);
@@ -65,7 +67,13 @@ export function RecipeHero({
   return (
     <>
       <div className="relative h-105 w-full bg-muted md:h-120">
-        {recipe.imageUrl && <RecipeHeroImage url={recipe.imageUrl} />}
+        {recipe.imageUrl && (
+          <RecipeHeroImage
+            key={recipe.imageUrl}
+            url={recipe.imageUrl}
+            withCardImage={withCardImage}
+          />
+        )}
         {/* Flat wash keeps any uploaded image readable; gradient adds contrast behind the text. */}
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />

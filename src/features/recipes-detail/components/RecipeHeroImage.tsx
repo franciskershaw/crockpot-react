@@ -7,19 +7,27 @@ import { cn } from "@/lib/utils";
 
 const IMAGE_CLASSES = "absolute inset-0 size-full object-cover";
 
-// The card's image is already decoded when arriving from browse, so it fills
-// the hero on the first paint; same source and crop, so the full image sharpens it in place.
-export function RecipeHeroImage({ url }: { url: string }) {
+// Arriving from a card, its image is already decoded, so it fills the hero on the
+// first paint; same source and crop, so the full image sharpens it in place.
+export function RecipeHeroImage({
+  url,
+  withCardImage,
+}: {
+  url: string;
+  withCardImage: boolean;
+}) {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <>
-      <img
-        {...recipeCardImage(url)}
-        alt=""
-        decoding="sync"
-        className={IMAGE_CLASSES}
-      />
+      {withCardImage && (
+        <img
+          {...recipeCardImage(url)}
+          alt=""
+          decoding="sync"
+          className={IMAGE_CLASSES}
+        />
+      )}
       <img
         {...recipeHeroImage(url)}
         alt=""

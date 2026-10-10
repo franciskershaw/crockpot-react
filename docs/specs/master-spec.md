@@ -684,33 +684,21 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   `recipes/utils/recipeDetailPath.ts`, so a new back-link source must be
   added there to compile. API wrappers `encodeURIComponent` ids, and
   `apiFetch` refuses paths with `.`/`..` segments. `npm audit` clean.
-- **CFE-068** — Recipe card image framing, plus the hero flash
-  (`CFE-059`, folded in). Founder-raised 2026-10-10: cards look far more
-  zoomed in than the old app. Cause: since `2fb9b0f` the card asks
-  Cloudinary for a fixed `c_fill,g_auto` 400×180 strip (~2.2:1), and
-  the card box, whose shape varies with the grid (~1.6:1 at three
-  columns), crops it again with `object-cover`. The old app crops the
-  full image once, centred. The form's photo preview has the same
-  double crop; mobile rows (square) and landing showcase cards (4:3)
-  crop to their own box shape, so they're unaffected.
-  1. **Framing (must):** cards and the form preview load an uncropped,
-     width-limited image (`limitImage`, width-descriptor `srcset` with
-     `sizes`) and CSS does the one centred crop. The card's widths
-     share the hero's `limitImage` URLs (800, 1200), so on most phones
-     the card's file is the hero's final file. Checked by screenshot
-     against the old app (`crockpot.app`) at the same viewport.
-  2. **Hero flash (bonus):** the hero renders the card's image (same
-     `src`/`srcset`/`sizes`, already decoded in memory) underneath from
-     its first paint, with the full image on top, shown once loaded.
-     Same source and the same CSS crop, so the swap is a sharpen, not a
-     reframe. The page also renders the hero from the cached card
-     (browse, library, favourites or menu) instead of waiting ~56ms for
-     the detail request behind an invisible skeleton; the body skeleton
-     sits below until it arrives; the by-line comes from the card too
-     (`crockpot-go` `CROC-080`). Cards pending approval aren't used:
-     their banner and creator-only actions would pop in. Checked by the
-     founder on a fast connection, desktop and phone: no empty frame. From menu/library rows or a direct link
-     nothing usable is cached and the hero behaves as today.
+- **CFE-068** — **Done** (2026-10-10). Recipe card image framing,
+  plus the hero flash (`CFE-059`, folded in). Cards and the form preview
+  had been cropped twice (a Cloudinary `c_fill` 400×180 strip, then
+  `object-cover`); they now load the whole photo and CSS does the one
+  centred crop, matching the old app. Sizing lives in
+  `recipes/utils/recipeImages.ts`; the card shares the hero's 800/1200
+  files. Opening a recipe from any cached card (browse, library,
+  favourites, menu; approved only) renders the hero from that card at
+  once, by-line included (`crockpot-go` `CROC-080`), with the body
+  skeleton below; `RecipeHeroImage` paints the card's image underneath
+  and fades the full image in. Direct visits load only the hero image.
+  From a mobile row the card's image isn't cached at hero size, so it
+  downloads alongside the hero. Accepted: a favourite tap in the
+  ~100ms before the full recipe arrives shows no feedback until it
+  lands.
 - **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
   states, errors, toasts, privacy page). Open.
 - **CFE-066** — Vercel cutover. The Vercel project linked to the old

@@ -57,6 +57,7 @@ export function RecipeDetailPage({ recipeId }: { recipeId: string }) {
       <RecipeHero
         recipe={recipe ?? preview!}
         hasActionBar={isAuthenticated}
+        withCardImage={preview !== undefined}
         sentinelRef={sentinelRef}
         isStuck={isStuck}
       />

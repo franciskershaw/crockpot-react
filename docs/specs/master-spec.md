@@ -703,8 +703,12 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
      `src`/`srcset`/`sizes`, already decoded in memory) underneath from
      its first paint, with the full image on top, shown once loaded.
      Same source and the same CSS crop, so the swap is a sharpen, not a
-     reframe. Checked by the founder on a fast connection, desktop and
-     phone: no empty frame. From menu/library rows or a direct link
+     reframe. The page also renders the hero from the cached card
+     (browse, library, favourites or menu) instead of waiting ~56ms for
+     the detail request behind an invisible skeleton; the body skeleton
+     sits below until it arrives. Cards pending approval aren't used:
+     their banner and creator-only actions would pop in. Checked by the
+     founder on a fast connection, desktop and phone: no empty frame. From menu/library rows or a direct link
      nothing usable is cached and the hero behaves as today.
 - **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
   states, errors, toasts, privacy page). Open.
@@ -870,7 +874,6 @@ starting.*
       loaded cards; restart `crockpot-go`, click Retry → next page loads
       and the row goes. Commit message offered with that hand-over.
 
-  - Card image as a blurred placeholder: instant, but softer and
 - **CFE-059** — Grey flash on the recipe hero, browse → detail. Folded
   into `CFE-068` (2026-10-10). Four placeholder/preload experiments were
   tried and rejected first (`LESSONS.md` 2026-10-09): each either lost

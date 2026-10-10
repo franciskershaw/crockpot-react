@@ -1,9 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/components/AuthContext";
 import { RecipeFavouriteButton } from "@/features/recipes/components/RecipeFavouriteButton";
-import type { RecipeDetail } from "@/features/recipes/data/types";
+import type { RecipeCard, RecipeDetail } from "@/features/recipes/data/types";
 import { useRecipePermissions } from "@/features/recipes/hooks/useRecipePermissions";
-import { recipeHeroImage } from "@/features/recipes/utils/recipeImages";
 import { cn } from "@/lib/utils";
 import { ChefHat, Clock, Users } from "lucide-react";
 
@@ -13,11 +12,16 @@ import { AddToMenuCTA } from "./AddToMenuCTA";
 import { RecipeBackButton } from "./RecipeBackButton";
 import { RecipeDeleteButton } from "./RecipeDeleteButton";
 import { RecipeEditButton } from "./RecipeEditButton";
+import { RecipeHeroImage } from "./RecipeHeroImage";
 
 // Same frosted-circle treatment RecipeBackButton already established for
 // controls overlaid on the hero image.
 const ACTION_BUTTON_CLASSES =
   "border-0 bg-background/90 backdrop-blur-xs shadow-sm hover:bg-background";
+
+// A cached card can stand in until the full recipe arrives; the by-line waits for it.
+export type RecipeHeroRecipe = RecipeCard &
+  Partial<Pick<RecipeDetail, "createdById" | "createdByName">>;
 
 export function RecipeHero({
   recipe,
@@ -25,7 +29,7 @@ export function RecipeHero({
   sentinelRef,
   isStuck,
 }: {
-  recipe: RecipeDetail;
+  recipe: RecipeHeroRecipe;
   hasActionBar: boolean;
 } & StickyHeroTrigger) {
   const { isAuthenticated } = useAuth();
@@ -61,13 +65,7 @@ export function RecipeHero({
   return (
     <>
       <div className="relative h-105 w-full bg-muted md:h-120">
-        {recipe.imageUrl && (
-          <img
-            {...recipeHeroImage(recipe.imageUrl)}
-            alt=""
-            className="absolute inset-0 size-full object-cover"
-          />
-        )}
+        {recipe.imageUrl && <RecipeHeroImage url={recipe.imageUrl} />}
         {/* Flat wash keeps any uploaded image readable; gradient adds contrast behind the text. */}
         <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />

@@ -4,7 +4,8 @@ import { isAdmin } from "@/features/auth/utils/isAdmin";
 import type { RecipeDetail } from "../data/types";
 
 export function canManageRecipe(
-  recipe: Pick<RecipeDetail, "approved" | "createdById">,
+  recipe: Pick<RecipeDetail, "approved"> &
+    Partial<Pick<RecipeDetail, "createdById">>,
   user: User | null,
 ): boolean {
   if (!user) return false;

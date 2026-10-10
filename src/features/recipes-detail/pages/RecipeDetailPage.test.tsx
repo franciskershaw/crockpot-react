@@ -9,7 +9,7 @@ import type { RecipeDetail } from "@/features/recipes/data/types";
 import { ApiError } from "@/lib/http/client";
 import { buildUser } from "@/test/authFixtures";
 import { renderWithQueryClient } from "@/test/queryClientTestUtils";
-import { buildRecipeDetail } from "@/test/recipeFixtures";
+import { buildRecipeCard, buildRecipeDetail } from "@/test/recipeFixtures";
 import { renderWithProviders } from "@/test/renderWithProviders";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -98,6 +98,78 @@ describe("RecipeDetailPage", () => {
 
     expect(await screen.findByText("BBQ Pulled Pork")).toBeInTheDocument();
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("shows the hero from the cached card at once while the full recipe loads", async () => {
+    setupMenuAndAuth();
+    let resolveRecipe: (recipe: RecipeDetail) => void;
+    mockGetRecipe.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRecipe = resolve;
+      }),
+    );
+    const card = buildRecipeCard({
+      id: "r_1",
+      name: "BBQ Pulled Pork",
+      approved: true,
+    });
+
+    renderWithQueryClient(<RecipeDetailPage recipeId="r_1" />, {
+      seed: [
+        [
+          recipeKeys.list({}),
+          {
+            pages: [
+              { recipes: [card], page: 1, limit: 12, total: 1, totalPages: 1 },
+            ],
+            pageParams: [1],
+          },
+        ],
+      ],
+    });
+
+    expect(
+      screen.getByRole("heading", { name: "BBQ Pulled Pork" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toBeInTheDocument();
+
+    resolveRecipe!(
+      buildRecipeDetail({
+        id: "r_1",
+        name: "BBQ Pulled Pork",
+        description: "Smoky and slow.",
+      }),
+    );
+
+    expect(await screen.findByText("Smoky and slow.")).toBeInTheDocument();
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("waits for the full recipe when the cached card is pending approval", () => {
+    setupMenuAndAuth();
+    mockGetRecipe.mockReturnValue(new Promise(() => {}));
+    const card = buildRecipeCard({
+      id: "r_1",
+      name: "BBQ Pulled Pork",
+      approved: false,
+    });
+
+    renderWithQueryClient(<RecipeDetailPage recipeId="r_1" />, {
+      seed: [
+        [
+          recipeKeys.list({}),
+          {
+            pages: [
+              { recipes: [card], page: 1, limit: 12, total: 1, totalPages: 1 },
+            ],
+            pageParams: [1],
+          },
+        ],
+      ],
+    });
+
+    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.queryByText("BBQ Pulled Pork")).not.toBeInTheDocument();
   });
 
   it("renders the recipe once it loads", async () => {

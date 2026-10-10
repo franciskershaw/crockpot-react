@@ -679,12 +679,21 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   `HistoryBackLink` taking over cmd/ctrl/middle-click is a usability bug
   (it goes back instead of opening a new tab), not a security one, and
   stays unfiled.
-- **CFE-067** — Security fixes from `CFE-064`: reject control characters
-  and whitespace in `?from=` before `isSafeRelativePath`'s check (or
-  accept only known back paths), with `\t`/`\n` test cases; `npm audit
-  fix`, then tests and a build; `encodeURIComponent` ids in the
-  `data/api.ts` wrappers. Small. Open. Done before `crockpot-go`
-  `CROC-075`, per its Epic 13 order.
+- **CFE-067** — Security fixes from `CFE-064`. Grilled 2026-10-10,
+  AI-driven, one commit per finding:
+  1. `?from=` allowlist: accept a `from` only when its part before `?`
+     is a `BACK_LABELS` key (browse passes `/recipes?<filters>`); the
+     label comes from that path; anything else falls back to `/recipes`.
+     Tests first: `/\t/evil.com`, `/\n/evil.com`, an unknown path now
+     falling back (flips the "trusts an unrecognized from" test),
+     `/recipes?q=…` kept. Covers both `RecipeBackButton` and
+     `RecipeHero`.
+  2. `npm audit fix` (no `--force`), then tests and a build.
+  3. `encodeURIComponent` every interpolated id in `recipes`, `menu`
+     and `shopping-list` `data/api.ts`; one test that `getRecipe` with
+     `x/../../menu` requests the encoded path. No UUID redirect.
+  Small. Open. Done before `crockpot-go` `CROC-075`, per its Epic 13
+  order.
 - **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
   states, errors, toasts, privacy page). Open.
 - **CFE-066** — Vercel cutover. The Vercel project linked to the old

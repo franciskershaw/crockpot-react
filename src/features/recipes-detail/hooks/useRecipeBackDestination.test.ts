@@ -59,9 +59,30 @@ describe("resolveBackDestination", () => {
     });
   });
 
-  it("trusts an unrecognized from for navigation but uses the generic label", () => {
+  it("falls back to /recipes for an unrecognized path", () => {
     expect(resolveBackDestination("/somewhere-else")).toEqual({
-      to: "/somewhere-else",
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("keeps a known path's query string and uses its label", () => {
+    expect(resolveBackDestination("/recipes?q=beef&page=2")).toEqual({
+      to: "/recipes?q=beef&page=2",
+      label: "Back to recipes",
+    });
+  });
+
+  it("uses the label of a known path that carries a query string", () => {
+    expect(resolveBackDestination("/menu?tab=week")).toEqual({
+      to: "/menu?tab=week",
+      label: "Back to menu",
+    });
+  });
+
+  it("falls back to /recipes for a known path with a trailing fragment", () => {
+    expect(resolveBackDestination("/recipes#//evil.com")).toEqual({
+      to: "/recipes",
       label: "Back to recipes",
     });
   });
@@ -89,6 +110,20 @@ describe("resolveBackDestination", () => {
 
   it("falls back to /recipes for a backslash-prefixed from (open-redirect attempt)", () => {
     expect(resolveBackDestination("/\\evil.com")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("falls back to /recipes for a tab-smuggled protocol-relative from (open-redirect attempt)", () => {
+    expect(resolveBackDestination("/\t/evil.com")).toEqual({
+      to: "/recipes",
+      label: "Back to recipes",
+    });
+  });
+
+  it("falls back to /recipes for a newline-smuggled protocol-relative from (open-redirect attempt)", () => {
+    expect(resolveBackDestination("/\n/evil.com")).toEqual({
       to: "/recipes",
       label: "Back to recipes",
     });

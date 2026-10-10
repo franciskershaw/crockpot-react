@@ -7,7 +7,7 @@ interface BackDestination {
 
 const DEFAULT_TO = "/recipes";
 
-// An unrecognized from is still trusted for navigation, just falls back to the generic label.
+// Allowlist, not a pattern: a from whose path isn't listed here falls back to /recipes, so it can't become an off-site href.
 const BACK_LABELS: Record<string, string> = {
   [DEFAULT_TO]: "Back to recipes",
   "/menu": "Back to menu",
@@ -16,17 +16,15 @@ const BACK_LABELS: Record<string, string> = {
   "/library/pending": "Back to pending",
 };
 
-// Single leading slash only — rejects `//`/`/\` (protocol-relative) and schemes like `https:`, which <Link> would follow as a real cross-origin href.
-function isSafeRelativePath(value: string): boolean {
-  return /^\/[^/\\]/.test(value);
-}
-
 export function resolveBackDestination(
   from: string | null | undefined,
 ): BackDestination {
-  const trimmed = from?.trim();
-  const to = trimmed && isSafeRelativePath(trimmed) ? trimmed : DEFAULT_TO;
-  return { to, label: BACK_LABELS[to] ?? BACK_LABELS[DEFAULT_TO] };
+  const to = from?.trim() ?? "";
+  const path = to.split("?", 1)[0];
+  if (!Object.hasOwn(BACK_LABELS, path)) {
+    return { to: DEFAULT_TO, label: BACK_LABELS[DEFAULT_TO] };
+  }
+  return { to, label: BACK_LABELS[path] };
 }
 
 export function useRecipeBackDestination(): BackDestination {

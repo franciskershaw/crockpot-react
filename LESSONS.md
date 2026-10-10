@@ -448,3 +448,8 @@ decision as fully closed. No code written yet.
 
 - Covered token storage, the HTTP client, XSS sinks, query-param redirects, the reset and OAuth callback pages, storage, cache clearing and `npm audit`, alongside `crockpot-go`'s pass. 3 findings, one ticket (`CFE-067`). The open redirect `CFE-052` left unconfirmed was settled with a throwaway test rendering the real `<Link>`: a tab in `?from=` reaches the `href` and resolves off-site.
 - **Pattern**: settle "does the router encode this?" with a throwaway render test and the WHATWG `URL` parser, not by reading library source; it took one minute and turned a maybe into a confirmed finding.
+
+## 2026-10-10 — CFE-067 — Security fixes. Clean build; review widened the fix.
+
+- No rework on the planned fixes. The grill counted 10 ids to encode by eye; there were 12. The branch review found two gaps the findings doc hadn't: an allowlist matched exactly rejects `/recipes/` (filters lost), and `encodeURIComponent` leaves a bare `..` id to be resolved by the URL parser. Typing `from` as the allowlist's keys made the compiler find browse's untyped `location.pathname`.
+- **Pattern**: when a fix turns a pattern check into an allowlist, type the producers against the same list, so the compiler finds every source the grep would have to.

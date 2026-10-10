@@ -42,6 +42,40 @@ describe("apiFetch 204 handling", () => {
   });
 });
 
+describe("apiFetch dot segments", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it.each([
+    "/menu/entries/..",
+    "/shopping-list/items/.",
+    "/recipes/../favourite",
+  ])("rejects %s without sending it", async (path) => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(fakeResponse(true, 200, {}));
+
+    await expect(apiFetch(path, { method: "DELETE" })).rejects.toThrow(
+      "dot segment",
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it.each(["/recipes/x%2F..%2Fmenu", "/recipes?q=.."])(
+    "sends %s, whose dots aren't a path segment",
+    async (path) => {
+      const fetchSpy = vi
+        .spyOn(globalThis, "fetch")
+        .mockResolvedValue(fakeResponse(true, 200, {}));
+
+      await apiFetch(path);
+
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+    },
+  );
+});
+
 describe("apiFetch error parsing", () => {
   afterEach(() => {
     vi.restoreAllMocks();

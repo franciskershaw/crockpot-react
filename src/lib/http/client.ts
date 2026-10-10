@@ -81,6 +81,12 @@ export async function apiFetch<T>(
   options: RequestInit = {},
   { refreshOn401 = true, hasRetried = false }: ApiFetchOptions = {},
 ): Promise<T> {
+  // encodeURIComponent leaves a bare "." or ".." id intact, and the URL parser would resolve it to another endpoint.
+  const segments = path.split("?", 1)[0].split("/");
+  if (segments.some((segment) => segment === "." || segment === "..")) {
+    throw new Error(`refusing to send a path with a dot segment: ${path}`);
+  }
+
   const token = getAccessToken();
   const headers = new Headers(options.headers);
   if (token) {

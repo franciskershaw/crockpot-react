@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/features/auth/components/AuthContext";
-import { fillImage } from "@/lib/cloudinary";
 import { Clock, Star, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { recipeDetailPath, type BackFrom } from "../utils/recipeDetailPath";
+import { recipeCardImage } from "../utils/recipeImages";
 import { stopEvent } from "../utils/stopEvent";
 import { AddToMenuButton } from "./AddToMenuButton";
 import { RecipeFavouriteButton } from "./RecipeFavouriteButton";
@@ -44,7 +44,7 @@ export function RecipeCard({
       <div className="relative h-45 w-full bg-muted">
         {recipe.imageUrl && (
           <img
-            {...fillImage(recipe.imageUrl, 400, 180)}
+            {...recipeCardImage(recipe.imageUrl)}
             alt=""
             loading={priority ? "eager" : "lazy"}
             className="block size-full object-cover"

@@ -684,6 +684,28 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   `recipes/utils/recipeDetailPath.ts`, so a new back-link source must be
   added there to compile. API wrappers `encodeURIComponent` ids, and
   `apiFetch` refuses paths with `.`/`..` segments. `npm audit` clean.
+- **CFE-068** — Recipe card image framing, plus the hero flash
+  (`CFE-059`, folded in). Founder-raised 2026-10-10: cards look far more
+  zoomed in than the old app. Cause: since `2fb9b0f` the card asks
+  Cloudinary for a fixed `c_fill,g_auto` 400×180 strip (~2.2:1), and
+  the card box, whose shape varies with the grid (~1.6:1 at three
+  columns), crops it again with `object-cover`. The old app crops the
+  full image once, centred. The form's photo preview has the same
+  double crop; mobile rows (square) and landing showcase cards (4:3)
+  crop to their own box shape, so they're unaffected.
+  1. **Framing (must):** cards and the form preview load an uncropped,
+     width-limited image (`limitImage`, width-descriptor `srcset` with
+     `sizes`) and CSS does the one centred crop. The card's widths
+     share the hero's `limitImage` URLs (800, 1200), so on most phones
+     the card's file is the hero's final file. Checked by screenshot
+     against the old app (`crockpot.app`) at the same viewport.
+  2. **Hero flash (bonus):** the hero renders the card's image (same
+     `src`/`srcset`/`sizes`, already decoded in memory) underneath from
+     its first paint, with the full image on top, shown once loaded.
+     Same source and the same CSS crop, so the swap is a sharpen, not a
+     reframe. Checked by the founder on a fast connection, desktop and
+     phone: no empty frame. From menu/library rows or a direct link
+     nothing usable is cached and the hero behaves as today.
 - **CFE-065** — Copy pass: deslop all user-facing text (landing, empty
   states, errors, toasts, privacy page). Open.
 - **CFE-066** — Vercel cutover. The Vercel project linked to the old
@@ -848,35 +870,12 @@ starting.*
       loaded cards; restart `crockpot-go`, click Retry → next page loads
       and the row goes. Commit message offered with that hand-over.
 
-- **CFE-059** — Grey flash on the recipe hero, browse → detail.
-  Founder-raised in the pre-MVP bug run (2026-10-09). Not blocking
-  go-live. Since `2fb9b0f` (sized Cloudinary URLs), the card fetches
-  `fillImage(url, 400, 180)` and the hero `limitImage(url, [800, 1200,
-  1600])`: different files, so on a first open the hero's `bg-muted` box
-  shows until its image downloads. Before, both used the raw URL, so the
-  hero was already cached, but every browse card downloaded the full
-  original. Keep the sizing: measured on five recipes, cards are
-  18–27KB against 280–470KB originals; the hero saves about a third.
-  Cloudinary sends `max-age=2592000, immutable`, so a repeat open is
-  cached; the first request for a new size takes ~0.8s, then ~45ms from
-  its CDN. Tried and rejected, all in the hero:
   - Card image as a blurred placeholder: instant, but softer and
-    differently framed, so it looked worse whenever the full image
-    lagged.
-  - Cloudinary `w_40,e_blur` preview (~200 bytes) requested by the hero:
-    it raced the full image and only showed on the slowest throttling.
-  - Full hero image preloaded on card press, with the hero's exact
-    srcset/sizes: no visible change. Tested with DevTools "Disable
-    cache" on, which stops the hero reusing the preload, so not fairly
-    judged.
-  - Blur preview preloaded when cards render, plus the press-time
-    preload: no visible improvement.
-  Untried: a dominant colour or blurhash stored per recipe at upload
-  (no request; `crockpot-go` change plus a backfill); a shared-element
-  view transition; Cloudinary eager transformations at upload. Start
-  with a DevTools Network waterfall of a first open: how long from the
-  click to the hero request starting, against how long it takes to
-  download.
+- **CFE-059** — Grey flash on the recipe hero, browse → detail. Folded
+  into `CFE-068` (2026-10-10). Four placeholder/preload experiments were
+  tried and rejected first (`LESSONS.md` 2026-10-09): each either lost
+  the race on a fast connection or was framed differently from the final
+  image.
 
 - **CFE-060** — Placeholder for recipes without a photo. Founder-raised
   in the pre-MVP bug run (2026-10-09). Not blocking go-live. The photo

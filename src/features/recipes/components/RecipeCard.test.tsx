@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import type { RecipeCard as RecipeCardData } from "../data/types";
 import { useToggleFavourite } from "../hooks/useToggleFavourite";
+import { recipeCardImage } from "../utils/recipeImages";
 import { RecipeCard } from "./RecipeCard";
 
 vi.mock("@/features/auth/components/AuthContext", () => ({
@@ -192,6 +193,28 @@ describe("RecipeCard", () => {
     );
 
     expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
+  });
+
+  it("loads the whole photo for the card, not a pre-cropped strip", () => {
+    mockUseAuth.mockReturnValue({
+      user: null,
+      isAuthenticated: false,
+      isLoading: false,
+    });
+    mockUseToggleFavourite.mockReturnValue({
+      mutate: vi.fn(),
+    } as unknown as ReturnType<typeof useToggleFavourite>);
+    const url =
+      "https://res.cloudinary.com/dqdjr1d4f/image/upload/v1/Crockpot/a.jpg";
+
+    const { container } = renderWithProviders(
+      <RecipeCard recipe={recipe({ imageUrl: url })} from="/recipes" />,
+    );
+
+    const img = container.querySelector("img");
+    expect(img).toHaveAttribute("srcset", recipeCardImage(url).srcSet);
+    expect(img).toHaveAttribute("sizes", recipeCardImage(url).sizes);
+    expect(img?.getAttribute("srcset")).not.toContain("c_fill");
   });
 
   it("loads its image eagerly when marked priority", () => {

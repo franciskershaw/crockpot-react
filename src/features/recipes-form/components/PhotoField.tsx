@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { fillImage } from "@/lib/cloudinary";
+import { recipePreviewImage } from "@/features/recipes/utils/recipeImages";
 import { PHOTO_DECODE_MESSAGE, shrinkPhoto } from "@/lib/shrinkPhoto";
 import { Plus } from "lucide-react";
 import { useController, useFormContext, useFormState } from "react-hook-form";
@@ -75,7 +75,7 @@ export function PhotoField() {
           <img
             {...(image.kind === "new"
               ? { src: image.previewUrl }
-              : fillImage(image.url, 400, 180))}
+              : recipePreviewImage(image.url))}
             alt=""
             className="block h-41 w-full rounded-field object-cover"
           />

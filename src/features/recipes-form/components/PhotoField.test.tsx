@@ -1,4 +1,4 @@
-import { fillImage } from "@/lib/cloudinary";
+import { recipePreviewImage } from "@/features/recipes/utils/recipeImages";
 import { PhotoDecodeError, shrinkPhoto } from "@/lib/shrinkPhoto";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -82,10 +82,10 @@ describe("PhotoField", () => {
   it("shows an existing photo at the preview size", () => {
     render(<Harness image={EXISTING} />);
 
-    expect(preview()).toHaveAttribute(
-      "src",
-      fillImage(EXISTING.url, 400, 180).src,
-    );
+    const sized = recipePreviewImage(EXISTING.url);
+    expect(preview()).toHaveAttribute("src", sized.src);
+    expect(preview()).toHaveAttribute("srcset", sized.srcSet);
+    expect(preview()).toHaveAttribute("sizes", sized.sizes);
     expect(
       screen.getByRole("button", { name: "Change photo" }),
     ).toBeInTheDocument();

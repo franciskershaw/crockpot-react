@@ -2,12 +2,13 @@
 
 Follows the global development process — see `~/.claude/CLAUDE.md`.
 
-**Not deployed yet.** This is a ground-up rebuild that has never been
-deployed. Production is still the old Next.js/MongoDB app (`../../crockpot`).
-Every "slow", "timeout" or payload-size observation comes from local dev
-(`localhost` against Neon). No nginx, CDN or hosting layer sits in front of
-it yet, so a fix has to work in this code. "Deployment"/"Hosting" below
-describe the plan.
+**Live since 2026-10-10** (`crockpot-go` `CROC-077`) at
+`https://www.crockpot.app`, against the API at `https://api.crockpot.app`.
+It replaced the old Next.js/MongoDB app (`../../crockpot`, kept locally as
+a reference; its GitHub repo is archived). Local dev runs against the
+`crockpot-go` dev server and Neon's `development` branch, with no CDN in
+front, so a "slow", "timeout" or payload-size observation should say
+whether it came from local or production.
 
 ## Reference projects
 
@@ -50,7 +51,8 @@ every other decision above: `docs/specs/master-spec.md`.
   presentational markup). Shared test infra lives in `src/test/`: build
   `RecipeCard`/`RecipeDetail` test data with `buildRecipeCard`/
   `buildRecipeDetail` (`recipeFixtures.ts`), never a hand-copied literal.
-- Hosting (planned, not yet live): Vercel
+- Hosting: Vercel, serving `www.crockpot.app` (the apex redirects to it);
+  `vercel.json` holds the SPA rewrite and the security headers
 
 ## Folder layout (hard rule, enforced by `src/test/folderLayout.test.ts`)
 

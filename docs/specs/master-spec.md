@@ -728,10 +728,35 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   GPU raster of the large new sheet layer plus the full-screen overlay
   fade. Open.
 
-- **CFE-072** — Bug: on mobile, the on-screen keyboard covers the
-  regular items while adding or editing regulars in the shopping list
-  panel, so the row being edited or the search results can sit
-  underneath it. Founder-raised after go-live (2026-10-11). Open.
+- **CFE-072** — Bug: on mobile, the on-screen keyboard hides what you're
+  typing into. Founder-raised after go-live (2026-10-11), first seen
+  adding or editing regulars in the shopping list panel, where the row
+  being edited or the search results sit underneath it. Widened
+  (2026-10-11) to the whole shopping list plus an app-wide audit. Open.
+  Every place a keyboard opens, to check on a phone at the grill:
+  - **Shopping list** (`ShoppingListPanel`, inside `ShoppingListSheet`
+    on mobile): add extra item search and quantity (`AddExtraItem` →
+    `AddItemRow` → `AddItemEditor`), quantity edit on any row
+    (`ShoppingListRow` → `QuantityControl`), regulars add and edit
+    (`RegularsEditView`), and admin Create item (`CreateItemDialog`).
+  - **Browse**: the search bar (`SearchBar`) and the ingredient and
+    category filter searches (`FilterOptionList`), the latter inside the
+    mobile filter sheet.
+  - **Recipe form**: details and steppers (`RecipeDetailsSection`,
+    `NumberStepper`), ingredient search and quantity (`IngredientsSection`
+    → `AddItemEditor`, `IngredientListRow` → `QuantityControl`),
+    description, instructions and chef's notes textareas, and admin
+    Create item.
+  - **Auth**: login, register, confirm code (`ConfirmCodeStep`), forgot
+    and reset password.
+  - **Account**: profile name, password change, and the delete-account
+    confirmation dialog.
+
+  Bottom sheets and dialogs (`BottomSheet`, Radix dialogs) are the likely
+  trouble spots, since a fixed-height overlay doesn't shrink when the
+  keyboard opens; full pages usually scroll the field into view. Grill
+  question: one shared fix (e.g. sizing overlays to the visual
+  viewport) versus per-surface fixes.
 - **CFE-073** — Hide the admin-only "Pending" library tab unless at
   least one recipe is pending. Today it's filtered only by role
   (`LibraryTabs.tsx`, `adminOnly` in `yourCrockpotTabs.ts`); a direct

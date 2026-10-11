@@ -318,12 +318,7 @@ CFE-003.
   a hardcoded pool), planner tease as "coming soon", a real `/privacy`
   page and a trimmed footer. **Done** (2026-10-09), see
   `docs/handoffs/CFE-061.md`.
-- **CFE-062** — At deployment: add the API's host to the privacy page's
-  processor list once chosen, and re-check the page's "Last updated"
-  date. Confirm the page's IP wording against the real hosting logs
-  (nginx, Vercel) and their retention. Check every `SHOWCASE_POOL` image
-  URL still returns 200, since production deletes replaced photos. `contact@crockpot.app` (`CONTACT_EMAIL`) forwards to the founder's
-  Gmail via Cloudflare Email Routing, set up 2026-10-09; catch-all drops.
+- **CFE-062** — **Done** (2026-10-10, in `crockpot-go` `CROC-077`). Privacy page dated, DigitalOcean and Cloudflare added to the processors, IP wording matched to nginx's 14-day logs (the API keeps no request log in production); all showcase images return 200.
 
 ### Epic 3: Your Crockpot — Core
 - **CFE-006** — Menu tab (desktop + mobile) and the full interactive
@@ -589,13 +584,7 @@ security findings — debt notes only):*
   **Done** (2026-09-27): 7 of 10 test setups migrated; `useLogout`'s
   `AuthProvider` test, `RecipeGrid`'s remount test and `AppShell` keep
   their own setup (each needs a provider tree the helper doesn't build).
-- **CFE-044** — Security headers (CSP, `frame-ancestors`, `nosniff`,
-  `Referrer-Policy`) in `vercel.json`. Finding 4. **Blocked on `CFE-066`**
-  (the first Vercel deploy). The CSP must allow `res.cloudinary.com`
-  images (cards, detail, the edit form's photo), `blob:` images for
-  `CFE-049`'s local preview, Google Fonts (`fonts.googleapis.com` styles,
-  `fonts.gstatic.com` fonts, loaded in `index.html`) and the API origin
-  for `connect-src`; uploads go to the API, so no Cloudinary upload origin.
+- **CFE-044** — **Done** (2026-10-10, in `CROC-077`). CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy` and `Permissions-Policy` in `vercel.json`; checked on the live site.
 
 *From the fourth whole-codebase tech-debt pass, 2026-10-02. Full detail:
 `docs/findings/2026-10-02-tech-debt.md`.*
@@ -714,11 +703,7 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   landing's Premium card shows "Coming soon" instead of a price; pricing
   cards pin their buttons to the bottom. Code comments were out of
   scope; no guard test (founder call).
-- **CFE-066** — Vercel cutover. The Vercel project linked to the old
-  Next.js app today gets re-pointed at this repo: Vite preset,
-  `VITE_API_URL`, the production domain. `vercel.json`'s SPA rewrite
-  already matches `packing-list-react`'s. Run inside `crockpot-go`
-  `CROC-077`'s sequence, after the prod data import. Open.
+- **CFE-066** — **Done** (2026-10-10, in `CROC-077`). A new Vercel project for this repo took over `www.crockpot.app` (apex redirects); the old Next.js project stays idle as a rollback until `crockpot-go` `CROC-078`.
 
 - **CFE-069** — Mobile polish, founder-raised after go-live
   (2026-10-10): the Browse heading no longer wraps on phones (smaller,
@@ -728,6 +713,35 @@ Epic 13; this epic holds the frontend tickets it sequences, plus
   sits by the menu button for every viewer. Visual, checked by the
   founder on a phone. Open.
 - **CFE-070** — Proper README with screenshots. Open.
+- **CFE-071** — Mobile bottom sheets pop in instead of sliding on the
+  founder's Oppo (Chrome, Android): the filter sheet "just appears", the
+  shopping list sheet is barely better. Found at `CFE-069`, 2026-10-10.
+  Ruled out by profiling (headless Chrome, 4x CPU throttle, 375px): the
+  hidden filter options (only 6 per list render) and page re-layout
+  under the sheet (1–6ms). Measured: ~50ms of main-thread JS at the tap
+  (one unavoidable layout of the new sheet, Radix focus and animation
+  checks); the slide itself held 60fps in Chrome. Skipping the lists'
+  collapsed-state measurement (`FilterOptionList`) cut ~8ms with no
+  visible change. Radix `forceMount` is not an option: it keeps
+  `RemoveScroll` and `hideOthers` active while closed. Next step: a
+  real-device trace via `chrome://inspect` (USB debugging); suspects are
+  GPU raster of the large new sheet layer plus the full-screen overlay
+  fade. Open.
+
+- **CFE-072** — Bug: on mobile, the on-screen keyboard covers the
+  regular items while adding or editing regulars in the shopping list
+  panel, so the row being edited or the search results can sit
+  underneath it. Founder-raised after go-live (2026-10-11). Open.
+- **CFE-073** — Hide the admin-only "Pending" library tab unless at
+  least one recipe is pending. Today it's filtered only by role
+  (`LibraryTabs.tsx`, `adminOnly` in `yourCrockpotTabs.ts`); a direct
+  visit to `/library/pending` with nothing pending should still show its
+  empty state. Founder-raised (2026-10-11). Open.
+- **CFE-074** — Bug: on mobile, Favourites and My recipes overflow the
+  viewport, so the whole page scrolls slightly, bottom nav included.
+  Starting points: `AppShell`'s `min-h-screen` and `YourCrockpotLayout`'s
+  padding (its fixed-height layout only applies from `lg`).
+  Founder-raised (2026-10-11). Open.
 
 ### Deferred: future features
 
